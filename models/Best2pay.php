@@ -2,47 +2,26 @@
 
 class Best2pay extends Core
 {
-    /**
-     * Тестовые карты
-     *
-     * 2200200111114591, 05/2022, 426 // отмена
-     * 5570725111081379, 05/2022, 415 с 3ds // проведена
-     * 4809388889655340, 05/2022, 195 // проведена
-     *
-     *
-     * Создан боевой доступ
-     * Личный кабинет https://pay.best2pay.net/office/
-     * Login: ecozaym24.ru
-     * Password: F6247o4TA920Y6l
-     *
-     * Sector ID: 8078 ООО МКК "Финансовый аспект" (ecozaym24.ru) (СНГБ) (P2PCredit) Qn9B6o2
-     * Sector ID: 8079 ООО МКК "Финансовый аспект" (ecozaym24.ru) (СНГБ) (ecom) R723NaI6
-     * Sector ID: 8080 ООО МКК "Финансовый аспект" (ecozaym24.ru) (СНГБ) (token) nc15jY3
-     * Sector ID: 8081 ООО МКК "Финансовый аспект" (ecozaym24.ru) (СНГБ) (C2A) (ФЛ) 3w69fF5
-     */
-
-    private $url = 'https://pay.best2pay.net/';
+    private $url = '';
     private $currency_code = 643;
 
     private $fee = 0.03;
 
-    private $sectors = array(
-        'PAY_CREDIT' => '3246', //сектор для отправки кредита на карту клиента (P2PCredit)
-        'RECURRENT' => '3244', // сектор для совершения рекурентных платежей (token) ECOM
-        'ADD_CARD' => '3244', // сектор для привязки карты (token)
-        'PAYMENT' => '3245', // сектор для оплаты любой картой (C2A)
-    );
+    private $sectors = array();
 
-    private $passwords = array(
-        '3244' => 'test',
-        '3245' => 'test',
-        '3246' => 'test'
-    );
-
+    private $passwords = array();
 
     public function __construct()
     {
         parent::__construct();
+
+        $b2p = B2pAccessORM::get();
+
+        foreach ($b2p as $access) {
+            $this->sectors[$access->type] = $access->sector;
+            $this->passwords[$access->sector] = $access->password;
+            $this->url = $access->link;
+        }
     }
 
     public function get_sectors()
