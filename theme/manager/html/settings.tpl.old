@@ -1,0 +1,373 @@
+{$meta_title = 'Настройки' scope=parent}
+
+{capture name='page_scripts'}
+
+    <!-- Draggable-portlet -->
+    <script src="theme/{$settings->theme}/assets/plugins/jqueryui/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
+    <script src="theme/{$settings->theme}/assets/plugins/gridstack/lodash.js"></script>
+    <script src="theme/{$settings->theme}/assets/plugins/gridstack/gridstack.js"></script>
+    <script src="theme/{$settings->theme}/assets/plugins/gridstack/gridstack.jQueryUI.js"></script>
+    <script type="text/javascript">
+    $(function() {
+        $('.grid-stack').gridstack({
+            width: 12,
+            alwaysShowResizeHandle: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
+            resizable: {
+                handles: 'e, se, s, sw, w'
+            }
+        });
+    });
+    </script>
+
+{/capture}
+
+{capture name='page_styles'}
+
+    <link href="theme/{$settings->theme}/assets/plugins/gridstack/gridstack.css" rel="stylesheet">
+
+    <style>
+        .onoffswitch {
+            display:inline-block!important;
+            vertical-align:top!important;
+            width:80px!important;
+            text-align:left;
+        }
+        .onoffswitch-label {
+            margin-bottom:0!important;
+        }
+        .onoffswitch-inner::after, 
+        .onoffswitch-inner::before {
+            height:20px!important;
+            line-height:20px!important;
+        }
+        .onoffswitch-switch {
+            width:22px!important;
+            margin:1px!important;
+        }
+        .onoffswitch-inner::before {
+            content:'ВКЛ'!important;
+            padding-left: 10px!important;
+        }
+        .onoffswitch-inner::after {
+            content:'ВЫКЛ'!important;
+            padding-right: 10px!important;
+        }
+        
+        .scoring-content {
+            position:relative;
+            z-index:999;
+            box-shadow:0px 2px 4px #ccc;
+            border:1px solid #ccc;
+            border-top:0;
+            background:#fff;
+            border-bottom-left-radius:4px;
+            border-bottom-right-radius:4px;
+        }
+        
+        .collapsed .fa-minus-circle::before {
+            content: "\f055";
+        }
+        h4.text-white {
+            display:inline-block
+        }
+        .move-zone {
+            display:inline-block;
+            color:#fff;
+            padding-right:15px;
+            margin-right:10px;
+            border-right:1px solid #30b2ff;
+            cursor:move
+        }
+        .move-zone span {
+            font-size:24px;
+        }
+    </style>
+{/capture}
+
+{function name=display_scoring}
+
+<div class="col-12 grid-stack-item " data-gs-no-resize="yes" data-gs-x="0" data-gs-y="{$z}" data-gs-width="12" data-gs-height="1">
+    <div class="card card-outline-info">
+        <div class="card-header grid-stack-item-content">
+            <div class="row">
+                <div class="col-8 col-md-9 col-lg-10 text-left">
+                    <div class="move-zone">
+                        <span class="mdi mdi-arrow-all"></span>
+                    </div>
+                    <h4 class="mb-0 text-white ">
+                        <a href="#{$scoring_name}_content" data-toggle="collapse" class="text-white collapsed">
+                            <i class="fas fa-minus-circle"></i>
+                            <span>
+                                {if $scoring_name == 'local_time'}Локальное время
+                                {elseif $scoring_name == 'location'}Местоположение
+                                {elseif $scoring_name == 'fssp'}ФССП
+                                {elseif $scoring_name == 'fms'}ФМС
+                                {elseif $scoring_name == 'fns'}ФНС
+                                {elseif $scoring_name == 'scorista'}Скориста
+                                {elseif $scoring_name == 'juicescore'}Juicescore
+                                {elseif $scoring_name == 'mbki'}МБКИ
+                                {else}{$scoring_name}{/if}
+                            </span>
+                        </a>
+                    </h4>
+                </div>
+                <div class="col-4 col-md-3 col-lg-2 text-right ">
+                    <div class="onoffswitch">
+                        <input type="checkbox" name="settings[{$scoring_name}][active]" class="onoffswitch-checkbox" value="1" id="{$scoring_name}_active" {if $scoring_params['active']}checked="true"{/if} />
+                        <label class="onoffswitch-label" for="{$scoring_name}_active">
+                            <span class="onoffswitch-inner"></span>
+                            <span class="onoffswitch-switch"></span>
+                        </label>
+                    </div>        
+                </div>
+            </div>
+        </div>
+        <div id="{$scoring_name}_content" class="card-body collapse scoring-content">
+            <div class="row">
+                
+                {if $scoring_name == 'local_time'}
+                <div class="col-md-6">
+                    <div class="form-group ">
+                        <label class="control-label">Максимальное отклонение, сек</label>
+                        <input type="text" name="settings[local_time][max_diff]" value="{$scoring_settings['local_time']['max_diff']}" class="form-control" placeholder="" required="true">
+                    </div>
+                </div>
+                
+                {elseif $scoring_name == 'location'}
+                <div class="col-md-6">
+                    <div class="form-group ">
+                        <label class="control-label">Список регионов</label>
+                        <textarea name="settings[location][regions]" class="form-control">{$scoring_settings['location']['regions']}</textarea>
+                    </div>
+                </div>
+
+                {elseif $scoring_name == 'fssp'}
+                <div class="col-md-6">
+                    <div class="form-group ">
+                        <label class="control-label">Сумма долга, руб</label>
+                        <input type="text" name="settings[fssp][amount]" value="{$scoring_settings['fssp']['amount']}" class="form-control" placeholder="" required="true">
+                    </div>
+                </div>
+
+                {elseif $scoring_name == 'fms'}
+
+
+                {elseif $scoring_name == 'fns'}
+
+
+                {elseif $scoring_name == 'scorista'}
+                <div class="col-md-6">
+                    <div class="form-group ">
+                        <label class="control-label">Проходной бал</label>
+                        <input type="text" name="settings[scorista][scorebal]" value="{$scoring_settings['scorista']['scorebal']}" class="form-control" placeholder="" required="true">
+                    </div>
+                </div>
+
+
+                {elseif $scoring_name == 'juicescore'}
+                <div class="col-md-6">
+                    <div class="form-group ">
+                        <label class="control-label">Проходной бал</label>
+                        <input type="text" name="settings[juicescore][scorebal]" value="{$scoring_settings['juicescore']['scorebal']}" class="form-control" placeholder="" required="true">
+                    </div>
+                </div>
+
+
+                {elseif $scoring_name == 'mbki'}
+                
+                
+                {/if}
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+{/function}
+<div class="page-wrapper">
+    <!-- ============================================================== -->
+    <!-- Container fluid  -->
+    <!-- ============================================================== -->
+    <div class="container-fluid">
+        <!-- ============================================================== -->
+        <!-- Bread crumb and right sidebar toggle -->
+        <!-- ============================================================== -->
+        <div class="row page-titles">
+            <div class="col-md-6 col-8 align-self-center">
+                <h3 class="text-themecolor mb-0 mt-0">
+                    Настройки
+                </h3>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/">Главная</a></li>
+                    <li class="breadcrumb-item active">Настройки</li>
+                </ol>
+            </div>
+            <div class="col-md-6 col-4 align-self-center">
+            </div>
+        </div>
+        <!-- ============================================================== -->
+        <!-- End Bread crumb and right sidebar toggle -->
+        <!-- ============================================================== -->
+        <!-- ============================================================== -->
+        <!-- Start Page Content -->
+        <!-- ============================================================== -->
+        <!-- Row -->
+        <form class="" method="POST" >
+            
+        <div class="row grid-stack" data-gs-width="12" data-gs-animate="yes">
+            
+{$z = 0}
+{foreach $scoring_settings as $scoring_name => $scoring_params}
+    {display_scoring scoring_name = $scoring_name scoring_params = $scoring_params z = $z}
+    {$z = $z + 1}
+{/foreach}
+           
+        </div>
+        
+        <hr class="mb-3 mt-3" />
+        
+        <div class="row">
+            <div class="col-12 grid-stack-item" data-gs-x="0" data-gs-y="0" data-gs-width="12">
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-success"> <i class="fa fa-check"></i> Сохранить</button>
+                </div>
+            </div>
+        </form>
+        <!-- Row -->
+        <!-- ============================================================== -->
+        <!-- End PAge Content -->
+        <!-- ============================================================== -->
+    </div>
+    <!-- ============================================================== -->
+    <!-- End Container fluid  -->
+    <!-- ============================================================== -->
+    {include file='footer.tpl'}
+    <!-- ============================================================== -->
+</div>
+
+
+
+
+{$meta_title = 'Настройки' scope=parent}
+
+{capture name='page_scripts'}
+
+    <script src="theme/{$settings->theme}/assets/plugins/jqueryui/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
+    <script src="theme/{$settings->theme}/assets/plugins/gridstack/lodash.js"></script>
+    <script src="theme/{$settings->theme}/assets/plugins/gridstack/gridstack.js"></script>
+    <script src="theme/{$settings->theme}/assets/plugins/gridstack/gridstack.jQueryUI.js"></script>
+    <script type="text/javascript">
+    $(function() {
+        $('.grid-stack').gridstack({
+            width: 12,
+            alwaysShowResizeHandle: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
+            resizable: {
+                handles: ''
+            }
+        });
+    });
+    </script>
+
+{/capture}
+
+{capture name='page_styles'}
+
+        <link href="theme/{$settings->theme}/assets/plugins/gridstack/gridstack.css" rel="stylesheet">
+
+{/capture}
+
+
+<div class="page-wrapper">
+    <!-- ============================================================== -->
+    <!-- Container fluid  -->
+    <!-- ============================================================== -->
+    <div class="container-fluid">
+        <!-- ============================================================== -->
+        <!-- Bread crumb and right sidebar toggle -->
+        <!-- ============================================================== -->
+        <div class="row page-titles">
+            <div class="col-md-6 col-8 align-self-center">
+                <h3 class="text-themecolor mb-0 mt-0">
+                    Настройки
+                </h3>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/">Главная</a></li>
+                    <li class="breadcrumb-item active">Настройки</li>
+                </ol>
+            </div>
+            <div class="col-md-6 col-4 align-self-center">
+            </div>
+        </div>
+        <!-- ============================================================== -->
+        <!-- End Bread crumb and right sidebar toggle -->
+        <!-- ============================================================== -->
+        <!-- ============================================================== -->
+        <!-- Start Page Content -->
+        <!-- ============================================================== -->
+        <!-- Row -->
+        <div class="row">
+            
+    
+    
+    <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="card-title">Draggable Panel Portlets</h4>
+                                <h6 class="card-subtitle">Thus is a widget layout jquery plugin. <a href="http://troolee.github.io/gridstack.js/" target="_blank">gridstack.js</a> is used to design this layout. This is drag-and-drop multi-column grid. It allows you to build draggable responsive layouts.</h6>
+                                <div class="grid-stack" data-gs-width="12" data-gs-animate="yes">
+                                    <div class="grid-stack-item" data-gs-x="0" data-gs-y="0" data-gs-width="4" data-gs-height="2">
+                                        <div class="grid-stack-item-content">1</div>
+                                    </div>
+                                    <div class="grid-stack-item" data-gs-x="4" data-gs-y="0" data-gs-width="4" data-gs-height="4">
+                                        <div class="grid-stack-item-content">2</div>
+                                    </div>
+                                    <div class="grid-stack-item" data-gs-x="8" data-gs-y="0" data-gs-width="2" data-gs-height="2" data-gs-min-width="2" data-gs-no-resize="yes">
+                                        <div class="grid-stack-item-content"> <span class="fa fa-hand-o-up"></span> Drag me! </div>
+                                    </div>
+                                    <div class="grid-stack-item" data-gs-x="10" data-gs-y="0" data-gs-width="2" data-gs-height="2">
+                                        <div class="grid-stack-item-content">4</div>
+                                    </div>
+                                    <div class="grid-stack-item" data-gs-x="0" data-gs-y="2" data-gs-width="2" data-gs-height="2">
+                                        <div class="grid-stack-item-content">5</div>
+                                    </div>
+                                    <div class="grid-stack-item" data-gs-x="2" data-gs-y="2" data-gs-width="2" data-gs-height="4">
+                                        <div class="grid-stack-item-content">6</div>
+                                    </div>
+                                    <div class="grid-stack-item" data-gs-x="8" data-gs-y="2" data-gs-width="4" data-gs-height="2">
+                                        <div class="grid-stack-item-content">7</div>
+                                    </div>
+                                    <div class="grid-stack-item" data-gs-x="0" data-gs-y="4" data-gs-width="2" data-gs-height="2">
+                                        <div class="grid-stack-item-content">8</div>
+                                    </div>
+                                    <div class="grid-stack-item" data-gs-x="4" data-gs-y="4" data-gs-width="4" data-gs-height="2">
+                                        <div class="grid-stack-item-content">9</div>
+                                    </div>
+                                    <div class="grid-stack-item" data-gs-x="8" data-gs-y="4" data-gs-width="2" data-gs-height="2">
+                                        <div class="grid-stack-item-content">10</div>
+                                    </div>
+                                    <div class="grid-stack-item" data-gs-x="10" data-gs-y="4" data-gs-width="2" data-gs-height="2">
+                                        <div class="grid-stack-item-content">11</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+    
+    
+            
+        </div>
+        <!-- Row -->
+        <!-- ============================================================== -->
+        <!-- End PAge Content -->
+        <!-- ============================================================== -->
+    </div>
+    <!-- ============================================================== -->
+    <!-- End Container fluid  -->
+    <!-- ============================================================== -->
+    {include file='footer.tpl'}
+    <!-- ============================================================== -->
+</div>

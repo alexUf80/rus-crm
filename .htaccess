@@ -1,0 +1,102 @@
+AddDefaultCharset UTF-8
+ErrorDocument 404 /404
+ErrorDocument 403 /403
+
+RewriteEngine on
+
+SetEnvIf X-Forwarded-Proto https SERVER_PORT=443
+SetEnvIf X-Forwarded-Proto https HTTPS=on
+RewriteCond %{HTTP:HTTPS} !=on [NC]
+RewriteRule ^(.*)$ https://%{SERVER_NAME}%{REQUEST_URI} [R=301,L]
+
+RewriteRule ^login/?$                   index.php?module=LoginController  [L,QSA]
+RewriteRule ^logout/?$                  index.php?module=LoginController&action=logout  [L,QSA]
+RewriteRule ^resset_password/?$         index.php?module=RessetPasswordController  [L,QSA]
+
+RewriteRule ^go/([^/]*)/?$        	index.php?module=ShortLinkController&page_url=$1 [L,QSA]
+
+RewriteRule ^orders/?$                  index.php?module=OrdersController  [L,QSA]
+RewriteRule ^orders/offline/?$          index.php?module=OrdersController&offline=1  [L,QSA]
+RewriteRule ^order/([^/]*)/?$           index.php?module=OrderController&id=$1  [L,QSA]
+RewriteRule ^order/?$                   index.php?module=OrderController  [L,QSA]
+RewriteRule ^order_sold/?$              index.php?module=OrderSoldController  [L,QSA]
+RewriteRule ^neworder/?$                index.php?module=NeworderController  [L,QSA]
+
+RewriteRule ^tickets/?$                 index.php?module=TicketsController  [L,QSA]
+RewriteRule ^ticket/([^/]*)/?$          index.php?module=TicketController&id=$1  [L,QSA]
+RewriteRule ^ticket_statuses/?$         index.php?module=TicketStatusesController  [L,QSA]
+RewriteRule ^ticket_reasons/?$          index.php?module=TicketReasonsController  [L,QSA]
+
+RewriteRule ^contracts/?$               index.php?module=ContractsController  [L,QSA]
+RewriteRule ^contract/([^/]*)/?$        index.php?module=ContractController&id=$1  [L,QSA]
+
+RewriteRule ^rfmlist/?$                 index.php?module=RfmlistController  [L,QSA]
+
+RewriteRule ^test_debug/?$              index.php?module=TestController  [L,QSA]
+
+RewriteRule ^add_pay?/?$                index.php?module=AddPayController&user_id=$1&order_id=$2  [L,QSA]
+
+RewriteRule ^sudblock_contracts/?$      index.php?module=SudblockContractsController  [L,QSA]
+RewriteRule ^sudblock_contract/([^/]*)/?$   index.php?module=SudblockContractController&id=$1  [L,QSA]
+RewriteRule ^sudblock_statuses/?$       index.php?module=SudblockStatusesController  [L,QSA]
+RewriteRule ^sudblock_documents/?$      index.php?module=SudblockDocumentsController  [L,QSA]
+RewriteRule ^sudblock_notifications/?$  index.php?module=NotificationsController&mode=sudblock  [L,QSA]
+
+RewriteRule ^collection_report/?$       index.php?module=CollectionReportController  [L,QSA]
+RewriteRule ^my_contracts/?$            index.php?module=CollectorContractsController  [L,QSA]
+RewriteRule ^my_contract/([^/]*)/?$     index.php?module=CollectorContractController&id=$1  [L,QSA]
+RewriteRule ^zvonobot/?$                index.php?module=ZvonobotController  [L,QSA]
+RewriteRule ^collector_mailing/?$       index.php?module=CollectorMailingController  [L,QSA]
+RewriteRule ^collection_notifications/?$  index.php?module=NotificationsController&mode=collection  [L,QSA]
+RewriteRule ^collector_clients/?$       index.php?module=CollectorClientsController  [L,QSA]
+RewriteRule ^collector_contract/([^/]*)/?$     index.php?module=CollectorContractController&id=$1  [L,QSA]
+RewriteRule ^collection_periods/?$      index.php?module=CollectionPeriodsController  [L,QSA]
+
+RewriteRule ^clients/?$                 index.php?module=ClientsController  [L,QSA]
+RewriteRule ^client/([^/]*)/?$          index.php?module=ClientController&id=$1  [L,QSA]
+
+RewriteRule ^managers/?$                index.php?module=ManagersController  [L,QSA]
+RewriteRule ^manager/?$                 index.php?module=ManagerController  [L,QSA]
+RewriteRule ^manager/([^/]*)/?$         index.php?module=ManagerController&id=$1  [L,QSA]
+
+RewriteRule ^changelogs/?$              index.php?module=ChangelogsController  [L,QSA]
+
+RewriteRule ^scorings/?$                index.php?module=ScoringsController  [L,QSA]
+RewriteRule ^settings/?$                index.php?module=SettingsController  [L,QSA]
+RewriteRule ^settings_communications/?$ index.php?module=SettingsCommunicationsController  [L,QSA]
+RewriteRule ^apikeys/?$                 index.php?module=ApikeysController  [L,QSA]
+RewriteRule ^reasons/?$                 index.php?module=ReasonsController  [L,QSA]
+RewriteRule ^whitelist/?$               index.php?module=WhitelistController  [L,QSA]
+RewriteRule ^blacklist/?$               index.php?module=BlacklistController  [L,QSA]
+RewriteRule ^msg_zvonobot/?$            index.php?module=SettingsMsgZvonobotController  [L,QSA]
+
+RewriteRule ^offline_points/?$          index.php?module=OfflinePointsController  [L,QSA]
+RewriteRule ^offline_organizations/?$   index.php?module=OfflineOrganizationsController  [L,QSA]
+
+RewriteRule ^penalty_types/?$           index.php?module=PenaltyTypesController  [L,QSA]
+RewriteRule ^penalties/?$               index.php?module=PenaltiesController  [L,QSA]
+
+RewriteRule ^promocodes/?$              index.php?module=PromocodesController  [L,QSA]
+
+RewriteRule ^statistics/?$              index.php?module=StatisticsController&action=main  [L,QSA]
+RewriteRule ^statistics/([^/]*)/?$      index.php?module=StatisticsController&action=$1  [L,QSA]
+RewriteRule ^dashboard/?$               index.php?module=DashboardController  [L,QSA]
+
+RewriteRule ^sms_templates/?$           index.php?module=SmsTemplatesController  [L,QSA]
+RewriteRule ^collector_tags/?$          index.php?module=CollectorTagsController  [L,QSA]
+
+RewriteRule ^pages/?$                   index.php?module=PagesController  [L,QSA]
+RewriteRule ^page/?$                    index.php?module=PageController  [L,QSA]
+RewriteRule ^page/([^/]*)/?$            index.php?module=PageController&id=$1  [L,QSA]
+
+RewriteRule ^tools/?$                   index.php?module=ToolsController&action=main  [L,QSA]
+RewriteRule ^tools/([^/]*)/?$           index.php?module=ToolsController&action=$1  [L,QSA]
+
+RewriteRule ^mango_callback/(.*)?$      callback/mango.php?m=$1  [L,QSA]
+
+# Статические страницы
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^([^/]*)/?$                 index.php?module=ErrorController&page_url=$1 [L,QSA]
+
+#RewriteRule ^/?$                       index.php?module=MainController&page_url= [L,QSA]

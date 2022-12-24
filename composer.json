@@ -1,0 +1,31 @@
+{
+    "name": "rzsdevgitg/public_html",
+    "config": {
+        "platform": {
+            "php": "7.4"
+        }
+    },
+    "autoload": {
+        "psr-4": {
+        }
+    },
+    "authors": [
+        {
+            "name": "Андрей Попов",
+            "email": "duircianos@yandex.ru"
+        }
+    ],
+    "require": {
+        "php-webdriver/webdriver": "^1.13",
+        "phpoffice/phpspreadsheet": "^1.25",
+        "illuminate/events": "^8.83",
+        "illuminate/database": "^8.83",
+        "illuminate/collections": "^8.83",
+        "illuminate/container": "^8.83",
+        "illuminate/contracts": "^8.83",
+        "illuminate/macroable": "^8.83",
+        "illuminate/support": "^8.83",
+        "hflabs/dadata": "^22.3",
+        "guzzlehttp/guzzle": "^7.5"
+    }
+}

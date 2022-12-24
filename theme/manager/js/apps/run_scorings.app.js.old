@@ -1,0 +1,55 @@
+;function RunScoringsApp()
+{
+    var app = this;
+    
+    app.interval;
+    
+    var _init_run_link = function(){
+        $('.js-run-scorings').click(function(e){
+            e.preventDefault();
+            
+            var $this = $(this);
+            
+            if ($this.hasClass('loading'))
+                return false;
+            
+            var order_id = $(this).data('order');
+            var type = $(this).data('type');
+            
+            $.ajax({
+                url: 'ajax/run_scorings.php',
+                data: {
+                    'order_id': order_id,
+                    'type': type,
+                    'action': 'create'
+                },
+                beforeSend: function(){
+                    $this.addClass('loading');
+                },
+                success: function(resp){
+                    clearInterval(app.interval);
+                    app.interval = setInterval(function(){
+                        $.ajax({
+                            url: 'ajax/run_scorings.php',
+                            data: {
+                                audit_id: resp.audit_id,
+                                action:'check'
+                            },
+                            success: function(data){
+                                
+                            }
+                        });
+                    }, 5000);
+                }
+            })
+        });
+    };
+    
+    ;(function(){
+        _init_run_link();
+    })();
+};
+
+$(function(){
+    new RunScoringsApp();
+})

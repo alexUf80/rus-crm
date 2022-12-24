@@ -1,0 +1,220 @@
+.progress {
+  height: auto; }
+
+.card-group {
+  margin-bottom: 30px; }
+
+.input-group-text {
+  background: #383f48;
+  color: #747d8a;
+  border: 1px solid rgba(0, 0, 0, 0.4); }
+
+.custom-control-label::before {
+//  background-color: #383f48; 
+}
+
+.js-bablo-button {
+    display:none
+}
+.js-bablo-button.has-scorings-success.has-scorista-success.has-files-success {
+    display:block
+}
+
+.button-toggle-wrapper {
+    position:relative;
+}
+.button-toggle {
+    display:block;
+    position:absolute;
+    top:5px;
+    left:0px;
+    width:16px;
+    height:16px;
+    border:0;
+    border-radius:50%;
+    background:transparent;
+    box-sizing:border-box;
+    padding:0 0 0 0px;
+}
+.button-toggle:before {
+    content:"\f055";
+    display:block;
+    width:16px;
+    height:16px;
+    line-height:14px;
+    border-radius:50%;
+    color:#31b131; 
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    font-size: 14px;
+}
+.button-toggle.open:before {
+    content:"\f056";
+    color:#f62d51; 
+}
+.button-toggle-wrapper + span {
+    display:inline-block;
+    padding-left:20px;
+}
+
+.dark-logo {
+    max-height: 40px;
+}
+
+.mango-call {
+    background:transparent;
+    border:0;
+    color: #007bff;
+    font-size:20px;
+    line-height:20px;
+}
+.mango-call {
+    color:#009EFB
+}
+.run-scoring-btn {
+    font-size: 28px;
+    line-height:28px;
+}
+.mail-desc {
+    font-size: 12px;
+    display: block;
+    margin: 1px 0;
+}
+.time {
+    line-height: 14px;
+    font-size: 12px;
+    font-weight: 300;
+    color: #90a4ae !important;
+}
+.scoring-result .label {
+    white-space: nowrap;
+    float:right
+}
+.order-image-item {
+    display:inline-block;
+    margin:10px;
+    position:relative;
+}
+.order-image-item a {
+    width:200px;
+    height:200px;
+    text-align:center;
+    display:block;
+    line-height:200px;
+}
+.order-image-item a img {
+    max-width:98%;
+    max-height:98%;
+    display:inline-block;
+    vertical-align: middle;
+    
+}
+.order-image-actions {
+    position:absolute;
+    right:00px;
+    top:5px;
+}
+
+.btn-load.loading i {
+    animation: rotate 2s linear infinite;
+}
+@keyframes rotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.edit-amount {
+    position:absolute;
+    right:20px;
+    top:5px;
+}
+
+.js-sms-send.disable {
+    color:#ccc;
+    cursor:default;
+}
+
+.message-box .message-widget a .mail-contnet .mail-desc, .message-box .message-widget a .mail-contnet .time
+{
+    white-space: normal;
+}
+
+.sidebar-nav ul li a {
+    padding: 5px 35px 5px 15px;
+}
+
+.jsgrid {
+    font-size: 0.8em;
+    line-height: 1.4em;
+}
+.sidebar-nav ul li a {
+    font-size: 14px;
+}
+
+
+.message-box .message-widget .a {
+ border-bottom:1px solid rgba(120, 130, 140, 0.13);
+ display:block;
+ text-decoration:none;
+ padding:9px 15px
+}
+.message-box .message-widget .a:hover {
+ background:#f2f7f8
+}
+.message-box .message-widget .a:last-child {
+ border-bottom:0px
+}
+.message-box .message-widget .a div {
+ white-space:normal
+}
+.message-box .message-widget .a .user-img {
+ width:45px;
+ position:relative;
+ display:inline-block;
+ margin:0 10px 15px 0
+}
+.message-box .message-widget .a .user-img img {
+ width:100%
+}
+.message-box .message-widget .a .user-img .profile-status {
+ border:2px solid #ffffff;
+ border-radius:50%;
+ display:inline-block;
+ height:10px;
+ left:33px;
+ position:absolute;
+ top:-1px;
+ width:10px
+}
+.message-box .message-widget .a .user-img .online {
+ background:#55ce63
+}
+.message-box .message-widget .a .user-img .busy {
+ background:#f62d51
+}
+.message-box .message-widget .a .user-img .away {
+ background:#ffbc34
+}
+.message-box .message-widget .a .user-img .offline {
+ background:#ffbc34
+}
+.message-box .message-widget .a .mail-contnet {
+ display:inline-block;
+ width:75%;
+ vertical-align:middle
+}
+.message-box .message-widget .a .mail-contnet h5 {
+ margin:5px 0px 0
+}
+.message-box .message-widget .a .mail-contnet .mail-desc,
+.message-box .message-widget .a .mail-contnet .time {
+ font-size:12px;
+ display:block;
+ margin:1px 0;
+ -o-text-overflow:ellipsis;
+ text-overflow:ellipsis;
+ overflow:hidden;
+ color:#54667a;
+ white-space:normal
+}
