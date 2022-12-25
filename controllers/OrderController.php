@@ -342,6 +342,11 @@ class OrderController extends Controller
                                 $scoring->body = @unserialize($scoring->body);
                             }
 
+                            if ($scoring->type == 'fssp') {
+                                $fsspScore =json_decode($scoring->body, true);
+                                $this->design->assign('fsspScore', $fsspScore);
+                            }
+
                             if ($scoring->type == 'scorista') {
                                 $scoring->body = json_decode($scoring->body);
                                 if (!empty($scoring->body->equifaxCH))

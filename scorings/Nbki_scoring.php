@@ -16,15 +16,12 @@ class Nbki_scoring extends Core
             $this->scoring_id = $scoring_id;
 
             if ($user = $this->users->get_user((int)$scoring->user_id)) {
-
-                $regaddress = $this->Addresses->get_address($user->regaddress_id);
-
-                if ($regaddress->district) {
-                    $city = $regaddress->district;
-                } elseif ($regaddress->locality) {
-                    $city = $regaddress->locality;
+                if ($user->Regcity) {
+                    $city = $user->Regcity;
+                } elseif ($user->Reglocality) {
+                    $city = $user->Reglocality;
                 } else {
-                    $city = $regaddress->city;
+                    $city = $user->Regcity;
                 }
 
                 return $this->scoring(
@@ -32,7 +29,7 @@ class Nbki_scoring extends Core
                     $user->patronymic,
                     $user->lastname,
                     $city,
-                    $regaddress->street,
+                    $user->Regstreet,
                     $user->birth,
                     $user->birth_place,
                     $user->passport_serial,
@@ -95,9 +92,9 @@ class Nbki_scoring extends Core
         }
     },
     "requisites": {
-        "member_code": "9R01SS000000",
-        "user_id": "9R01SS000002",
-        "password": "Gpj895Rp"
+        "member_code": "XF01RR000000",
+        "user_id": "XF01RR000003",
+        "password": "D35GTedte54@3q"
     }
 }';
 
@@ -164,85 +161,48 @@ echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($response, $error);echo '</pre
             return $add_scoring;
         }
 
-        $scoring_type = $this->scorings->get_type('nbki');
         
-        switch ($client_status) {
-            case 'nk':
-            case 'rep':
-                $number_of_active_max = $scoring_type->params['nk']['nbki_number_of_active_max'];
-                $number_of_active = $scoring_type->params['nk']['nbki_number_of_active'];
-                $share_of_unknown = $scoring_type->params['nk']['nbki_share_of_unknown'];
-                $share_of_overdue = $scoring_type->params['nk']['nbki_share_of_overdue'];
-                $open_to_close_ratio = $scoring_type->params['nk']['open_to_close_ratio'];
-                break;
+        $scoring_type = $this->scorings->get_type('nbki');
+        $max_number_of_active = $scoring_type->params['number_of_active'];
+        $max_share_of_overdue_by_closed = $scoring_type->params['share_of_overdue_by_closed'];
 
-            case 'pk':
-            case 'crm':
-                $number_of_active_max = $scoring_type->params['pk']['nbki_number_of_active_max'];
-                $number_of_active = $scoring_type->params['pk']['nbki_number_of_active'];
-                $share_of_unknown = $scoring_type->params['pk']['nbki_share_of_unknown'];
-                $share_of_overdue = $scoring_type->params['pk']['nbki_share_of_overdue'];
-                $open_to_close_ratio = $scoring_type->params['pk']['open_to_close_ratio'];
-                break;
+        /*    
+            switch ($client_status) {
+                case 'nk':
+                case 'rep':
+                    $number_of_active_max = $scoring_type->params['nk']['nbki_number_of_active_max'];
+                    $number_of_active = $scoring_type->params['nk']['nbki_number_of_active'];
+                    $share_of_unknown = $scoring_type->params['nk']['nbki_share_of_unknown'];
+                    $share_of_overdue = $scoring_type->params['nk']['nbki_share_of_overdue'];
+                    $open_to_close_ratio = $scoring_type->params['nk']['open_to_close_ratio'];
+                    break;
 
-            default:
-                $number_of_active_max = $scoring_type->params['nk']['nbki_number_of_active_max'];
-                $number_of_active = $scoring_type->params['nk']['nbki_number_of_active'];
-                $share_of_unknown = $scoring_type->params['nk']['nbki_share_of_unknown'];
-                $share_of_overdue = $scoring_type->params['nk']['nbki_share_of_overdue'];
-                $open_to_close_ratio = $scoring_type->params['nk']['open_to_close_ratio'];
-                break;
-        }
+                case 'pk':
+                case 'crm':
+                    $number_of_active_max = $scoring_type->params['pk']['nbki_number_of_active_max'];
+                    $number_of_active = $scoring_type->params['pk']['nbki_number_of_active'];
+                    $share_of_unknown = $scoring_type->params['pk']['nbki_share_of_unknown'];
+                    $share_of_overdue = $scoring_type->params['pk']['nbki_share_of_overdue'];
+                    $open_to_close_ratio = $scoring_type->params['pk']['open_to_close_ratio'];
+                    break;
 
-
-        if ($result['number_of_active'] >= $number_of_active_max) {
-            $add_scoring = array(
-                'status' => 'completed',
-                'body' => serialize($result['data']),
-                'success' => 0,
-                'string_result' => 'превышен допустимый порог активных займов'
-            );
-
-            $this->scorings->update_scoring($this->scoring_id, $add_scoring);
-
-            return $add_scoring;
-        }
-
-        if ($result['number_of_active'] >= $number_of_active) {
-            if ($result['share_of_overdue'] >= $share_of_overdue || $result['share_of_unknown'] >= $share_of_unknown) {
-                $add_scoring = array(
-                    'status' => 'completed',
-                    'body' => serialize($result['data']),
-                    'success' => 0,
-                    'string_result' => 'превышен допустимый порог доли просроченных или неизвестных займов'
-                );
-
-                $this->scorings->update_scoring($this->scoring_id, $add_scoring);
-
-                return $add_scoring;
+                default:
+                    $number_of_active_max = $scoring_type->params['nk']['nbki_number_of_active_max'];
+                    $number_of_active = $scoring_type->params['nk']['nbki_number_of_active'];
+                    $share_of_unknown = $scoring_type->params['nk']['nbki_share_of_unknown'];
+                    $share_of_overdue = $scoring_type->params['nk']['nbki_share_of_overdue'];
+                    $open_to_close_ratio = $scoring_type->params['nk']['open_to_close_ratio'];
+                    break;
             }
-        }
-
-        if ($result['share_of_unknown'] > $share_of_unknown) {
-            $add_scoring = array(
-                'status' => 'completed',
-                'body' => serialize($result['data']),
-                'success' => 0,
-                'string_result' => 'превышен допустимый порог доли неизвестных займов'
-            );
-
-            $this->scorings->update_scoring($this->scoring_id, $add_scoring);
-
-            return $add_scoring;
-        }
-
-        if (isset($result['open_to_close_ratio'])) {
-            if ($result['open_to_close_ratio'] > $open_to_close_ratio) {
+        */
+        
+        if (!($client_status === 'pk' || $client_status === 'crm')) {
+            if ($result['number_of_active'] >= $max_number_of_active) {
                 $add_scoring = array(
                     'status' => 'completed',
                     'body' => serialize($result['data']),
                     'success' => 0,
-                    'string_result' => 'превышен порог соотношения открытых к закрытым за последние 30 дней'
+                    'string_result' => 'превышен допустимый порог активных займов'
                 );
     
                 $this->scorings->update_scoring($this->scoring_id, $add_scoring);
@@ -250,6 +210,77 @@ echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($response, $error);echo '</pre
                 return $add_scoring;
             }
         }
+
+        if ($result['share_of_overdue_by_closed'] >= $max_share_of_overdue_by_closed) {
+            $add_scoring = array(
+                'status' => 'completed',
+                'body' => serialize($result['data']),
+                'success' => 0,
+                'string_result' => 'превышен допустимый порог доли просроченных к закрытым'
+            );
+
+            $this->scorings->update_scoring($this->scoring_id, $add_scoring);
+
+            return $add_scoring;
+        }
+
+        /*
+            if ($result['number_of_active'] >= $number_of_active_max) {
+                $add_scoring = array(
+                    'status' => 'completed',
+                    'body' => serialize($result['data']),
+                    'success' => 0,
+                    'string_result' => 'превышен допустимый порог активных займов'
+                );
+
+                $this->scorings->update_scoring($this->scoring_id, $add_scoring);
+
+                return $add_scoring;
+            }
+
+            if ($result['number_of_active'] >= $number_of_active) {
+                if ($result['share_of_overdue'] >= $share_of_overdue || $result['share_of_unknown'] >= $share_of_unknown) {
+                    $add_scoring = array(
+                        'status' => 'completed',
+                        'body' => serialize($result['data']),
+                        'success' => 0,
+                        'string_result' => 'превышен допустимый порог доли просроченных или неизвестных займов'
+                    );
+
+                    $this->scorings->update_scoring($this->scoring_id, $add_scoring);
+
+                    return $add_scoring;
+                }
+            }
+
+            if ($result['share_of_unknown'] > $share_of_unknown) {
+                $add_scoring = array(
+                    'status' => 'completed',
+                    'body' => serialize($result['data']),
+                    'success' => 0,
+                    'string_result' => 'превышен допустимый порог доли неизвестных займов'
+                );
+
+                $this->scorings->update_scoring($this->scoring_id, $add_scoring);
+
+                return $add_scoring;
+            }
+
+            if (isset($result['open_to_close_ratio'])) {
+                if ($result['open_to_close_ratio'] > $open_to_close_ratio) {
+                    $add_scoring = array(
+                        'status' => 'completed',
+                        'body' => serialize($result['data']),
+                        'success' => 0,
+                        'string_result' => 'превышен порог соотношения открытых к закрытым за последние 30 дней'
+                    );
+        
+                    $this->scorings->update_scoring($this->scoring_id, $add_scoring);
+        
+                    return $add_scoring;
+                }
+            }
+        */
 
         $add_scoring = array(
             'status' => 'completed',

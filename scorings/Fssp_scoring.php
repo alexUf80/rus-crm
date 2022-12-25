@@ -9,8 +9,8 @@ class Fssp_scoring extends Core
 
         $params =
             [
-                'UserID' => 'barents',
-                'Password' => 'uW5q+jXE',
+                'UserID' => 'eco-zaim',
+                'Password' => 'b=sFNxC2',
                 'sources' => 'fssp',
                 'PersonReq' => [
                     'first' => $order->firstname,
@@ -34,17 +34,32 @@ class Fssp_scoring extends Core
         } else
             $update = ['status' => 'completed'];
 
+        $update['body'] = json_encode($request, JSON_UNESCAPED_UNICODE);
+
         $expSum = 0;
         $badArticle = [];
 
         if ($request['Source']['ResultsCount'] > 0) {
-            foreach ($request['Source']['Record'] as $source) {
-                foreach ($source['Field'] as $field) {
-                    if ($field['FieldName'] == 'Total')
-                        $expSum += $field['FieldValue'];
+            if (isset($request['Source']['Record'])) {
+                foreach ($request['Source']['Record'] as $sources) {
 
-                    if ($field['FieldName'] == 'CloseReason1' && in_array($field['FieldValue'], [46, 47]))
-                        $badArticle[] = $field['FieldValue'];
+                    if (isset($sources['Field'])) {
+                        foreach ($sources['Field'] as $source) {
+                            if ($source['FieldName'] == 'Total')
+                                $expSum += $source['FieldValue'];
+
+                            if ($source['FieldName'] == 'CloseReason1' && in_array($source['FieldValue'], [46, 47]))
+                                $badArticle[] = $source['FieldValue'];
+                        }
+                    } else {
+                        foreach ($sources as $source) {
+                            if ($source['FieldName'] == 'Total')
+                                $expSum += $source['FieldValue'];
+
+                            if ($source['FieldName'] == 'CloseReason1' && in_array($source['FieldValue'], [46, 47]))
+                                $badArticle[] = $source['FieldValue'];
+                        }
+                    }
                 }
             }
 
@@ -52,26 +67,25 @@ class Fssp_scoring extends Core
             $maxExp = $maxExp->params;
             $maxExp = $maxExp['amount'];
 
+            if ($expSum > 0)
+                $update['string_result'] = 'Сумма долга: ' . $expSum;
+            else
+                $update['string_result'] = 'Долгов нет';
+
             if ($expSum > $maxExp || !empty($badArticle)) {
-                $update['body']['amount'] = $expSum;
 
                 if (!empty($badArticle)) {
-                    $update['body']['badArticles'] = implode(',', $badArticle);
-                    $update['body']['badArticles'] = 'Обнаружены статьи: ' . $update['body']['badArticles'];
+                    $articles = implode(',', $badArticle);
+                    $update['string_result'] .= '<br>Обнаружены статьи: ' . $articles;
                 }
 
                 $update['success'] = 0;
-                $update['string_result'] = 'Клиент найден';
-                $update['body'] = serialize($update['body']);
             } else {
-                $update['body'] = null;
                 $update['success'] = 1;
-                $update['string_result'] = 'Сумма долга: ' . $expSum;
             }
         } else {
-            $update['body'] = null;
             $update['success'] = 1;
-            $update['string_result'] = 'Долгов нет';
+            $update['string_result'] .= 'Долгов нет';
         }
 
 

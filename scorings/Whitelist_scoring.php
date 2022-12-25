@@ -10,9 +10,6 @@ class Whitelist_scoring extends Core
 
     public function run_scoring($scoring_id)
     {
-        $update = array();
-        
-    	$scoring_type = $this->scorings->get_type('whitelist');
         
         if ($scoring = $this->scorings->get_scoring($scoring_id))
         {
@@ -50,8 +47,9 @@ class Whitelist_scoring extends Core
                 }
                 else
                 {
-                    $fio = $order->lastname.' '.$order->firstname.' '.$order->patronymic;
-                    $score = $this->whitelist->search($order->phone_mobile, $fio);
+                    $fio = "$order->lastname $order->firstname $order->patronymic";
+                    $birth = date('Y-m-d', strtotime($order->birth));
+                    $score = $this->whitelist->search($fio, $birth);
                     
                     
                     $update = array(
@@ -59,7 +57,6 @@ class Whitelist_scoring extends Core
                         'body' => '',
                         'success' => empty($score) ? 0 : 1
                     );
-
                     if ($score)
                     {
                         $person = $this->whitelist->get_person((int)$score);

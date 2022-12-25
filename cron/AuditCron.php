@@ -11,16 +11,16 @@ class AuditCron extends Core
 {
     public function __construct()
     {
-    	parent::__construct();
-        
+        parent::__construct();
+
         file_put_contents($this->config->root_dir.'cron/log.txt', date('d-m-Y H:i:s').' AUDIT RUN'.PHP_EOL, FILE_APPEND);
     }
-    
-    
+
+
     public function run()
     {
         $datetime = date('Y-m-d H:i:s', time() - 300);
-        
+
         $overtime_scorings = $this->scorings->get_overtime_scorings($datetime);
         if (!empty($overtime_scorings))
         {
@@ -34,7 +34,7 @@ class AuditCron extends Core
                         'string_result' => 'Повторный запрос',
                         'repeat_count' => $overtime_scoring->repeat_count + 1,
                     ));
-                    
+
                 }
                 else
                 {
@@ -56,11 +56,11 @@ class AuditCron extends Core
                     'status' => 'process',
                     'start_date' => date('Y-m-d H:i:s')
                 ));
-                
+
                 $classname = $scoring->type."_scoring";
-                
+
                 $scoring_result = $this->{$classname}->run_scoring($scoring->id);
-                
+
                 $this->handling_result($scoring, $scoring_result);
             }
             $i--;
@@ -75,7 +75,7 @@ class AuditCron extends Core
                     'status' => 'process',
                     'start_date' => date('Y-m-d H:i:s')
                 ));
-                
+
                 $classname = $scoring->type."_scoring";
                 $scoring_result = $this->{$classname}->run_scoring($scoring->id);
 
@@ -83,9 +83,9 @@ class AuditCron extends Core
             }
             $i--;
         }
-        
+
     }
-    
+
     private function handling_result($scoring, $result)
     {
         $scoring_type = $this->scorings->get_type($scoring->type);
@@ -112,7 +112,7 @@ class AuditCron extends Core
                 {
                     $order = $this->orders->get_order($scoring->order_id);
                     $reason = $this->reasons->get_reason($scoring_type->reason_id);
-                    
+
                     $update = array(
                         'autoretry' => 0,
                         'autoretry_result' => 'Отказ по скорингу '.$scoring_type->title,
@@ -122,10 +122,10 @@ class AuditCron extends Core
                         'reject_date' => date('Y-m-d H:i:s'),
                         'manager_id' => 1, // System
                     );
-                    
-                    // ставим отказ по заявке 
+
+                    // ставим отказ по заявке
                     $this->orders->update_order($scoring->order_id, $update);
-                    
+
                     $this->changelogs->add_changelog(array(
                         'manager_id' => 1,
                         'created' => date('Y-m-d H:i:s'),
@@ -138,60 +138,10 @@ class AuditCron extends Core
 
                     if ($reason->type == 'mko')
                     {
-                        //Отправляем чек по страховке
-                        $resp = $this->Cloudkassir->send_reject_reason($order->order_id);
-
-                        if (!empty($resp))
-                        {
-                            $resp = json_decode($resp);
-
-                            $this->receipts->add_receipt(array(
-                                'user_id' => $order->user_id,
-                                'Информирование о причине отказа',
-                                'order_id' => $order->order_id,
-                                'contract_id' => 0,
-                                'insurance_id' => 0,
-                                'receipt_url' => (string)$resp->Model->ReceiptLocalUrl,
-                                'response' => serialize($resp),
-                                'created' => date('Y-m-d H:i:s')
-                            ));
-                        }
+                        // списываем за причину
+                        $this->best2pay->reject_reason($order);
                     }
                 }
-
-                //отказной трафик
-                LeadFinances::sendRequest($order->user_id);
-
-                if(!empty($order->utm_source) && $order->utm_source == 'leadstech')
-                    PostbacksCronORM::insert(['order_id' => $order->order_id, 'status' => 2, 'goal_id' => 3]);
-
-                $this->operations->add_operation(array(
-                    'contract_id' => 0,
-                    'user_id' => $order->user_id,
-                    'order_id' => $order->order_id,
-                    'type' => 'REJECT_REASON',
-                    'amount' => 19,
-                    'created' => date('Y-m-d H:i:s'),
-                    'transaction_id' => 0,
-                ));
-
-                $this->db->query("
-                SELECT
-                id,
-                user_id,
-                amount,
-                register_id
-                FROM s_transactions
-                WHERE ts.`description` = 'Привязка карты'
-                AND reason_code = 1
-                and checked = 0
-                and user_id = ?
-                order by id desc
-                ", $order->user_id);
-
-                $transaction = $this->db->result();
-
-                $this->Best2pay->completeCardEnroll($transaction);
             }
         }
     }

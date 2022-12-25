@@ -2228,125 +2228,109 @@
                                                             </a>
                                                         {/if}
                                                         </span>
-                                                </h5>
-                                                <div class="message-box js-scorings-block {if $need_update_scorings}js-need-update{/if}"
-                                                     data-order="{$order->order_id}">
+                                                    <div class="message-box js-scorings-block {if $need_update_scorings}js-need-update{/if}"
+                                                         data-order="{$order->order_id}">
 
-                                                    {foreach $scoring_types as $scoring_type}
-                                                        <div class="pl-2 pr-2 {if $scorings[$scoring_type->name]->status == 'new'}bg-light-warning{elseif $scorings[$scoring_type->name]->success}bg-light-success{else}bg-light-danger{/if}">
-                                                            <div class="row {if !$scoring_type@last}border-bottom{/if}">
-                                                                <div class="col-12 col-sm-12 pt-2">
-                                                                    <h5 class="float-left">
-                                                                        {$scoring_type->title}
-                                                                    </h5>
+                                                        {foreach $scoring_types as $scoring_type}
+                                                            <div class="pl-2 pr-2 {if $scorings[$scoring_type->name]->status == 'new'}bg-light-warning{elseif $scorings[$scoring_type->name]->success}bg-light-success{else}bg-light-danger{/if}">
+                                                                <div class="row {if !$scoring_type@last}border-bottom{/if}">
+                                                                    <div class="col-12 col-sm-12 pt-2">
+                                                                        <h5 class="float-left">
+                                                                            {$scoring_type->title}
+                                                                        </h5>
 
-                                                                    {if $scorings[$scoring_type->name]->status == 'new'}
-                                                                        <span class="label label-warning float-right">Ожидание</span>
-                                                                    {elseif $scorings[$scoring_type->name]->status == 'process'}
-                                                                        <span class="label label-info label-sm float-right">Выполняется</span>
-                                                                    {elseif $scorings[$scoring_type->name]->status == 'stopped'}
-                                                                        <span class="label label-warning label-sm float-right">Остановлен</span>
-                                                                    {elseif $scorings[$scoring_type->name]->status == 'error'}
-                                                                        <span class="label label-danger label-sm float-right">Ошибка</span>
-                                                                    {elseif $scorings[$scoring_type->name]->status == 'completed'}
-                                                                        {if $scorings[$scoring_type->name]->success}
-                                                                            <span class="label label-success label-sm float-right">Пройден</span>
-                                                                        {else}
-                                                                            <span class="label label-danger float-right">Не пройден</span>
+                                                                        {if $scorings[$scoring_type->name]->status == 'new'}
+                                                                            <span class="label label-warning float-right">Ожидание</span>
+                                                                        {elseif $scorings[$scoring_type->name]->status == 'process'}
+                                                                            <span class="label label-info label-sm float-right">Выполняется</span>
+                                                                        {elseif $scorings[$scoring_type->name]->status == 'stopped'}
+                                                                            <span class="label label-warning label-sm float-right">Остановлен</span>
+                                                                        {elseif $scorings[$scoring_type->name]->status == 'error'}
+                                                                            <span class="label label-danger label-sm float-right">Ошибка</span>
+                                                                        {elseif $scorings[$scoring_type->name]->status == 'completed'}
+                                                                            {if $scorings[$scoring_type->name]->success}
+                                                                                <span class="label label-success label-sm float-right">Пройден</span>
+                                                                            {else}
+                                                                                <span class="label label-danger float-right">Не пройден</span>
+                                                                            {/if}
                                                                         {/if}
-                                                                    {/if}
-                                                                </div>
-                                                                <div class="col-8 col-sm-8 pb-2">
+                                                                    </div>
+                                                                    <div class="col-8 col-sm-8 pb-2">
                                                                         <span class="mail-desc"
                                                                               title="{$scorings[$scoring_type->name]->string_result}">
                                                                             {$scorings[$scoring_type->name]->string_result}
                                                                         </span>
-                                                                    {if $scoring_type->name == 'nbki'}
-                                                                        {if isset($number_of_active)}
-                                                                            <span class="mail-desc"
-                                                                                  title="{$number_of_active}">
+                                                                        {if $scoring_type->name == 'nbki'}
+                                                                            {if isset($number_of_active)}
+                                                                                <span class="mail-desc"
+                                                                                      title="{$number_of_active}">
                                                                                         Количество активных займов: <b>{$number_of_active}</b>
                                                                                 </span>
-                                                                        {/if}
-                                                                        {if isset($open_to_close_ratio)}
-                                                                            <span class="mail-desc"
-                                                                                  title="{$open_to_close_ratio}">
+                                                                            {/if}
+                                                                            {if isset($open_to_close_ratio)}
+                                                                                <span class="mail-desc"
+                                                                                      title="{$open_to_close_ratio}">
                                                                                        Cоотношение открытых к закрытым за 30 дней: <b>{$open_to_close_ratio}</b>
                                                                                 </span>
+                                                                            {/if}
                                                                         {/if}
-                                                                    {/if}
-                                                                    <span class="time">
-                                                                        {if $scoring_type->name == 'fssp'}
-                                                                            <span>Сумма долга: {$scorings[$scoring_type->name]->body['amount']}</span>
-                                                                            <br>
-
-
-
-
-
-
-
-
-
-
-
-
-{if isset($scorings[$scoring_type->name]->body['badArticles'])}
-                                                                            <span>{$scorings[$scoring_type->name]->body['badArticles']}</span>
-                                                                            <br>
-                                                                        {/if}
-                                                                        {/if}
-                                                                        {if $scorings[$scoring_type->name]->created}
-                                                                            {$scorings[$scoring_type->name]->created|date} {$scorings[$scoring_type->name]->created|time}
-                                                                        {/if}
-                                                                        {if $scoring_type->name == 'fssp2'}
-                                                                            <a href="/ajax/show_fssp2.php?id={$scorings[$scoring_type->name]->id}&password=Hjkdf8d"
-                                                                               target="_blank">Подробнее</a>
-                                                                        {/if}
-                                                                        {if $scoring_type->name == 'efrsb' && $scorings[$scoring_type->name]->body}
-                                                                            {foreach $scorings[$scoring_type->name]->body as $efrsb_link}
-                                                                                <a href="{$efrsb_link}"
-                                                                                   target="_blank"
-                                                                                   class="float-right">Подробнее</a>
-                                                                            {/foreach}
-                                                                        {/if}
-                                                                        {if $scoring_type->name == 'nbki'}
-                                                                            <a href="http://51.250.101.109/eco-nbki/{$scorings[$scoring_type->name]->id}?api=F1h1Hdf9g_h&site=eco"
-                                                                               target="_blank">Подробнее</a>
-                                                                        {/if}
+                                                                        <span class="time">
+                                                                            {if $scoring_type->name == 'fssp'}
+                                                                                <a href="#fsspScore"
+                                                                                   class="fsspScoreModal">Подробнее</a>
+                                                                                <br>
+                                                                            {/if}
+                                                                            {if $scorings[$scoring_type->name]->created}
+                                                                                {$scorings[$scoring_type->name]->created|date} {$scorings[$scoring_type->name]->created|time}
+                                                                            {/if}
+                                                                            {if $scoring_type->name == 'fssp2'}
+                                                                                <a href="/ajax/show_fssp2.php?id={$scorings[$scoring_type->name]->id}&password=Hjkdf8d"
+                                                                                   target="_blank">Подробнее</a>
+                                                                            {/if}
+                                                                            {if $scoring_type->name == 'efrsb' && $scorings[$scoring_type->name]->body}
+                                                                                {foreach $scorings[$scoring_type->name]->body as $efrsb_link}
+                                                                                    <a href="{$efrsb_link}"
+                                                                                       target="_blank"
+                                                                                       class="float-right">Подробнее</a>
+                                                                                {/foreach}
+                                                                            {/if}
+                                                                            {if $scoring_type->name == 'nbki'}
+                                                                                <a href="http://51.250.101.109/eco-nbki/{$scorings[$scoring_type->name]->id}?api=F1h1Hdf9g_h&site=eco"
+                                                                                   target="_blank">Подробнее</a>
+                                                                            {/if}
                                                                         </span>
-                                                                </div>
-                                                                <div class="col-4 col-sm-4 pb-2">
-                                                                    {if $order->status < 2 || $is_developer}
-                                                                        {if $scorings[$scoring_type->name]->status == 'new' || $scorings[$scoring_type->name]->status == 'process' }
-                                                                            <a class="btn-load text-info run-scoring-btn float-right"
-                                                                               data-type="{$scoring_type->name}"
-                                                                               data-order="{$order->order_id}"
-                                                                               href="javascript:void(0);">
-                                                                                <div class="spinner-border text-info"
-                                                                                     role="status"></div>
-                                                                            </a>
-                                                                        {elseif $scorings[$scoring_type->name]}
-                                                                            <a class="btn-load text-info js-run-scorings run-scoring-btn float-right"
-                                                                               data-type="{$scoring_type->name}"
-                                                                               data-order="{$order->order_id}"
-                                                                               href="javascript:void(0);">
-                                                                                <i class="fas fa-undo"></i>
-                                                                            </a>
-                                                                        {else}
-                                                                            <a class="btn-load {if in_array($audit_types)}loading{/if} text-info js-run-scorings run-scoring-btn float-right"
-                                                                               data-type="{$scoring_type->name}"
-                                                                               data-order="{$order->order_id}"
-                                                                               href="javascript:void(0);">
-                                                                                <i class="far fa-play-circle"></i>
-                                                                            </a>
+                                                                    </div>
+                                                                    <div class="col-4 col-sm-4 pb-2">
+                                                                        {if $order->status < 2 || $is_developer}
+                                                                            {if $scorings[$scoring_type->name]->status == 'new' || $scorings[$scoring_type->name]->status == 'process' }
+                                                                                <a class="btn-load text-info run-scoring-btn float-right"
+                                                                                   data-type="{$scoring_type->name}"
+                                                                                   data-order="{$order->order_id}"
+                                                                                   href="javascript:void(0);">
+                                                                                    <div class="spinner-border text-info"
+                                                                                         role="status"></div>
+                                                                                </a>
+                                                                            {elseif $scorings[$scoring_type->name]}
+                                                                                <a class="btn-load text-info js-run-scorings run-scoring-btn float-right"
+                                                                                   data-type="{$scoring_type->name}"
+                                                                                   data-order="{$order->order_id}"
+                                                                                   href="javascript:void(0);">
+                                                                                    <i class="fas fa-undo"></i>
+                                                                                </a>
+                                                                            {else}
+                                                                                <a class="btn-load {if in_array($audit_types)}loading{/if} text-info js-run-scorings run-scoring-btn float-right"
+                                                                                   data-type="{$scoring_type->name}"
+                                                                                   data-order="{$order->order_id}"
+                                                                                   href="javascript:void(0);">
+                                                                                    <i class="far fa-play-circle"></i>
+                                                                                </a>
+                                                                            {/if}
                                                                         {/if}
-                                                                    {/if}
+                                                                    </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
-                                                    {/foreach}
-                                                </div>
+                                                        {/foreach}
+                                                    </div>
                                             </div>
 
                                             <div class="mb-3 border">
