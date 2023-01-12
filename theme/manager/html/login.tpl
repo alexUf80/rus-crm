@@ -42,7 +42,7 @@
 <!-- Main wrapper - style you can find in pages.scss -->
 <!-- ============================================================== -->
 <section id="wrapper" class="login-register login-sidebar"
-         style="background-image:url(theme/{$settings->theme|escape}/assets/images/background/login-register.jpg);">
+         style="background-image:url(https://thumb.tildacdn.com/tild6266-3732-4437-b230-663837393362/-/format/webp/handsome-man-in-snow.png);">
     <div class="login-box card">
         <div class="card-body">
 
