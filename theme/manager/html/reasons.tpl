@@ -170,7 +170,7 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="maratory" class="control-label">Мараторий, дней:</label>
+                        <label for="maratory" class="control-label">Мораторий, дней:</label>
                         <input type="text" class="form-control" name="maratory" id="maratory" value="" />
                     </div>
                     <div class="form-action">
