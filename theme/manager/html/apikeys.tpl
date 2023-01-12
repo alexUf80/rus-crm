@@ -129,7 +129,7 @@
                     
                     <hr class="mt-3 mb-4" />
                     
-                    <div class="row">
+                    <div class="row" style="display: none;">
                         <div class="col-12">
                             <h3 class="box-title">
                                 Cloudkassir
@@ -217,7 +217,7 @@
                                                             
                     <hr class="mt-3 mb-4" />
                     
-                    <div class="row">
+                    <div class="row" style="display: none;">
                         <div class="col-12">
                             <h3 class="box-title">
                                 Mango Office
