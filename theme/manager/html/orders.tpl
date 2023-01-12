@@ -150,7 +150,7 @@
 
                     <div class="col-6 text-right">
                         {if in_array('neworder', $manager->permissions)}
-                            <a href="neworder" class="btn btn-success btn-large">
+                            <a style="display: none;" href="neworder" class="btn btn-success btn-large">
                                 <i class="fas fa-plus-circle"></i>
                                 <span>Новая заявка</span>
                             </a>
