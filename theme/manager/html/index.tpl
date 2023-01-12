@@ -10,7 +10,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="author" content="">
     <!-- Favicon icon -->
-    <link rel="icon" href="theme/manager/images/favicon/favicon.ico"/>
+    <link rel="shortcut icon" href="theme/manager/images/favicon/favicon.ico" type="image/x-icon">
+    <!--<link rel="shortcut icon" href="theme/site/i/favicon/favicon.ico" type="image/x-icon">-->
     <title>{$meta_title}</title>
 
     {if $canonical}
