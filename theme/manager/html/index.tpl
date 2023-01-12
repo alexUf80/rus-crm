@@ -66,7 +66,7 @@
                 <a class="navbar-brand" href="/">
                     <b>
                         <img src="https://static.tildacdn.com/tild6466-6539-4930-b537-343865373534/_.svg" alt="homepage"
-                             class="dark-logo" style="width: 75%;"/>
+                              style="width: 75%;"/>
                     </b>
                 </a>
             </div>
