@@ -97,7 +97,7 @@
 
                     <div class="text-center mt-3">
                         <img src="https://static.tildacdn.com/tild6466-6539-4930-b537-343865373534/_.svg" alt="homepage"
-                             class="dark-logo"/>
+                             class="dark-logo" style="width: 75%;"/>
                     </div>
 
                     {if $error}
