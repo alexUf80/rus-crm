@@ -93,8 +93,8 @@ class Sms extends Core
 
     public function send_smsc($phone, $message)
     {
-        $login = 'BF02092021';
-        $password = '82e63217cdda82fae80ec99e231b47967e99e2fc';
+        $login = "ruszaimservis@yandex.ru";
+        $password = "f0f35490b83ce8a058c7a42a61a5ffc492a89428";
 
 
         $url = 'http://smsc.ru/sys/send.php?login=' . $login . '&psw=' . $password . '&phones=' . $phone . '&mes=' . $message . '';
