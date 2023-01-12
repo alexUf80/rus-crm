@@ -92,9 +92,9 @@ class Nbki_scoring extends Core
         }
     },
     "requisites": {
-        "member_code": "XF01RR000000",
-        "user_id": "XF01RR000003",
-        "password": "D35GTedte54@3q"
+        "member_code": "1401SS000000",
+        "user_id": "1401SS000002",
+        "password": "934kjnG@"
     }
 }';
 
