@@ -16,12 +16,15 @@ class Nbki_scoring extends Core
             $this->scoring_id = $scoring_id;
 
             if ($user = $this->users->get_user((int)$scoring->user_id)) {
-                if ($user->Regcity) {
-                    $city = $user->Regcity;
-                } elseif ($user->Reglocality) {
-                    $city = $user->Reglocality;
+
+                $regAddress = $this->Addresses->get_address($user->regaddress_id);
+
+                if ($regAddress->city) {
+                    $city = $regAddress->city;
+                } elseif ($regAddress->locality) {
+                    $city = $regAddress->locality;
                 } else {
-                    $city = $user->Regcity;
+                    $city = $regAddress->city;
                 }
 
                 return $this->scoring(
@@ -29,7 +32,7 @@ class Nbki_scoring extends Core
                     $user->patronymic,
                     $user->lastname,
                     $city,
-                    $user->Regstreet,
+                    $regAddress->street,
                     $user->birth,
                     $user->birth_place,
                     $user->passport_serial,
@@ -92,9 +95,9 @@ class Nbki_scoring extends Core
         }
     },
     "requisites": {
-        "member_code": "XF01RR000000",
-        "user_id": "XF01RR000003",
-        "password": "D35GTedte54@3q"
+        "member_code": "1401SS000000",
+        "user_id": "1401SS000002",
+        "password": "934kjnG@"
     }
 }';
 
