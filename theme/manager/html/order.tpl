@@ -462,7 +462,7 @@
 
     {if in_array('add_penalty', $manager->permissions)}
         {if !$penalties[$penalty_block]}
-            <button type="button" class="pb-0 pt-0 mr-2 btn btn-sm btn-danger waves-effect js-add-penalty "
+            <button style="display: none;" type="button" class="pb-0 pt-0 mr-2 btn btn-sm btn-danger waves-effect js-add-penalty "
                     data-block="{$penalty_block}">
                 <i class="fas fa-ban"></i>
                 <span>Штраф</span>
