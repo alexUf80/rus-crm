@@ -123,7 +123,7 @@
                                     {/if}
 
                                     <div class="col-12">
-                                        <div class="alert alert-secondary">Преобразование ссылки вида <b>https://www.youtube.com/watch?v=dQw4w9WgXcQ</b> в <b>https://barents-finans.ru/go/XXXXXX</b></div>
+                                        <div class="alert alert-secondary">Преобразование ссылки вида <b>https://www.youtube.com/watch?v=dQw4w9WgXcQ</b> в <b>https://rus-zaym.ru/go/XXXXXX</b></div>
                                     </div>
 
                                     <div class="col-lg-6 col-md-12">

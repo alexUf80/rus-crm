@@ -42,7 +42,7 @@
 <!-- Main wrapper - style you can find in pages.scss -->
 <!-- ============================================================== -->
 <section id="wrapper" class="login-register login-sidebar"
-         style="background-image:url(theme/{$settings->theme|escape}/assets/images/background/login-register.jpg);">
+         style="background:url(https://thumb.tildacdn.com/tild6266-3732-4437-b230-663837393362/-/format/webp/handsome-man-in-snow.png)50% 50% no-repeat,#353536;">
     <div class="login-box card">
         <div class="card-body">
 
@@ -50,8 +50,8 @@
                 <form class="form-horizontal form-material" id="loginform" method="POST">
 
                     <div class="text-center mt-3">
-                        <img src="theme/{$settings->theme|escape}/assets/images/logo_bf.svg" alt="homepage"
-                             class="dark-logo img-responsive"/>
+                        <img src="https://static.tildacdn.com/tild6466-6539-4930-b537-343865373534/_.svg" alt="homepage"
+                             class="dark-logo img-responsive" />
                     </div>
 
                     {if $error}
@@ -96,8 +96,8 @@
                     <input type="hidden" name="offline_form" value="1"/>
 
                     <div class="text-center mt-3">
-                        <img src="theme/{$settings->theme|escape}/assets/images/logo.png" alt="homepage"
-                             class="dark-logo"/>
+                        <img src="https://static.tildacdn.com/tild6466-6539-4930-b537-343865373534/_.svg" alt="homepage"
+                             class="dark-logo" />
                     </div>
 
                     {if $error}

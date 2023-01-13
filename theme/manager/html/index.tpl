@@ -10,7 +10,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="author" content="">
     <!-- Favicon icon -->
-    <link rel="icon" href="/favicon.ico"/>
+    <link rel="shortcut icon" href="theme/manager/assets/images/favicon/favicon.ico" type="image/x-icon">
+    <!--<link rel="shortcut icon" href="theme/site/i/favicon/favicon.ico" type="image/x-icon">-->
     <title>{$meta_title}</title>
 
     {if $canonical}
@@ -65,8 +66,8 @@
             <div class="navbar-header">
                 <a class="navbar-brand" href="/">
                     <b>
-                        <img src="theme/{$settings->theme|escape}/assets/images/logo_bf.svg" alt="homepage"
-                             class="dark-logo"/>
+                        <img src="https://static.tildacdn.com/tild6466-6539-4930-b537-343865373534/_.svg" alt="homepage"
+                              style="width: 75%;"/>
                     </b>
                 </a>
             </div>

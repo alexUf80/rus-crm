@@ -1,6 +1,6 @@
 <footer class="footer">
     <div class="float-left">
-    © {''|date:'Y'} <strong style="color:#000000">БАРЕНЦ</strong><strong style="color:#e20000">ФИНАНС</strong>
+    © {''|date:'Y'} <strong style="color:#000000">РУСЗАЙМСЕРВИС</strong>
     </div>
     <div class="float-right">
     
