@@ -530,7 +530,11 @@ class OrderController extends Controller
 
         $users2 = $this->users->get_users(27736);
 
-        echo '<pre>'; print_r($users2->id); echo '</pre>';
+        $users2 = $users2[0];
+
+        $users2['test'] = 'test';
+
+        // echo '<pre>'; print_r($users2); echo '</pre>';
 
         echo '<pre>'; print_r($users2); echo '</pre>';
 
