@@ -135,8 +135,9 @@ class IssuanceCron extends Core
                     }
 
                     $user = $this->users->get_users($contract->user_id);
-
                     
+                    $contract->user_phone_mobile = $user->phone_mobile;
+                    $contract->user_email = $user->email;
 
                     $this->create_document('IND_USLOVIYA_NL', $contract);
 
