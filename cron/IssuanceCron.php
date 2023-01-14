@@ -135,6 +135,8 @@ class IssuanceCron extends Core
                     }
 
                     $user = $this->users->get_users($contract->user_id);
+
+                    $user = $user[0];
                     
                     $contract->user_phone_mobile = $user->phone_mobile;
                     $contract->user_email = $user->email;
