@@ -1,17 +1,17 @@
 <?php
 
-class CDocumentTestCreateController extends Controller
+class DocumentTestCreateController extends Controller
 {
     public function fetch()
     {
-        $user_id = $this->request->get('user_id', 'integer');
-        $name_document = $this->request->get('name_document','string');
+        // $user_id = $this->request->get('user_id', 'integer');
+        // $name_document = $this->request->get('name_document','string');
 
 
-        $contract = $this->contracts->get_contract($user_id);
-        $params = [];
+        // $contract = $this->contracts->get_contract($user_id);
+        // $params = [];
 
-        echo '<pre>';print_r($contract);echo '</pre>';
+        // echo '<pre>';print_r($contract);echo '</pre>';
 
         return 1;
         // $document =
