@@ -12,6 +12,8 @@ class CDocumentTestCreateController extends Controller
         $params = [];
 
         echo '<pre>';print_r($contract);echo '</pre>';
+
+        return 1;
         // $document =
         //     [
         //         'user_id' => $contract->user_id,
