@@ -134,6 +134,13 @@ class IssuanceCron extends Core
                         $contract->amount += $insurance_cost;
                     }
 
+                    $user = $this->users->get_users($contract->user_id);
+
+                    $user = $user[0];
+                    
+                    $contract->user_phone_mobile = $user->phone_mobile;
+                    $contract->user_email = $user->email;
+
                     $this->create_document('IND_USLOVIYA_NL', $contract);
 
                     $this->contracts->update_contract($contract->id, array(

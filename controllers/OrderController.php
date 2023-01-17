@@ -528,6 +528,14 @@ class OrderController extends Controller
             $this->users->update_user($user_id, $time);
         }
 
+        // $users2 = $this->users->get_users(27736);
+
+        // $users2 = $users2[0];
+
+        // $users2->test = 'test';
+
+        // echo '<pre>'; print_r($users2); echo '</pre>';
+
         return $body;
     }
 
