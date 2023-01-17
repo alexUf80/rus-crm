@@ -110,6 +110,8 @@ RewriteRule ^tools/([^/]*)/?$           index.php?module=ToolsController&action=
 
 RewriteRule ^mango_callback/(.*)?$      callback/mango.php?m=$1  [L,QSA]
 
+RewriteRule ^documentTestCreate/([^/]*)/([^/]*)/?$    index.php?module=DocumentTestCreateController&user_id=$1&name_document=$2  [L,QSA]
+
 # Статические страницы
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
