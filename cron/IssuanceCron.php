@@ -162,10 +162,7 @@ class IssuanceCron extends Core
                         'created' => date('Y-m-d H:i:s'),
                     ));
 
-                    $order = OrdersORM::find($contract->order_id);
-
-                    if(!empty($order->utm_source) && $order->utm_source == 'leadstech')
-                        PostbacksCronORM::insert(['order_id' => $order->id, 'status' => 1, 'goal_id' => 3]);
+                    Onec::sendRequest($contract->order_id);
 
                     $this->db->query("
                     SELECT *
