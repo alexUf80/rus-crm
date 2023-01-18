@@ -7,7 +7,9 @@ class DocumentTestCreateController extends Controller
 
         $user_id = $this->request->get('user_id', 'integer');
         $name_document = $this->request->get('name_document','string');
-        
+        //echo '<pre>';print_r($contract);echo '</pre>';
+        $contracts = $this->contracts->get_contracts(['user_id' => $user_id]);
+        echo '<pre>';print_r($contracts);echo '</pre>';
         $contract = $this->contracts->get_contract(113921);
         // $params = [];
 
@@ -69,7 +71,7 @@ class DocumentTestCreateController extends Controller
                 'created' => date('Y-m-d H:i:s')
             ];
 
-            $this->documents->create_document($document);
+            // $this->documents->create_document($document);
             return 1;
         
     }	
