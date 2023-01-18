@@ -12,14 +12,14 @@ class DocumentTestCreateController extends Controller
 
         $query = $this->db->placehold("
             SELECT *
-            FROM __contracts
+            FROM _contracts
             WHERE user_id = 27736
         ");
         $this->db->query($query);
         
         $results = $this->db->results();
-        echo '<pre>';print_r($results);echo '</pre>';
-        $contract = $this->contracts->get_contract(113921);
+        //echo '<pre>';print_r($results);echo '</pre>';
+        $contract = $this->contracts->get_contract(3667);
         // $params = [];
 
         $contract_order = $this->orders->get_order((int)$contract->order_id);
