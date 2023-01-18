@@ -2228,7 +2228,7 @@
                                                         </span>
                                                     </h2>
                                                     <div class="message-box js-scorings-block {if $need_update_scorings}js-need-update{/if}" data-order="{$order->order_id}">
-                                                            
+
                                                             {foreach $scoring_types as $scoring_type}
                                                             <div class="pl-2 pr-2 {if $scorings[$scoring_type->name]->status == 'new'}bg-light-warning{elseif $scorings[$scoring_type->name]->success}bg-light-success{else}bg-light-danger{/if}">
                                                                 <div class="row {if !$scoring_type@last}border-bottom{/if}">
@@ -2240,9 +2240,9 @@
                                                                                 {if $scorings[$scoring_type->name]->found_47}<span class="label label-danger">47</span>{/if}
                                                                             {/if}
                                                                         </h5>
-                                                                        
+
                                                                         {if $scorings[$scoring_type->name]->status == 'new'}
-                                                                            <span class="label label-warning float-right">Ожидание</span> 
+                                                                            <span class="label label-warning float-right">Ожидание</span>
                                                                         {elseif $scorings[$scoring_type->name]->status == 'process'}
                                                                             <span class="label label-info label-sm float-right">Выполняется</span>
                                                                         {elseif $scorings[$scoring_type->name]->status == 'error' || $scorings[$scoring_type->name]->status == 'stopped'}
@@ -2253,7 +2253,7 @@
                                                                             {else}
                                                                                 <span class="label label-danger float-right">Не пройден</span>
                                                                             {/if}
-                                                                        {/if}                                                                    
+                                                                        {/if}
                                                                     </div>
                                                                     <div class="col-8 col-sm-8 pb-2">
                                                                         <span class="mail-desc" title="{$scorings[$scoring_type->name]->string_result}">
@@ -2272,7 +2272,7 @@
                                                                                 {/foreach}
                                                                             {/if}
                                                                             {if $scoring_type->name == 'nbki'}
-                                                                                <a href="http://45.147.176.183/nal-plus-nbki/{$scorings[$scoring_type->name]->id}?api=F1h1Hdf9g_h" target="_blank">Подробнее</a>
+                                                                                <a href="http://51.250.101.109/nal-plus-nbki/{$scorings[$scoring_type->name]->id}?api=F1h1Hdf9g_h" target="_blank">Подробнее</a>
                                                                             {/if}
                                                                         </span>
                                                                     </div>
@@ -2290,7 +2290,7 @@
                                                                             <a class="btn-load {if in_array(, $audit_types)}loading{/if} text-info js-run-scorings run-scoring-btn float-right" data-type="{$scoring_type->name}" data-order="{$order->order_id}" href="javascript:void(0);">
                                                                                 <i class="far fa-play-circle"></i>
                                                                             </a>
-                                                                        {/if}                                                                    
+                                                                        {/if}
                                                                     {/if}
                                                                     </div>
                                                                 </div>
