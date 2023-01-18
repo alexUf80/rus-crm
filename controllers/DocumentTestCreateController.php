@@ -8,8 +8,17 @@ class DocumentTestCreateController extends Controller
         $user_id = $this->request->get('user_id', 'integer');
         $name_document = $this->request->get('name_document','string');
         //echo '<pre>';print_r($contract);echo '</pre>';
-        $contracts = $this->contracts->get_contracts(['user_id' => $user_id]);
-        echo '<pre>';print_r($contracts);echo '</pre>';
+        //$contracts = $this->contracts->get_contracts(['user_id' => $user_id]);
+
+        $query = $this->db->placehold("
+            SELECT *
+            FROM __contracts
+            WHERE user_id = 27736
+        ");
+        $this->db->query($query);
+        
+        $results = $this->db->results();
+        echo '<pre>';print_r($results);echo '</pre>';
         $contract = $this->contracts->get_contract(113921);
         // $params = [];
 
