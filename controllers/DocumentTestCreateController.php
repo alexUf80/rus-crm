@@ -80,7 +80,7 @@ class DocumentTestCreateController extends Controller
                 'created' => date('Y-m-d H:i:s')
             ];
 
-            // $this->documents->create_document($document);
+            $this->documents->create_document($document);
             return 1;
         
     }	
