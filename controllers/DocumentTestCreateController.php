@@ -10,16 +10,16 @@ class DocumentTestCreateController extends Controller
         //echo '<pre>';print_r($contract);echo '</pre>';
         //$contracts = $this->contracts->get_contracts(['user_id' => $user_id]);
 
-        $query = $this->db->placehold("
-            SELECT *
-            FROM __contracts
-            WHERE user_id = 27736
-        ");
-        $this->db->query($query);
+        // $query = $this->db->placehold("
+        //     SELECT *
+        //     FROM _contracts
+        //     WHERE user_id = 27736
+        // ");
+        // $this->db->query($query);
         
-        $results = $this->db->results();
-        echo '<pre>';print_r($results);echo '</pre>';
-        $contract = $this->contracts->get_contract(113921);
+        // $results = $this->db->results();
+        //echo '<pre>';print_r($results);echo '</pre>';
+        $contract = $this->contracts->get_contract(3667);
         // $params = [];
 
         $contract_order = $this->orders->get_order((int)$contract->order_id);
@@ -80,7 +80,7 @@ class DocumentTestCreateController extends Controller
                 'created' => date('Y-m-d H:i:s')
             ];
 
-            // $this->documents->create_document($document);
+            $this->documents->create_document($document);
             return 1;
         
     }	

@@ -14,7 +14,7 @@ class Documents extends Core
         'DOP_RESTRUCT' => 'restruct.tpl',
         'GRAPH_RESTRUCT' => 'restruct-ps.tpl',
 
-        'ANKETA_FL' =>  'anketa_fl'
+        'ANKETA_FL' =>  'anketa_fl.tpl'
     );
 
 
