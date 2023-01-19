@@ -75,7 +75,7 @@ class Fssp_scoring extends Core
             if ($expSum > $maxExp || !empty($badArticle)) {
 
                 if (!empty($badArticle)) {
-                    $articles = implode(',', $badArticle);
+                    $articles = implode(',', array_unique($badArticle));
                     $update['string_result'] .= '<br>Обнаружены статьи: ' . $articles;
                 }
 
