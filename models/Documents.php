@@ -29,7 +29,7 @@ class Documents extends Core
         'DOP_RESTRUCT' => 'Дополнительное соглашение о реструктуризации',
         'GRAPH_RESTRUCT' => 'График платежей погашения задолженности',
 
-        'ANKETA_FL' =>  'Анкета ФЛ'
+        'ANKETA_FL' =>  'Сведения о физическом лице'
     );
 
     private $client_visible = array(
