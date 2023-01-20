@@ -542,9 +542,9 @@ class OrderController extends Controller
 
         $days = $dateSum / 86400;
 
-        // echo '<pre>'; print_r($contract); echo '</pre>';
+         echo '<pre>'; print_r($days); echo '</pre>';
 
-        $itogSumm = $contract->loan_body_summ * $contract->loan_percents_summ * $days;
+        $itogSumm = $contract->loan_body_summ * 3.65 * $days;
 
         echo '<pre>'; print_r($itogSumm); echo '</pre>';
         return $body;
