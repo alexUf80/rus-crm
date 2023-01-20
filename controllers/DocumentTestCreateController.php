@@ -68,7 +68,7 @@ class DocumentTestCreateController extends Controller
         // $document_params['return_date_year'] = date('Y', strtotime($new_return_date));
         // $document_params['period'] = $period;
 
-        // echo '<pre>';print_r($contract);echo '</pre>';
+         echo '<pre>';print_r($contract->loan_body_summ);echo '</pre>';
 
         
         $document =
@@ -82,7 +82,7 @@ class DocumentTestCreateController extends Controller
                 
             ];
 
-            $this->documents->create_document($document);
+            // $this->documents->create_document($document);
             return 1;
         
     }	
