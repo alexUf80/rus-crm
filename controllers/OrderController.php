@@ -887,10 +887,6 @@ class OrderController extends Controller
             'user_id' => $order->user_id,
         ));
 
-        //Отправляем чек по страховке
-        //Отправляем чек по страховке
-        $resp = $this->Cloudkassir->send_reject_reason($contract->order_id);
-
         if (!empty($resp))
         {
             $resp = json_decode($resp);
@@ -906,9 +902,6 @@ class OrderController extends Controller
                 'created' => date('Y-m-d H:i:s')
             ));
         }
-
-        //отказной трафик
-        LeadFinances::sendRequest($order->user_id);
 
         if (!empty($order->utm_source) && $order->utm_source == 'leadstech')
             PostbacksCronORM::insert(['order_id' => $order->order_id, 'status' => 2, 'goal_id' => 3]);
