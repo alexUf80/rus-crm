@@ -20,7 +20,7 @@ class DocumentTestCreateController extends Controller
         // $results = $this->db->results();
         //echo '<pre>';print_r($results);echo '</pre>';
         $contract = $this->contracts->get_contract(3667);
-        // $params = [];
+
 
         $contract_order = $this->orders->get_order((int)$contract->order_id);
 
@@ -69,7 +69,7 @@ class DocumentTestCreateController extends Controller
         // $document_params['period'] = $period;
 
 
-         echo '<pre>';print_r(222222);echo '</pre>';
+        //  echo '<pre>';print_r(222222);echo '</pre>';
 
 
 
@@ -86,7 +86,7 @@ class DocumentTestCreateController extends Controller
             ];
 
             // $this->documents->create_document($document);
-            return 1;
+            return 222222;
         
     }	
 }
