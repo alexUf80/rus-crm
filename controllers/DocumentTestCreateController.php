@@ -60,8 +60,7 @@ class DocumentTestCreateController extends Controller
             'order_created' => $contract_order->date,
             'loan_body_summ' => $contract->loan_body_summ
         ];
-        echo '<pre>';print_r($document_params);echo '</pre>';
-        echo '<pre>';print_r('ghjdthrf');echo '</pre>';
+
 
         // $document_params['return_date'] = $new_return_date;
         // $document_params['return_date_day'] = date('d', strtotime($new_return_date));
@@ -69,9 +68,9 @@ class DocumentTestCreateController extends Controller
         // $document_params['return_date_year'] = date('Y', strtotime($new_return_date));
         // $document_params['period'] = $period;
 
-        echo '<pre>';print_r($document_params);echo '</pre>';
-         echo '<pre>';print_r($contract->loan_body_summ);echo '</pre>';
-         echo '<pre>';print_r($document_params);echo '</pre>';
+
+         echo '<pre>';print_r(222222);echo '</pre>';
+
 
 
         
