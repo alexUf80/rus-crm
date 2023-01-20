@@ -330,6 +330,7 @@ class NeworderController extends Controller
             'income' => $contract_user->income,
             'expenses' => $contract_user->expenses,
             'create_date' => date('Y-m-d H:i:s'),
+            'accept_code' => $contract_user->accept_code,
         );
 
         $params['regaddress_full'] = $regaddress->adressfull;
