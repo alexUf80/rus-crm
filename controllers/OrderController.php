@@ -547,7 +547,7 @@ class OrderController extends Controller
         // $itogSumm = $contract->loan_body_summ + $contract->loan_body_summ * 0.01 * $days;
         // echo '<pre>'; print_r($contract->loan_body_summ); echo '</pre>';
         // echo '<pre>'; print_r($itogSumm); echo '</pre>';
-        // return $body;
+        return $body;
     }
 
     private function action_contact_status()
