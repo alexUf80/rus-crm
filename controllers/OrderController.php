@@ -540,12 +540,12 @@ class OrderController extends Controller
         $date = date('Y-m-d H:i:s');
         $dateSum = strtotime($date) - strtotime($contract->inssuance_date);
 
-        $days = $dateSum / 86400;
+        $days = round($dateSum / 86400);
 
          echo '<pre>'; print_r($days); echo '</pre>';
 
-        $itogSumm = $contract->loan_body_summ * 3.65 * $days;
-
+        $itogSumm = $contract->loan_body_summ + $contract->loan_body_summ * 0.01 * $days;
+        echo '<pre>'; print_r($contract->loan_body_summ); echo '</pre>';
         echo '<pre>'; print_r($itogSumm); echo '</pre>';
         return $body;
     }
