@@ -535,19 +535,19 @@ class OrderController extends Controller
         // $users2->test = 'test';
 
         // echo '<pre>'; print_r($users2); echo '</pre>';
-        $contract = $this->contracts->get_contract(3667);
-        // $contract =  $contract[0];
-        $date = date('Y-m-d H:i:s');
-        $dateSum = strtotime($date) - strtotime($contract->inssuance_date);
+        // $contract = $this->contracts->get_contract(3667);
+        // // $contract =  $contract[0];
+        // $date = date('Y-m-d H:i:s');
+        // $dateSum = strtotime($date) - strtotime($contract->inssuance_date);
 
-        $days = round($dateSum / 86400);
+        // $days = round($dateSum / 86400);
 
-         echo '<pre>'; print_r($days); echo '</pre>';
+        //  echo '<pre>'; print_r($days); echo '</pre>';
 
-        $itogSumm = $contract->loan_body_summ + $contract->loan_body_summ * 0.01 * $days;
-        echo '<pre>'; print_r($contract->loan_body_summ); echo '</pre>';
-        echo '<pre>'; print_r($itogSumm); echo '</pre>';
-        return $body;
+        // $itogSumm = $contract->loan_body_summ + $contract->loan_body_summ * 0.01 * $days;
+        // echo '<pre>'; print_r($contract->loan_body_summ); echo '</pre>';
+        // echo '<pre>'; print_r($itogSumm); echo '</pre>';
+        // return $body;
     }
 
     private function action_contact_status()
