@@ -69,6 +69,8 @@ class DocumentTestCreateController extends Controller
         // $document_params['period'] = $period;
 
          echo '<pre>';print_r($contract->loan_body_summ);echo '</pre>';
+         echo '<pre>';print_r($document_params);echo '</pre>';
+
 
         
         $document =
