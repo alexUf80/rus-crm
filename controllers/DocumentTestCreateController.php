@@ -58,8 +58,7 @@ class DocumentTestCreateController extends Controller
             'amount' => $contract->amount,
             'number' => $contract->number,
             'order_created' => $contract_order->date,
-            'loan_body_summ' => $contract->loan_body_summ,
-
+            'loan_body_summ' => $contract->loan_body_summ
         );
 
         // $document_params['return_date'] = $new_return_date;
