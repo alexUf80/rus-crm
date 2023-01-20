@@ -536,13 +536,13 @@ class OrderController extends Controller
 
         // echo '<pre>'; print_r($users2); echo '</pre>';
         $contract = $this->contracts->get_contract(3667);
-        $contract =  $contract[0];
-        $date = date('Y-m-d H:i:s');
-        $dateSum = strtotime($date) - strtotime($contract->inssuance_date);
+        // $contract =  $contract[0];
+        // $date = date('Y-m-d H:i:s');
+        // $dateSum = strtotime($date) - strtotime($contract->inssuance_date);
 
-        $days = $dateSum / 86400;
+        // $days = $dateSum / 86400;
 
-        echo '<pre>'; print_r($dateSum); echo '</pre>';
+        echo '<pre>'; print_r($contract); echo '</pre>';
 
         // $itogSumm = $contract->loan_body_summ * $contract->loan_percents_summ * $days;
 
