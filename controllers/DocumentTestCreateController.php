@@ -20,7 +20,7 @@ class DocumentTestCreateController extends Controller
         // $results = $this->db->results();
         //echo '<pre>';print_r($results);echo '</pre>';
         $contract = $this->contracts->get_contract(3667);
-
+        // $params = [];
 
         $contract_order = $this->orders->get_order((int)$contract->order_id);
 
@@ -39,7 +39,7 @@ class DocumentTestCreateController extends Controller
         $passport_issued = $contract_order->passport_issued;
         $passport_date = $contract_order->passport_date;
 
-        $document_params = [
+        $document_params = array(
             'lastname' => $contract_order->lastname,
             'firstname' => $contract_order->firstname,
             'patronymic' => $contract_order->patronymic,
@@ -59,8 +59,8 @@ class DocumentTestCreateController extends Controller
             'number' => $contract->number,
             'order_created' => $contract_order->date,
             'loan_body_summ' => $contract->loan_body_summ
-        ];
 
+        );
 
         // $document_params['return_date'] = $new_return_date;
         // $document_params['return_date_day'] = date('d', strtotime($new_return_date));
@@ -68,9 +68,8 @@ class DocumentTestCreateController extends Controller
         // $document_params['return_date_year'] = date('Y', strtotime($new_return_date));
         // $document_params['period'] = $period;
 
-
-        //  echo '<pre>';print_r(222222);echo '</pre>';
-
+         echo '<pre>';print_r($contract->loan_body_summ);echo '</pre>';
+         echo '<pre>';print_r($document_params);echo '</pre>';
 
 
         
@@ -85,8 +84,8 @@ class DocumentTestCreateController extends Controller
                 
             ];
 
-            // $this->documents->create_document($document);
-            return 222222;
+            $this->documents->create_document($document);
+            return 1;
         
     }	
 }
