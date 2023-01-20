@@ -79,7 +79,7 @@ class DocumentTestCreateController extends Controller
                 'order_id' => $contract->order_id,
                 'contract_id' => $contract->id,
                 'type' => $name_document,
-                'params' => $document_params,
+                'params' => json_encode($document_params),
                 'created' => date('Y-m-d H:i:s'),
                 
             ];
