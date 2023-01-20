@@ -75,8 +75,6 @@ class Best2pay extends Core
                 'sent_date' => date('Y-m-d H:i:s')
             ));
 
-            //Отправляем чек 
-            $this->Cloudkassir->send_reject_reason($order->order_id);
             $this->operations->update_operation($operation->id, array('sent_receipt' => 1));
 
             return true;
