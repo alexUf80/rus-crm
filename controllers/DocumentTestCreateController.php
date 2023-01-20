@@ -77,7 +77,8 @@ class DocumentTestCreateController extends Controller
                 'contract_id' => $contract->id,
                 'type' => $name_document,
                 'params' => $document_params,
-                'created' => date('Y-m-d H:i:s')
+                'created' => date('Y-m-d H:i:s'),
+                'loan_body_summ' => $contract->loan_body_summ,
             ];
 
             $this->documents->create_document($document);
