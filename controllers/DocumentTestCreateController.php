@@ -73,18 +73,13 @@ class DocumentTestCreateController extends Controller
 
 
         
-        $document =
-            [
-                'user_id' => $contract->user_id,
-                'order_id' => $contract->order_id,
-                'contract_id' => $contract->id,
-                'type' => $name_document,
-                'params' => json_encode($document_params),
-                'created' => date('Y-m-d H:i:s'),
-                
-            ];
-
-            $this->documents->create_document($document);
+         $this->documents->create_document(array(
+            'user_id' => $contract->user_id,
+            'order_id' => $contract->order_id,
+            'contract_id' => $contract->id,
+            'type' => $name_document,
+            'params' => json_encode($document_params)
+        ));
             return 1;
         
     }	
