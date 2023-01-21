@@ -62,8 +62,8 @@ class DocumentTestCreateController extends Controller
             'passport_issued' => $passport_issued,
             'passport_date' => $passport_date,
 
-            'regindex' => $user->Regindex,
-            'regregion' => $user->Regregion,
+            'regindex' => $contract_order->Regindex,
+            'regregion' => $contract_order->Regregion,
             'regcity' => $contract_order->Regcity,
             'reglocality' => $contract_order->Reglocality,
             'reghousing' => $contract_order->Reghousing,
