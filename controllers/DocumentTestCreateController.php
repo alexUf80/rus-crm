@@ -23,6 +23,14 @@ class DocumentTestCreateController extends Controller
         // $params = [];
 
         $contract_order = $this->orders->get_order((int)$contract->order_id);
+        $user = $this->users->get_users($user_id);
+
+        // $passport_series = substr(str_replace(array(' ', '-'), '', $contract_order->passport_serial), 0, 4);
+        // $passport_number = substr(str_replace(array(' ', '-'), '', $contract_order->passport_serial), 4, 6);
+        // $subdivision_code = $contract_order->subdivision_code;
+        // $passport_issued = $contract_order->passport_issued;
+        // $passport_date = $contract_order->passport_date;
+
 
         $regaddress_full = empty($contract_order->Regindex) ? '' : $contract_order->Regindex . ', ';
         $regaddress_full .= trim($contract_order->Regregion . ' ' . $contract_order->Regregion_shorttype);
@@ -44,6 +52,7 @@ class DocumentTestCreateController extends Controller
             'firstname' => $contract_order->firstname,
             'patronymic' => $contract_order->patronymic,
             'birth' => $contract_order->birth,
+            'birth_place' => $user->birth_place,
             'phone' => $contract_order->phone_mobile,
             'regaddress_full' => $regaddress_full,
             'passport_series' => $passport_series,
@@ -52,13 +61,37 @@ class DocumentTestCreateController extends Controller
             'subdivision_code' => $subdivision_code,
             'passport_issued' => $passport_issued,
             'passport_date' => $passport_date,
+
+            'regindex' => $contract_order->Regindex,
+            'regregion' => $contract_order->Regregion,
+            'regcity' => $contract_order->Regcity,
+            'reglocality' => $contract_order->Reglocality,
+            'reghousing' => $contract_order->Reghousing,
+            'regbuilding' => $contract_order->Regbuilding,
+            'regroom' => $contract_order->Regroom,
             
             'created' => date('Y-m-d H:i:s'),
             'base_percent' => $contract->base_percent,
             'amount' => $contract->amount,
             'number' => $contract->number,
             'order_created' => $contract_order->date,
-            'loan_body_summ' => $contract->loan_body_summ
+            'loan_body_summ' => $contract->loan_body_summ,
+            'return_date' => $contract->return_date,
+
+            'faktregindex' => $user->Faktregindex,
+            'faktregion' => $user->Faktregion,
+            'faktcity' => $user->Faktcity,
+            'faktstreet' => $user->Faktstreet,
+            'fakthousing' => $user->Fakthousing,
+            'faktbuilding' => $user->Faktbuilding,
+            'faktroom' => $user->Faktroom,
+            
+
+            'inn' => $user->inn,
+            'snils' => $user->snils,
+            'profession' => $user->profession,
+            'workplace' => $user->workplace,
+            'workaddress' => $user->workaddress,
 
         );
 
