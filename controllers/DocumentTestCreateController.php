@@ -103,6 +103,7 @@ class DocumentTestCreateController extends Controller
 
          echo '<pre>';print_r($contract->loan_body_summ);echo '</pre>';
          echo '<pre>';print_r($regaddress_full);echo '</pre>';
+         echo '<pre>';print_r($contract_order);echo '</pre>';
          
          echo '<pre>';print_r($document_params);echo '</pre>';
 
