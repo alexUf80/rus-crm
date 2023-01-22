@@ -77,6 +77,7 @@ class DocumentTestCreateController extends Controller
             'order_created' => $contract_order->date,
             'loan_body_summ' => $contract->loan_body_summ,
             'return_date' => $contract->return_date,
+            'accept_code' =>   $contract->accept_code,
 
             'faktregindex' => $user->Faktregindex,
             'faktregion' => $user->Faktregion,
