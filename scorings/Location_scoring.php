@@ -22,7 +22,7 @@ class Location_scoring extends Core
                 {
                     $update = array(
                         'status' => 'error',
-                        'string_result' => 'в заявке не указан регион регистрации ' . $scoring_id,
+                        'string_result' => 'в заявке не указан регион регистрации ' ,
                     );
                 }
                 else
