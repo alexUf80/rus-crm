@@ -1,13 +1,23 @@
 <?php
 
-class Location_scoring extends Core
+class TestScoringsController extends Controller
 {
+
     private $user_id;
     private $order_id;
     private $audit_id;
     private $type;
     private $exception_regions;
-    
+
+    public function fetch()
+    {
+
+        $user_id = $this->request->get('user_id', 'integer');
+
+        
+    }	
+
+
     public function run_scoring($scoring_id)
     {
         $update = array();
@@ -22,7 +32,7 @@ class Location_scoring extends Core
                 {
                     $update = array(
                         'status' => 'error',
-                        'string_result' => 'в заявке не указан регион регистрации ' . $scoring_id
+                        'string_result' => 'в заявке не указан регион регистрации'
                     );
                 }
                 else
@@ -111,5 +121,4 @@ class Location_scoring extends Core
         
         return $score;
     }
-
 }
