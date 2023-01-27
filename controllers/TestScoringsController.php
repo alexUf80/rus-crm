@@ -12,7 +12,14 @@ class TestScoringsController extends Controller
     public function fetch()
     {
 
-        $user_id = $this->request->get('user_id', 'integer');
+        // $action = $this->request->get('metod', 'string');
+        // switch ($action):
+
+        //     case 'change_manager':
+        //         $this->run_scoring();
+        //         break;
+
+        // endswitch;
 
         
     }	
