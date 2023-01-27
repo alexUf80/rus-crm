@@ -224,8 +224,9 @@ class OrderController extends Controller
                 $managers[$m->id] = $m;
 
             $scoring_types = $this->scorings->get_types();
+            
 
-            echo'<pre>';print_r($scoring_types);echo'</pre>';
+            // echo'<pre>';print_r($scoring_types);echo'</pre>';
 
 //echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($scoring_types);echo '</pre><hr />';
             $this->design->assign('scoring_types', $scoring_types);
@@ -400,6 +401,9 @@ class OrderController extends Controller
                         );
                         */
                     }
+
+                    echo'<pre>';print_r($scorings);echo'</pre>';
+
                     $this->design->assign('scorings', $scorings);
                     $this->design->assign('need_update_scorings', $need_update_scorings);
                     $this->design->assign('inactive_run_scorings', $inactive_run_scorings);
