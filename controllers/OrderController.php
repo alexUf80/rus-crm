@@ -225,7 +225,7 @@ class OrderController extends Controller
 
             $scoring_types = $this->scorings->get_types();
 
-            '<pre>';print_r($scoring_types);echo'</pre>';
+            echo'<pre>';print_r($scoring_types);echo'</pre>';
 
 //echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($scoring_types);echo '</pre><hr />';
             $this->design->assign('scoring_types', $scoring_types);
