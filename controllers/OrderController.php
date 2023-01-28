@@ -402,7 +402,7 @@ class OrderController extends Controller
                         */
                     }
 
-                    echo'<pre>';print_r($scorings);echo'</pre>';
+                    //echo'<pre>';print_r($scorings);echo'</pre>';
 
                     $this->design->assign('scorings', $scorings);
                     $this->design->assign('need_update_scorings', $need_update_scorings);

@@ -21,6 +21,8 @@ class TestScoringsController extends Controller
 
         // endswitch;
 
+        $this->run_scoring();
+
         
     }	
 
