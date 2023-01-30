@@ -23,7 +23,7 @@ class Location_scoring extends Core
                     'success' => 1,
                     'created' => date('d.m.Y H:i:s'),
                     // 'text' => (string) $document_id,
-                    'text' => ,
+                    'text' => json_encode($order),
                     // 'official' => $official,
                     // 'manager_name' => $this->manager->name,
                     ));
