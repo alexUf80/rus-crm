@@ -33,24 +33,24 @@ class Location_scoring extends Core
                 {
                     $update = array(
                         'status' => 'error',
-                        'string_result' => 'в заявке не указан регион регистрации ' . json_encode($addresses)
+                        'string_result' => 'в заявке не указан регион регистрации ' 
                     );
                 }
                 else
                 {
                     $exception_regions = array_map('trim', explode(',', $scoring_type->params['regions']));
                 
-                    $score = !in_array(mb_strtolower(trim($order->Regregion), 'utf8'), $exception_regions);
+                    $score = !in_array(mb_strtolower(trim($addresses->region), 'utf8'), $exception_regions);
                 
                     $update = array(
                         'status' => 'completed',
-                        'body' => serialize(array('region' => $order->Regregion)),
+                        'body' => serialize(array('region' => $addresses->region)),
                         'success' => $score
                     );
                     if ($score)
-                        $update['string_result'] = 'Допустимый регион: '.$order->Regregion;
+                        $update['string_result'] = 'Допустимый регион: '.$addresses->region;
                     else
-                        $update['string_result'] = 'Недопустимый регион: '.$order->Regregion;
+                        $update['string_result'] = 'Недопустимый регион: '.$addresses->region;
 
                 }
                 
