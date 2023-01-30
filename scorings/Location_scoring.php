@@ -27,11 +27,14 @@ class Location_scoring extends Core
                 //     // 'official' => $official,
                 //     // 'manager_name' => $this->manager->name,
                 //     ));
-                if (empty($order->Regregion))
+
+                $user = $this->users->get_user($order->user_id);
+                $addresses = $this->addresses->get_address($user->regaddress_id);
+                if (empty($addresses->region))
                 {
                     $update = array(
                         'status' => 'error',
-                        'string_result' => 'в заявке не указан регион регистрации ' . json_encode($order)
+                        'string_result' => 'в заявке не указан регион регистрации ' . json_encode($addresses)
                     );
                 }
                 else
