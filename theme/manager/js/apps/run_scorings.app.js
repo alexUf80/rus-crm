@@ -26,6 +26,21 @@
                 success: function(resp){
                     $('.js-scorings-block').addClass('js-need-update')
                     _init_scorings_block();
+
+                    if (resp.success) {
+                        Swal.fire({
+                            timer: 5000,
+                            title: 'Документ добавлен.',
+                            type: 'success',
+                        });
+                    } else {
+                        Swal.fire({
+                            text: resp.error,
+                            type: 'error',
+                        });
+
+                    }
+
                 }
             })
         });
