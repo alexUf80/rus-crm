@@ -19,19 +19,19 @@ class Location_scoring extends Core
             if ($order = $this->orders->get_order((int)$scoring->order_id))
             {
 
-                $this->json_output(array(
-                    'success' => 1,
-                    'created' => date('d.m.Y H:i:s'),
-                    // 'text' => (string) $document_id,
-                    'text' => json_encode($order),
-                    // 'official' => $official,
-                    // 'manager_name' => $this->manager->name,
-                    ));
+                // $this->json_output(array(
+                //     'success' => 1,
+                //     'created' => date('d.m.Y H:i:s'),
+                //     // 'text' => (string) $document_id,
+                //     'text' => json_encode($order),
+                //     // 'official' => $official,
+                //     // 'manager_name' => $this->manager->name,
+                //     ));
                 if (empty($order->Regregion))
                 {
                     $update = array(
                         'status' => 'error',
-                        'string_result' => 'в заявке не указан регион регистрации '
+                        'string_result' => 'в заявке не указан регион регистрации ' . json_encode($order)
                     );
                 }
                 else
