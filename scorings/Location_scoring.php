@@ -18,7 +18,6 @@ class Location_scoring extends Core
         {
             if ($order = $this->orders->get_order((int)$scoring->order_id))
             {
-
                 // $this->json_output(array(
                 //     'success' => 1,
                 //     'created' => date('d.m.Y H:i:s'),
