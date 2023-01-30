@@ -17,6 +17,15 @@ class RunScoringsApp extends Core
         switch ($action):
             
             case 'create':
+
+                $this->json_output(array(
+                    'success' => 1,
+                    'created' => date('d.m.Y H:i:s'),
+                    // 'text' => (string) $document_id,
+                    'text' => 'проверка2'
+                    // 'official' => $official,
+                    // 'manager_name' => $this->manager->name,
+                ));
             
                 $type = $this->request->get('type', 'string');
                 $order_id = $this->request->get('order_id', 'integer');
