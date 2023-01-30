@@ -30,7 +30,7 @@
                     if (resp.success) {
                         Swal.fire({
                             timer: 5000,
-                            title: 'Документ добавлен.',
+                            title: resp.text,
                             type: 'success',
                         });
                     } else {
