@@ -91,6 +91,16 @@ class RunScoringsApp extends Core
                         case 'age':
                         case 'svo':
                         case 'idx':
+
+
+                             $this->json_output(array(
+                                    'success' => 1,
+                                    'created' => date('d.m.Y H:i:s'),
+                                    // 'text' => (string) $document_id,
+                                    'text' => $order_id . '  ордер ид, ' . $type . '  тип',
+                                    // 'official' => $official,
+                                    // 'manager_name' => $this->manager->name,
+                            ));
                             
                             $add_scoring = array(
                                 'user_id' => $order->user_id,
