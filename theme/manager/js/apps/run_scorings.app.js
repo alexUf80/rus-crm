@@ -7,7 +7,7 @@
     var _init_run_link = function(){
         $(document).on('click', '.js-run-scorings', function(e){
             e.preventDefault();
-            alert('проверка');
+            
             var $this = $(this);
             
             var order_id = $(this).data('order');
