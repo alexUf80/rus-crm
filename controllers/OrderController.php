@@ -514,6 +514,9 @@ class OrderController extends Controller
         $sms_templates = $this->sms->get_templates();
         $this->design->assign('sms_templates', $sms_templates);
 
+        $pdn = $client->pdn;
+        $this->design->assign('pdn', $pdn);
+
         $body = $this->design->fetch('order.tpl');
 
         if ($this->request->get('ajax', 'integer')) {
