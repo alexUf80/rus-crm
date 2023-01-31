@@ -2899,7 +2899,7 @@
                                 {if $documents}
                                     <table class="table">
                                         {foreach $documents as $document}
-                                            {if documents->name == 1}
+                                            {if $documents->name == 1}
                                             <tr>
                                                 <td class="text-info">
                                                     <a target="_blank"
