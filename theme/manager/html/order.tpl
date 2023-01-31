@@ -2899,7 +2899,7 @@
                                 {if $documents}
                                     <table class="table">
                                         {foreach $documents as $document}
-                                            {if documents->name == 'Полис страхования' ||  documents->name == 'Полис страхования при пролонгаци' ||  documents->name == 'Дополнительное соглашение о реструктуризации'}
+                                            {if documents->name == 1}
                                             <tr>
                                                 <td class="text-info">
                                                     <a target="_blank"
