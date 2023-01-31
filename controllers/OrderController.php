@@ -324,6 +324,8 @@ class OrderController extends Controller
                             });
                     }
 
+                    $contract_operations = array_reverse($contract_operations);
+
                     $this->design->assign('contract_operations', $contract_operations);
 
                     if (!empty($contract->insurance_id)) {
