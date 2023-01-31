@@ -2899,12 +2899,13 @@
                                 {if $documents}
                                     <table class="table">
                                         {foreach $documents as $document}
+                                            {if documents->name == 'Полис страхования' ||  documents->name == 'Полис страхования при пролонгаци' ||  documents->name == 'Дополнительное соглашение о реструктуризации'}
                                             <tr>
                                                 <td class="text-info">
                                                     <a target="_blank"
                                                        href="{$config->front_url}/document/{$document->user_id}/{$document->id}">
                                                         <i class="fas fa-file-pdf fa-lg"></i>&nbsp;
-                                                        {$document->name|escape}
+                                                        {$document->name|escape} от {$document->created|date}
                                                     </a>
                                                 </td>
                                                 <td class="text-right">
@@ -2912,6 +2913,21 @@
                                                     {$document->created|time}
                                                 </td>
                                             </tr>
+                                            {else}
+                                                <tr>
+                                                    <td class="text-info">
+                                                        <a target="_blank"
+                                                        href="{$config->front_url}/document/{$document->user_id}/{$document->id}">
+                                                            <i class="fas fa-file-pdf fa-lg"></i>&nbsp;
+                                                            {$document->name|escape}
+                                                        </a>
+                                                    </td>
+                                                    <td class="text-right">
+                                                        {$document->created|date}
+                                                        {$document->created|time}
+                                                    </td>
+                                                </tr>
+                                            {/if}
                                         {/foreach}
                                     </table>
                                 {else}
