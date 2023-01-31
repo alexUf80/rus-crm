@@ -2919,7 +2919,7 @@
                                                         <a target="_blank"
                                                         href="{$config->front_url}/document/{$document->user_id}/{$document->id}">
                                                             <i class="fas fa-file-pdf fa-lg"></i>&nbsp;
-                                                            {$document->name|escape}
+                                                            {$document->name|escape} 222
                                                         </a>
                                                     </td>
                                                     <td class="text-right">
