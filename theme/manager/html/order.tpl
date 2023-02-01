@@ -2464,31 +2464,6 @@
 
                                                 <div class="row view-block p-2 {if $services_error}hide{/if}">
                                                     <div class="col-md-12">
-                                                        <div style="display: flex; justify-content: space-between">
-                                                            <label class="control-label">
-                                                                Будь в курсе:
-                                                                {if true}
-                                                                    {if $contract->bud_v_kurse_returned}
-                                                                        <small class="text-danger">Услуга возвращена
-                                                                        </small>
-                                                                    {else}
-                                                                        <button class="btn btn-xs btn-danger js-return-bud-v-kurse"
-                                                                                data-contract="{$contract->id}"
-                                                                                type="button">Вернуть
-                                                                        </button>
-                                                                    {/if}
-                                                                {/if}
-                                                            </label>
-                                                            <div>
-                                                                <p class="form-control-static">
-                                                                    {if $order->service_sms}
-                                                                        <span class="label label-success">Вкл</span>
-                                                                    {else}
-                                                                        <span class="label label-danger">Выкл</span>
-                                                                    {/if}
-                                                                </p>
-                                                            </div>
-                                                        </div>
 
                                                         <div style="display: flex; justify-content: space-between">
                                                             <label class="control-label">
