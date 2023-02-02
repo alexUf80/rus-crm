@@ -790,6 +790,8 @@ class OrderController extends Controller
 
     private function autoretry_accept_action()
     {
+        return array('error' => 'отключена функция авторешения');
+
         $order_id = $this->request->post('order_id', 'integer');
 
         if (!($order = $this->orders->get_order((int)$order_id)))

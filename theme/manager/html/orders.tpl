@@ -490,7 +490,7 @@
                                                     {/if}
                                                 {/if}
                                                 {if $order->autoretry}
-                                                    <span class="label label-danger" title="">Авторешение</span>
+                                                    <!--<span class="label label-danger" title="">Авторешение</span>-->
                                                 {/if}
                                                 {if $order->antirazgon}
                                                     <span class="label label-danger"
