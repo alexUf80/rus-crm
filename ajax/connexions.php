@@ -195,7 +195,6 @@ class ConnexionsAjax extends Core
 
         $query = $this->db->placehold("
             SELECT 
-                contact_person_relation AS cp_relation,
                 contact_person_phone AS cp_phone,
                 id,
                 lastname,
