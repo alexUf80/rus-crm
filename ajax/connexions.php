@@ -215,7 +215,6 @@ class ConnexionsAjax extends Core
                 phone_mobile AS user_phone
             FROM __users
             WHERE id != ?
-            AND contact_person2_phone in (?, ?)
         ", $user_id);
         $this->db->query($query);
         $results['contactpersons'] = array_merge($results['contactpersons'], $this->db->results());
