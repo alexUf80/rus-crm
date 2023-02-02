@@ -72,7 +72,7 @@ class ConnexionsAjax extends Core
 
                 $result['contactperson1'] = new StdClass();
                 $result['contactperson1']->search = $user->contact_person_phone;
-                $result['contactperson1']->fio = $user->contact_person_name;
+                // $result['contactperson1']->fio = $user->contact_person_name;
                 $result['contactperson1']->found = array_filter($this->find_phone($user->id, $user->contact_person_phone));
 
                 $result['contactperson2'] = new StdClass();
@@ -157,19 +157,19 @@ class ConnexionsAjax extends Core
         $this->db->query($query);
         $results['workphone'] = $this->db->results();
 
-        $query = $this->db->placehold("
-            SELECT 
-                id,
-                lastname,
-                firstname,
-                patronymic,
-                phone_mobile AS user_phone
-            FROM __users
-            WHERE id != ?
-            AND chief_phone in (?, ?)
-        ", $user_id, (string)$prepare_phone, (string)$another_number);
-        $this->db->query($query);
-        $results['chief_phone'] = $this->db->results();
+        // $query = $this->db->placehold("
+        //     SELECT 
+        //         id,
+        //         lastname,
+        //         firstname,
+        //         patronymic,
+        //         phone_mobile AS user_phone
+        //     FROM __users
+        //     WHERE id != ?
+        //     AND chief_phone in (?, ?)
+        // ", $user_id, (string)$prepare_phone, (string)$another_number);
+        // $this->db->query($query);
+        // $results['chief_phone'] = $this->db->results();
 
 
         $results['contactpersons'] = array();
@@ -195,7 +195,6 @@ class ConnexionsAjax extends Core
 
         $query = $this->db->placehold("
             SELECT 
-                contact_person_name AS cp_name,
                 contact_person_relation AS cp_relation,
                 contact_person_phone AS cp_phone,
                 id,
