@@ -195,7 +195,6 @@ class ConnexionsAjax extends Core
 
         $query = $this->db->placehold("
             SELECT 
-                contact_person_phone AS cp_phone,
                 id,
                 lastname,
                 firstname,
@@ -203,8 +202,7 @@ class ConnexionsAjax extends Core
                 phone_mobile AS user_phone
             FROM __users
             WHERE id != ?
-            AND contact_person_phone in (?, ?)
-        ", $user_id, (string)$prepare_phone, (string)$another_number);
+        ", $user_id);
         $this->db->query($query);
         $results['contactpersons'] = array_merge($results['contactpersons'], $this->db->results());
 
