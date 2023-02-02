@@ -64,13 +64,13 @@ class ConnexionsAjax extends Core
 
                 $result['regaddress'] = new StdClass();
                 $addresses = $this->Addresses->get_address($user->regaddress_id);
-                $result['regaddress']->search = $addresses->Regregion . ' ' . $addresses->Regdistrict . ' ' . $addresses->Reglocality . ' ' . $addresses->Regcity . ' ' . $addresses->Regstreet . ' ' . $addresses->Reghousing . ' ' . $addresses->Regbuilding . ' ' . $addresses->Regroom;
-                $result['regaddress']->found = array_filter($this->find_address($addresses->id, $addresses->Regregion, $addresses->Regdistrict, $addresses->Reglocality, $addresses->Regcity, $addresses->Regstreet, $addresses->Reghousing, $addresses->Regbuilding, $addresses->Regroom));
+                $result['regaddress']->search = $addresses->region . ' ' . $addresses->district . ' ' . $addresses->locality . ' ' . $addresses->city . ' ' . $addresses->street . ' ' . $addresses->housing . ' ' . $addresses->building . ' ' . $addresses->room;
+                $result['regaddress']->found = array_filter($this->find_address($addresses->id, $addresses->region, $addresses->district, $addresses->locality, $addresses->city, $addresses->street, $addresses->housing, $addresses->building, $addresses->room));
 
                 $result['faktaddress'] = new StdClass();
                 $addressesFact = $this->Addresses->get_address($user->faktaddress_id);
-                $result['faktaddress']->search = $addressesFact->Regregion . ' ' . $addressesFact->Regdistrict . ' ' . $addressesFact->Reglocality . ' ' . $addressesFact->Regcity . ' ' . $addressesFact->Regstreet . ' ' . $addressesFact->Reghousing . ' ' . $addressesFact->Regbuilding . ' ' . $addressesFact->Regroom;
-                $result['faktaddress']->found = array_filter($this->find_address($addressesFact->id, $addressesFact->Regregion, $addressesFact->Regdistrict, $addressesFact->Reglocality, $addressesFact->Regcity, $addressesFact->Regstreet, $addressesFact->Reghousing, $addressesFact->Regbuilding, $addressesFact->Regroom));
+                $result['faktaddress']->search = $addressesFact->region . ' ' . $addressesFact->district . ' ' . $addressesFact->locality . ' ' . $addressesFact->city . ' ' . $addressesFact->street . ' ' . $addressesFact->housing . ' ' . $addressesFact->building . ' ' . $addressesFact->room;
+                $result['faktaddress']->found = array_filter($this->find_address($addressesFact->id, $addressesFact->region, $addressesFact->district, $addressesFact->locality, $addressesFact->city, $addressesFact->street, $addressesFact->housing, $addressesFact->building, $addressesFact->room));
 
                 $result['contactperson1'] = new StdClass();
                 $result['contactperson1']->search = $user->contact_person_phone;
