@@ -244,8 +244,13 @@ class OrderController extends Controller
         foreach ($usersRegaddress_id as $userRegaddress_id) {
             $ids[] = $userRegaddress_id->id;
         }
-        // $ids = implode(',', $ids);
-        echo '<pre>';print_r($ids);echo'</pre>';
+         $ids = implode(',', $ids);
+        echo '<pre>';print_r("
+        SELECT 
+            id
+            FROM __users
+            WHERE regaddress_id iN(" . $ids . ")
+        ");echo'</pre>';
 
             if ($order_id = $this->request->get('id', 'integer')) {
                 if ($order = $this->orders->get_order($order_id)) {
