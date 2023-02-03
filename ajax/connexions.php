@@ -252,27 +252,28 @@ class ConnexionsAjax extends Core
         $results['regaddress'] =  $user;
 
 
-        $query = $this->db->placehold("
-            SELECT 
-                id, 
-                lastname,
-                firstname,
-                patronymic,
-                phone_mobile
-            FROM __users
-            WHERE id != ?
-            AND Faktregion LIKE '%" . $this->db->escape($region) . "%'
-            AND Faktdistrict LIKE '%" . $this->db->escape($district) . "%'
-            AND Faktlocality LIKE '%" . $this->db->escape($locality) . "%'
-            AND Faktcity LIKE '%" . $this->db->escape($city) . "%'
-            AND Faktstreet LIKE '%" . $this->db->escape($street) . "%'
-            AND Fakthousing LIKE '%" . $this->db->escape($housing) . "%'
-            AND Faktbuilding LIKE '%" . $this->db->escape($building) . "%'
-            AND Faktroom LIKE '%" . $this->db->escape($room) . "%'
-        ", $user_id);
-        $this->db->query($query);
+        // $query = $this->db->placehold("
+        //     SELECT 
+        //         id, 
+        //         lastname,
+        //         firstname,
+        //         patronymic,
+        //         phone_mobile
+        //     FROM __users
+        //     WHERE id != ?
+        //     AND Faktregion LIKE '%" . $this->db->escape($region) . "%'
+        //     AND Faktdistrict LIKE '%" . $this->db->escape($district) . "%'
+        //     AND Faktlocality LIKE '%" . $this->db->escape($locality) . "%'
+        //     AND Faktcity LIKE '%" . $this->db->escape($city) . "%'
+        //     AND Faktstreet LIKE '%" . $this->db->escape($street) . "%'
+        //     AND Fakthousing LIKE '%" . $this->db->escape($housing) . "%'
+        //     AND Faktbuilding LIKE '%" . $this->db->escape($building) . "%'
+        //     AND Faktroom LIKE '%" . $this->db->escape($room) . "%'
+        // ", $user_id);
+        // $this->db->query($query);
 
-        $results['faktaddress'] = $this->db->results();
+        // $results['faktaddress'] = $this->db->results();
+        $results['faktaddress'] = $user;
 
         return $results;
     }
