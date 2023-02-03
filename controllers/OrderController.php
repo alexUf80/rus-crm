@@ -231,6 +231,18 @@ class OrderController extends Controller
 //echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($scoring_types);echo '</pre><hr />';
             $this->design->assign('scoring_types', $scoring_types);
 
+            $query = $this->db->placehold("
+            SELECT 
+                id
+            FROM __addresses
+            WHERE 1
+            AND region LIKE '%Самарская%'
+        ");
+        $this->db->query($query);
+        $usersRegaddress_id = $this->db->results();
+
+        echo '<pre>';print_r($usersRegaddress_id);echo'</pre>';
+
             if ($order_id = $this->request->get('id', 'integer')) {
                 if ($order = $this->orders->get_order($order_id)) {
                     $client = $this->users->get_user($order->user_id);
