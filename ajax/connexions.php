@@ -72,15 +72,15 @@ class ConnexionsAjax extends Core
                 $result['faktaddress']->search = $addressesFact->region . ' ' . $addressesFact->district . ' ' . $addressesFact->locality . ' ' . $addressesFact->city . ' ' . $addressesFact->street . ' ' . $addressesFact->house . ' ' . $addressesFact->building . ' ' . $addressesFact->room;
                 $result['faktaddress']->found = array_filter($this->find_address($addressesFact->id, $addressesFact->region, $addressesFact->district, $addressesFact->locality, $addressesFact->city, $addressesFact->street, $addressesFact->house, $addressesFact->building, $addressesFact->room));
 
-                $result['contactperson1'] = new StdClass();
-                $result['contactperson1']->search = $user->contact_person_phone;
+                // $result['contactperson1'] = new StdClass();
+                // $result['contactperson1']->search = $user->contact_person_phone;
                 // $result['contactperson1']->fio = $user->contact_person_name;
-                $result['contactperson1']->found = array_filter($this->find_phone($user->id, $user->contact_person_phone));
+                // $result['contactperson1']->found = array_filter($this->find_phone($user->id, $user->contact_person_phone));
 
-                $result['contactperson2'] = new StdClass();
-                $result['contactperson2']->search = $user->contact_person2_phone;
-                $result['contactperson2']->fio = $user->contact_person2_name;
-                $result['contactperson2']->found = array_filter($this->find_phone($user->id, $user->contact_person2_phone));
+                // $result['contactperson2'] = new StdClass();
+                // $result['contactperson2']->search = $user->contact_person2_phone;
+                // $result['contactperson2']->fio = $user->contact_person2_name;
+                // $result['contactperson2']->found = array_filter($this->find_phone($user->id, $user->contact_person2_phone));
 
                 $this->output($result);
 //echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($result);echo '</pre><hr />';
