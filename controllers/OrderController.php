@@ -231,26 +231,26 @@ class OrderController extends Controller
 //echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($scoring_types);echo '</pre><hr />';
             $this->design->assign('scoring_types', $scoring_types);
 
-            $query = $this->db->placehold("
-            SELECT 
-                id
-            FROM __addresses
-            WHERE 1
-            AND region LIKE '%Самарская%'
-        ");
-        $this->db->query($query);
-        $usersRegaddress_id = $this->db->results();
-        $ids = [];
-        foreach ($usersRegaddress_id as $userRegaddress_id) {
-            $ids[] = $userRegaddress_id->id;
-        }
-         $ids = implode(',', $ids);
-        echo '<pre>';print_r("
-        SELECT 
-            id
-            FROM __users
-            WHERE regaddress_id iN(" . $ids . ")
-        ");echo'</pre>';
+        //     $query = $this->db->placehold("
+        //     SELECT 
+        //         id
+        //     FROM __addresses
+        //     WHERE 1
+        //     AND region LIKE '%Самарская%'
+        // ");
+        // $this->db->query($query);
+        // $usersRegaddress_id = $this->db->results();
+        // $ids = [];
+        // foreach ($usersRegaddress_id as $userRegaddress_id) {
+        //     $ids[] = $userRegaddress_id->id;
+        // }
+        //  $ids = implode(',', $ids);
+        // echo '<pre>';print_r("
+        // SELECT 
+        //     id
+        //     FROM __users
+        //     WHERE regaddress_id iN(" . $ids . ")
+        // ");echo'</pre>';
 
             if ($order_id = $this->request->get('id', 'integer')) {
                 if ($order = $this->orders->get_order($order_id)) {
