@@ -272,8 +272,8 @@ class ConnexionsAjax extends Core
         SELECT 
             id
             FROM __users
-            WHERE regaddress_id iN(" . $ids . ")
-        ");
+            WHERE regaddress_id iN(?)
+        ", $ids);
         $this->db->query($query);
         // $users = $this->users->get_user($user_id);
         //$addresses = $this->Addresses->get_address($user->regaddress_id);
