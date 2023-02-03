@@ -257,7 +257,7 @@ class ConnexionsAjax extends Core
             AND locality LIKE '%" . $this->db->escape($locality) . "%'
             AND city LIKE '%" . $this->db->escape($city) . "%'
             AND street LIKE '%" . $this->db->escape($street) . "%'
-            AND housing LIKE '%" . $this->db->escape($housing) . "%'
+            AND house LIKE '%" . $this->db->escape($housing) . "%'
             AND building LIKE '%" . $this->db->escape($building) . "%'
             AND room LIKE '%" . $this->db->escape($room) . "%'
         ");
