@@ -228,27 +228,28 @@ class ConnexionsAjax extends Core
     {
         $results = array();
 
-        $query = $this->db->placehold("
-            SELECT 
-                id, 
-                lastname,
-                firstname,
-                patronymic,
-                phone_mobile
-            FROM __users
-            WHERE id != ?
-            AND Regregion LIKE '%" . $this->db->escape($region) . "%'
-            AND Regdistrict LIKE '%" . $this->db->escape($district) . "%'
-            AND Reglocality LIKE '%" . $this->db->escape($locality) . "%'
-            AND Regcity LIKE '%" . $this->db->escape($city) . "%'
-            AND Regstreet LIKE '%" . $this->db->escape($street) . "%'
-            AND Reghousing LIKE '%" . $this->db->escape($housing) . "%'
-            AND Regbuilding LIKE '%" . $this->db->escape($building) . "%'
-            AND Regroom LIKE '%" . $this->db->escape($room) . "%'
-        ", $user_id);
-        $this->db->query($query);
-
-        $results['regaddress'] = $this->db->results();
+        // $query = $this->db->placehold("
+        //     SELECT 
+        //         id, 
+        //         lastname,
+        //         firstname,
+        //         patronymic,
+        //         phone_mobile
+        //     FROM __users
+        //     WHERE id != ?
+        //     AND Regregion LIKE '%" . $this->db->escape($region) . "%'
+        //     AND Regdistrict LIKE '%" . $this->db->escape($district) . "%'
+        //     AND Reglocality LIKE '%" . $this->db->escape($locality) . "%'
+        //     AND Regcity LIKE '%" . $this->db->escape($city) . "%'
+        //     AND Regstreet LIKE '%" . $this->db->escape($street) . "%'
+        //     AND Reghousing LIKE '%" . $this->db->escape($housing) . "%'
+        //     AND Regbuilding LIKE '%" . $this->db->escape($building) . "%'
+        //     AND Regroom LIKE '%" . $this->db->escape($room) . "%'
+        // ", $user_id);
+        // $this->db->query($query);
+        $user = $this->users->get_user($user_id);
+        //$addresses = $this->Addresses->get_address($user->regaddress_id);
+        $results['regaddress'] =  $user;
 
 
         $query = $this->db->placehold("
