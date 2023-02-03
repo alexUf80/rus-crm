@@ -238,14 +238,14 @@ class OrderController extends Controller
             WHERE 1
             AND region LIKE '%Самарская%'
         ");
-        // $this->db->query($query);
-        // $usersRegaddress_id = $this->db->results();
-        // $ids = [];
-        // foreach ($usersRegaddress_id as $userRegaddress_id) {
-        //     $ids[] = $userRegaddress_id->id;
-        // }
+        $this->db->query($query);
+        $usersRegaddress_id = $this->db->results();
+        $ids = [];
+        foreach ($usersRegaddress_id as $userRegaddress_id) {
+            $ids[] = $userRegaddress_id->id;
+        }
         // $ids = implode(',', $ids);
-        // echo '<pre>';print_r($ids);echo'</pre>';
+        echo '<pre>';print_r($ids);echo'</pre>';
 
             if ($order_id = $this->request->get('id', 'integer')) {
                 if ($order = $this->orders->get_order($order_id)) {
