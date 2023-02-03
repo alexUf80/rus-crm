@@ -278,14 +278,14 @@ class ConnexionsAjax extends Core
         // $users = $this->users->get_user($user_id);
         //$addresses = $this->Addresses->get_address($user->regaddress_id);
         $results['regaddress'] =  $this->db->results();
-        // $query = $this->db->placehold("
-        // SELECT 
-        //     id
-        //     FROM __users
-        //     WHERE faktaddress_id iN(?)
-        // ", $usersRegaddress_id);
-        // $this->db->query($query);
-        // $results['faktaddress'] = $this->db->results();;
+        $query = $this->db->placehold("
+        SELECT 
+            id
+            FROM __users
+            WHERE faktaddress_id iN(?)
+        ", $ids);
+        $this->db->query($query);
+        $results['faktaddress'] = $this->db->results();;
 
 
         // $query = $this->db->placehold("
