@@ -246,10 +246,41 @@ class ConnexionsAjax extends Core
         //     AND Regbuilding LIKE '%" . $this->db->escape($building) . "%'
         //     AND Regroom LIKE '%" . $this->db->escape($room) . "%'
         // ", $user_id);
-        // $this->db->query($query);
-        $user = $this->users->get_user($user_id);
+        //$this->db->query($query);
+        $query = $this->db->placehold("
+            SELECT 
+                id
+            FROM __Addresses
+            WHERE 1
+            AND region LIKE '%" . $this->db->escape($region) . "%'
+            AND district LIKE '%" . $this->db->escape($district) . "%'
+            AND locality LIKE '%" . $this->db->escape($locality) . "%'
+            AND city LIKE '%" . $this->db->escape($city) . "%'
+            AND street LIKE '%" . $this->db->escape($street) . "%'
+            AND housing LIKE '%" . $this->db->escape($housing) . "%'
+            AND building LIKE '%" . $this->db->escape($building) . "%'
+            AND room LIKE '%" . $this->db->escape($room) . "%'
+        ");
+        $this->db->query($query);
+        $usersRegaddress_id = $this->db->results();
+        $query = $this->db->placehold("
+        SELECT 
+            id
+            FROM __users
+            WHERE regaddress_id iN(?)
+        ", $usersRegaddress_id);
+        $this->db->query($query);
+        // $users = $this->users->get_user($user_id);
         //$addresses = $this->Addresses->get_address($user->regaddress_id);
-        $results['regaddress'] =  $user;
+        $results['regaddress'] =  $this->db->results();
+        $query = $this->db->placehold("
+        SELECT 
+            id
+            FROM __users
+            WHERE faktaddress_id iN(?)
+        ", $usersRegaddress_id);
+        $this->db->query($query);
+        $results['faktaddress'] = $this->db->results();;
 
 
         // $query = $this->db->placehold("
@@ -273,7 +304,7 @@ class ConnexionsAjax extends Core
         // $this->db->query($query);
 
         // $results['faktaddress'] = $this->db->results();
-        $results['faktaddress'] = $user;
+        // $results['faktaddress'] = $user;
 
         return $results;
     }
