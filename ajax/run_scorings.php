@@ -17,11 +17,22 @@ class RunScoringsApp extends Core
         switch ($action):
             
             case 'create':
+
+                
             
                 $type = $this->request->get('type', 'string');
                 $order_id = $this->request->get('order_id', 'integer');
                 
                 $scoring_types = $this->scorings->get_types();
+
+                // $this->json_output(array(
+                //     'success' => 1,
+                //     'created' => date('d.m.Y H:i:s'),
+                //     // 'text' => (string) $document_id,
+                //     'text' => $order_id . '  ордер ид, ' . $type . '  тип',
+                //     // 'official' => $official,
+                //     // 'manager_name' => $this->manager->name,
+                // ));
                 
                 if ($order = $this->orders->get_order($order_id))
                 {
@@ -80,6 +91,9 @@ class RunScoringsApp extends Core
                         case 'age':
                         case 'svo':
                         case 'idx':
+
+
+                             
                             
                             $add_scoring = array(
                                 'user_id' => $order->user_id,

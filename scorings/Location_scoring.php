@@ -18,28 +18,39 @@ class Location_scoring extends Core
         {
             if ($order = $this->orders->get_order((int)$scoring->order_id))
             {
-                if (empty($order->Regregion))
+                // $this->json_output(array(
+                //     'success' => 1,
+                //     'created' => date('d.m.Y H:i:s'),
+                //     // 'text' => (string) $document_id,
+                //     'text' => json_encode($order),
+                //     // 'official' => $official,
+                //     // 'manager_name' => $this->manager->name,
+                //     ));
+
+                $user = $this->users->get_user($order->user_id);
+                $addresses = $this->addresses->get_address($user->regaddress_id);
+                if (empty($addresses->region))
                 {
                     $update = array(
                         'status' => 'error',
-                        'string_result' => 'в заявке не указан регион регистрации '
+                        'string_result' => 'в заявке не указан регион регистрации ' 
                     );
                 }
                 else
                 {
                     $exception_regions = array_map('trim', explode(',', $scoring_type->params['regions']));
                 
-                    $score = !in_array(mb_strtolower(trim($order->Regregion), 'utf8'), $exception_regions);
+                    $score = !in_array(mb_strtolower(trim($addresses->region), 'utf8'), $exception_regions);
                 
                     $update = array(
                         'status' => 'completed',
-                        'body' => serialize(array('region' => $order->Regregion)),
+                        'body' => serialize(array('region' => $addresses->region)),
                         'success' => $score
                     );
                     if ($score)
-                        $update['string_result'] = 'Допустимый регион: '.$order->Regregion;
+                        $update['string_result'] = 'Допустимый регион: '.$addresses->region;
                     else
-                        $update['string_result'] = 'Недопустимый регион: '.$order->Regregion;
+                        $update['string_result'] = 'Недопустимый регион: '.$addresses->region;
 
                 }
                 

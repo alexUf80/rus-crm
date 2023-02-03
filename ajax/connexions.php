@@ -63,22 +63,24 @@ class ConnexionsAjax extends Core
                 $result['card_number']->found = array_filter($this->find_card($user->id));
 
                 $result['regaddress'] = new StdClass();
-                $result['regaddress']->search = $user->Regregion . ' ' . $user->Regdistrict . ' ' . $user->Reglocality . ' ' . $user->Regcity . ' ' . $user->Regstreet . ' ' . $user->Reghousing . ' ' . $user->Regbuilding . ' ' . $user->Regroom;
-                $result['regaddress']->found = array_filter($this->find_address($user->id, $user->Regregion, $user->Regdistrict, $user->Reglocality, $user->Regcity, $user->Regstreet, $user->Reghousing, $user->Regbuilding, $user->Regroom));
+                $addresses = $this->Addresses->get_address($user->regaddress_id);
+                $result['regaddress']->search = $addresses->region . ' ' . $addresses->district . ' ' . $addresses->locality . ' ' . $addresses->city . ' ' . $addresses->street . ' ' . $addresses->house . ' ' . $addresses->building . ' ' . $addresses->room;
+                $result['regaddress']->found = array_filter($this->find_address($addresses->id, $addresses->region, $addresses->district, $addresses->locality, $addresses->city, $addresses->street, $addresses->house, $addresses->building, $addresses->room));
 
                 $result['faktaddress'] = new StdClass();
-                $result['faktaddress']->search = $user->Faktregion . ' ' . $user->Faktdistrict . ' ' . $user->Faktlocality . ' ' . $user->Faktcity . ' ' . $user->Faktstreet . ' ' . $user->Fakthousing . ' ' . $user->Faktbuilding . ' ' . $user->Faktroom;
-                $result['faktaddress']->found = array_filter($this->find_address($user->id, $user->Faktregion, $user->Faktdistrict, $user->Faktlocality, $user->Faktcity, $user->Faktstreet, $user->Fakthousing, $user->Faktbuilding, $user->Faktroom));
+                $addressesFact = $this->Addresses->get_address($user->faktaddress_id);
+                $result['faktaddress']->search = $addressesFact->region . ' ' . $addressesFact->district . ' ' . $addressesFact->locality . ' ' . $addressesFact->city . ' ' . $addressesFact->street . ' ' . $addressesFact->house . ' ' . $addressesFact->building . ' ' . $addressesFact->room;
+                $result['faktaddress']->found = array_filter($this->find_address($addressesFact->id, $addressesFact->region, $addressesFact->district, $addressesFact->locality, $addressesFact->city, $addressesFact->street, $addressesFact->house, $addressesFact->building, $addressesFact->room));
 
-                $result['contactperson1'] = new StdClass();
-                $result['contactperson1']->search = $user->contact_person_phone;
-                $result['contactperson1']->fio = $user->contact_person_name;
-                $result['contactperson1']->found = array_filter($this->find_phone($user->id, $user->contact_person_phone));
+                // $result['contactperson1'] = new StdClass();
+                // $result['contactperson1']->search = $user->contact_person_phone;
+                // $result['contactperson1']->fio = $user->contact_person_name;
+                // $result['contactperson1']->found = array_filter($this->find_phone($user->id, $user->contact_person_phone));
 
-                $result['contactperson2'] = new StdClass();
-                $result['contactperson2']->search = $user->contact_person2_phone;
-                $result['contactperson2']->fio = $user->contact_person2_name;
-                $result['contactperson2']->found = array_filter($this->find_phone($user->id, $user->contact_person2_phone));
+                // $result['contactperson2'] = new StdClass();
+                // $result['contactperson2']->search = $user->contact_person2_phone;
+                // $result['contactperson2']->fio = $user->contact_person2_name;
+                // $result['contactperson2']->found = array_filter($this->find_phone($user->id, $user->contact_person2_phone));
 
                 $this->output($result);
 //echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($result);echo '</pre><hr />';
@@ -157,19 +159,19 @@ class ConnexionsAjax extends Core
         $this->db->query($query);
         $results['workphone'] = $this->db->results();
 
-        $query = $this->db->placehold("
-            SELECT 
-                id,
-                lastname,
-                firstname,
-                patronymic,
-                phone_mobile AS user_phone
-            FROM __users
-            WHERE id != ?
-            AND chief_phone in (?, ?)
-        ", $user_id, (string)$prepare_phone, (string)$another_number);
-        $this->db->query($query);
-        $results['chief_phone'] = $this->db->results();
+        // $query = $this->db->placehold("
+        //     SELECT 
+        //         id,
+        //         lastname,
+        //         firstname,
+        //         patronymic,
+        //         phone_mobile AS user_phone
+        //     FROM __users
+        //     WHERE id != ?
+        //     AND chief_phone in (?, ?)
+        // ", $user_id, (string)$prepare_phone, (string)$another_number);
+        // $this->db->query($query);
+        // $results['chief_phone'] = $this->db->results();
 
 
         $results['contactpersons'] = array();
@@ -195,9 +197,6 @@ class ConnexionsAjax extends Core
 
         $query = $this->db->placehold("
             SELECT 
-                contact_person_name AS cp_name,
-                contact_person_relation AS cp_relation,
-                contact_person_phone AS cp_phone,
                 id,
                 lastname,
                 firstname,
@@ -205,16 +204,12 @@ class ConnexionsAjax extends Core
                 phone_mobile AS user_phone
             FROM __users
             WHERE id != ?
-            AND contact_person_phone in (?, ?)
-        ", $user_id, (string)$prepare_phone, (string)$another_number);
+        ", $user_id);
         $this->db->query($query);
         $results['contactpersons'] = array_merge($results['contactpersons'], $this->db->results());
 
         $query = $this->db->placehold("
             SELECT 
-                contact_person2_name AS cp_name,
-                contact_person2_relation AS cp_relation,
-                contact_person2_phone AS cp_phone,
                 id,
                 lastname,
                 firstname,
@@ -222,8 +217,7 @@ class ConnexionsAjax extends Core
                 phone_mobile AS user_phone
             FROM __users
             WHERE id != ?
-            AND contact_person2_phone in (?, ?)
-        ", $user_id, (string)$prepare_phone, (string)$another_number);
+        ", $user_id);
         $this->db->query($query);
         $results['contactpersons'] = array_merge($results['contactpersons'], $this->db->results());
 
@@ -234,50 +228,88 @@ class ConnexionsAjax extends Core
     {
         $results = array();
 
+        // $query = $this->db->placehold("
+        //     SELECT 
+        //         id, 
+        //         lastname,
+        //         firstname,
+        //         patronymic,
+        //         phone_mobile
+        //     FROM __users
+        //     WHERE id != ?
+        //     AND Regregion LIKE '%" . $this->db->escape($region) . "%'
+        //     AND Regdistrict LIKE '%" . $this->db->escape($district) . "%'
+        //     AND Reglocality LIKE '%" . $this->db->escape($locality) . "%'
+        //     AND Regcity LIKE '%" . $this->db->escape($city) . "%'
+        //     AND Regstreet LIKE '%" . $this->db->escape($street) . "%'
+        //     AND Reghousing LIKE '%" . $this->db->escape($housing) . "%'
+        //     AND Regbuilding LIKE '%" . $this->db->escape($building) . "%'
+        //     AND Regroom LIKE '%" . $this->db->escape($room) . "%'
+        // ", $user_id);
+        //$this->db->query($query);
         $query = $this->db->placehold("
             SELECT 
-                id, 
-                lastname,
-                firstname,
-                patronymic,
-                phone_mobile
-            FROM __users
-            WHERE id != ?
-            AND Regregion LIKE '%" . $this->db->escape($region) . "%'
-            AND Regdistrict LIKE '%" . $this->db->escape($district) . "%'
-            AND Reglocality LIKE '%" . $this->db->escape($locality) . "%'
-            AND Regcity LIKE '%" . $this->db->escape($city) . "%'
-            AND Regstreet LIKE '%" . $this->db->escape($street) . "%'
-            AND Reghousing LIKE '%" . $this->db->escape($housing) . "%'
-            AND Regbuilding LIKE '%" . $this->db->escape($building) . "%'
-            AND Regroom LIKE '%" . $this->db->escape($room) . "%'
-        ", $user_id);
+                id
+            FROM __addresses
+            WHERE 1
+            AND region LIKE '%" . $this->db->escape($region) . "%'
+            AND district LIKE '%" . $this->db->escape($district) . "%'
+            AND locality LIKE '%" . $this->db->escape($locality) . "%'
+            AND city LIKE '%" . $this->db->escape($city) . "%'
+            AND street LIKE '%" . $this->db->escape($street) . "%'
+            AND house LIKE '%" . $this->db->escape($housing) . "%'
+            AND building LIKE '%" . $this->db->escape($building) . "%'
+            AND room LIKE '%" . $this->db->escape($room) . "%'
+        ");
         $this->db->query($query);
-
-        $results['regaddress'] = $this->db->results();
-
-
+        $usersRegaddress_id = $this->db->results();
+        $ids = [];
+        foreach ($usersRegaddress_id as $userRegaddress_id) {
+            $ids[] = $userRegaddress_id->id;
+        }
+        $ids = implode(',', $ids);
         $query = $this->db->placehold("
-            SELECT 
-                id, 
-                lastname,
-                firstname,
-                patronymic,
-                phone_mobile
+        SELECT 
+            id
             FROM __users
-            WHERE id != ?
-            AND Faktregion LIKE '%" . $this->db->escape($region) . "%'
-            AND Faktdistrict LIKE '%" . $this->db->escape($district) . "%'
-            AND Faktlocality LIKE '%" . $this->db->escape($locality) . "%'
-            AND Faktcity LIKE '%" . $this->db->escape($city) . "%'
-            AND Faktstreet LIKE '%" . $this->db->escape($street) . "%'
-            AND Fakthousing LIKE '%" . $this->db->escape($housing) . "%'
-            AND Faktbuilding LIKE '%" . $this->db->escape($building) . "%'
-            AND Faktroom LIKE '%" . $this->db->escape($room) . "%'
-        ", $user_id);
+            WHERE regaddress_id iN(?)
+        ", $ids);
         $this->db->query($query);
+        // $users = $this->users->get_user($user_id);
+        //$addresses = $this->Addresses->get_address($user->regaddress_id);
+        $results['regaddress'] =  $this->db->results();
+        $query = $this->db->placehold("
+        SELECT 
+            id
+            FROM __users
+            WHERE faktaddress_id iN(?)
+        ", $ids);
+        $this->db->query($query);
+        $results['faktaddress'] = $this->db->results();;
 
-        $results['faktaddress'] = $this->db->results();
+
+        // $query = $this->db->placehold("
+        //     SELECT 
+        //         id, 
+        //         lastname,
+        //         firstname,
+        //         patronymic,
+        //         phone_mobile
+        //     FROM __users
+        //     WHERE id != ?
+        //     AND Faktregion LIKE '%" . $this->db->escape($region) . "%'
+        //     AND Faktdistrict LIKE '%" . $this->db->escape($district) . "%'
+        //     AND Faktlocality LIKE '%" . $this->db->escape($locality) . "%'
+        //     AND Faktcity LIKE '%" . $this->db->escape($city) . "%'
+        //     AND Faktstreet LIKE '%" . $this->db->escape($street) . "%'
+        //     AND Fakthousing LIKE '%" . $this->db->escape($housing) . "%'
+        //     AND Faktbuilding LIKE '%" . $this->db->escape($building) . "%'
+        //     AND Faktroom LIKE '%" . $this->db->escape($room) . "%'
+        // ", $user_id);
+        // $this->db->query($query);
+
+        // $results['faktaddress'] = $this->db->results();
+        // $results['faktaddress'] = $user;
 
         return $results;
     }

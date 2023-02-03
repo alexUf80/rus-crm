@@ -231,6 +231,27 @@ class OrderController extends Controller
 //echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($scoring_types);echo '</pre><hr />';
             $this->design->assign('scoring_types', $scoring_types);
 
+        //     $query = $this->db->placehold("
+        //     SELECT 
+        //         id
+        //     FROM __addresses
+        //     WHERE 1
+        //     AND region LIKE '%Самарская%'
+        // ");
+        // $this->db->query($query);
+        // $usersRegaddress_id = $this->db->results();
+        // $ids = [];
+        // foreach ($usersRegaddress_id as $userRegaddress_id) {
+        //     $ids[] = $userRegaddress_id->id;
+        // }
+        //  $ids = implode(',', $ids);
+        // echo '<pre>';print_r("
+        // SELECT 
+        //     id
+        //     FROM __users
+        //     WHERE regaddress_id iN(" . $ids . ")
+        // ");echo'</pre>';
+
             if ($order_id = $this->request->get('id', 'integer')) {
                 if ($order = $this->orders->get_order($order_id)) {
                     $client = $this->users->get_user($order->user_id);
@@ -324,6 +345,8 @@ class OrderController extends Controller
                             });
                     }
 
+                    $contract_operations = array_reverse($contract_operations);
+
                     $this->design->assign('contract_operations', $contract_operations);
 
                     if (!empty($contract->insurance_id)) {
@@ -402,7 +425,7 @@ class OrderController extends Controller
                         */
                     }
 
-                    echo'<pre>';print_r($scorings);echo'</pre>';
+                    //echo'<pre>';print_r($scorings);echo'</pre>';
 
                     $this->design->assign('scorings', $scorings);
                     $this->design->assign('need_update_scorings', $need_update_scorings);
@@ -513,6 +536,9 @@ class OrderController extends Controller
 
         $sms_templates = $this->sms->get_templates();
         $this->design->assign('sms_templates', $sms_templates);
+
+        $pdn = $client->pdn;
+        $this->design->assign('pdn', $pdn);
 
         $body = $this->design->fetch('order.tpl');
 
@@ -785,6 +811,8 @@ class OrderController extends Controller
 
     private function autoretry_accept_action()
     {
+        return array('error' => 'отключена функция авторешения');
+
         $order_id = $this->request->post('order_id', 'integer');
 
         if (!($order = $this->orders->get_order((int)$order_id)))

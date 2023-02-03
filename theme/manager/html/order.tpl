@@ -2464,31 +2464,6 @@
 
                                                 <div class="row view-block p-2 {if $services_error}hide{/if}">
                                                     <div class="col-md-12">
-                                                        <div style="display: flex; justify-content: space-between">
-                                                            <label class="control-label">
-                                                                Будь в курсе:
-                                                                {if true}
-                                                                    {if $contract->bud_v_kurse_returned}
-                                                                        <small class="text-danger">Услуга возвращена
-                                                                        </small>
-                                                                    {else}
-                                                                        <button class="btn btn-xs btn-danger js-return-bud-v-kurse"
-                                                                                data-contract="{$contract->id}"
-                                                                                type="button">Вернуть
-                                                                        </button>
-                                                                    {/if}
-                                                                {/if}
-                                                            </label>
-                                                            <div>
-                                                                <p class="form-control-static">
-                                                                    {if $order->service_sms}
-                                                                        <span class="label label-success">Вкл</span>
-                                                                    {else}
-                                                                        <span class="label label-danger">Выкл</span>
-                                                                    {/if}
-                                                                </p>
-                                                            </div>
-                                                        </div>
 
                                                         <div style="display: flex; justify-content: space-between">
                                                             <label class="control-label">
@@ -2899,12 +2874,13 @@
                                 {if $documents}
                                     <table class="table">
                                         {foreach $documents as $document}
+                                            {if $document->name|escape == 'Полис страхования' ||  $document->name|escape == 'Полис страхования при пролонгаци' ||  $document->name|escape == 'Дополнительное соглашение о реструктуризации'}
                                             <tr>
                                                 <td class="text-info">
                                                     <a target="_blank"
                                                        href="{$config->front_url}/document/{$document->user_id}/{$document->id}">
                                                         <i class="fas fa-file-pdf fa-lg"></i>&nbsp;
-                                                        {$document->name|escape}
+                                                        {$document->name|escape} от {$document->created|date}
                                                     </a>
                                                 </td>
                                                 <td class="text-right">
@@ -2912,6 +2888,21 @@
                                                     {$document->created|time}
                                                 </td>
                                             </tr>
+                                            {else}
+                                                <tr>
+                                                    <td class="text-info">
+                                                        <a target="_blank"
+                                                        href="{$config->front_url}/document/{$document->user_id}/{$document->id}">
+                                                            <i class="fas fa-file-pdf fa-lg"></i>&nbsp;
+                                                            {$document->name|escape} 
+                                                        </a>
+                                                    </td>
+                                                    <td class="text-right">
+                                                        {$document->created|date}
+                                                        {$document->created|time}
+                                                    </td>
+                                                </tr>
+                                            {/if}
                                         {/foreach}
                                     </table>
                                 {else}

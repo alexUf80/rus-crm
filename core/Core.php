@@ -71,4 +71,15 @@ class Core
 		
 		return self::$objects[$name];
 	}
+
+    protected function json_output($data)
+    {
+        header("Content-type: application/json; charset=UTF-8");
+        header("Cache-Control: must-revalidate");
+        header("Pragma: no-cache");
+        header("Expires: -1");		
+
+        echo json_encode($data);
+        exit;
+    }
 }
