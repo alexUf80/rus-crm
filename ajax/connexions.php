@@ -267,13 +267,13 @@ class ConnexionsAjax extends Core
         foreach ($usersRegaddress_id as $userRegaddress_id) {
             $ids[] = $userRegaddress_id->id;
         }
-        //$ids = implode(',', $ids);
+        $ids = implode(',', $ids);
         $query = $this->db->placehold("
         SELECT 
             id
             FROM __users
-            WHERE regaddress_id iN(?)
-        ", $ids);
+            WHERE regaddress_id iN(" . $ids . ")
+        ");
         $this->db->query($query);
         // $users = $this->users->get_user($user_id);
         //$addresses = $this->Addresses->get_address($user->regaddress_id);
