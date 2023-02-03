@@ -267,7 +267,7 @@ class ConnexionsAjax extends Core
         foreach ($usersRegaddress_id as $userRegaddress_id) {
             $ids[] = $userRegaddress_id->id;
         }
-        $ids = implode(',', $ids);
+        //$ids = implode(',', $ids);
         $query = $this->db->placehold("
         SELECT 
             id
