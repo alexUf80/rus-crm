@@ -250,7 +250,7 @@ class ConnexionsAjax extends Core
         $query = $this->db->placehold("
             SELECT 
                 id
-            FROM __Addresses
+            FROM __addresses
             WHERE 1
             AND region LIKE '%" . $this->db->escape($region) . "%'
             AND district LIKE '%" . $this->db->escape($district) . "%'
