@@ -95,6 +95,7 @@ class DocumentTestCreateController extends Controller
             'profession' => $user->profession,
             'workplace' => $user->workplace,
             'workaddress' => $user->workaddress,
+            'phone' => $user->phone_mobile,
 
         );
 

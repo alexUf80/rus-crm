@@ -16,7 +16,8 @@ class Documents extends Core
         'GRAPH_RESTRUCT' => 'restruct-ps.tpl',
 
         'ANKETA_FL' =>  'anketa_fl.tpl',
-        'REASON_FOR_REFUSAL' =>  'reason_for_refusal.tpl'
+        'REASON_FOR_REFUSAL' =>  'reason_for_refusal.tpl',
+        'INFORMATION_SERVICES_AGREEMENT' => 'information_services_agreement.tpl'
     );
 
 
@@ -33,7 +34,8 @@ class Documents extends Core
         'GRAPH_RESTRUCT' => 'График платежей погашения задолженности',
 
         'ANKETA_FL' =>  'Сведения о физическом лице',
-        'REASON_FOR_REFUSAL' =>  'Причину отказа'
+        'REASON_FOR_REFUSAL' =>  'Причина отказа',
+        'INFORMATION_SERVICES_AGREEMENT' => 'Договор об оказании информационных услуг'
     );
 
     private $client_visible = array(
@@ -49,7 +51,8 @@ class Documents extends Core
         'GRAPH_RESTRUCT' => 1,
 
         'ANKETA_FL' => 1,
-        'REASON_FOR_REFUSAL' =>  1
+        'REASON_FOR_REFUSAL' =>  1,
+        'INFORMATION_SERVICES_AGREEMENT' => 1
     );
 
     public function get_sudblock_create_documents($block)
