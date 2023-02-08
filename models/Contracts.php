@@ -891,7 +891,7 @@ if ($this->is_developer)
         if (empty($contract['number']))
         {
             $contract_date = strtotime($contract['create_date']);
-            $uid = exec($this->config->root_dir.'generic/uidgen');
+            $uid = exec($this->config->root_dir.'vendor/bin/uidgen');
             $contract_number = date('md', $contract_date).'-'.$id;
     
             $this->update_contract($id, array('uid' => $uid, 'number'=>$contract_number));

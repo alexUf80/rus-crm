@@ -5,7 +5,7 @@ ini_set('default_socket_timeout', '300');
 
 class Onec implements ApiInterface
 {
-    protected static $link = "https://1c.redlab.su/corp_ruszaymserv/ws/";
+    protected static $link = "http://79.137.210.6/corp_ruszaymserv/ws/";
     protected static $login = 'admin';
     protected static $password = '2020';
     protected static $orderId;
@@ -36,13 +36,6 @@ class Onec implements ApiInterface
         if (empty($user->inn))
             self::getInn($user->id);
 
-        $equiScore = ScoringsORM::where('order_id', $order_id)
-            ->where('type', 'equifax')
-            ->where('success', 1)
-            ->first();
-
-        $equiScore = json_decode($equiScore->body, true);
-
         $card = CardsORM::find($contract->card_id);
 
         if(!empty($card))
@@ -59,13 +52,13 @@ class Onec implements ApiInterface
         $item->Периодичность = 'День';
         $item->ПроцентнаяСтавка = $contract->base_percent;
         $item->ПСК = '365';
-        $item->ПДН = round(($equiScore['all_payment_active_credit_month'] / $user->income) * 100, 3);
+        $item->ПДН = $user->pdn * 100;
         $item->УИДСделки = $contract->number;
-        $item->ИдентификаторФормыВыдачи = 'Безналичная';
+        $item->ИдентификаторФормыВыдачи = 'ТекущийСчетРасчетов';
         $item->ИдентификаторФормыОплаты = 'ТретьеЛицо';
         $item->Сумма = $contract->amount;
         $item->Порог = '1.5';
-        $item->ИННОрганизации = '7801323165';
+        $item->ИННОрганизации = '9717088848';
         $item->СпособПодачиЗаявления = 'Прямой';
         $item->НомерКарты = $cardPan;
 
@@ -101,7 +94,10 @@ class Onec implements ApiInterface
 
         $request = new StdClass();
         $request->TextJSON = json_encode($item);
+
         $result = self::send_request('CRM_WebService', 'Loans', $request);
+
+        return $result;
 
         if (isset($result->return) && $result->return == 'OK')
             return 1;
