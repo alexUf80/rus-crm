@@ -575,7 +575,7 @@
                                     <h5 class="form-control-static">
                                         Источник:
                                         {if $order->utm_source}
-                                            {$order->utm_source|escape} organic
+                                            {$order->utm_source|escape}       
                                         {else}
                                             organic
                                         {/if}
