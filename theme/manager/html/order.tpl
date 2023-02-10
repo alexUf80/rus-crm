@@ -577,7 +577,7 @@
                                         {if $order->utm_source}
                                             {$order->utm_source|escape}
                                         {else}
-                                            не определен
+                                            organic
                                         {/if}
                                     </h5>
                                 </div>
