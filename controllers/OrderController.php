@@ -231,7 +231,8 @@ class OrderController extends Controller
             $dadata = new \Dadata\DadataClient($token, $secret);
             $result = $dadata->clean("address", $regaddress->adressfull);
             //  echo'<pre>';print_r($result['timezone']);echo'</pre>';
-            $client_time = $result['timezone'];
+            // $client_time = $result['timezone'];
+            $this->design->assign('client_time', $result['timezone']);
             // echo'<pre>';print_r($scoring_types);echo'</pre>';
 
 //echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($scoring_types);echo '</pre><hr />';
