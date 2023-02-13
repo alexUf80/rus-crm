@@ -168,12 +168,15 @@ a.link:hover, a.link:focus {
 }
 
 .sidebar-nav > ul > li.active > a {
-  border-left: 3px solid #55ce63;
-  color: #55ce63;
+  /*border-left: 3px solid #55ce63;
+  color: #55ce63;*/
+  border-left: 3px solid #5c2626;
+  color: #5c2626;
 }
 
 .sidebar-nav > ul > li.active > a i {
-  color: #55ce63;
+  /*color: #55ce63;*/
+  color: #5c2626;
 }
 
 .sidebar-nav > ul > li > a {
