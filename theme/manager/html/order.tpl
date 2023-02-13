@@ -662,7 +662,7 @@
                                         <div>
                                             <br>
                                             <h5 class="form-control-static float-left  text-center pr-2 pl-2">
-                                                &#8986; {$client_time}
+                                                &#8986; {$client_time} проверка
                                             </h5>
 
                                         </div>
