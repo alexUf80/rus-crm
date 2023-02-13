@@ -225,14 +225,14 @@ class OrderController extends Controller
 
             $scoring_types = $this->scorings->get_types();
             
-            $token = "222e191767518127bcf15cc4d2a23c131404fdf2";
-            $secret = "6b90de07e9974eba848ac174b3eed2829a35ec5e";
-            $regaddress = $this->Addresses->get_address(78929);
-            $dadata = new \Dadata\DadataClient($token, $secret);
-            $result = $dadata->clean("address", $regaddress->adressfull);
+            // $token = "222e191767518127bcf15cc4d2a23c131404fdf2";
+            // $secret = "6b90de07e9974eba848ac174b3eed2829a35ec5e";
+            // $regaddress = $this->Addresses->get_address(78929);
+            // $dadata = new \Dadata\DadataClient($token, $secret);
+            // $result = $dadata->clean("address", $regaddress->adressfull);
             //  echo'<pre>';print_r($result['timezone']);echo'</pre>';
             // $client_time = $result['timezone'];
-            $this->design->assign('client_time', $result['timezone']);
+            // $this->design->assign('client_time', $result['timezone']);
             // echo'<pre>';print_r($scoring_types);echo'</pre>';
 
 //echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($scoring_types);echo '</pre><hr />';
@@ -264,6 +264,8 @@ class OrderController extends Controller
             if ($order_id = $this->request->get('id', 'integer')) {
                 if ($order = $this->orders->get_order($order_id)) {
                     $client = $this->users->get_user($order->user_id);
+
+                    $this->design->assign('client_time', $client->time_zone);
 
                     $regaddress = $this->Addresses->get_address($client->regaddress_id);
                     $faktaddress = $this->Addresses->get_address($client->faktaddress_id);
