@@ -108,7 +108,7 @@ a.link:hover, a.link:focus {
 }
 
 .text-themecolor {
-  color: #55ce63 !important;
+  color: #5c2626 !important;
 }
 
 .profile-tab li a.nav-link.active,
@@ -201,5 +201,5 @@ a.link:hover, a.link:focus {
 .sidebar-nav > ul > li > a.active {
   font-weight: 400;
   background: #ffffff;
-  color: #55ce63;
+  color: #5c2626;
 }
