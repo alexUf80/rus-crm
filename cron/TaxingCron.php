@@ -73,7 +73,7 @@ class TaxingCron extends Core
 
                 //Начисление пени, если просрочен займ
                 if ($contract->status == 4 && $stop_taxing == 0) {
-                    $peni_summ = round(($contract->loan_body_summ * 0.2) / 365, 2);
+                    $peni_summ = round(($contract->loan_body_summ + $contract->loan_percents_summ + $percents_summ) * 0.2 / 365, 2);
 
                     if ($peni_summ > ($taxing_limit - $sum_taxing)) {
                         $peni_summ = $taxing_limit - $sum_taxing;
