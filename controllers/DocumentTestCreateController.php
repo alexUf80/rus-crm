@@ -113,13 +113,13 @@ class DocumentTestCreateController extends Controller
          echo '<pre>';print_r($document_params);echo '</pre>';
 
 
-         $document_params2 = [];
+         //$document_params2 = [];
          $this->documents->create_document(array(
             'user_id' => $contract->user_id,
             'order_id' => $contract->order_id,
             'contract_id' => $contract->id,
             'type' => $name_document,
-            'params' => json_encode($document_params2)
+            'params' => json_encode($document_params)
         ));
             return 1;
         
