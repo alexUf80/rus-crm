@@ -277,19 +277,19 @@ class OrderController extends Controller
                     $time = new DateTimeZone('UTC');
 
 
-                    $date_utc = new \DateTime("now", new \DateTimeZone("UTC+3"));
-                    echo $date_utc->format(\DateTime::RFC850);
+                    // $date_utc = new DateTime("now", new DateTimeZone("UTC"));
+                    // echo $date_utc->format(DateTime::RFC850);
                     // $tz = 'Europe/London';
-                    // $tz = 'Europe/Мoscow';
-                    // $timestamp = time();
-                    // $dt = new DateTime("now", new DateTimeZone($tz)); //first argument "must" be a string
-                    // $dt->setTimestamp($timestamp); //adjust the object to correct timestamp
-                    // echo $dt->format('d.m.Y, H:i:s');
+                    $tz = 'UTC';
+                    $timestamp = time();
+                    $dt = new DateTime("now", new DateTimeZone($tz)); //first argument "must" be a string
+                    $dt->setTimestamp($timestamp); //adjust the object to correct timestamp
+                    echo $dt->format('d.m.Y, H:i:s');
 
-                    // $time = strtotime($dt->format('d.m.Y, H:i:s'));
-                    // $time = $time - $client_time_zon;
-                    // $date = date("Y-m-d H:i:s", $time);
-                    // echo $date;
+                    $time = strtotime($dt->format('d.m.Y, H:i:s'));
+                    $time = $time - $client_time_zon;
+                    $date = date("Y-m-d H:i:s", $time);
+                    echo $date;
 
                     $this->design->assign('client_time', $client->time_zone);
 
