@@ -272,7 +272,7 @@ class OrderController extends Controller
                     echo '<pre>';print_r($client_time_zon);echo'</pre>';
                     $client_time_zon = (int)$client_time_zon;
                     echo '<pre>';print_r($client_time_zon);echo'</pre>';
-                    $client_time_zon = $client_time_zon * 60;
+                    $client_time_zon = $client_time_zon * 60 * 60;
             
                     //$time = new DateTimeZone('UTC');
 
