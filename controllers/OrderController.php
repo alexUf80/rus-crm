@@ -267,14 +267,14 @@ class OrderController extends Controller
                     $client = $this->users->get_user($order->user_id);
 
                     $client_time_zon = $client->time_zone;
-                    echo $client_time_zon;
+                    echo '<pre>';print_r($client_time_zon);echo'</pre>';
                     $client_time_zon = mb_substr( $client_time_zon, 3);
-                    echo $client_time_zon;
+                    echo '<pre>';print_r($client_time_zon);echo'</pre>';
                     $client_time_zon = (int)$client_time_zon;
-                    echo $client_time_zon;
+                    echo '<pre>';print_r($client_time_zon);echo'</pre>';
                     $client_time_zon = $client_time_zon * 60;
             
-                    $time = new DateTimeZone('UTC');
+                    //$time = new DateTimeZone('UTC');
 
 
                     // $date_utc = new DateTime("now", new DateTimeZone("UTC"));
@@ -284,12 +284,14 @@ class OrderController extends Controller
                     $timestamp = time();
                     $dt = new DateTime("now", new DateTimeZone($tz)); //first argument "must" be a string
                     $dt->setTimestamp($timestamp); //adjust the object to correct timestamp
-                    echo $dt->format('d.m.Y, H:i:s');
+                    //echo $dt->format('d.m.Y, H:i:s');
+                    echo '<pre>';print_r($dt->format('d.m.Y, H:i:s'));echo'</pre>';
 
                     $time = strtotime($dt->format('d.m.Y, H:i:s'));
                     $time = $time - $client_time_zon;
                     $date = date("Y-m-d H:i:s", $time);
-                    echo $date;
+                    echo '<pre>';print_r($dt->format($date));echo'</pre>';
+                    //echo $date;
 
                     $this->design->assign('client_time', $client->time_zone);
 
