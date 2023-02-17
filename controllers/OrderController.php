@@ -267,34 +267,31 @@ class OrderController extends Controller
                     $client = $this->users->get_user($order->user_id);
 
                     $client_time_zon = $client->time_zone;
-                    $client_time_zon = 'UTC-5';
-                    echo '<pre>';print_r($client_time_zon);echo'</pre>';
+                    //$client_time_zon = 'UTC-5';
+                    //echo '<pre>';print_r($client_time_zon);echo'</pre>';
                     $client_time_zon = mb_substr( $client_time_zon, 3);
-                    echo '<pre>';print_r($client_time_zon);echo'</pre>';
+                    //echo '<pre>';print_r($client_time_zon);echo'</pre>';
                     $client_time_zon = (int)$client_time_zon;
-                    echo '<pre>';print_r($client_time_zon);echo'</pre>';
+                    //echo '<pre>';print_r($client_time_zon);echo'</pre>';
                     $client_time_zon = $client_time_zon * 60 * 60;
             
                     //$time = new DateTimeZone('UTC');
 
-
-                    // $date_utc = new DateTime("now", new DateTimeZone("UTC"));
-                    // echo $date_utc->format(DateTime::RFC850);
-                    // $tz = 'Europe/London';
                     $tz = 'UTC';
                     $timestamp = time();
                     $dt = new DateTime("now", new DateTimeZone($tz)); //first argument "must" be a string
                     $dt->setTimestamp($timestamp); //adjust the object to correct timestamp
                     //echo $dt->format('d.m.Y, H:i:s');
-                    echo '<pre>';print_r($dt->format('d.m.Y, H:i:s'));echo'</pre>';
+                    //echo '<pre>';print_r($dt->format('d.m.Y, H:i:s'));echo'</pre>';
 
                     $time = strtotime($dt->format('d.m.Y, H:i:s'));
                     $time = $time + $client_time_zon;
-                    $date = date("Y-m-d H:i:s", $time);
-                    echo '<pre>';print_r($dt->format($date));echo'</pre>';
+                    $time_zone = date("d.m.Y H:i:s", $time);
+                    //echo '<pre>';print_r($dt->format($date));echo'</pre>';
                     //echo $date;
 
                     $this->design->assign('client_time', $client->time_zone);
+                    $this->design->assign('client_time_zone', $time_zone);
 
                     $regaddress = $this->Addresses->get_address($client->regaddress_id);
                     $faktaddress = $this->Addresses->get_address($client->faktaddress_id);
