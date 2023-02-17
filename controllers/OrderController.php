@@ -275,6 +275,10 @@ class OrderController extends Controller
                     $client_time_zon = $client_time_zon * 60;
             
                     $time = new DateTimeZone('UTC');
+
+
+                    $date_utc = new \DateTime("now", new \DateTimeZone("UTC+3"));
+                    echo $date_utc->format(\DateTime::RFC850);
                     // $tz = 'Europe/London';
                     // $tz = 'Europe/Мoscow';
                     // $timestamp = time();
