@@ -235,6 +235,7 @@ class OrderController extends Controller
             // $this->design->assign('client_time', $result['timezone']);
             // echo'<pre>';print_r($scoring_types);echo'</pre>';
 
+
 //echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($scoring_types);echo '</pre><hr />';
             $this->design->assign('scoring_types', $scoring_types);
 
@@ -264,6 +265,14 @@ class OrderController extends Controller
             if ($order_id = $this->request->get('id', 'integer')) {
                 if ($order = $this->orders->get_order($order_id)) {
                     $client = $this->users->get_user($order->user_id);
+
+                    $client_time_zon = $client->time_zone;
+            
+                    $tz = 'Europe/London';
+                    $timestamp = time();
+                    $dt = new DateTime("now", new DateTimeZone($tz)); //first argument "must" be a string
+                    $dt->setTimestamp($timestamp); //adjust the object to correct timestamp
+                    echo $dt->format('d.m.Y, H:i:s');
 
                     $this->design->assign('client_time', $client->time_zone);
 
