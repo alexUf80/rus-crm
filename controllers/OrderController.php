@@ -267,6 +267,7 @@ class OrderController extends Controller
                     $client = $this->users->get_user($order->user_id);
 
                     $client_time_zon = $client->time_zone;
+                    $client_time_zon = 'UTC-5';
                     echo '<pre>';print_r($client_time_zon);echo'</pre>';
                     $client_time_zon = mb_substr( $client_time_zon, 3);
                     echo '<pre>';print_r($client_time_zon);echo'</pre>';
@@ -288,7 +289,7 @@ class OrderController extends Controller
                     echo '<pre>';print_r($dt->format('d.m.Y, H:i:s'));echo'</pre>';
 
                     $time = strtotime($dt->format('d.m.Y, H:i:s'));
-                    $time = $time - $client_time_zon;
+                    $time = $time + $client_time_zon;
                     $date = date("Y-m-d H:i:s", $time);
                     echo '<pre>';print_r($dt->format($date));echo'</pre>';
                     //echo $date;
