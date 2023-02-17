@@ -19,7 +19,8 @@ class DocumentTestCreateController extends Controller
         
         // $results = $this->db->results();
         //echo '<pre>';print_r($results);echo '</pre>';
-        $contract = $this->contracts->get_contract(3667);
+        $contract = ContractsORM::where('user_id', $user_id)->get();
+        $contract = $contract[count($contract)-1];
         // $params = [];
 
         $contract_order = $this->orders->get_order((int)$contract->order_id);

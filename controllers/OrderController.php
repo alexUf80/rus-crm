@@ -269,6 +269,7 @@ class OrderController extends Controller
                     $client_time_zon = $client->time_zone;
             
                     $tz = 'Europe/London';
+                    $tz = $client_time_zon;
                     $timestamp = time();
                     $dt = new DateTime("now", new DateTimeZone($tz)); //first argument "must" be a string
                     $dt->setTimestamp($timestamp); //adjust the object to correct timestamp
