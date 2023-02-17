@@ -113,7 +113,7 @@ class DocumentTestCreateController extends Controller
          echo '<pre>';print_r($document_params);echo '</pre>';
 
 
-        
+         $document_params = [];
          $this->documents->create_document(array(
             'user_id' => $contract->user_id,
             'order_id' => $contract->order_id,
