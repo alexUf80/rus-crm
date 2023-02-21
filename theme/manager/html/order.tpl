@@ -2237,7 +2237,7 @@
                                                                 <div class="row {if !$scoring_type@last}border-bottom{/if}">
                                                                     <div class="col-12 col-sm-12 pt-2">
                                                                         <h5 class="float-left">
-                                                                            {$scoring_type->title} проверка
+                                                                            {$scoring_type->title}
                                                                             {if $scoring_type->name == 'fssp'}
                                                                                 {if $scorings[$scoring_type->name]->found_46}<span class="label label-danger">46</span>{/if}
                                                                                 {if $scorings[$scoring_type->name]->found_47}<span class="label label-danger">47</span>{/if}
