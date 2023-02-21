@@ -205,7 +205,7 @@ echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($response, $error);echo '</pre
                     'status' => 'completed',
                     'body' => serialize($result['data']),
                     'success' => 0,
-                    'string_result' => 'превышен допустимый порог активных займов'
+                    'string_result' => 'превышен допустимый порог активных займов проверка'
                 );
     
                 $this->scorings->update_scoring($this->scoring_id, $add_scoring);
