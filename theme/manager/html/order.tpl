@@ -2225,6 +2225,9 @@
                                                                 <i class="far fa-play-circle"></i>
                                                             </a>
                                                             {/if}
+                                                            <a class="text-white js-run-scorings" data-type="all" data-order="{$order->order_id}" href="javascript:void(0);">
+                                                                <i class="far fa-play-circle"></i>
+                                                            </a>
                                                         </span>
                                                     </h2>
                                                     <div class="message-box js-scorings-block {if $need_update_scorings}js-need-update{/if}" data-order="{$order->order_id}">
@@ -2234,7 +2237,7 @@
                                                                 <div class="row {if !$scoring_type@last}border-bottom{/if}">
                                                                     <div class="col-12 col-sm-12 pt-2">
                                                                         <h5 class="float-left">
-                                                                            {$scoring_type->title}
+                                                                            {$scoring_type->title} проверка
                                                                             {if $scoring_type->name == 'fssp'}
                                                                                 {if $scorings[$scoring_type->name]->found_46}<span class="label label-danger">46</span>{/if}
                                                                                 {if $scorings[$scoring_type->name]->found_47}<span class="label label-danger">47</span>{/if}
