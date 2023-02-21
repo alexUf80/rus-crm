@@ -2225,9 +2225,6 @@
                                                                 <i class="far fa-play-circle"></i>
                                                             </a>
                                                             {/if}
-                                                            <a class="text-white js-run-scorings" data-type="all" data-order="{$order->order_id}" href="javascript:void(0);">
-                                                                <i class="far fa-play-circle"></i>
-                                                            </a>
                                                         </span>
                                                     </h2>
                                                     <div class="message-box js-scorings-block {if $need_update_scorings}js-need-update{/if}" data-order="{$order->order_id}">
@@ -2274,7 +2271,7 @@
                                                                                 <a href="{$efrsb_link}" target="_blank" class="float-right">Подробнее</a>
                                                                                 {/foreach}
                                                                             {/if}
-                                                                            {if $scoring_type->name == 'nbki'}
+                                                                            {if $scoring_type->name == 'nal-plus-nbki'}
                                                                                 <a href="http://51.250.101.109/nal-plus-nbki/{$scorings[$scoring_type->name]->id}?api=F1h1Hdf9g_h" target="_blank">Подробнее</a>
                                                                             {/if}
                                                                         </span>
