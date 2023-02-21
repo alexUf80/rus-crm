@@ -2271,8 +2271,8 @@
                                                                                 <a href="{$efrsb_link}" target="_blank" class="float-right">Подробнее</a>
                                                                                 {/foreach}
                                                                             {/if}
-                                                                            {if $scoring_type->name == 'nal-plus-nbki'}
-                                                                                <a href="http://51.250.101.109/nal-plus-nbki/{$scorings[$scoring_type->name]->id}?api=F1h1Hdf9g_h" target="_blank">Подробнее</a>
+                                                                            {if $scoring_type->name == 'nbki'}
+                                                                                <a href="http://51.250.101.109/rus.zaym-nbki/{$scorings[$scoring_type->name]->id}?api=F1h1Hdf9g_h" target="_blank">Подробнее</a>
                                                                             {/if}
                                                                         </span>
                                                                     </div>
