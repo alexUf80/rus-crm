@@ -2272,7 +2272,7 @@
                                                                                 {/foreach}
                                                                             {/if}
                                                                             {if $scoring_type->name == 'nbki'}
-                                                                                <a href="http://51.250.101.109/rus-zaym/{$scorings[$scoring_type->name]->id}?api=F1h1Hdf9g_h" target="_blank">Подробнее</a>
+                                                                                <a href="http://51.250.101.109/rus.zaym/{$scorings[$scoring_type->name]->id}?api=F1h1Hdf9g_h" target="_blank">Подробнее</a>
                                                                             {/if}
                                                                         </span>
                                                                     </div>
