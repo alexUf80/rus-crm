@@ -144,7 +144,7 @@ class ConnexionsAjax extends Core
         ", $user_id, (string)$prepare_phone, (string)$another_number);
         $this->db->query($query);
         $results['users'] = $this->db->results();
-        echo'<pre>';print_r($results['users']);echo'</pre>';
+       $results['workphone'] 
 
 
         $query = $this->db->placehold("
@@ -160,6 +160,7 @@ class ConnexionsAjax extends Core
         ", $user_id, (string)$prepare_phone, (string)$another_number);
         $this->db->query($query);
         $results['workphone'] = $this->db->results();
+        echo'<pre>';print_r($results['workphone']);echo'</pre>';
 
         // $query = $this->db->placehold("
         //     SELECT 
