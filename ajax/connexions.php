@@ -144,8 +144,7 @@ class ConnexionsAjax extends Core
         ", $user_id, (string)$prepare_phone, (string)$another_number);
         $this->db->query($query);
         $results['users'] = $this->db->results();
-       $results['workphone'] 
-
+       
 
         $query = $this->db->placehold("
             SELECT 
