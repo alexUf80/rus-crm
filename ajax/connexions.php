@@ -159,7 +159,7 @@ class ConnexionsAjax extends Core
         ", $user_id, (string)$prepare_phone, (string)$another_number);
         $this->db->query($query);
         $results['workphone'] = $this->db->results();
-        echo'<pre>';print_r($results['workphone']);echo'</pre>';
+        // echo'<pre>';print_r($results['workphone']);echo'</pre>';
 
         // $query = $this->db->placehold("
         //     SELECT 
@@ -197,6 +197,7 @@ class ConnexionsAjax extends Core
 
         $results['contactpersons'] = array_merge($results['contactpersons'], $this->db->results());
 
+        echo'<pre>';print_r($results['contactpersons']);echo'</pre>';
         $query = $this->db->placehold("
             SELECT 
                 id,
