@@ -198,32 +198,32 @@ class ConnexionsAjax extends Core
         $results['contactpersons'] = array_merge($results['contactpersons'], $this->db->results());
 
         // echo'<pre>';print_r($results['contactpersons']);echo'</pre>';
-        $query = $this->db->placehold("
-            SELECT 
-                id,
-                lastname,
-                firstname,
-                patronymic,
-                phone_mobile AS user_phone
-            FROM __users
-            WHERE id != ?
-        ", $user_id);
-        $this->db->query($query);
-        $results['contactpersons'] = array_merge($results['contactpersons'], $this->db->results());
-        echo'<pre>';print_r($results['contactpersons']);echo'</pre>';
-        
-        $query = $this->db->placehold("
-            SELECT 
-                id,
-                lastname,
-                firstname,
-                patronymic,
-                phone_mobile AS user_phone
-            FROM __users
-            WHERE id != ?
-        ", $user_id);
-        $this->db->query($query);
-        $results['contactpersons'] = array_merge($results['contactpersons'], $this->db->results());
+        // $query = $this->db->placehold("
+        //     SELECT 
+        //         id,
+        //         lastname,
+        //         firstname,
+        //         patronymic,
+        //         phone_mobile AS user_phone
+        //     FROM __users
+        //     WHERE id != ?
+        // ", $user_id);
+        // $this->db->query($query);
+        // $results['contactpersons'] = array_merge($results['contactpersons'], $this->db->results());
+        // echo'<pre>';print_r($results['contactpersons']);echo'</pre>';
+
+        // $query = $this->db->placehold("
+        //     SELECT 
+        //         id,
+        //         lastname,
+        //         firstname,
+        //         patronymic,
+        //         phone_mobile AS user_phone
+        //     FROM __users
+        //     WHERE id != ?
+        // ", $user_id);
+        // $this->db->query($query);
+        // $results['contactpersons'] = array_merge($results['contactpersons'], $this->db->results());
 
         return $results;
     }
