@@ -22,9 +22,10 @@ class ConnexionsAjax extends Core
             if ($user = $this->users->get_user($user_id)) {
                 $result = array();
 
-                $result['phone_mobile'] = new StdClass();
-                $result['phone_mobile']->search = $user->phone_mobile;
-                $result['phone_mobile']->found = array_filter($this->find_phone($user->id, $user->phone_mobile));
+                // $result['phone_mobile'] = new StdClass();
+                // $result['phone_mobile']->search = $user->phone_mobile;
+                // $result['phone_mobile']->found = array_filter($this->find_phone($user->id, $user->phone_mobile));
+                echo'<pre>';print_r($this->find_phone($user->id, $user->phone_mobile));echo'</pre>';
 
                 $result['workphone'] = new StdClass();
                 $result['workphone']->search = $user->workphone;
