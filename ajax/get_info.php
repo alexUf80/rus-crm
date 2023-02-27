@@ -1,6 +1,6 @@
 <?php
 error_reporting(-1);
-ini_set('display_errors', 'On');
+ini_set('display_errors', 'Off');
 
 chdir('..');
 require 'autoload.php';
@@ -83,7 +83,7 @@ class GetInfoAjax extends Core
     }
     
     
-    private function json_output()
+    public function json_output()
     {
         header("Content-type: application/json; charset=UTF-8");
         header("Cache-Control: must-revalidate");
