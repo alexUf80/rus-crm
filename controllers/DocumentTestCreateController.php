@@ -31,7 +31,7 @@ class DocumentTestCreateController extends Controller
         // $contract = $contract[count($contract)-1];
         // $params = [];
 
-        $contract_order = $this->orders->get_order((int)$contract->order_id);
+        $contract_order = $this->orders->get_order((int)$user->order_id);
         //$user = $this->users->get_user($user_id);
 
         $passport_series = substr(str_replace(array(' ', '-'), '', $contract_order->passport_serial), 0, 4);
@@ -123,7 +123,7 @@ class DocumentTestCreateController extends Controller
 
          //$document_params2 = [];
          $this->documents->create_document(array(
-            'user_id' => $contract->user_id,
+            'user_id' => $user_id,
             'order_id' => $contract->order_id,
             'contract_id' => $contract->id,
             'type' => $name_document,
