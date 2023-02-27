@@ -279,7 +279,8 @@ class NeworderController extends Controller
         $types =
             [
                 'ANKETA_PEP',
-                'SOGLASIE_OPD'
+                'SOGLASIE_OPD',
+                'FIND_REASON_FOR_REFUSAL'
             ];
 
         $ob_date = new DateTime();
