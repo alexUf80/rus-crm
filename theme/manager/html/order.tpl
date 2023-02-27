@@ -1491,6 +1491,64 @@
                                             </form>
                                             <!-- / Контакты-->
 
+                                            <!-- /Контактные лица -->
+                                            <form action="{url}" class="js-order-item-form mb-3 border"
+                                                  id="contact_persons_form">
+                                                <h5 class="card-header">
+                                                    <span class="text-white">Контактные лица</span>
+                                                    <a href="javascript:void(0);"
+                                                       class="float-right text-white show_edit_buttons"><i
+                                                                class=" fas fa-edit"></i></a>
+                                                </h5>
+
+                                                <div class="row view-block m-0 {if $contacts_error}hide{/if}">
+                                                    <table class="table table-hover mb-0">
+                                                        <thead>
+                                                        <tr>
+                                                            <th>ФИО</th>
+                                                            <th>Контактный телефон</th>
+                                                            <th>Комментарий</th>
+                                                            <th>Пренадлежность</th>
+                                                            <th>
+                                                                <div data-id="{$client->id}" style="display: none"
+                                                                     class="btn btn-outline-success add_contact contact_edit_buttons">
+                                                                    +
+                                                                </div>
+                                                            </th>
+                                                        </tr>
+                                                        </thead>
+                                                        {foreach $contacts as $contact}
+                                                            <tr>
+                                                                <td>{$contact->name|upper}</td>
+                                                                <td>{$contact->phone}
+                                                                    <button class="js-pbxmaker-call mango-call js-event-add-click"
+                                                                            data-event="63"
+                                                                            data-manager="{$manager->id}"
+                                                                            data-order="{$order->order_id}"
+                                                                            data-user="{$order->user_id}"
+                                                                            data-phone="{$order->chief_phone|escape}"
+                                                                            title="Выполнить звонок">
+                                                                        <i class="fas fa-mobile-alt"></i>
+                                                                    </button>
+                                                                </td>
+                                                                <td>{$contact->comment}</td>
+                                                                <td>{$contact->relation}</td>
+                                                                <td>
+                                                                    <div class="btn btn-outline-warning edit_contact contact_edit_buttons"
+                                                                         style="display: none"
+                                                                         data-id="{$contact->id}"><i
+                                                                                class=" fas fa-edit"></i></div>
+                                                                    <div class="btn btn-outline-danger delete_contact contact_edit_buttons"
+                                                                         style="display: none"
+                                                                         data-id="{$contact->id}"><i
+                                                                                class=" fas fa-trash"></i></div>
+                                                                </td>
+                                                            </tr>
+                                                        {/foreach}
+                                                    </table>
+                                                </div>
+                                            </form>
+
                                             <form action="{url}"
                                                   class="js-order-item-form mb-3 border {if $penalties['addresses'] && $penalties['addresses']->status!=3}card-outline-danger{/if}"
                                                   id="address_form">
