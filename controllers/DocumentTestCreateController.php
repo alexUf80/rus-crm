@@ -8,7 +8,15 @@ class DocumentTestCreateController extends Controller
         $user_id = $this->request->get('user_id', 'integer');
         $name_document = $this->request->get('name_document','string');
         //echo '<pre>';print_r($contract);echo '</pre>';
-        $contract = $this->contracts->get_contract(['user_id' => $user_id]);
+        $user = $this->users->get_user($user_id);
+        $query = $this->db->placehold("
+            SELECT * 
+            FROM __contracts
+            WHERE user_id = ?
+        ", (int)$user->id);
+        $this->db->query($query);
+        $result = $this->db->result();
+        $contract = $result;
 
         // $query = $this->db->placehold("
         //     SELECT *
@@ -24,7 +32,7 @@ class DocumentTestCreateController extends Controller
         // $params = [];
 
         $contract_order = $this->orders->get_order((int)$contract->order_id);
-        $user = $this->users->get_user($user_id);
+        //$user = $this->users->get_user($user_id);
 
         $passport_series = substr(str_replace(array(' ', '-'), '', $contract_order->passport_serial), 0, 4);
         $passport_number = substr(str_replace(array(' ', '-'), '', $contract_order->passport_serial), 4, 6);
@@ -105,12 +113,12 @@ class DocumentTestCreateController extends Controller
         // $document_params['return_date_month'] = date('m', strtotime($new_return_date));
         // $document_params['return_date_year'] = date('Y', strtotime($new_return_date));
         // $document_params['period'] = $period;
-
-         echo '<pre>';print_r($contract->loan_body_summ);echo '</pre>';
-         echo '<pre>';print_r($regaddress_full);echo '</pre>';
-         echo '<pre>';print_r($contract_order);echo '</pre>';
+        echo '<pre>';print_r($contract);echo '</pre>';
+        //  echo '<pre>';print_r($contract->loan_body_summ);echo '</pre>';
+        //  echo '<pre>';print_r($regaddress_full);echo '</pre>';
+        //  echo '<pre>';print_r($contract_order);echo '</pre>';
          
-         echo '<pre>';print_r($document_params);echo '</pre>';
+        //  echo '<pre>';print_r($document_params);echo '</pre>';
 
 
          //$document_params2 = [];
