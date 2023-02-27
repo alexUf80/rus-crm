@@ -8,7 +8,7 @@ class DocumentTestCreateController extends Controller
         $user_id = $this->request->get('user_id', 'integer');
         $name_document = $this->request->get('name_document','string');
         //echo '<pre>';print_r($contract);echo '</pre>';
-        //$contracts = $this->contracts->get_contracts(['user_id' => $user_id]);
+        $contract = $this->contracts->get_contract(['user_id' => $user_id]);
 
         // $query = $this->db->placehold("
         //     SELECT *
@@ -19,18 +19,18 @@ class DocumentTestCreateController extends Controller
         
         // $results = $this->db->results();
         //echo '<pre>';print_r($results);echo '</pre>';
-        $contract = ContractsORM::where('user_id', $user_id)->get();
-        $contract = $contract[count($contract)-1];
+        // $contract = ContractsORM::where('user_id', $user_id)->get();
+        // $contract = $contract[count($contract)-1];
         // $params = [];
 
         $contract_order = $this->orders->get_order((int)$contract->order_id);
         $user = $this->users->get_user($user_id);
 
-        // $passport_series = substr(str_replace(array(' ', '-'), '', $contract_order->passport_serial), 0, 4);
-        // $passport_number = substr(str_replace(array(' ', '-'), '', $contract_order->passport_serial), 4, 6);
-        // $subdivision_code = $contract_order->subdivision_code;
-        // $passport_issued = $contract_order->passport_issued;
-        // $passport_date = $contract_order->passport_date;
+        $passport_series = substr(str_replace(array(' ', '-'), '', $contract_order->passport_serial), 0, 4);
+        $passport_number = substr(str_replace(array(' ', '-'), '', $contract_order->passport_serial), 4, 6);
+        $subdivision_code = $contract_order->subdivision_code;
+        $passport_issued = $contract_order->passport_issued;
+        $passport_date = $contract_order->passport_date;
 
 
         $regaddress_full = empty($contract_order->Regindex) ? '' : $contract_order->Regindex . ', ';
