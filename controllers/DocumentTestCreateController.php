@@ -17,6 +17,14 @@ class DocumentTestCreateController extends Controller
         $this->db->query($query);
         $result = $this->db->result();
         $contract = $result;
+        $query = $this->db->placehold("
+        SELECT * 
+        FROM __orders
+        WHERE user_id = ?
+        ", (int)$user->id);
+        $this->db->query($query);
+        $result = $this->db->result();
+        $contract_order = $result;
 
         // $query = $this->db->placehold("
         //     SELECT *
@@ -31,7 +39,7 @@ class DocumentTestCreateController extends Controller
         // $contract = $contract[count($contract)-1];
         // $params = [];
 
-        $contract_order = $this->orders->get_order((int)$user->order_id);
+        //$contract_order = $this->orders->get_order((int)$user->order_id);
         //$user = $this->users->get_user($user_id);
 
         $passport_series = substr(str_replace(array(' ', '-'), '', $contract_order->passport_serial), 0, 4);
@@ -124,7 +132,7 @@ class DocumentTestCreateController extends Controller
          //$document_params2 = [];
          $this->documents->create_document(array(
             'user_id' => $user_id,
-            'order_id' => $user->order_id,
+            'order_id' => $contract_order->id,
             'contract_id' => $contract->id,
             'type' => $name_document,
             'params' => json_encode($document_params)
