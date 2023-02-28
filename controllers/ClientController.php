@@ -18,6 +18,10 @@ class ClientController extends Controller
                 case 'services':
                     $this->action_services();
                 break;
+
+                case 'add_contact':
+                    $this->action_add_contact();
+                break;
                 
                 case 'personal':
                     $this->action_personal();
@@ -206,6 +210,9 @@ class ClientController extends Controller
                         $o->contract = $this->contracts->get_contract($o->contract_id);
             
             $this->design->assign('client', $client);
+
+            $contacts = $this->Contactpersons->get_contactpersons(['user_id' => $client->id]);
+            $this->design->assign('contacts', $contacts);
         
             $order_statuses = $this->orders->get_statuses();
             $this->design->assign('order_statuses', $order_statuses);
@@ -1141,6 +1148,27 @@ class ClientController extends Controller
         $user_id = $this->request->post('user');
 
         $this->users->update_user($user_id, ['phone_mobile' => $phone]);
+        exit;
+    }
+
+    private function action_add_contact()
+    {
+        $user_id = $this->request->post('user_id');
+        $fio = strtoupper($this->request->post('fio'));
+        $phone = trim($this->request->post('phone'));
+        $relation = $this->request->post('relation');
+        $comment = $this->request->post('comment');
+
+        $contact =
+            [
+                'user_id' => $user_id,
+                'name' => $fio,
+                'phone' => $phone,
+                'relation' => $relation,
+                'comment' => $comment
+            ];
+
+        $this->Contactpersons->add_contactperson($contact);
         exit;
     }
     
