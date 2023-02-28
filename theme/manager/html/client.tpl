@@ -47,6 +47,12 @@
                     });
                 });
             });
+
+            $('.show_edit_buttons').on('click', function () {
+
+                $('.contact_edit_buttons').toggle();
+            });
+            
             $('.add_contact').on('click', function (e) {
                 e.preventDefault();
                 $('#contacts_form')[0].reset();
