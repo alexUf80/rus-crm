@@ -47,6 +47,101 @@
                     });
                 });
             });
+
+            $('.show_edit_buttons').on('click', function () {
+
+                $('.contact_edit_buttons').toggle();
+            });
+
+            $('.add_contact').on('click', function (e) {
+                e.preventDefault();
+                $('#contacts_form')[0].reset();
+
+                $('#contacts_modal').modal();
+                $('.contacts_modal_title').text('Добавить контакт');
+                $('#contacts_actions').addClass('save_contact');
+                $('#contacts_form').find('input[name="action"]').attr('value', 'add_contact');
+
+                $('.close_contacts_modal').on('click', function () {
+                    $('#contacts_modal').modal('hide');
+                });
+            });
+            $('.edit_contact').on('click', function (e) {
+                e.preventDefault();
+                $('#contacts_form')[0].reset();
+
+                let id = $(this).attr('data-id');
+
+                $.ajax({
+                    method: 'POST',
+                    dataType: 'JSON',
+                    data: {
+                        action: 'get_contact',
+                        id: id
+                    },
+                    success: function (contact) {
+
+                        let relation = contact['relation'];
+
+                        $('#contacts_form').find('input[name="fio"]').val(contact['name']);
+                        $('#contacts_form').find('input[name="phone"]').val(contact['phone']);
+                        $('#contacts_form').find('textarea[name="comment"]').val(contact['comment']);
+
+                        if (relation === null) {
+                            $('#contacts_form').find('select option[value="none"]').prop('selected', true);
+                        } else {
+                            $('#contacts_form').find('select option[value="' + relation + '"]').prop('selected', true);
+                        }
+                    }
+                });
+
+                $('#contacts_modal').modal();
+                $('.contacts_modal_title').text('Редактировать контакт');
+                $('#contacts_actions').addClass('confirm_edit_contact');
+                $('#contacts_form').find('input[name="action"]').attr('value', 'edit_contact');
+
+                $('.close_contacts_modal').on('click', function () {
+                    $('#contacts_modal').modal('hide');
+                });
+
+                $(document).on('click', '.confirm_edit_contact', function (e) {
+                    let form = $('#contacts_form').serialize() + '&id=' + id;
+
+                    $.ajax({
+                        method: 'POST',
+                        data: form,
+                        success: function () {
+                            location.reload();
+                        }
+                    })
+                })
+            });
+            $(document).on('click', '.save_contact', function () {
+
+                let form = $('#contacts_form').serialize();
+
+                $.ajax({
+                    method: 'POST',
+                    data: form,
+                    success: function (resp) {
+                        location.reload();
+                    }
+                })
+            });
+            $('.delete_contact').on('click', function () {
+                let id = $(this).attr('data-id');
+
+                $.ajax({
+                    method: 'POST',
+                    data: {
+                        action: 'delete_contact',
+                        id: id
+                    },
+                    success: function () {
+                        location.reload();
+                    }
+                })
+            });
         })
     </script>
 {/capture}
@@ -476,6 +571,64 @@
                                                 </div>
                                             </form>
                                             <!-- / Контакты-->
+
+                                            <!-- /Контактные лица -->
+                                            <form action="{url}" class="js-order-item-form mb-3 border"
+                                                  id="contact_persons_form">
+                                                <h5 class="card-header">
+                                                    <span class="text-white">Контактные лица</span>
+                                                    <a href="javascript:void(0);"
+                                                       class="float-right text-white show_edit_buttons"><i
+                                                                class=" fas fa-edit"></i></a>
+                                                </h5>
+
+                                                <div class="row view-block m-0 {if $contacts_error}hide{/if}">
+                                                    <table class="table table-hover mb-0">
+                                                        <thead>
+                                                        <tr>
+                                                            <th>ФИО</th>
+                                                            <th>Контактный телефон</th>
+                                                            <th>Комментарий</th>
+                                                            <th>Пренадлежность</th>
+                                                            <th>
+                                                                <div data-id="{$client->id}" style="display: none"
+                                                                     class="btn btn-outline-success add_contact contact_edit_buttons">
+                                                                    +
+                                                                </div>
+                                                            </th>
+                                                        </tr>
+                                                        </thead>
+                                                        {foreach $contacts as $contact}
+                                                            <tr>
+                                                                <td>{$contact->name|upper}</td>
+                                                                <td>{$contact->phone}
+                                                                    <button class="js-pbxmaker-call mango-call js-event-add-click"
+                                                                            data-event="63"
+                                                                            data-manager="{$manager->id}"
+                                                                            data-order="{$order->order_id}"
+                                                                            data-user="{$order->user_id}"
+                                                                            data-phone="{$order->chief_phone|escape}"
+                                                                            title="Выполнить звонок">
+                                                                        <i class="fas fa-mobile-alt"></i>
+                                                                    </button>
+                                                                </td>
+                                                                <td>{$contact->comment}</td>
+                                                                <td>{$contact->relation}</td>
+                                                                <td>
+                                                                    <div class="btn btn-outline-warning edit_contact contact_edit_buttons"
+                                                                         style="display: none"
+                                                                         data-id="{$contact->id}"><i
+                                                                                class=" fas fa-edit"></i></div>
+                                                                    <div class="btn btn-outline-danger delete_contact contact_edit_buttons"
+                                                                         style="display: none"
+                                                                         data-id="{$contact->id}"><i
+                                                                                class=" fas fa-trash"></i></div>
+                                                                </td>
+                                                            </tr>
+                                                        {/foreach}
+                                                    </table>
+                                                </div>
+                                            </form>
 
                                             <form action="{url}" class="js-order-item-form mb-3 border"
                                                   id="address_form">
@@ -1695,6 +1848,51 @@
                 </button>
             </div>
             <div class="modal-body">
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="contacts_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-x">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title contacts_modal_title"></h5>
+            </div>
+            <div class="modal-body">
+                <form id="contacts_form">
+                    <input type="hidden" name="action" value="">
+                    <input type="hidden" name="user_id" value="{$client->id}">
+                    <div style="display: flex; flex-direction: column">
+                        <div class="form-group">
+                            <label class="custom-label">ФИО</label>
+                            <input type="text" class="form-control" name="fio">
+                        </div>
+                        <div class="form-group">
+                            <label class="custom-label">Номер телефона</label>
+                            <input type="text" class="form-control" placeholder="Например 79966225511" name="phone">
+                        </div>
+                        <div class="form-group">
+                            <label class="custom-label">Кем приходится</label>
+                            <select class="form-control" name="relation">
+                                <option value="none" selected>Выберите из списка</option>
+                                <option value="мать/отец">мать/отец</option>
+                                <option value="муж/жена">муж/жена</option>
+                                <option value="сын/дочь">сын/дочь</option>
+                                <option value="коллега">коллега</option>
+                                <option value="друг/сосед">друг/сосед</option>
+                                <option value="иной родственник">иной родственник</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="custom-label">Комментарий</label>
+                            <textarea class="form-control" name="comment"></textarea>
+                        </div>
+                        <div style="display: flex; justify-content: space-between">
+                            <div id="contacts_actions" class="btn btn-success">Сохранить</div>
+                            <div class="btn btn-danger close_contacts_modal">Отменить</div>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

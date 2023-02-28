@@ -254,10 +254,6 @@
                                 <div class="col-md-3">
                                     <h3>Новые клиенты</h3>
                                     <div class="form-group row">
-                                        <label class="control-label col-6">Порог активных займов макс</label>
-                                        <input type="text" name="settings[{$type->id}][params][nk][nbki_number_of_active_max]" value="{$type->params['nk']['nbki_number_of_active_max']}" class="form-control col-6" placeholder="" />
-                                    </div>
-                                    <div class="form-group row">
                                         <label class="control-label col-6">Порог активных займов</label>
                                         <input type="text" name="settings[{$type->id}][params][nk][nbki_number_of_active]" value="{$type->params['nk']['nbki_number_of_active']}" class="form-control col-6" placeholder="" />
                                     </div>
@@ -276,10 +272,6 @@
                                 </div>
                                 <div class="col-md-3">
                                     <h3>Повторные клиенты</h3>
-                                    <div class="form-group row">
-                                        <label class="control-label col-6">Порог активных займов макс</label>
-                                        <input type="text" name="settings[{$type->id}][params][pk][nbki_number_of_active_max]" value="{$type->params['pk']['nbki_number_of_active_max']}" class="form-control col-6" placeholder="" />
-                                    </div>
                                     <div class="form-group row">
                                         <label class="control-label col-6">Порог активных займов</label>
                                         <input type="text" name="settings[{$type->id}][params][pk][nbki_number_of_active]" value="{$type->params['pk']['nbki_number_of_active']}" class="form-control col-6" placeholder="" />

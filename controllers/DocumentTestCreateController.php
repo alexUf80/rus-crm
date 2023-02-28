@@ -8,7 +8,23 @@ class DocumentTestCreateController extends Controller
         $user_id = $this->request->get('user_id', 'integer');
         $name_document = $this->request->get('name_document','string');
         //echo '<pre>';print_r($contract);echo '</pre>';
-        //$contracts = $this->contracts->get_contracts(['user_id' => $user_id]);
+        $user = $this->users->get_user($user_id);
+        $query = $this->db->placehold("
+            SELECT * 
+            FROM __contracts
+            WHERE user_id = ?
+        ", (int)$user->id);
+        $this->db->query($query);
+        $result = $this->db->result();
+        $contract = $result;
+        $query = $this->db->placehold("
+        SELECT * 
+        FROM __orders
+        WHERE user_id = ?
+        ", (int)$user->id);
+        $this->db->query($query);
+        $result = $this->db->result();
+        $contract_order = $result;
 
         // $query = $this->db->placehold("
         //     SELECT *
@@ -19,18 +35,18 @@ class DocumentTestCreateController extends Controller
         
         // $results = $this->db->results();
         //echo '<pre>';print_r($results);echo '</pre>';
-        $contract = ContractsORM::where('user_id', $user_id)->get();
-        $contract = $contract[count($contract)-1];
+        // $contract = ContractsORM::where('user_id', $user_id)->get();
+        // $contract = $contract[count($contract)-1];
         // $params = [];
 
-        $contract_order = $this->orders->get_order((int)$contract->order_id);
-        $user = $this->users->get_user($user_id);
+        //$contract_order = $this->orders->get_order((int)$user->order_id);
+        //$user = $this->users->get_user($user_id);
 
-        // $passport_series = substr(str_replace(array(' ', '-'), '', $contract_order->passport_serial), 0, 4);
-        // $passport_number = substr(str_replace(array(' ', '-'), '', $contract_order->passport_serial), 4, 6);
-        // $subdivision_code = $contract_order->subdivision_code;
-        // $passport_issued = $contract_order->passport_issued;
-        // $passport_date = $contract_order->passport_date;
+        $passport_series = substr(str_replace(array(' ', '-'), '', $contract_order->passport_serial), 0, 4);
+        $passport_number = substr(str_replace(array(' ', '-'), '', $contract_order->passport_serial), 4, 6);
+        $subdivision_code = $contract_order->subdivision_code;
+        $passport_issued = $contract_order->passport_issued;
+        $passport_date = $contract_order->passport_date;
 
 
         $regaddress_full = empty($contract_order->Regindex) ? '' : $contract_order->Regindex . ', ';
@@ -105,18 +121,18 @@ class DocumentTestCreateController extends Controller
         // $document_params['return_date_month'] = date('m', strtotime($new_return_date));
         // $document_params['return_date_year'] = date('Y', strtotime($new_return_date));
         // $document_params['period'] = $period;
-
-         echo '<pre>';print_r($contract->loan_body_summ);echo '</pre>';
-         echo '<pre>';print_r($regaddress_full);echo '</pre>';
-         echo '<pre>';print_r($contract_order);echo '</pre>';
+        echo '<pre>';print_r($contract);echo '</pre>';
+        //  echo '<pre>';print_r($contract->loan_body_summ);echo '</pre>';
+        //  echo '<pre>';print_r($regaddress_full);echo '</pre>';
+        //  echo '<pre>';print_r($contract_order);echo '</pre>';
          
-         echo '<pre>';print_r($document_params);echo '</pre>';
+        //  echo '<pre>';print_r($document_params);echo '</pre>';
 
 
          //$document_params2 = [];
          $this->documents->create_document(array(
-            'user_id' => $contract->user_id,
-            'order_id' => $contract->order_id,
+            'user_id' => $user_id,
+            'order_id' => $contract_order->id,
             'contract_id' => $contract->id,
             'type' => $name_document,
             'params' => json_encode($document_params)

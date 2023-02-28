@@ -52,7 +52,7 @@ class Documents extends Core
         'DOP_RESTRUCT' => 1,
         'GRAPH_RESTRUCT' => 1,
 
-        'ANKETA_FL' => 1,
+        'ANKETA_FL' => 0,
         'REASON_FOR_REFUSAL' =>  1,
         'INFORMATION_SERVICES_AGREEMENT' => 1,
         'FIND_REASON_FOR_REFUSAL' =>  1,

@@ -839,7 +839,7 @@ class OrderController extends Controller
         $this->orders->update_order($order_id, array('contract_id' => $contract_id));
 
         // отправялем смс
-        $msg = 'Активируй займ ' . ($order->amount * 1) . ' в личном кабинете, код' . $accept_code;
+        $msg = 'Активируй займ ' . ($order->amount * 1) . ' в личном кабинете, код ' . $accept_code;
         $this->sms->send($order->phone_mobile, $msg);
 
         return array('success' => 1, 'status' => 2);
@@ -920,7 +920,7 @@ class OrderController extends Controller
             $resp = $this->soap1c->block_order_1c($order->id_1c, 0);
 
         // отправялем смс
-        $msg = 'Активируй займ ' . ($order->amount * 1) . ' в личном кабинете, код' . $accept_code . ' ecozaym24.ru/lk';
+        $msg = 'Активируй займ ' . ($order->amount * 1) . ' в личном кабинете, код ' . $accept_code . ' ecozaym24.ru/lk';
         $this->sms->send($order->phone_mobile, $msg);
 
         return array('success' => 1, 'status' => 2);
