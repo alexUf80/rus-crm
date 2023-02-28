@@ -52,7 +52,7 @@
 
                 $('.contact_edit_buttons').toggle();
             });
-            
+
             $('.add_contact').on('click', function (e) {
                 e.preventDefault();
                 $('#contacts_form')[0].reset();
@@ -1848,6 +1848,51 @@
                 </button>
             </div>
             <div class="modal-body">
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="contacts_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-x">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title contacts_modal_title"></h5>
+            </div>
+            <div class="modal-body">
+                <form id="contacts_form">
+                    <input type="hidden" name="action" value="">
+                    <input type="hidden" name="user_id" value="{$client->id}">
+                    <div style="display: flex; flex-direction: column">
+                        <div class="form-group">
+                            <label class="custom-label">ФИО</label>
+                            <input type="text" class="form-control" name="fio">
+                        </div>
+                        <div class="form-group">
+                            <label class="custom-label">Номер телефона</label>
+                            <input type="text" class="form-control" placeholder="Например 79966225511" name="phone">
+                        </div>
+                        <div class="form-group">
+                            <label class="custom-label">Кем приходится</label>
+                            <select class="form-control" name="relation">
+                                <option value="none" selected>Выберите из списка</option>
+                                <option value="мать/отец">мать/отец</option>
+                                <option value="муж/жена">муж/жена</option>
+                                <option value="сын/дочь">сын/дочь</option>
+                                <option value="коллега">коллега</option>
+                                <option value="друг/сосед">друг/сосед</option>
+                                <option value="иной родственник">иной родственник</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="custom-label">Комментарий</label>
+                            <textarea class="form-control" name="comment"></textarea>
+                        </div>
+                        <div style="display: flex; justify-content: space-between">
+                            <div id="contacts_actions" class="btn btn-success">Сохранить</div>
+                            <div class="btn btn-danger close_contacts_modal">Отменить</div>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
