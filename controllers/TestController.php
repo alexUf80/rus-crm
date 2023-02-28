@@ -9,7 +9,8 @@ class TestController extends Controller
 {
     public function fetch()
     {
-        var_dump(Onec::sendRequest(33963));
+        $res = $this->Nbki_scoring->run_scoring(32809);
+        var_dump($res);
         exit;
     }
 }

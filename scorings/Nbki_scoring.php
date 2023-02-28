@@ -3,7 +3,6 @@
 class Nbki_scoring extends Core
 {
     private $scoring_id;
-    private $error = null;
 
     public function __construct()
     {
@@ -12,44 +11,35 @@ class Nbki_scoring extends Core
 
     public function run_scoring($scoring_id)
     {
-        if ($scoring = $this->scorings->get_scoring($scoring_id)) {
-            $this->scoring_id = $scoring_id;
+        $scoring = $this->scorings->get_scoring($scoring_id);
+        $this->scoring_id = $scoring_id;
 
-            if ($user = $this->users->get_user((int)$scoring->user_id)) {
+        $user = $this->users->get_user((int)$scoring->user_id);
 
-                $regAddress = $this->Addresses->get_address($user->regaddress_id);
+        $regAddress = $this->Addresses->get_address($user->regaddress_id);
 
-                if ($regAddress->city) {
-                    $city = $regAddress->city;
-                } elseif ($regAddress->locality) {
-                    $city = $regAddress->locality;
-                } else {
-                    $city = $regAddress->city;
-                }
+        if ($regAddress->locality)
+            $city = $regAddress->locality;
+        else
+            $city = $regAddress->city;
 
-                return $this->scoring(
-                    $user->firstname,
-                    $user->patronymic,
-                    $user->lastname,
-                    $city,
-                    $regAddress->street,
-                    $user->birth,
-                    $user->birth_place,
-                    $user->passport_serial,
-                    $user->passport_date,
-                    $user->passport_issued,
-                    $user->gender,
-                    $user->client_status
-                );
-            } else {
-                $update = array(
-                    'status' => 'error',
-                    'string_result' => 'не найден пользователь'
-                );
-                $this->scorings->update_scoring($scoring_id, $update);
-                return $update;
-            }
-        }
+
+        return $this->scoring(
+            $user->firstname,
+            $user->patronymic,
+            $user->lastname,
+            $city,
+            $regAddress->street,
+            $user->birth,
+            $user->birth_place,
+            $user->passport_serial,
+            $user->passport_date,
+            $user->passport_issued,
+            $user->gender,
+            $user->client_status
+        );
+
+
     }
 
     public function scoring(
@@ -75,8 +65,8 @@ class Nbki_scoring extends Core
         $json = '{
     "user": {
         "passport": {
-            "series": "'. substr($passport_serial, 0, 4) .'",
-            "number": "'. substr($passport_serial, 5) .'",
+            "series": "' . substr($passport_serial, 0, 4) . '",
+            "number": "' . substr($passport_serial, 5) . '",
             "issued_date": "' . date('Y-m-d', strtotime($passport_date)) . '",
             "issued_by": "' . addslashes($passport_issued) . '",
             "issued_city": "' . addslashes($Regcity) . '"
@@ -101,9 +91,6 @@ class Nbki_scoring extends Core
     }
 }';
 
-//var_dump($json);
-echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($json);echo '</pre><hr />';
-//exit;
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
@@ -122,13 +109,11 @@ echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($json);echo '</pre><hr />';
         ));
 
         $response = curl_exec($curl);
-$error = curl_error($curl);
-echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($response, $error);echo '</pre><hr />';
         curl_close($curl);
         $result = json_decode($response, true);
 
 
-        if (!$result) {
+        if (empty($result)) {
             $add_scoring = array(
                 'status' => 'error',
                 'body' => '',
@@ -141,7 +126,7 @@ echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($response, $error);echo '</pre
             return $add_scoring;
         }
 
-        if ($result['status'] == 'error') {
+        if (isset($result['status']) && $result['status'] == 'error') {
             if (json_encode($result['data']) == "No subject found for this inquiry") {
                 $add_scoring = array(
                     'body' => '',
@@ -164,62 +149,25 @@ echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($response, $error);echo '</pre
             return $add_scoring;
         }
 
-        
         $scoring_type = $this->scorings->get_type('nbki');
-        $max_number_of_active = $scoring_type->params['number_of_active'];
-        $max_share_of_overdue_by_closed = $scoring_type->params['share_of_overdue_by_closed'];
 
-        /*    
-            switch ($client_status) {
-                case 'nk':
-                case 'rep':
-                    $number_of_active_max = $scoring_type->params['nk']['nbki_number_of_active_max'];
-                    $number_of_active = $scoring_type->params['nk']['nbki_number_of_active'];
-                    $share_of_unknown = $scoring_type->params['nk']['nbki_share_of_unknown'];
-                    $share_of_overdue = $scoring_type->params['nk']['nbki_share_of_overdue'];
-                    $open_to_close_ratio = $scoring_type->params['nk']['open_to_close_ratio'];
-                    break;
+        if (in_array($client_status, ['nk', 'rep']))
+            $scoring_type = $scoring_type->params['nk'];
+        else
+            $scoring_type = $scoring_type->params['pk'];
 
-                case 'pk':
-                case 'crm':
-                    $number_of_active_max = $scoring_type->params['pk']['nbki_number_of_active_max'];
-                    $number_of_active = $scoring_type->params['pk']['nbki_number_of_active'];
-                    $share_of_unknown = $scoring_type->params['pk']['nbki_share_of_unknown'];
-                    $share_of_overdue = $scoring_type->params['pk']['nbki_share_of_overdue'];
-                    $open_to_close_ratio = $scoring_type->params['pk']['open_to_close_ratio'];
-                    break;
 
-                default:
-                    $number_of_active_max = $scoring_type->params['nk']['nbki_number_of_active_max'];
-                    $number_of_active = $scoring_type->params['nk']['nbki_number_of_active'];
-                    $share_of_unknown = $scoring_type->params['nk']['nbki_share_of_unknown'];
-                    $share_of_overdue = $scoring_type->params['nk']['nbki_share_of_overdue'];
-                    $open_to_close_ratio = $scoring_type->params['nk']['open_to_close_ratio'];
-                    break;
-            }
-        */
-        
-        if (!($client_status === 'pk' || $client_status === 'crm')) {
-            if ($result['number_of_active'] >= $max_number_of_active) {
-                $add_scoring = array(
-                    'status' => 'completed',
-                    'body' => serialize($result['data']),
-                    'success' => 0,
-                    'string_result' => 'превышен допустимый порог активных займов'
-                );
-    
-                $this->scorings->update_scoring($this->scoring_id, $add_scoring);
-    
-                return $add_scoring;
-            }
-        }
+        $number_of_active = $scoring_type['nbki_number_of_active'];
+        $nbki_share_of_unknown = $scoring_type['nbki_share_of_unknown'];
+        $nbki_share_of_overdue = $scoring_type['nbki_share_of_overdue'];
+        $open_to_close_ratio = $scoring_type['open_to_close_ratio'];
 
-        if ($result['share_of_overdue_by_closed'] >= $max_share_of_overdue_by_closed) {
+        if ($result['number_of_active'] >= $number_of_active) {
             $add_scoring = array(
                 'status' => 'completed',
                 'body' => serialize($result['data']),
                 'success' => 0,
-                'string_result' => 'превышен допустимый порог доли просроченных к закрытым'
+                'string_result' => 'Превышен допустимый порог активных займов'
             );
 
             $this->scorings->update_scoring($this->scoring_id, $add_scoring);
@@ -227,63 +175,19 @@ echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($response, $error);echo '</pre
             return $add_scoring;
         }
 
-        /*
-            if ($result['number_of_active'] >= $number_of_active_max) {
-                $add_scoring = array(
-                    'status' => 'completed',
-                    'body' => serialize($result['data']),
-                    'success' => 0,
-                    'string_result' => 'превышен допустимый порог активных займов'
-                );
 
-                $this->scorings->update_scoring($this->scoring_id, $add_scoring);
+        if ($result['count_of_overdue'] >= $nbki_share_of_overdue) {
+            $add_scoring = array(
+                'status' => 'completed',
+                'body' => serialize($result['data']),
+                'success' => 0,
+                'string_result' => 'Превышен допустимый порог просроченных займов'
+            );
 
-                return $add_scoring;
-            }
+            $this->scorings->update_scoring($this->scoring_id, $add_scoring);
 
-            if ($result['number_of_active'] >= $number_of_active) {
-                if ($result['share_of_overdue'] >= $share_of_overdue || $result['share_of_unknown'] >= $share_of_unknown) {
-                    $add_scoring = array(
-                        'status' => 'completed',
-                        'body' => serialize($result['data']),
-                        'success' => 0,
-                        'string_result' => 'превышен допустимый порог доли просроченных или неизвестных займов'
-                    );
-
-                    $this->scorings->update_scoring($this->scoring_id, $add_scoring);
-
-                    return $add_scoring;
-                }
-            }
-
-            if ($result['share_of_unknown'] > $share_of_unknown) {
-                $add_scoring = array(
-                    'status' => 'completed',
-                    'body' => serialize($result['data']),
-                    'success' => 0,
-                    'string_result' => 'превышен допустимый порог доли неизвестных займов'
-                );
-
-                $this->scorings->update_scoring($this->scoring_id, $add_scoring);
-
-                return $add_scoring;
-            }
-
-            if (isset($result['open_to_close_ratio'])) {
-                if ($result['open_to_close_ratio'] > $open_to_close_ratio) {
-                    $add_scoring = array(
-                        'status' => 'completed',
-                        'body' => serialize($result['data']),
-                        'success' => 0,
-                        'string_result' => 'превышен порог соотношения открытых к закрытым за последние 30 дней'
-                    );
-        
-                    $this->scorings->update_scoring($this->scoring_id, $add_scoring);
-        
-                    return $add_scoring;
-                }
-            }
-        */
+            return $add_scoring;
+        }
 
         $add_scoring = array(
             'status' => 'completed',
