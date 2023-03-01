@@ -2988,9 +2988,6 @@
                                             {/if}
                                         {/foreach}
                                     </table>
-                                    <table class="table">
-                                        <h3>Чеки</h3>
-                                    </table>
                                 {else}
                                     <h4>Нет доступных документов</h4>
                                 {/if}
