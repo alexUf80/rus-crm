@@ -2994,6 +2994,24 @@
                                 {else}
                                     <h4>Нет доступных документов</h4>
                                 {/if}
+                                <table class="table">
+                                    <h3>Чеки</h3>
+                                    {foreach $receipts as $receipt}
+                                        <tr>
+                                            <td class="text-info">
+                                                <a target="_blank"
+                                                   href="{$receipt->receipt_url}">
+                                                    <i class="fas fa-file-pdf fa-lg"></i>&nbsp;
+                                                    Чек от {$receipt->created|date}
+                                                </a>
+                                            </td>
+                                            <td class="text-right">
+                                                {$receipt->created|date}
+                                                {$receipt->created|time}
+                                            </td>
+                                        </tr>
+                                    {/foreach}
+                                </table>
                             </div>
                             <!-- /Документы -->
 
@@ -3109,9 +3127,9 @@
                                         <tbody>
                                         {foreach $contract_operations as $operation}
                                             <tr class="
-                                                    {if in_array($operation->type, ['PAY'])}table-success{/if} 
-                                                    {if in_array($operation->type, ['PERCENTS', 'CHARGE', 'PENI'])}table-danger{/if} 
-                                                    {if in_array($operation->type, ['P2P', 'IMPORT'])}table-info{/if} 
+                                                    {if in_array($operation->type, ['PAY'])}table-success{/if}
+                                                    {if in_array($operation->type, ['PERCENTS', 'CHARGE', 'PENI'])}table-danger{/if}
+                                                    {if in_array($operation->type, ['P2P', 'IMPORT'])}table-info{/if}
                                                     {if in_array($operation->type, ['INSURANCE', 'BUD_V_KURSE', 'REJECT_REASON', 'RETURN_INSURANCE'])}table-warning{/if}
                                                 ">
                                                 <td>

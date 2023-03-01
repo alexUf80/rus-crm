@@ -1604,6 +1604,7 @@
                             <div class="tab-pane p-3" id="documents" role="tabpanel">
                                 {if $documents}
                                     <table class="table">
+                                        <h3>Документы</h3>
                                         {foreach $documents as $document}
                                             <tr>
                                                 <td class="text-info">
@@ -1623,6 +1624,24 @@
                                 {else}
                                     <h4>Нет доступных документов</h4>
                                 {/if}
+                                <table class="table">
+                                    <h3>Чеки</h3>
+                                    {foreach $receipts as $receipt}
+                                        <tr>
+                                            <td class="text-info">
+                                                <a target="_blank"
+                                                   href="{$receipt->receipt_url}">
+                                                    <i class="fas fa-file-pdf fa-lg"></i>&nbsp;
+                                                    Чек от {$receipt->created|date}
+                                                </a>
+                                            </td>
+                                            <td class="text-right">
+                                                {$receipt->created|date}
+                                                {$receipt->created|time}
+                                            </td>
+                                        </tr>
+                                    {/foreach}
+                                </table>
                             </div>
 
                             <div class="tab-pane p-3" id="logs" role="tabpanel">

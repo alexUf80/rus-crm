@@ -293,6 +293,9 @@ class OrderController extends Controller
                     $this->design->assign('client_time', $client->time_zone);
                     $this->design->assign('client_time_zone', $time_zone);
 
+                    $receipts = ReceiptsORM::where('order_id', $order_id)->get();
+                    $this->design->assign('receipts', $receipts);
+
                     $regaddress = $this->Addresses->get_address($client->regaddress_id);
                     $faktaddress = $this->Addresses->get_address($client->faktaddress_id);
                     $this->design->assign('regaddress', $regaddress->adressfull);

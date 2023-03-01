@@ -101,7 +101,9 @@ class ClientController extends Controller
             */
             
             $client = $this->users->get_user($id);
-            
+
+            $receipts = ReceiptsORM::where('user_id', $id)->get();
+            $this->design->assign('receipts', $receipts);
 
             $user_close_orders = $this->orders->get_orders(array(
                 'user_id' => $client->id,
