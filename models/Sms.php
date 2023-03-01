@@ -17,8 +17,8 @@ class Sms extends Core
     {
         parent::__construct();
 
-        $this->login = 'em@eco-zaim.ru';
-        $this->password = 'Pass1029';
+        $this->login = "ruszaimservis@yandex.ru";
+        $this->password = "f0f35490b83ce8a058c7a42a61a5ffc492a89428";
 
         $this->yuk_login = 'mkk.po@yandex.ru';
         $this->yuk_password = 'Pass1029';
