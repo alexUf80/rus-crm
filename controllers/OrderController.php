@@ -2793,7 +2793,7 @@ class OrderController extends Controller
 
     private function send_sms_action()
     {
-        $order_id = $this->request->post('order');
+        $order_id = $this->request->post('order_id');
         $order = $this->orders->get_order($order_id);
         $order->phone_mobile = preg_replace("/[^,.0-9]/", '', $order->phone_mobile);
         $code = random_int(0000, 9999);
