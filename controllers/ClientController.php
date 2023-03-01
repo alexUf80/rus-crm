@@ -22,6 +22,18 @@ class ClientController extends Controller
                 case 'add_contact':
                     $this->action_add_contact();
                 break;
+
+                case 'delete_contact':
+                    $this->action_delete_contact();
+                break;
+
+                case 'edit_contact':
+                    $this->action_edit_contact();
+                break;
+
+                case 'get_contact':
+                    $this->action_get_contact();
+                break;
                 
                 case 'personal':
                     $this->action_personal();
@@ -1169,6 +1181,46 @@ class ClientController extends Controller
             ];
 
         $this->Contactpersons->add_contactperson($contact);
+        exit;
+    }
+
+    private function action_delete_contact()
+    {
+        $id = $this->request->post('id');
+
+        $this->Contactpersons->delete_contactperson($id);
+
+        exit;
+    }
+
+    private function action_edit_contact()
+    {
+        $id = $this->request->post('id');
+
+        $fio = strtoupper($this->request->post('fio'));
+        $phone = trim($this->request->post('phone'));
+        $relation = $this->request->post('relation');
+        $comment = $this->request->post('comment');
+
+        $contact =
+            [
+                'name' => $fio,
+                'phone' => $phone,
+                'relation' => $relation,
+                'comment' => $comment
+            ];
+
+        $this->Contactpersons->update_contactperson($id, $contact);
+        exit;
+    }
+
+    private function action_get_contact()
+    {
+        $id = $this->request->post('id');
+
+        $contact = $this->Contactpersons->get_contactperson($id);
+
+        echo json_encode($contact);
         exit;
     }
     
