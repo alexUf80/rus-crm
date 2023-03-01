@@ -462,7 +462,8 @@
 
     {if in_array('add_penalty', $manager->permissions)}
         {if !$penalties[$penalty_block]}
-            <button style="display: none;" type="button" class="pb-0 pt-0 mr-2 btn btn-sm btn-danger waves-effect js-add-penalty "
+            <button style="display: none;" type="button"
+                    class="pb-0 pt-0 mr-2 btn btn-sm btn-danger waves-effect js-add-penalty "
                     data-block="{$penalty_block}">
                 <i class="fas fa-ban"></i>
                 <span>Штраф</span>
@@ -575,7 +576,7 @@
                                     <h5 class="form-control-static">
                                         Источник:
                                         {if $order->utm_source}
-                                            {$order->utm_source|escape}       
+                                            {$order->utm_source|escape}
                                         {else}
                                             organic
                                         {/if}
@@ -2273,29 +2274,36 @@
                                             -->
                                         </div>
                                         <div class="col-md-4 ">
-                                                                                            <div class="mb-3 border  {if $penalties['scorings'] && $penalties['scorings']->status!=3}card-outline-danger{/if}">
-                                                    <h5 class=" card-header">
-                                                        <span class="text-white ">Скоринги</span>
-                                                        <span class="float-right">
+                                            <div class="mb-3 border  {if $penalties['scorings'] && $penalties['scorings']->status!=3}card-outline-danger{/if}">
+                                                <h5 class=" card-header">
+                                                    <span class="text-white ">Скоринги</span>
+                                                    <span class="float-right">
                                                             {penalty_button penalty_block='scorings'}
-                                                            {if ($order->status == 1 && ($manager->id == $order->manager_id)) || $is_developer}
-                                                            <a class="text-white js-run-scorings" data-type="all" data-order="{$order->order_id}" href="javascript:void(0);">
+                                                        {if ($order->status == 1 && ($manager->id == $order->manager_id)) || $is_developer}
+                                                            <a class="text-white js-run-scorings" data-type="all"
+                                                               data-order="{$order->order_id}"
+                                                               href="javascript:void(0);">
                                                                 <i class="far fa-play-circle"></i>
                                                             </a>
-                                                            {/if}
+                                                        {/if}
                                                         </span>
                                                     </h2>
-                                                    <div class="message-box js-scorings-block {if $need_update_scorings}js-need-update{/if}" data-order="{$order->order_id}">
+                                                    <div class="message-box js-scorings-block {if $need_update_scorings}js-need-update{/if}"
+                                                         data-order="{$order->order_id}">
 
-                                                            {foreach $scoring_types as $scoring_type}
+                                                        {foreach $scoring_types as $scoring_type}
                                                             <div class="pl-2 pr-2 {if $scorings[$scoring_type->name]->status == 'new'}bg-light-warning{elseif $scorings[$scoring_type->name]->success}bg-light-success{else}bg-light-danger{/if}">
                                                                 <div class="row {if !$scoring_type@last}border-bottom{/if}">
                                                                     <div class="col-12 col-sm-12 pt-2">
                                                                         <h5 class="float-left">
                                                                             {$scoring_type->title}
                                                                             {if $scoring_type->name == 'fssp'}
-                                                                                {if $scorings[$scoring_type->name]->found_46}<span class="label label-danger">46</span>{/if}
-                                                                                {if $scorings[$scoring_type->name]->found_47}<span class="label label-danger">47</span>{/if}
+                                                                                {if $scorings[$scoring_type->name]->found_46}
+                                                                                    <span class="label label-danger">46</span>
+                                                                                {/if}
+                                                                                {if $scorings[$scoring_type->name]->found_47}
+                                                                                    <span class="label label-danger">47</span>
+                                                                                {/if}
                                                                             {/if}
                                                                         </h5>
 
@@ -2314,7 +2322,8 @@
                                                                         {/if}
                                                                     </div>
                                                                     <div class="col-8 col-sm-8 pb-2">
-                                                                        <span class="mail-desc" title="{$scorings[$scoring_type->name]->string_result}">
+                                                                        <span class="mail-desc"
+                                                                              title="{$scorings[$scoring_type->name]->string_result}">
                                                                             {$scorings[$scoring_type->name]->string_result}
                                                                         </span>
                                                                         <span class="time">
@@ -2322,40 +2331,55 @@
                                                                                 {$scorings[$scoring_type->name]->created|date} {$scorings[$scoring_type->name]->created|time}
                                                                             {/if}
                                                                             {if $scoring_type->name == 'fssp'}
-                                                                                <a href="javascript:void(0);" class="js-get-fssp-info float-right" data-scoring="{$scorings[$scoring_type->name]->id}">Подробнее</a>
+                                                                                <a href="javascript:void(0);"
+                                                                                   class="js-get-fssp-info float-right"
+                                                                                   data-scoring="{$scorings[$scoring_type->name]->id}">Подробнее</a>
                                                                             {/if}
                                                                             {if $scoring_type->name == 'efrsb' && $scorings[$scoring_type->name]->body}
                                                                                 {foreach $scorings[$scoring_type->name]->body as $efrsb_link}
-                                                                                <a href="{$efrsb_link}" target="_blank" class="float-right">Подробнее</a>
+                                                                                    <a href="{$efrsb_link}"
+                                                                                       target="_blank"
+                                                                                       class="float-right">Подробнее</a>
                                                                                 {/foreach}
                                                                             {/if}
                                                                             {if $scoring_type->name == 'nbki'}
-                                                                                <a href="http://51.250.101.109/rus.zaym-nbki/{$scorings[$scoring_type->name]->id}?api=F1h1Hdf9g_h&site=rus" target="_blank">Подробнее</a>
+                                                                                <a href="http://51.250.101.109/rus.zaym-nbki/{$scorings[$scoring_type->name]->id}?api=F1h1Hdf9g_h&site=rus"
+                                                                                   target="_blank">Подробнее</a>
                                                                             {/if}
                                                                         </span>
                                                                     </div>
                                                                     <div class="col-4 col-sm-4 pb-2">
-                                                                    {if $order->status < 2 || $is_developer}
-                                                                        {if $scorings[$scoring_type->name]->status == 'new' || $scorings[$scoring_type->name]->status == 'process' }
-                                                                            <a class="btn-load text-info run-scoring-btn float-right" data-type="{$scoring_type->name}" data-order="{$order->order_id}" href="javascript:void(0);">
-                                                                                <div class="spinner-border text-info" role="status"></div>
-                                                                            </a>
-                                                                        {elseif $scorings[$scoring_type->name]}
-                                                                            <a class="btn-load text-info js-run-scorings run-scoring-btn float-right" data-type="{$scoring_type->name}" data-order="{$order->order_id}" href="javascript:void(0);">
-                                                                                <i class="fas fa-undo"></i>
-                                                                            </a>
-                                                                        {else}
-                                                                            <a class="btn-load {if in_array(, $audit_types)}loading{/if} text-info js-run-scorings run-scoring-btn float-right" data-type="{$scoring_type->name}" data-order="{$order->order_id}" href="javascript:void(0);">
-                                                                                <i class="far fa-play-circle"></i>
-                                                                            </a>
+                                                                        {if $order->status < 2 || $is_developer}
+                                                                            {if $scorings[$scoring_type->name]->status == 'new' || $scorings[$scoring_type->name]->status == 'process' }
+                                                                                <a class="btn-load text-info run-scoring-btn float-right"
+                                                                                   data-type="{$scoring_type->name}"
+                                                                                   data-order="{$order->order_id}"
+                                                                                   href="javascript:void(0);">
+                                                                                    <div class="spinner-border text-info"
+                                                                                         role="status"></div>
+                                                                                </a>
+                                                                            {elseif $scorings[$scoring_type->name]}
+                                                                                <a class="btn-load text-info js-run-scorings run-scoring-btn float-right"
+                                                                                   data-type="{$scoring_type->name}"
+                                                                                   data-order="{$order->order_id}"
+                                                                                   href="javascript:void(0);">
+                                                                                    <i class="fas fa-undo"></i>
+                                                                                </a>
+                                                                            {else}
+                                                                                <a class="btn-load {if in_array(, $audit_types)}loading{/if} text-info js-run-scorings run-scoring-btn float-right"
+                                                                                   data-type="{$scoring_type->name}"
+                                                                                   data-order="{$order->order_id}"
+                                                                                   href="javascript:void(0);">
+                                                                                    <i class="far fa-play-circle"></i>
+                                                                                </a>
+                                                                            {/if}
                                                                         {/if}
-                                                                    {/if}
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                            {/foreach}
+                                                        {/foreach}
                                                     </div>
-                                                </div>
+                                            </div>
                                             <!--<div class="mb-3 border  {if $penalties['scorings'] && $penalties['scorings']->status!=3}card-outline-danger{/if}">
                                                 <h5 class=" card-header">
                                                     <span class="text-white ">Скоринги</span>
@@ -2931,28 +2955,29 @@
                             <div class="tab-pane p-3" id="documents" role="tabpanel">
                                 {if $documents}
                                     <table class="table">
+                                        <h3>Документы</h3>
                                         {foreach $documents as $document}
                                             {if $document->name|escape == 'Полис страхования' ||  $document->name|escape == 'Полис страхования при пролонгаци' ||  $document->name|escape == 'Дополнительное соглашение о реструктуризации'}
-                                            <tr>
-                                                <td class="text-info">
-                                                    <a target="_blank"
-                                                       href="{$config->front_url}/document/{$document->user_id}/{$document->id}">
-                                                        <i class="fas fa-file-pdf fa-lg"></i>&nbsp;
-                                                        {$document->name|escape} от {$document->created|date}
-                                                    </a>
-                                                </td>
-                                                <td class="text-right">
-                                                    {$document->created|date}
-                                                    {$document->created|time}
-                                                </td>
-                                            </tr>
+                                                <tr>
+                                                    <td class="text-info">
+                                                        <a target="_blank"
+                                                           href="{$config->front_url}/document/{$document->user_id}/{$document->id}">
+                                                            <i class="fas fa-file-pdf fa-lg"></i>&nbsp;
+                                                            {$document->name|escape} от {$document->created|date}
+                                                        </a>
+                                                    </td>
+                                                    <td class="text-right">
+                                                        {$document->created|date}
+                                                        {$document->created|time}
+                                                    </td>
+                                                </tr>
                                             {else}
                                                 <tr>
                                                     <td class="text-info">
                                                         <a target="_blank"
-                                                        href="{$config->front_url}/document/{$document->user_id}/{$document->id}">
+                                                           href="{$config->front_url}/document/{$document->user_id}/{$document->id}">
                                                             <i class="fas fa-file-pdf fa-lg"></i>&nbsp;
-                                                            {$document->name|escape} 
+                                                            {$document->name|escape}
                                                         </a>
                                                     </td>
                                                     <td class="text-right">
@@ -2962,6 +2987,9 @@
                                                 </tr>
                                             {/if}
                                         {/foreach}
+                                    </table>
+                                    <table class="table">
+                                        <h3>Чеки</h3>
                                     </table>
                                 {else}
                                     <h4>Нет доступных документов</h4>
@@ -3773,7 +3801,8 @@
                         <input type="text" class="form-control" name="peni" value="{$contract->loan_peni_summ}">
                     </div>
                     <div class="custom-control custom-checkbox mr-sm-2 mb-3">
-                        <input type="checkbox" id="stopProfit" name="stopProfit" class="custom-control-input" {if $contract->stop_profit == 1}checked{/if}>
+                        <input type="checkbox" id="stopProfit" name="stopProfit" class="custom-control-input"
+                               {if $contract->stop_profit == 1}checked{/if}>
                         <label class="custom-control-label" for="stopProfit">
                             Остановить начисления
                         </label>
