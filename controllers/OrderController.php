@@ -599,26 +599,6 @@ class OrderController extends Controller
 
             $this->users->update_user($user_id, $time);
         }
-
-        // $users2 = $this->users->get_users(27736);
-
-        // $users2 = $users2[0];
-
-        // $users2->test = 'test';
-
-        // echo '<pre>'; print_r($users2); echo '</pre>';
-        // $contract = $this->contracts->get_contract(3667);
-        // // $contract =  $contract[0];
-        // $date = date('Y-m-d H:i:s');
-        // $dateSum = strtotime($date) - strtotime($contract->inssuance_date);
-
-        // $days = round($dateSum / 86400);
-
-        //  echo '<pre>'; print_r($days); echo '</pre>';
-
-        // $itogSumm = $contract->loan_body_summ + $contract->loan_body_summ * 0.01 * $days;
-        // echo '<pre>'; print_r($contract->loan_body_summ); echo '</pre>';
-        // echo '<pre>'; print_r($itogSumm); echo '</pre>';
         return $body;
     }
 
@@ -760,9 +740,9 @@ class OrderController extends Controller
             'user_id' => $order->user_id,
         ));
 
-        $this->approve_order_action($order_id);
+        return $this->approve_order_action($order_id);
 
-        return array('success' => 1, 'status' => 1, 'manager' => $this->manager->name);
+        //return array('success' => 1, 'status' => 1, 'manager' => $this->manager->name);
     }
 
     /**
@@ -2814,6 +2794,78 @@ class OrderController extends Controller
 
         echo json_encode(['code' => $code]);
         exit;
+    }
+
+    private function send_template_sms()
+    {
+        $user_id = $this->request->post('user_id', 'integer');
+        $order_id = $this->request->post('order_id', 'integer');
+        $template_id = $this->request->post('template_id', 'integer');
+        $manager_id = $this->request->post('manager_id', 'integer');
+        $text_sms = $this->request->post('text_sms', 'string');
+
+        $user = $this->users->get_user((int)$user_id);
+
+        $template = null;
+
+        if ($text_sms) {
+
+            $template = $text_sms;
+        }
+
+        if ($template_id) {
+
+            $template = $this->sms->get_template($template_id);
+            $template = $template->template;
+        }
+
+        if (!empty($order_id)) {
+            $order = $this->orders->get_order($order_id);
+
+            if ($order->contract_id) {
+                $code = $this->helpers->c2o_encode($order->contract_id);
+                $payment_link = $this->config->front_url . '/p/' . $code;
+                $contract = $this->contracts->get_contract($order->contract_id);
+                $osd_sum = $contract->loan_body_summ + $contract->loan_percents_summ + $contract->loan_charge_summ + $contract->loan_peni_summ;
+            }
+
+            $str_params =
+                [
+                    '{$payment_link}' => $payment_link,
+                    '$firstname' => $user->firstname,
+                    '$fio' => "$user->lastname $user->firstname $user->patronymic",
+                    '$prolongation_sum' => $contract->loan_percents_summ,
+                    '$final_sum' => $osd_sum,
+                    '%d' => $contract->accept_code
+                ];
+
+            $template = strtr($template, $str_params);
+        }
+
+        $this->sms->send(
+            $user->phone_mobile,
+            $template
+        );
+
+        $this->sms->add_message(array(
+            'user_id' => $user->id,
+            'order_id' => $order_id,
+            'phone' => $user->phone_mobile,
+            'message' => $template,
+            'created' => date('Y-m-d H:i:s'),
+        ));
+
+        $this->changelogs->add_changelog(array(
+            'manager_id' => $manager_id,
+            'created' => date('Y-m-d H:i:s'),
+            'type' => 'send_sms',
+            'old_values' => '',
+            'new_values' => $template,
+            'user_id' => $user->id,
+            'order_id' => $order_id,
+        ));
+
+        $this->json_output(array('success' => true));
     }
 
     private function num2word($num, $words)
