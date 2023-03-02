@@ -2798,7 +2798,7 @@ class OrderController extends Controller
         $order->phone_mobile = preg_replace("/[^,.0-9]/", '', $order->phone_mobile);
         $code = random_int(0000, 9999);
 
-        $message = "Выш код: " . $code;
+        $message = "Ваш код: " . $code;
 
         $resp = $this->sms->send_smsc($order->phone_mobile, $message);
         $resp = $resp['resp'];
