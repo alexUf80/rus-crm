@@ -760,6 +760,8 @@ class OrderController extends Controller
             'user_id' => $order->user_id,
         ));
 
+        $this->approve_order_action($order_id);
+
         return array('success' => 1, 'status' => 1, 'manager' => $this->manager->name);
     }
 
@@ -768,10 +770,8 @@ class OrderController extends Controller
      * Одобрениие заявки
      * @return array
      */
-    private function approve_order_action()
+    private function approve_order_action($order_id)
     {
-        $order_id = $this->request->post('order_id', 'integer');
-
         if (!($order = $this->orders->get_order((int)$order_id)))
             return array('error' => 'Неизвестный ордер');
 
