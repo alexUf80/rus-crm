@@ -715,9 +715,15 @@ class OrderController extends Controller
     private function accept_order_action()
     {
         $order_id = $this->request->post('order_id', 'integer');
-        $order = $this->orders->get_order($order_id);
+
+        if (!($order = $this->orders->get_order((int)$order_id)))
+            return array('error' => 'Неизвестный ордер');
+
+        if (!empty($order->manager_id) && $order->manager_id != $this->manager->id && !in_array($this->manager->role, array('admin', 'developer')))
+            return array('error' => 'Ордер уже принят другим пользователем', 'manager_id' => $order->manager_id);
 
         $update = array(
+            'status' => 1,
             'manager_id' => $this->manager->id,
             'uid' => exec($this->config->root_dir . 'generic/uidgen'),
             'accept_date' => date('Y-m-d H:i:s'),
@@ -734,25 +740,27 @@ class OrderController extends Controller
             'user_id' => $order->user_id,
         ));
 
-        return $this->approve_order_action($order_id);
-
-        //return array('success' => 1, 'status' => 1, 'manager' => $this->manager->name);
+        return array('success' => 1, 'status' => 1, 'manager' => $this->manager->name);
     }
 
-    /**
-     * OrderController::approve_order_action()
-     * Одобрениие заявки
-     * @return array
-     */
-    private function approve_order_action($order_id)
+    private function approve_order_action()
     {
-        $order = $this->orders->get_order($order_id);
+        $order_id = $this->request->post('order_id', 'integer');
+
+        if (!($order = $this->orders->get_order((int)$order_id)))
+            return array('error' => 'Неизвестный ордер');
+
+        if (!empty($order->manager_id) && $order->manager_id != $this->manager->id && !in_array($this->manager->role, array('admin', 'developer')))
+            return array('error' => 'Не хватает прав для выполнения операции');
 
         if ($order->amount > 30000)
             return array('error' => 'Сумма займа должна быть не более 30000 руб!');
 
         if ($order->period > 30)
             return array('error' => 'Срок займа должен быть не более 30 дней!');
+
+        if ($order->status != 1)
+            return array('error' => 'Неверный статус заявки, возможно Заявка уже одобрена или получен отказ');
 
         $update = array(
             'status' => 2,
@@ -778,15 +786,6 @@ class OrderController extends Controller
 
         $accept_code = rand(1000, 9999);
 
-        $order = $this->orders->get_order($order_id);
-
-        $base_percent = $this->settings->loan_default_percent;
-
-        if (!empty($order->promocode_id)) {
-            $promocode = $this->Promocodes->get($order->promocode_id);
-            $base_percent = $this->settings->loan_default_percent - ($promocode->discount / 100);
-        }
-
         $new_contract = array(
             'order_id' => $order_id,
             'user_id' => $order->user_id,
@@ -796,7 +795,7 @@ class OrderController extends Controller
             'period' => $order->period,
             'create_date' => date('Y-m-d H:i:s'),
             'status' => 0,
-            'base_percent' => $base_percent,
+            'base_percent' => $this->settings->loan_default_percent,
             'charge_percent' => $this->settings->loan_charge_percent,
             'peni_percent' => $this->settings->loan_peni,
             'service_sms' => $order->service_sms,
@@ -809,7 +808,7 @@ class OrderController extends Controller
         $this->orders->update_order($order_id, array('contract_id' => $contract_id));
 
         // отправялем смс
-        $msg = 'Активируй займ ' . ($order->amount * 1) . ' в личном кабинете, код ' . $accept_code;
+        $msg = 'Активируй займ ' . ($order->amount * 1) . ' в личном кабинете, код' . $accept_code . ' ecozaym24.ru/lk';
         $this->sms->send($order->phone_mobile, $msg);
 
         return array('success' => 1, 'status' => 2);

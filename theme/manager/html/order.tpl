@@ -834,7 +834,7 @@
                                             </button>
                                         </div>
                                     {/if}
-                                    {if $order->status == 1 && in_array('approve_contract', $manager->permissions)}
+                                    {if $order->status == 1}
                                         <div class="js-approve-reject-block">
                                             <button class="btn btn-success btn-block js-approve-order js-event-add-click"
                                                     data-event="12" data-user="{$order->user_id}"
