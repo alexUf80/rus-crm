@@ -281,7 +281,8 @@ class NeworderController extends Controller
                 'ANKETA_PEP',
                 'SOGLASIE_OPD',
                 'FIND_REASON_FOR_REFUSAL',
-                'ANKETA_FL'
+                'ANKETA_FL',
+                'INFORMATION_SERVICES_AGREEMENT'
             ];
 
         $ob_date = new DateTime();
