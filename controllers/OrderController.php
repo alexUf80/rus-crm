@@ -723,7 +723,6 @@ class OrderController extends Controller
             return array('error' => 'Ордер уже принят другим пользователем', 'manager_id' => $order->manager_id);
 
         $update = array(
-            'status' => 1,
             'manager_id' => $this->manager->id,
             'uid' => exec($this->config->root_dir . 'generic/uidgen'),
             'accept_date' => date('Y-m-d H:i:s'),

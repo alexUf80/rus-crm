@@ -533,6 +533,31 @@ console.log(resp);
 
             var order_id = $(this).data('order');
 
+            // проверяем фото
+            var files_ready = 1;
+            $('.js-file-status').each(function(){
+                if ($(this).val() != 2 && $(this).val() != 4)
+                    files_ready = 0;
+            });
+
+            if (!files_ready)
+            {
+
+                Swal.fire({
+                    timer: 5000,
+                    type: 'error',
+                    title: 'Ошибка!',
+                    text: 'Необходимо принять файлы клиента!',
+                    onClose: () => {
+                        $('html, body').animate({
+                            scrollTop: $("#images_form").offset().top-100  // класс объекта к которому приезжаем
+                        }, 1000);
+                    }
+                });
+
+                return false;
+            }
+
             $.ajax({
                 type: 'POST',
                 data: {
@@ -585,30 +610,7 @@ console.log(resp);
             var order_id = $(this).data('order');
 
 
-            // проверяем фото
-            var files_ready = 1;
-            $('.js-file-status').each(function(){
-                if ($(this).val() != 2 && $(this).val() != 4)
-                    files_ready = 0;
-            });
 
-            if (!files_ready)
-            {
-
-                Swal.fire({
-                    timer: 5000,
-                    type: 'error',
-                    title: 'Ошибка!',
-                    text: 'Необходимо принять файлы клиента!',
-                    onClose: () => {
-                        $('html, body').animate({
-                            scrollTop: $("#images_form").offset().top-100  // класс объекта к которому приезжаем
-                        }, 1000);
-                    }
-                });
-
-                return false;
-            }
 
 
             Swal.fire({
