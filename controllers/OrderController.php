@@ -293,6 +293,9 @@ class OrderController extends Controller
                     $this->design->assign('client_time', $client->time_zone);
                     $this->design->assign('client_time_zone', $time_zone);
 
+                    $receipts = ReceiptsORM::where('order_id', $order_id)->get();
+                    $this->design->assign('receipts', $receipts);
+
                     $regaddress = $this->Addresses->get_address($client->regaddress_id);
                     $faktaddress = $this->Addresses->get_address($client->faktaddress_id);
                     $this->design->assign('regaddress', $regaddress->adressfull);
@@ -2790,7 +2793,7 @@ class OrderController extends Controller
 
     private function send_sms_action()
     {
-        $order_id = $this->request->post('order');
+        $order_id = $this->request->post('order_id');
         $order = $this->orders->get_order($order_id);
         $order->phone_mobile = preg_replace("/[^,.0-9]/", '', $order->phone_mobile);
         $code = random_int(0000, 9999);

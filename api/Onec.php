@@ -53,13 +53,13 @@ class Onec implements ApiInterface
         $item->ПроцентнаяСтавка = $contract->base_percent;
         $item->ПСК = '365';
         $item->ПДН = $user->pdn * 100;
-        $item->УИДСделки = $contract->number;
+        $item->УИДСделки = $contract->uid;
         $item->ИдентификаторФормыВыдачи = 'ТекущийСчетРасчетов';
         $item->ИдентификаторФормыОплаты = 'ТретьеЛицо';
         $item->Сумма = $contract->amount;
         $item->Порог = '1.5';
         $item->ИННОрганизации = '9717088848';
-        $item->СпособПодачиЗаявления = 'Прямой';
+        $item->СпособПодачиЗаявления = 'Дистанционный';
         $item->НомерКарты = $cardPan;
 
         $item->ГрафикПлатежей = [];
