@@ -715,12 +715,7 @@ class OrderController extends Controller
     private function accept_order_action()
     {
         $order_id = $this->request->post('order_id', 'integer');
-
-        if (!($order = $this->orders->get_order((int)$order_id)))
-            return array('error' => 'Неизвестный ордер');
-
-        if (!empty($order->manager_id) && $order->manager_id != $this->manager->id && !in_array($this->manager->role, array('admin', 'developer')))
-            return array('error' => 'Ордер уже принят другим пользователем', 'manager_id' => $order->manager_id);
+        $order = $this->orders->get_order($order_id);
 
         $update = array(
             'manager_id' => $this->manager->id,
@@ -751,20 +746,13 @@ class OrderController extends Controller
      */
     private function approve_order_action($order_id)
     {
-        if (!($order = $this->orders->get_order((int)$order_id)))
-            return array('error' => 'Неизвестный ордер');
-
-        if (!empty($order->manager_id) && $order->manager_id != $this->manager->id && !in_array($this->manager->role, array('admin', 'developer')))
-            return array('error' => 'Не хватает прав для выполнения операции');
+        $order = $this->orders->get_order($order_id);
 
         if ($order->amount > 30000)
             return array('error' => 'Сумма займа должна быть не более 30000 руб!');
 
         if ($order->period > 30)
             return array('error' => 'Срок займа должен быть не более 30 дней!');
-
-        if ($order->status != 1)
-            return array('error' => 'Неверный статус заявки, возможно Заявка уже одобрена или получен отказ');
 
         $update = array(
             'status' => 2,
