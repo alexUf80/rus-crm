@@ -316,7 +316,7 @@ class OrderController extends Controller
 
                     $this->design->assign('work', $work);
 
-                    echo '<pre>';print_r($work);echo'</pre>';
+                    //echo '<pre>';print_r($work);echo'</pre>';
 
                     //подсчет возраста
                     try {

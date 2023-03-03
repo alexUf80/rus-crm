@@ -2045,9 +2045,9 @@
                                                             <label class="control-label col-md-4">Руководитель:</label>
                                                             <div class="col-md-8">
                                                                 <p class="form-control-static">
-                                                                    {$order->chief_name}, {$order->chief_position}
+                                                                    {$work->name}
                                                                     <br/>
-                                                                    {$order->chief_phone}
+                                                                    {$work->director_phone}
                                                                     <button class="js-mango-call mango-call js-event-add-click"
                                                                             data-event="63"
                                                                             data-manager="{$manager->id}"
