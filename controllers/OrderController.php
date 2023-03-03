@@ -314,9 +314,9 @@ class OrderController extends Controller
 
                     $work = worksORM::where('user_id', '=', $order->user_id)->get();
 
-                    $this->design->assign('work', $work);
+                    $this->design->assign('work', $work[0]);
 
-                    echo '<pre>';print_r($work);echo'</pre>';
+                    //echo '<pre>';print_r($work);echo'</pre>';
 
                     //подсчет возраста
                     try {
