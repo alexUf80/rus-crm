@@ -5,7 +5,7 @@ class Best2pay extends Core
     private $url = '';
     private $currency_code = 643;
 
-    private $fee = 0.03;
+    private $fee = 0.05;
 
     private $sectors = array();
 
@@ -975,6 +975,31 @@ class Best2pay extends Core
             'created' => date('Y-m-d H:i:s'),
             'callback_response' => $recurring
         ));
+        return $xml;
+    }
+
+    public function getOperationInfo($sector, $orderId, $operationId)
+    {
+        $password = $this->passwords[$sector];
+
+        $signature = $this->get_signature(array(
+            $sector,
+            $orderId,
+            $operationId,
+            $password
+        ));
+
+        $data =
+            [
+                'signature' => $signature,
+                'sector' => $sector,
+                'id' => $orderId,
+                'operation' => $operationId,
+            ];
+
+        $recurring = $this->send('Operation', $data);
+        $xml = simplexml_load_string($recurring);
+
         return $xml;
     }
 
