@@ -585,7 +585,7 @@ console.log(resp);
             var order_id = $(this).data('order');
 
 
-            // проверяем фото
+// проверяем фото
             var files_ready = 1;
             $('.js-file-status').each(function(){
                 if ($(this).val() != 2 && $(this).val() != 4)

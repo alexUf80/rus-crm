@@ -3,7 +3,7 @@
 {capture name='page_scripts'}
     <script src="theme/{$settings->theme|escape}/assets/plugins/Magnific-Popup-master/dist/jquery.magnific-popup.min.js"></script>
     <script src="theme/{$settings->theme|escape}/assets/plugins/fancybox3/dist/jquery.fancybox.js"></script>
-    <script type="text/javascript" src="theme/{$settings->theme|escape}/js/apps/order.js?v=1.20"></script>
+    <script type="text/javascript" src="theme/{$settings->theme|escape}/js/apps/order.js?v=1.22"></script>
     <script type="text/javascript" src="theme/{$settings->theme|escape}/js/apps/movements.app.js"></script>
     <script type="text/javascript" src="theme/{$settings->theme|escape}/js/apps/penalty.app.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment-with-locales.min.js"></script>
@@ -834,7 +834,7 @@
                                             </button>
                                         </div>
                                     {/if}
-                                    {if $order->status == 1 && in_array('approve_contract', $manager->permissions)}
+                                    {if $order->status == 1}
                                         <div class="js-approve-reject-block">
                                             <button class="btn btn-success btn-block js-approve-order js-event-add-click"
                                                     data-event="12" data-user="{$order->user_id}"
