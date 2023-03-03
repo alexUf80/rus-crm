@@ -312,11 +312,11 @@ class OrderController extends Controller
                     $client = $this->users->get_user($order->user_id);
                     $this->design->assign('client', $client);
 
-                    $work = worksORM::where('id', '=', $order->user_id)->get();
+                    $work = worksORM::where('user_id', '=', $order->user_id)->get();
 
                     $this->design->assign('work', $work);
 
-                    echo '<pre>';print_r($work->name);echo'</pre>';
+                    echo '<pre>';print_r($work);echo'</pre>';
 
                     //подсчет возраста
                     try {
