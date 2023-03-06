@@ -792,6 +792,15 @@ class OrderController extends Controller
 
         $accept_code = rand(1000, 9999);
 
+        $order = $this->orders->get_order($order_id);
+
+        $base_percent = $this->settings->loan_default_percent;
+
+        if (!empty($order->promocode_id)) {
+            $promocode = $this->Promocodes->get($order->promocode_id);
+            $base_percent = $this->settings->loan_default_percent - ($promocode->discount / 100);
+        }
+
         $new_contract = array(
             'order_id' => $order_id,
             'user_id' => $order->user_id,
@@ -801,7 +810,7 @@ class OrderController extends Controller
             'period' => $order->period,
             'create_date' => date('Y-m-d H:i:s'),
             'status' => 0,
-            'base_percent' => $this->settings->loan_default_percent,
+            'base_percent' => $base_percent,
             'charge_percent' => $this->settings->loan_charge_percent,
             'peni_percent' => $this->settings->loan_peni,
             'service_sms' => $order->service_sms,
