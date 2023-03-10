@@ -173,7 +173,7 @@
                                     {$i++}
                                 </td>
                                 <td>
-                                    https://crm.rus-zaym.ru/go/{$page->url}
+                                    https://rus-zaym.ru/go/{$page->url}
                                 </td>
                                 <td>
                                     {$page->link}

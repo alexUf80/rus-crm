@@ -2,6 +2,9 @@
 
 ini_set('max_execution_time', 40);
 
+error_reporting(-1);
+ini_set('display_errors', 'On');
+
 error_reporting(0);
 
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
