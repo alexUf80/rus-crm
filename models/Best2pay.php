@@ -47,7 +47,7 @@ class Best2pay extends Core
     public function reject_reason($order)
     {
 
-        $service_summ = 1900;
+        $service_summ = 3900;
 
         $description = 'Услуга "Узнай причину отказа"';
 
@@ -582,7 +582,7 @@ class Best2pay extends Core
         $data = array(
             'sector' => $sector,
             'id' => $register_id,
-            'amount' => 1900,
+            'amount' => 3900,
             'currency' => $this->currency_code,
             'password' => $password
         );
