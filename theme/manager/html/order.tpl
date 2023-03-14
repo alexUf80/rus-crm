@@ -512,8 +512,8 @@
                     <li class="breadcrumb-item active">Заявка №{$order->order_id}</li>
                 </ol>
             </div>
-            <div class="col-md-6 col-4 align-self-center">
-
+            <div class="col-md-6 col-4 align-self-right">
+                <span style="float: right">{$contract->uid}</span>
             </div>
         </div>
 
