@@ -10,9 +10,9 @@ class Onec implements ApiInterface
     protected static $password = '2020';
     protected static $orderId;
 
-    public static function sendRequest($orderId)
+    public static function sendRequest($params)
     {
-        return self::send_loan($orderId);
+        return self::{$params['method']}($params['params']);
     }
 
     private static function send_loan($order_id)
@@ -33,12 +33,9 @@ class Onec implements ApiInterface
         $passport_series = substr($passport_serial, 0, 4);
         $passport_number = substr($passport_serial, 4, 6);
 
-        if (empty($user->inn))
-            self::getInn($user->id);
-
         $card = CardsORM::find($contract->card_id);
 
-        if(!empty($card))
+        if (!empty($card))
             $cardPan = $card->pan;
         else
             $cardPan = '';
@@ -97,8 +94,6 @@ class Onec implements ApiInterface
 
         $result = self::send_request('CRM_WebService', 'Loans', $request);
 
-        return $result;
-
         if (isset($result->return) && $result->return == 'OK')
             return 1;
         else
@@ -156,65 +151,67 @@ class Onec implements ApiInterface
         return $format_phone;
     }
 
-    private static function getInn($userId)
+    private static function send_insurance($item)
     {
-        $user = UsersORM::find($userId);
+        $request = new StdClass();
+        $request->TextJSON = json_encode($item);
 
-        $passport_serial = str_replace([' ', '-'], '', $user->passport_serial);
-        $passport_series = substr($passport_serial, 0, 4);
-        $passport_number = substr($passport_serial, 4, 6);
+        $result = self::send_request('CRM_WebService', 'SaleService', $request);
 
-        $params =
-            [
-                'UserID' => 'barvil',
-                'Password' => 'KsetM+H5',
-                'sources' => 'fns',
-                'PersonReq' => [
-                    'first' => $user->firstname,
-                    'middle' => $user->patronymic,
-                    'paternal' => $user->lastname,
-                    'birthDt' => date('Y-m-d', strtotime($user->birth)),
-                    'passport_series' => $passport_series,
-                    'passport_number' => $passport_number
-                ]
-            ];
-
-        $request = self::sendInfosphere($params);
-        $inn = 0;
-
-        foreach ($request['Source'] as $sources) {
-            if ($sources['@attributes']['checktype'] == 'fns_inn') {
-                foreach ($sources['Record'] as $fields) {
-                    foreach ($fields as $field) {
-                        if ($field['FieldName'] == 'INN')
-                            $inn = $field['FieldValue'];
-                    }
-                }
-            }
-        }
-
-        UsersORM::where('id', $user->id)->update(['inn' => $inn]);
-
-        return 1;
+        if (isset($result->return) && $result->return == 'OK')
+            return 1;
+        else
+            return 2;
     }
 
-    private static function sendInfosphere($params)
+    private static function sendTaxing($orderId)
     {
-        $xml = new XMLSerializer();
-        $request = $xml->serialize($params);
+        $start = date('Y-m-d 00:00:00', strtotime('2022-11-08'));
+        $end = date('Y-m-d 23:59:59', strtotime('2023-03-10'));
 
-        $ch = curl_init('https://i-sphere.ru/2.00/');
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $request);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_HEADER, false);
-        $html = curl_exec($ch);
-        $html = simplexml_load_string($html);
-        $json = json_encode($html);
-        $array = json_decode($json, TRUE);
-        curl_close($ch);
+        $percents = OperationsORM::where('type', 'PERCENTS')
+            ->whereBetween('created', [$start, $end])
+            ->groupBy()
+            ->get();
 
-        return $array;
+        $groupsOperations = [];
+
+
+        foreach ($percents as $percent)
+        {
+            $date = date('Y-m-d', strtotime($percent->created));
+            $groupsOperations[$date][] = $percent;
+        }
+
+        foreach ($groupsOperations as $date => $operations) {
+
+            $item = [];
+
+            foreach ($operations as $operation) {
+                $contract = ContractsORM::find($operation->contract_id);
+
+                if(empty($contract) || empty($contract->number))
+                    continue;
+
+                self::$orderId = $contract->order_id;
+
+                $item[] =
+                    [
+                        'НомерДоговора' => $contract->number,
+                        'ВидНачисления' => 'Проценты',
+                        'ДатаПлатежа' => date('Ymd000000', strtotime($contract->return_date)),
+                        'Сумма' => $operation->amount
+                    ];
+            }
+
+            $request = new StdClass();
+            $request->TextJSON = json_encode($item);
+            $request->Date = date('YmdHis', strtotime($date));
+            $request->INN = '7801323165';
+
+            self::send_request('CRM_WebService', 'InterestCalculation', $request);
+        }
+
+        return 1;
     }
 }
