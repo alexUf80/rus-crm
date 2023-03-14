@@ -9,8 +9,13 @@ class TestController extends Controller
 {
     public function fetch()
     {
-        $res = $this->Nbki_scoring->run_scoring(32809);
-        var_dump($res);
+        if ($contracts = $this->contracts->get_contracts()) {
+            // var_dump($contracts);
+            foreach ($contracts as $contract) {
+                // var_dump($contract->order_id);
+                Onec::sendRequest($contract->order_id);
+            }
+        }
         exit;
     }
 }
