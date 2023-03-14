@@ -523,7 +523,7 @@ class CollectorContractsController extends Controller
 
         if (!empty($text_sms)) {
             $template = $text_sms;
-            $template .= " ООО МКК Финансовый Аспект ecozaym24.ru/lk/login";
+            $template .= " ООО МКК Финансовый Аспект rus-zaym/lk/login";
             $template .= " $manager->phone ";
         }
 
@@ -531,7 +531,7 @@ class CollectorContractsController extends Controller
 
             $template = $this->sms->get_template($template_id);
             $template = $template->template;
-            $template .= " ООО МКК Финансовый Аспект ecozaym24.ru/lk/login";
+            $template .= " ООО МКК Финансовый Аспект rus-zaym/lk/login";
             $template .= " $manager->phone ";
         }
 
