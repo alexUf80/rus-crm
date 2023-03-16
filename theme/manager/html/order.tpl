@@ -1573,7 +1573,6 @@
                                                         </span>
                                                 </h5>
 
-                                                {var_dump($regaddress)}
                                                 <div class="row view-block {if $addresses_error}hide{/if}">
                                                     <div class="col-md-12">
                                                         <table class="table table-hover mb-0">
