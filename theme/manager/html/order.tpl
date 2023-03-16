@@ -3131,7 +3131,7 @@
                                                     {if in_array($operation->type, ['PAY'])}table-success{/if}
                                                     {if in_array($operation->type, ['PERCENTS', 'CHARGE', 'PENI'])}table-danger{/if}
                                                     {if in_array($operation->type, ['P2P', 'IMPORT'])}table-info{/if}
-                                                    {if in_array($operation->type, ['INSURANCE', 'BUD_V_KURSE', 'REJECT_REASON', 'RETURN_INSURANCE'])}table-warning{/if}
+                                                    {if in_array($operation->type, ['INSURANCE', 'INSURANCE_BC','BUD_V_KURSE', 'REJECT_REASON', 'RETURN_INSURANCE'])}table-warning{/if}
                                                 ">
                                                 <td>
                                                     {*}
@@ -3155,7 +3155,7 @@
                                                     {if $operation->type == 'RETURN_REJECT_REASON'}Возврат услуги "Причина отказа"{/if}
                                                     {if $operation->type == 'RETURN_INSURANCE'}Возврат страховки{/if}
                                                     {if $operation->type == 'PERCENTS'}Начисление процентов{/if}
-                                                    {if $operation->type == 'INSURANCE'}Страховка{/if}
+                                                    {if in_array($operation->type, ['INSURANCE_BC', 'INSURANCE'])}Страховка{/if}
                                                     {if $operation->type == 'BUD_V_KURSE'}Будь в курсе{/if}
                                                     {if $operation->type == 'REJECT_REASON'}Причина отказа{/if}
                                                     {if $operation->type == 'CHARGE'}Ответственность{/if}
@@ -3166,8 +3166,8 @@
                                                     {$operation->amount} руб
                                                 </td>
                                                 <td>
-                                                    {if $operation->type == 'PAY'}
-                                                        {$operation->p2pOperation->operation_id}
+                                                    {if $operation->type == 'P2P'}
+                                                        {$operation->p2pOperation['operation_id']}
                                                     {else}
                                                         {$operation->transaction->operation}
                                                     {/if}
