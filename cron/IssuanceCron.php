@@ -160,20 +160,6 @@ class IssuanceCron extends Core
 
                     Onec::sendRequest($contract->order_id);
 
-                    $this->db->query("
-                    SELECT *
-                    FROM s_transactions
-                    where user_id = ?
-                    and description = 'Привязка карты'
-                    and reason_code = 1
-                    order by id DESC
-                    limit 1
-                    ", $contract->user_id);
-
-                    $transaction = $this->db->result();
-
-                    $this->best2pay->reverseCardEnroll($transaction->register_id, $contract->order_id);
-
                 }else {
                     $this->contracts->update_contract($contract->id, array('status' => 6));
 

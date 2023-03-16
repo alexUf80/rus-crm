@@ -1655,7 +1655,8 @@
                                                                     <div class="col-9">
                                                                         <input type="text"
                                                                                class="form-control js-dadata-city"
-                                                                               name="Regcity" value="{$regaddress->city}"
+                                                                               name="Regcity"
+                                                                               value="{$regaddress->city}"
                                                                                placeholder=""/>
                                                                     </div>
                                                                     <div class="col-3">
@@ -1768,7 +1769,8 @@
                                                                 <label class="control-label">Строение</label>
                                                                 <input type="text"
                                                                        class="form-control js-dadata-building"
-                                                                       name="Regbuilding" value="{$regaddress->building}"
+                                                                       name="Regbuilding"
+                                                                       value="{$regaddress->building}"
                                                                        placeholder=""/>
                                                             </div>
                                                         </div>
@@ -3164,7 +3166,11 @@
                                                     {$operation->amount} руб
                                                 </td>
                                                 <td>
-                                                    {$operation->transaction->operation}
+                                                    {if $operation->type == 'PAY'}
+                                                        {$operation->p2pOperation->operation_id}
+                                                    {else}
+                                                        {$operation->transaction->operation}
+                                                    {/if}
                                                 </td>
                                             </tr>
                                         {/foreach}

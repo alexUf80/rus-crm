@@ -379,6 +379,11 @@ class OrderController extends Controller
                         foreach ($contract_operations as $contract_operation) {
                             if (!empty($contract_operation->transaction_id))
                                 $contract_operation->transaction = $this->transactions->get_transaction($contract_operation->transaction_id);
+
+                            if($contract_operation->type == 'P2P')
+                                $contract_operation->p2pOperation = P2pOperationORM::where('contract_id', $contract_operation->contract_id)
+                                    ->where('status', 'APPROVED')
+                                    ->first();
                         }
 
                         usort($contract_operations,
