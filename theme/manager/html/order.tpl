@@ -3161,6 +3161,9 @@
                                                 <td>
                                                     {$operation->amount} руб
                                                 </td>
+                                                <td>
+                                                    {$operation->transaction->operation}
+                                                </td>
                                             </tr>
                                         {/foreach}
                                         </tbody>
