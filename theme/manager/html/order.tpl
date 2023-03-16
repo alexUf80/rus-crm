@@ -1557,6 +1557,8 @@
                                                 <input type="hidden" name="action" value="addresses"/>
                                                 <input type="hidden" name="order_id" value="{$order->order_id}"/>
                                                 <input type="hidden" name="user_id" value="{$order->user_id}"/>
+                                                <input type="hidden" name="regaddress_id" value="{$regaddress->id}"/>
+                                                <input type="hidden" name="faktaddress_id" value="{$faktaddress->id}"/>
 
                                                 <h5 class="card-header">
                                                     <span class="text-white">Адрес</span>
@@ -1576,11 +1578,11 @@
                                                         <table class="table table-hover mb-0">
                                                             <tr>
                                                                 <td>Адрес прописки</td>
-                                                                <td>{$regaddress}</td>
+                                                                <td>{$regaddress->adressfull}</td>
                                                             </tr>
                                                             <tr>
                                                                 <td>Адрес проживания</td>
-                                                                <td>{$faktaddress}</td>
+                                                                <td>{$faktaddress->adressfull}</td>
                                                             </tr>
                                                         </table>
                                                     </div>
@@ -1628,14 +1630,14 @@
                                                                         <input type="text"
                                                                                class="form-control js-dadata-region"
                                                                                name="Regregion"
-                                                                               value="{$order->Regregion}"
+                                                                               value="{$regaddress->region}"
                                                                                placeholder="" required="true"/>
                                                                     </div>
                                                                     <div class="col-3">
                                                                         <input type="text"
                                                                                class="form-control js-dadata-region-type"
                                                                                name="Regregion_shorttype"
-                                                                               value="{$order->Regregion_shorttype}"
+                                                                               value="{$regaddress->region_type}"
                                                                                placeholder=""/>
                                                                     </div>
                                                                 </div>
@@ -1653,14 +1655,14 @@
                                                                     <div class="col-9">
                                                                         <input type="text"
                                                                                class="form-control js-dadata-city"
-                                                                               name="Regcity" value="{$order->Regcity}"
+                                                                               name="Regcity" value="{$regaddress->city}"
                                                                                placeholder=""/>
                                                                     </div>
                                                                     <div class="col-3">
                                                                         <input type="text"
                                                                                class="form-control js-dadata-city-type"
                                                                                name="Regcity_shorttype"
-                                                                               value="{$order->Regcity_shorttype}"
+                                                                               value="{$regaddress->city_type}"
                                                                                placeholder=""/>
                                                                     </div>
                                                                 </div>
@@ -1679,14 +1681,14 @@
                                                                         <input type="text"
                                                                                class="form-control js-dadata-district"
                                                                                name="Regdistrict"
-                                                                               value="{$order->Regdistrict}"
+                                                                               value="{$regaddress->district}"
                                                                                placeholder=""/>
                                                                     </div>
                                                                     <div class="col-3">
                                                                         <input type="text"
                                                                                class="form-control js-dadata-district-type"
                                                                                name="Regdistrict_shorttype"
-                                                                               value="{$order->Regdistrict_shorttype}"
+                                                                               value="{$regaddress->district_type}"
                                                                                placeholder=""/>
                                                                     </div>
                                                                 </div>
@@ -1700,14 +1702,14 @@
                                                                         <input type="text"
                                                                                class="form-control js-dadata-locality"
                                                                                name="Reglocality"
-                                                                               value="{$order->Reglocality}"
+                                                                               value="{$regaddress->locality}"
                                                                                placeholder=""/>
                                                                     </div>
                                                                     <div class="col-3">
                                                                         <input type="text"
                                                                                class="form-control js-dadata-locality-type"
                                                                                name="Reglocality_shorttype"
-                                                                               value="{$order->Reglocality_shorttype}"
+                                                                               value="{$regaddress->locality_type}"
                                                                                placeholder=""/>
                                                                     </div>
                                                                 </div>
@@ -1721,14 +1723,14 @@
                                                                         <input type="text"
                                                                                class="form-control js-dadata-street"
                                                                                name="Regstreet"
-                                                                               value="{$order->Regstreet}"
+                                                                               value="{$regaddress->street}"
                                                                                placeholder=""/>
                                                                     </div>
                                                                     <div class="col-3">
                                                                         <input type="text"
                                                                                class="form-control js-dadata-street-type"
                                                                                name="Regstreet_shorttype"
-                                                                               value="{$order->Regstreet_shorttype}"
+                                                                               value="{$regaddress->street_type}"
                                                                                placeholder=""/>
                                                                     </div>
                                                                 </div>
@@ -1743,7 +1745,7 @@
                                                             <div class="form-group">
                                                                 <label class="control-label">Индекс</label>
                                                                 <input type="text" class="form-control js-dadata-index"
-                                                                       name="Regindex" value="{$order->Regindex}"
+                                                                       name="Regindex" value="{$regaddress->zip}"
                                                                        placeholder=""/>
                                                             </div>
                                                         </div>
@@ -1753,7 +1755,7 @@
                                                             <div class="form-group {if in_array('empty_reghousing', (array)$addresses_error)}has-danger{/if}">
                                                                 <label class="control-label">Дом</label>
                                                                 <input type="text" class="form-control js-dadata-house"
-                                                                       name="Reghousing" value="{$order->Reghousing}"
+                                                                       name="Reghousing" value="{$regaddress->house}"
                                                                        placeholder=""/>
                                                                 {if in_array('empty_reghousing', (array)$addresses_error)}
                                                                     <small class="form-control-feedback">Укажите дом!
@@ -1766,7 +1768,7 @@
                                                                 <label class="control-label">Строение</label>
                                                                 <input type="text"
                                                                        class="form-control js-dadata-building"
-                                                                       name="Regbuilding" value="{$order->Regbuilding}"
+                                                                       name="Regbuilding" value="{$regaddress->building}"
                                                                        placeholder=""/>
                                                             </div>
                                                         </div>
@@ -1774,7 +1776,7 @@
                                                             <div class="form-group">
                                                                 <label class="control-label">Квартира</label>
                                                                 <input type="text" class="form-control js-dadata-room"
-                                                                       name="Regroom" value="{$order->Regroom}"
+                                                                       name="Regroom" value="{$regaddress->room}"
                                                                        placeholder=""/>
                                                             </div>
                                                         </div>
@@ -1791,14 +1793,14 @@
                                                                         <input type="text"
                                                                                class="form-control js-dadata-region"
                                                                                name="Faktregion"
-                                                                               value="{$order->Faktregion}"
+                                                                               value="{$faktaddress->region}"
                                                                                placeholder="" required="true"/>
                                                                     </div>
                                                                     <div class="col-3">
                                                                         <input type="text"
                                                                                class="form-control js-dadata-region-type"
                                                                                name="Faktregion_shorttype"
-                                                                               value="{$order->Faktregion_shorttype}"
+                                                                               value="{$faktaddress->region_type}"
                                                                                placeholder=""/>
                                                                     </div>
                                                                 </div>
@@ -1817,14 +1819,14 @@
                                                                         <input type="text"
                                                                                class="form-control js-dadata-city"
                                                                                name="Faktcity"
-                                                                               value="{$order->Faktcity}"
+                                                                               value="{$faktaddress->city}"
                                                                                placeholder=""/>
                                                                     </div>
                                                                     <div class="col-3">
                                                                         <input type="text"
                                                                                class="form-control js-dadata-city-type"
                                                                                name="Faktcity_shorttype"
-                                                                               value="{$order->Faktcity_shorttype}"
+                                                                               value="{$faktaddress->city_type}"
                                                                                placeholder=""/>
                                                                     </div>
                                                                 </div>
@@ -1843,14 +1845,14 @@
                                                                         <input type="text"
                                                                                class="form-control js-dadata-district"
                                                                                name="Faktdistrict"
-                                                                               value="{$order->Faktdistrict}"
+                                                                               value="{$faktaddress->district}"
                                                                                placeholder=""/>
                                                                     </div>
                                                                     <div class="col-3">
                                                                         <input type="text"
                                                                                class="form-control js-dadata-district-type"
                                                                                name="Faktdistrict_shorttype"
-                                                                               value="{$order->Faktdistrict_shorttype}"
+                                                                               value="{$faktaddress->district_type}"
                                                                                placeholder=""/>
                                                                     </div>
                                                                 </div>
@@ -1864,14 +1866,14 @@
                                                                         <input type="text"
                                                                                class="form-control js-dadata-locality"
                                                                                name="Faktlocality"
-                                                                               value="{$order->Faktlocality}"
+                                                                               value="{$faktaddress->locality}"
                                                                                placeholder=""/>
                                                                     </div>
                                                                     <div class="col-3">
                                                                         <input type="text"
                                                                                class="form-control js-dadata-locality-type"
                                                                                name="Faktlocality_shorttype"
-                                                                               value="{$order->Faktlocality_shorttype}"
+                                                                               value="{$faktaddress->locality_type}"
                                                                                placeholder=""/>
                                                                     </div>
                                                                 </div>
@@ -1885,14 +1887,14 @@
                                                                         <input type="text"
                                                                                class="form-control js-dadata-street"
                                                                                name="Faktstreet"
-                                                                               value="{$order->Faktstreet}"
+                                                                               value="{$faktaddress->street}"
                                                                                placeholder=""/>
                                                                     </div>
                                                                     <div class="col-3">
                                                                         <input type="text"
                                                                                class="form-control js-dadata-street-type"
                                                                                name="Faktstreet_shorttype"
-                                                                               value="{$order->Faktstreet_shorttype}"
+                                                                               value="{$faktaddress->street_type}"
                                                                                placeholder=""/>
                                                                     </div>
                                                                 </div>
@@ -1907,7 +1909,7 @@
                                                             <div class="form-group">
                                                                 <label class="control-label">Индекс</label>
                                                                 <input type="text" class="form-control js-dadata-index"
-                                                                       name="Faktindex" value="{$order->Faktindex}"
+                                                                       name="Faktindex" value="{$faktaddress->zip}"
                                                                        placeholder=""/>
                                                             </div>
                                                         </div>
@@ -1917,7 +1919,7 @@
                                                             <div class="form-group {if in_array('empty_fakthousing', (array)$addresses_error)}has-danger{/if}">
                                                                 <label class="control-label">Дом</label>
                                                                 <input type="text" class="form-control js-dadata-house"
-                                                                       name="Fakthousing" value="{$order->Fakthousing}"
+                                                                       name="Fakthousing" value="{$faktaddress->house}"
                                                                        placeholder=""/>
                                                                 {if in_array('empty_fakthousing', (array)$addresses_error)}
                                                                     <small class="form-control-feedback">Укажите дом!
@@ -1931,14 +1933,14 @@
                                                                 <input type="text"
                                                                        class="form-control js-dadata-building"
                                                                        name="Faktbuilding"
-                                                                       value="{$order->Faktbuilding}" placeholder=""/>
+                                                                       value="{$faktaddress->building}" placeholder=""/>
                                                             </div>
                                                         </div>
                                                         <div class="col-md-4">
                                                             <div class="form-group">
                                                                 <label class="control-label">Квартира</label>
                                                                 <input type="text" class="form-control js-dadata-room"
-                                                                       name="Faktroom" value="{$order->Faktroom}"
+                                                                       name="Faktroom" value="{$faktaddress->room}"
                                                                        placeholder=""/>
                                                             </div>
                                                         </div>
