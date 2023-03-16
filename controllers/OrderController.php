@@ -298,8 +298,8 @@ class OrderController extends Controller
 
                     $regaddress = $this->Addresses->get_address($client->regaddress_id);
                     $faktaddress = $this->Addresses->get_address($client->faktaddress_id);
-                    $this->design->assign('regaddress', $regaddress->adressfull);
-                    $this->design->assign('faktaddress', $faktaddress->adressfull);
+                    $this->design->assign('regaddress', $regaddress);
+                    $this->design->assign('faktaddress', $faktaddress);
 
                     if (!empty($order->promocode_id)) {
                         $promocode = PromocodesORM::find($order->promocode_id);
@@ -953,31 +953,52 @@ class OrderController extends Controller
             'user_id' => $order->user_id,
         ));
 
+        if (!empty($resp))
+        {
+            $resp = json_decode($resp);
+
+            $this->receipts->add_receipt(array(
+                'user_id' => $contract->user_id,
+                'Информирование о причине отказа',
+                'order_id' => $contract->order_id,
+                'contract_id' => 0,
+                'insurance_id' => 0,
+                'receipt_url' => (string)$resp->Model->ReceiptLocalUrl,
+                'response' => serialize($resp),
+                'created' => date('Y-m-d H:i:s')
+            ));
+        }
+
         if (!empty($order->utm_source) && $order->utm_source == 'leadstech')
             PostbacksCronORM::insert(['order_id' => $order->order_id, 'status' => 2, 'goal_id' => 3]);
 
-        $user = UsersORM::find($order->user_id);
+        $this->operations->add_operation(array(
+            'contract_id' => 0,
+            'user_id' => $order->user_id,
+            'order_id' => $order->order_id,
+            'type' => 'REJECT_REASON',
+            'amount' => 19,
+            'created' => date('Y-m-d H:i:s'),
+            'transaction_id' => 0,
+        ));
 
-        if($user->service_reason == 1)
-        {
-            $defaultCard = CardsORM::where('user_id', $order->user_id)->where('base_card', 1)->first();
+        $this->db->query("
+                SELECT
+                id,
+                user_id,
+                amount,
+                register_id
+                FROM s_transactions
+                WHERE ts.`description` = 'Привязка карты'
+                AND reason_code = 1
+                and checked = 0
+                and user_id = ?
+                order by id desc
+                ", $order->user_id);
 
-            $resp = $this->Best2pay->purchase_by_token($defaultCard->id, 3900, 'Списание за услугу "Причина отказа"');
+        $transaction = $this->db->result();
 
-            $status = (string)$resp->state;
-
-            if ($status == 'APPROVED') {
-                $this->operations->add_operation(array(
-                    'contract_id' => 0,
-                    'user_id' => $order->user_id,
-                    'order_id' => $order->order_id,
-                    'type' => 'REJECT_REASON',
-                    'amount' => 39,
-                    'created' => date('Y-m-d H:i:s'),
-                    'transaction_id' => 0,
-                ));
-            }
-        }
+        $this->Best2pay->completeCardEnroll($transaction);
 
         return array('success' => 1, 'status' => $status);
     }
@@ -1464,6 +1485,8 @@ class OrderController extends Controller
         $order->Fakthousing = trim($this->request->post('Fakthousing'));
         $order->Faktbuilding = trim($this->request->post('Faktbuilding'));
         $order->Faktroom = trim($this->request->post('Faktroom'));
+        $order->Okato = trim($this->request->post('Okato'));
+        $order->Oktmo = trim($this->request->post('Oktmo'));
 
         $addresses_error = array();
 
@@ -1474,23 +1497,90 @@ class OrderController extends Controller
             $addresses_error[] = 'empty_faktregion';
 
         if (empty($addresses_error)) {
-            $update = array(
-                'Regregion' => $order->Regregion,
-                'Regregion_shorttype' => $order->Regregion_shorttype,
-                'Regcity' => $order->Regcity,
-                'Regcity_shorttype' => $order->Regcity_shorttype,
-                'Regdistrict' => $order->Regdistrict,
-                'Regdistrict_shorttype' => $order->Regdistrict_shorttype,
-                'Reglocality' => $order->Reglocality,
-                'Reglocality_shorttype' => $order->Reglocality_shorttype,
-                'Regstreet' => $order->Regstreet,
-                'Regstreet_shorttype' => $order->Regstreet_shorttype,
-                'Reghousing' => $order->Reghousing,
-                'Regbuilding' => $order->Regbuilding,
-                'Regroom' => $order->Regroom,
-                'Regindex' => $order->Regindex,
-            );
+            // $update = array(
+            //     'Regregion' => $order->Regregion,
+            //     'Regregion_shorttype' => $order->Regregion_shorttype,
+            //     'Regcity' => $order->Regcity,
+            //     'Regcity_shorttype' => $order->Regcity_shorttype,
+            //     'Regdistrict' => $order->Regdistrict,
+            //     'Regdistrict_shorttype' => $order->Regdistrict_shorttype,
+            //     'Reglocality' => $order->Reglocality,
+            //     'Reglocality_shorttype' => $order->Reglocality_shorttype,
+            //     'Regstreet' => $order->Regstreet,
+            //     'Regstreet_shorttype' => $order->Regstreet_shorttype,
+            //     'Reghousing' => $order->Reghousing,
+            //     'Regbuilding' => $order->Regbuilding,
+            //     'Regroom' => $order->Regroom,
+            //     'Regindex' => $order->Regindex,
+            // );
 
+            // $regaddressAdressfull = $order->Regregion ?? '';
+            // $regaddressAdressfull = $regaddressAdressfull . $order->Regregion ? $order->Regregion_shorttype : '';
+
+            // Изменение адреса регистрации
+            $regaddress = [];
+            $regaddress['adressfull'] = '';
+            $regaddress['zip'] = $order->Regindex ?? '';
+            $regaddress['region'] = $order->Regregion ?? '';
+            $regaddress['region_type'] = $order->Regregion_shorttype ?? '';
+            $regaddress['city'] = $order->Regcity ?? '';
+            $regaddress['city_type'] = $order->Regcity_shorttype ?? '';
+            $regaddress['district'] = $order->Regdistrict ?? '';
+            $regaddress['district_type'] = $order->Regdistrict_shorttype ?? '';
+            $regaddress['locality'] = $order->Reglocality ?? '';
+            $regaddress['locality_type'] = $order->Reglocality_shorttype ?? '';
+            $regaddress['street'] = $order->Regstreet ?? '';
+            $regaddress['street_type'] = $order->Regstreet_shorttype ?? '';
+            $regaddress['house'] = $order->Reghousing ?? '';
+            $regaddress['building'] = $order->Regbuilding ?? '';
+            $regaddress['room'] = $order->Regroom ?? '';
+            $regaddress['okato'] = $order->Okato ?? '';
+            $regaddress['oktmo'] = $order->Oktmo ?? '';
+
+            $regaddress['adressfull'] = $regaddress['region'] ? $regaddress['region'] . " " . $regaddress['region_type'] : "";
+            $regaddress['adressfull'] .= $regaddress['city'] ?  ", " . $regaddress['city'] . " " . $regaddress['city_type'] : "";
+            $regaddress['adressfull'] .= $regaddress['district'] ? ", " . $regaddress['district'] . " " . $regaddress['district_type'] : "";
+            $regaddress['adressfull'] .= $regaddress['locality'] ? ", " . $regaddress['locality'] . " " . $regaddress['locality_type'] : "";
+            $regaddress['adressfull'] .= $regaddress['street'] ? ", " . $regaddress['street'] . " " . $regaddress['street_type'] : "";
+            $regaddress['adressfull'] .= $regaddress['house'] ? ", д " . $regaddress['house'] : "";
+            $regaddress['adressfull'] .= $regaddress['building'] ? ", стр " . $regaddress['building'] : "";
+            $regaddress['adressfull'] .= $regaddress['room'] ? ", кв " . $regaddress['room'] : "";
+
+            $this->Addresses->update_address($this->request->post('regaddress_id', 'integer'), $regaddress);
+            
+
+            // Изменение фактического адреса
+            $faktaddress = [];
+            $faktaddress['adressfull'] = '';
+            $faktaddress['zip'] = $order->Faktindex ?? '';
+            $faktaddress['region'] = $order->Faktregion ?? '';
+            $faktaddress['region_type'] = $order->Faktregion_shorttype ?? '';
+            $faktaddress['city'] = $order->Faktcity ?? '';
+            $faktaddress['city_type'] = $order->Faktcity_shorttype ?? '';
+            $faktaddress['district'] = $order->Faktdistrict ?? '';
+            $faktaddress['district_type'] = $order->Faktdistrict_shorttype ?? '';
+            $faktaddress['locality'] = $order->Faktlocality ?? '';
+            $faktaddress['locality_type'] = $order->Faktlocality_shorttype ?? '';
+            $faktaddress['street'] = $order->Faktstreet ?? '';
+            $faktaddress['street_type'] = $order->Faktstreet_shorttype ?? '';
+            $faktaddress['house'] = $order->Fakthousing ?? '';
+            $faktaddress['building'] = $order->Faktbuilding ?? '';
+            $faktaddress['room'] = $order->Faktroom ?? '';
+            $faktaddress['okato'] = $order->Okato ?? '';
+            $faktaddress['oktmo'] = $order->Oktmo ?? '';
+
+            $faktaddress['adressfull'] = $faktaddress['region'] ? $faktaddress['region'] . " " . $faktaddress['region_type'] : "";
+            $faktaddress['adressfull'] .= $faktaddress['city'] ?  ", " . $faktaddress['city'] . " " . $faktaddress['city_type'] : "";
+            $faktaddress['adressfull'] .= $faktaddress['district'] ? ", " . $faktaddress['district'] . " " . $faktaddress['district_type'] : "";
+            $faktaddress['adressfull'] .= $faktaddress['locality'] ? ", " . $faktaddress['locality'] . " " . $faktaddress['locality_type'] : "";
+            $faktaddress['adressfull'] .= $faktaddress['street'] ? ", " . $faktaddress['street'] . " " . $faktaddress['street_type'] : "";
+            $faktaddress['adressfull'] .= $faktaddress['house'] ? ", д " . $faktaddress['house'] : "";
+            $faktaddress['adressfull'] .= $faktaddress['building'] ? ", стр " . $faktaddress['building'] : "";
+            $faktaddress['adressfull'] .= $faktaddress['room'] ? ", кв " . $faktaddress['room'] : "";
+
+            $this->Addresses->update_address($this->request->post('faktaddress_id', 'integer'), $faktaddress);
+
+            
             $old_user = $this->users->get_user($user_id);
             $old_values = array();
             foreach ($update as $key => $val)
@@ -1502,17 +1592,17 @@ class OrderController extends Controller
                 if (isset($old_values[$k]))
                     $log_update[$k] = $u;
 
-            $this->changelogs->add_changelog(array(
-                'manager_id' => $this->manager->id,
-                'created' => date('Y-m-d H:i:s'),
-                'type' => 'regaddress',
-                'old_values' => serialize($old_values),
-                'new_values' => serialize($log_update),
-                'order_id' => $order_id,
-                'user_id' => $user_id,
-            ));
+            // $this->changelogs->add_changelog(array(
+            //     'manager_id' => $this->manager->id,
+            //     'created' => date('Y-m-d H:i:s'),
+            //     'type' => 'regaddress',
+            //     'old_values' => serialize($old_values),
+            //     'new_values' => serialize($log_update),
+            //     'order_id' => $order_id,
+            //     'user_id' => $user_id,
+            // ));
 
-            $this->users->update_user($user_id, $update);
+            // $this->users->update_user($user_id, $update);
 
             $update = array(
                 'Faktregion' => $order->Faktregion,
@@ -1542,17 +1632,23 @@ class OrderController extends Controller
                 if (isset($old_values[$k]))
                     $log_update[$k] = $u;
 
-            $this->changelogs->add_changelog(array(
-                'manager_id' => $this->manager->id,
-                'created' => date('Y-m-d H:i:s'),
-                'type' => 'faktaddress',
-                'old_values' => serialize($old_values),
-                'new_values' => serialize($log_update),
-                'order_id' => $order_id,
-                'user_id' => $user_id,
-            ));
+            // $this->changelogs->add_changelog(array(
+            //     'manager_id' => $this->manager->id,
+            //     'created' => date('Y-m-d H:i:s'),
+            //     'type' => 'faktaddress',
+            //     'old_values' => serialize($old_values),
+            //     'new_values' => serialize($log_update),
+            //     'order_id' => $order_id,
+            //     'user_id' => $user_id,
+            // ));
 
-            $this->users->update_user($user_id, $update);
+            // $this->users->update_user($user_id, $update);
+
+            $regaddress = $this->Addresses->get_address($this->request->post('regaddress_id', 'integer'));
+            $faktaddress = $this->Addresses->get_address($this->request->post('faktaddress_id', 'integer'));
+
+            $this->design->assign('regaddress', $regaddress);
+            $this->design->assign('faktaddress', $faktaddress);
 
         }
 
