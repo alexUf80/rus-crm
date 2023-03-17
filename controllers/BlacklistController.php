@@ -150,8 +150,6 @@ class BlacklistController extends Controller
         foreach ($item as $key => $value)
         {
             $k = mb_strtolower($key);
-            if ($k == 'телефон')
-                $prepare_item['phone'] = $value;
             if ($k == 'фио')
                 $prepare_item['fio'] = mb_strtolower($value);
             if ($k == 'фамилия')
