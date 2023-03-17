@@ -224,7 +224,7 @@ class OrderController extends Controller
                 $managers[$m->id] = $m;
 
             $scoring_types = $this->scorings->get_types();
-            
+
             // $token = "222e191767518127bcf15cc4d2a23c131404fdf2";
             // $secret = "6b90de07e9974eba848ac174b3eed2829a35ec5e";
             // $regaddress = $this->Addresses->get_address(78929);
@@ -239,28 +239,28 @@ class OrderController extends Controller
 //echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($scoring_types);echo '</pre><hr />';
             $this->design->assign('scoring_types', $scoring_types);
 
-        //     $query = $this->db->placehold("
-        //     SELECT 
-        //         id
-        //     FROM __addresses
-        //     WHERE 1
-        //     AND region LIKE '%Самарская%'
-        // ");
-        // $this->db->query($query);
-        // $usersRegaddress_id = $this->db->results();
-        // $ids = [];
-        // foreach ($usersRegaddress_id as $userRegaddress_id) {
-        //     $ids[] = $userRegaddress_id->id;
-        // }
-        //  $ids = implode(',', $ids);
-        // echo '<pre>';print_r("
-        // SELECT 
-        //     id
-        //     FROM __users
-        //     WHERE regaddress_id iN(" . $ids . ")
-        // ");echo'</pre>';
-        //ntcn
-        
+            //     $query = $this->db->placehold("
+            //     SELECT
+            //         id
+            //     FROM __addresses
+            //     WHERE 1
+            //     AND region LIKE '%Самарская%'
+            // ");
+            // $this->db->query($query);
+            // $usersRegaddress_id = $this->db->results();
+            // $ids = [];
+            // foreach ($usersRegaddress_id as $userRegaddress_id) {
+            //     $ids[] = $userRegaddress_id->id;
+            // }
+            //  $ids = implode(',', $ids);
+            // echo '<pre>';print_r("
+            // SELECT
+            //     id
+            //     FROM __users
+            //     WHERE regaddress_id iN(" . $ids . ")
+            // ");echo'</pre>';
+            //ntcn
+
 
             if ($order_id = $this->request->get('id', 'integer')) {
                 if ($order = $this->orders->get_order($order_id)) {
@@ -269,12 +269,12 @@ class OrderController extends Controller
                     $client_time_zon = $client->time_zone;
                     //$client_time_zon = 'UTC-5';
                     //echo '<pre>';print_r($client_time_zon);echo'</pre>';
-                    $client_time_zon = mb_substr( $client_time_zon, 3);
+                    $client_time_zon = mb_substr($client_time_zon, 3);
                     //echo '<pre>';print_r($client_time_zon);echo'</pre>';
                     $client_time_zon = (int)$client_time_zon;
                     //echo '<pre>';print_r($client_time_zon);echo'</pre>';
                     $client_time_zon = $client_time_zon * 60 * 60;
-            
+
                     //$time = new DateTimeZone('UTC');
 
                     $tz = 'UTC';
@@ -380,10 +380,12 @@ class OrderController extends Controller
                             if (!empty($contract_operation->transaction_id))
                                 $contract_operation->transaction = $this->transactions->get_transaction($contract_operation->transaction_id);
 
-                            if($contract_operation->type == 'P2P')
+                            if ($contract_operation->type == 'P2P') {
                                 $contract_operation->p2pOperation = P2pOperationORM::where('contract_id', $contract_operation->contract_id)
                                     ->where('status', 'APPROVED')
-                                    ->first();
+                                    ->first()
+                                    ->toArray();
+                            }
                         }
 
                         usort($contract_operations,
@@ -420,7 +422,7 @@ class OrderController extends Controller
                             }
 
                             if ($scoring->type == 'fssp') {
-                                $fsspScore =json_decode($scoring->body, true);
+                                $fsspScore = json_decode($scoring->body, true);
                                 $this->design->assign('fsspScore', $fsspScore);
                             }
 
@@ -958,8 +960,7 @@ class OrderController extends Controller
             'user_id' => $order->user_id,
         ));
 
-        if (!empty($resp))
-        {
+        if (!empty($resp)) {
             $resp = json_decode($resp);
 
             $this->receipts->add_receipt(array(
@@ -1543,7 +1544,7 @@ class OrderController extends Controller
             $regaddress['oktmo'] = $order->Oktmo ?? '';
 
             $regaddress['adressfull'] = $regaddress['region'] ? $regaddress['region'] . " " . $regaddress['region_type'] : "";
-            $regaddress['adressfull'] .= $regaddress['city'] ?  ", " . $regaddress['city'] . " " . $regaddress['city_type'] : "";
+            $regaddress['adressfull'] .= $regaddress['city'] ? ", " . $regaddress['city'] . " " . $regaddress['city_type'] : "";
             $regaddress['adressfull'] .= $regaddress['district'] ? ", " . $regaddress['district'] . " " . $regaddress['district_type'] : "";
             $regaddress['adressfull'] .= $regaddress['locality'] ? ", " . $regaddress['locality'] . " " . $regaddress['locality_type'] : "";
             $regaddress['adressfull'] .= $regaddress['street'] ? ", " . $regaddress['street'] . " " . $regaddress['street_type'] : "";
@@ -1552,7 +1553,7 @@ class OrderController extends Controller
             $regaddress['adressfull'] .= $regaddress['room'] ? ", кв " . $regaddress['room'] : "";
 
             $this->Addresses->update_address($this->request->post('regaddress_id', 'integer'), $regaddress);
-            
+
 
             // Изменение фактического адреса
             $faktaddress = [];
@@ -1575,7 +1576,7 @@ class OrderController extends Controller
             $faktaddress['oktmo'] = $order->Oktmo ?? '';
 
             $faktaddress['adressfull'] = $faktaddress['region'] ? $faktaddress['region'] . " " . $faktaddress['region_type'] : "";
-            $faktaddress['adressfull'] .= $faktaddress['city'] ?  ", " . $faktaddress['city'] . " " . $faktaddress['city_type'] : "";
+            $faktaddress['adressfull'] .= $faktaddress['city'] ? ", " . $faktaddress['city'] . " " . $faktaddress['city_type'] : "";
             $faktaddress['adressfull'] .= $faktaddress['district'] ? ", " . $faktaddress['district'] . " " . $faktaddress['district_type'] : "";
             $faktaddress['adressfull'] .= $faktaddress['locality'] ? ", " . $faktaddress['locality'] . " " . $faktaddress['locality_type'] : "";
             $faktaddress['adressfull'] .= $faktaddress['street'] ? ", " . $faktaddress['street'] . " " . $faktaddress['street_type'] : "";
@@ -1585,7 +1586,7 @@ class OrderController extends Controller
 
             $this->Addresses->update_address($this->request->post('faktaddress_id', 'integer'), $faktaddress);
 
-            
+
             $old_user = $this->users->get_user($user_id);
             $old_values = array();
             foreach ($update as $key => $val)
@@ -3268,7 +3269,7 @@ class OrderController extends Controller
         $prcSum = str_replace(',', '.', $prcSum);
         $peniSum = str_replace(',', '.', $peniSum);
 
-        if(empty($stopProfit))
+        if (empty($stopProfit))
             $stopProfit = 0;
         else
             $stopProfit = 1;
