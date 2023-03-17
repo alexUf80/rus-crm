@@ -387,18 +387,7 @@ class OrderController extends Controller
                                     ->toArray();
                             }
                         }
-
-                        usort($contract_operations,
-                            function ($a, $b) {
-
-                                if ($a->created == $b->created)
-                                    return 0;
-
-                                return (date('Y-m-d', strtotime($a->created)) < date('Y-m-d', strtotime($b->created))) ? -1 : 1;
-                            });
                     }
-
-                    $contract_operations = array_reverse($contract_operations);
 
                     $this->design->assign('contract_operations', $contract_operations);
 
