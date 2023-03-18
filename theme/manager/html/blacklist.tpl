@@ -159,11 +159,9 @@
                             <div class="row">
                                 <div class="col-12">
                                     <div class="alert alert-info">
-                                    Для загрузки используйте формат csv с разделителями "точка с запятой".
+                                    Для загрузки используйте формат xlsx
                                     <br />
-                                    В первой строке должны быть наименования ячеек (фио)
-                                    <br />
-                                    <a href="/files/import/example.csv">скачать пример файла</a>
+                                    <a href="/files/import/blacklist_example.xlsx">скачать пример файла</a>
                                     </div>
                                 </div>
                             </div>
