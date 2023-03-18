@@ -3615,7 +3615,7 @@
                                     <input type="hidden" name="user_id" value="{$order->user_id}"/>
                                     <input type="hidden" name="order_id" value="{$order->id}"/>
                                     <input type="hidden" name="role" value=""/>
-                                    <input type="hidden" name="action" value="send_sms"/>
+                                    <input type="hidden" name="action" value="send_template_sms"/>
                                     <div class="form-group">
                                         <label for="name" class="control-label">Выберите шаблон сообщения:</label>
                                         <select name="template_id" class="form-control">
@@ -3663,13 +3663,10 @@
                         <textarea name="text_sms" class="form-control casual-sms-form"
                                   style="display: none; height: 250px;"></textarea>
                         <ul class="casual-sms-form" style="display: none; margin-top: 5px">
-                            <li>$firstname = Имя</li>
-                            <li>$fio = ФИО</li>
-                            <li>$prolongation_sum = Сумма для пролонгации</li>
-                            <li>$final_sum = Сумма для погашения займа</li>
+                            <li>Все переменные для смс сообщений находятся в разделе "Шаблоны смс"</li>
                         </ul>
-                        <button class="btn btn-success btn-lg waves-effect waves-light casual-sms-form"
-                                id="send_casual_sms" style="display: none;">Отправить свободное сообщение
+                        <button class="btn btn-success btn-lg casual-sms-form"
+                                id="send_casual_sms" style="display: none; margin-left: 45px;">Отправить свободное сообщение
                         </button>
                     </form>
                 </div>
