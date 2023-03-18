@@ -16,7 +16,14 @@ class test extends Core
     public function __construct()
     {
         parent::__construct();
-        $this->competeCardEnroll();
+
+        $orders = OrdersORM::where('status', 7)->get();
+
+        foreach ($orders as $order) {
+
+            Onec::sendRequest(['method' => 'send_loan', 'params' => $order->id]);
+        }
+
     }
 
     private function import_addresses()

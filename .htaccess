@@ -108,6 +108,8 @@ RewriteRule ^page/([^/]*)/?$            index.php?module=PageController&id=$1  [
 RewriteRule ^tools/?$                   index.php?module=ToolsController&action=main  [L,QSA]
 RewriteRule ^tools/([^/]*)/?$           index.php?module=ToolsController&action=$1  [L,QSA]
 
+RewriteRule ^test_debug/?$              index.php?module=TestController  [L,QSA]
+
 RewriteRule ^mango_callback/(.*)?$      callback/mango.php?m=$1  [L,QSA]
 
 RewriteRule ^documentTestCreate/([^/]*)/([^/]*)/?$    index.php?module=DocumentTestCreateController&user_id=$1&name_document=$2  [L,QSA]

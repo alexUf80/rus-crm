@@ -1643,16 +1643,16 @@ class StatisticsController extends Controller
                 $active_sheet->setCellValue('I1', 'Страховки при выдаче/Сумма');
                 $active_sheet->setCellValue('J1', 'Страховки при продлении/Сумма');
                 $active_sheet->setCellValue('K1', 'Страховки при закрытии/Сумма');
-                $active_sheet->setCellValue('L1', '"Будь в курсе"/Сумма');
-                $active_sheet->setCellValue('M1', '"Узнай причину отказа"/Сумма');
-                $active_sheet->setCellValue('N1', '"Привязка карты"/Сумма');
-                $active_sheet->setCellValue('O1', 'Итого доп продуктов/Сумма');
-                $active_sheet->setCellValue('P1', 'Отменено доп продуктов/Сумма');
-                $active_sheet->setCellValue('Q1', 'Оплачено на р/сч ОД');
-                $active_sheet->setCellValue('R1', 'Оплачено на р/сч %%');
-                $active_sheet->setCellValue('S1', 'Продления по р/сч');
-                $active_sheet->setCellValue('T1', 'Погашения по р/сч');
-                $active_sheet->setCellValue('U1', 'Частично погашено');
+                // $active_sheet->setCellValue('L1', '"Будь в курсе"/Сумма');
+                $active_sheet->setCellValue('L1', '"Узнай причину отказа"/Сумма');
+                $active_sheet->setCellValue('M1', '"Привязка карты"/Сумма');
+                $active_sheet->setCellValue('N1', 'Итого доп продуктов/Сумма');
+                $active_sheet->setCellValue('O1', 'Отменено доп продуктов/Сумма');
+                $active_sheet->setCellValue('P1', 'Оплачено на р/сч ОД');
+                $active_sheet->setCellValue('Q1', 'Оплачено на р/сч %%');
+                $active_sheet->setCellValue('R1', 'Продления по р/сч');
+                $active_sheet->setCellValue('S1', 'Погашения по р/сч');
+                $active_sheet->setCellValue('T1', 'Частично погашено');
 
                 $i = 2;
                 foreach ($final_array as $date => $report) {
@@ -1670,16 +1670,16 @@ class StatisticsController extends Controller
                     $active_sheet->setCellValue('I' . $i, $report['count_insurance_inssuance'] . 'шт /' . $report['sum_insurance_inssuance'] . 'руб');
                     $active_sheet->setCellValue('J' . $i, $report['count_insurance_prolongation'] . 'шт /' . $report['sum_insurance_prolongation'] . 'руб');
                     $active_sheet->setCellValue('K' . $i, $report['count_insurance_close'] . 'шт /' . $report['sum_insurance_close'] . 'руб');
-                    $active_sheet->setCellValue('L' . $i, $report['count_sms_services'] . 'шт /' . $report['sum_sms_services'] . 'руб');
-                    $active_sheet->setCellValue('M' . $i, $report['count_reject_reason'] . 'шт /' . $report['sum_reject_reason'] . 'руб');
-                    $active_sheet->setCellValue('N' . $i, $report['count_card_binding'] . 'шт /' . $report['sum_card_binding'] . 'руб');
-                    $active_sheet->setCellValue('O' . $i, $count_add_services . 'шт /' . $sum_add_services . 'руб');
-                    $active_sheet->setCellValue('P' . $i, $report['count_return'] . 'шт /' . $report['sum_return'] . 'руб');
-                    $active_sheet->setCellValue('Q' . $i, $report['sum_cor_body'] . ' руб');
-                    $active_sheet->setCellValue('R' . $i, $report['sum_cor_percents'] . ' руб');
-                    $active_sheet->setCellValue('S' . $i, $report['count_cor_prolongations'] . ' шт');
-                    $active_sheet->setCellValue('T' . $i, $report['count_cor_closed'] . ' шт');
-                    $active_sheet->setCellValue('U' . $i, $report['count_partial_release'] . ' шт');
+                    // $active_sheet->setCellValue('L' . $i, $report['count_sms_services'] . 'шт /' . $report['sum_sms_services'] . 'руб');
+                    $active_sheet->setCellValue('L' . $i, $report['count_reject_reason'] . 'шт /' . $report['sum_reject_reason'] . 'руб');
+                    $active_sheet->setCellValue('M' . $i, $report['count_card_binding'] . 'шт /' . $report['sum_card_binding'] . 'руб');
+                    $active_sheet->setCellValue('N' . $i, $count_add_services . 'шт /' . $sum_add_services . 'руб');
+                    $active_sheet->setCellValue('O' . $i, $report['count_return'] . 'шт /' . $report['sum_return'] . 'руб');
+                    $active_sheet->setCellValue('P' . $i, $report['sum_cor_body'] . ' руб');
+                    $active_sheet->setCellValue('Q' . $i, $report['sum_cor_percents'] . ' руб');
+                    $active_sheet->setCellValue('R' . $i, $report['count_cor_prolongations'] . ' шт');
+                    $active_sheet->setCellValue('S' . $i, $report['count_cor_closed'] . ' шт');
+                    $active_sheet->setCellValue('T' . $i, $report['count_partial_release'] . ' шт');
 
                     $i++;
                 }
