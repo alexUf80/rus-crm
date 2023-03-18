@@ -53,7 +53,7 @@ class Onec implements ApiInterface
         $item->УИДСделки = $contract->uid;
         $item->ИдентификаторФормыВыдачи = 'ТекущийСчетРасчетов';
         $item->ИдентификаторФормыОплаты = 'ТретьеЛицо';
-        $item->Сумма = $contract->amount;
+        $item->Сумма = ($contract->service_insurance == 1) ? ($contract->amount * 0.1) + $contract->amount : $contract->amount;
         $item->Порог = '1.5';
         $item->ИННОрганизации = '9717088848';
         $item->СпособПодачиЗаявления = 'Дистанционный';
@@ -151,8 +151,18 @@ class Onec implements ApiInterface
         return $format_phone;
     }
 
-    private static function send_insurance($item)
+    private static function send_services($service)
     {
+        $item = new StdClass();
+        $item->Дата = date('Ymd000000', strtotime($service->date));
+        $item->Клиент_id = (string)$service->user_id;
+        $item->Сумма = $service->insurance_cost;
+        $item->НомерДоговора = (string)$service->number;
+        $item->Операция_id = (string)$service->operation_id;
+        $item->Страховка = $service->is_insurance;
+
+        self::$orderId = $service->order_id;
+
         $request = new StdClass();
         $request->TextJSON = json_encode($item);
 
@@ -166,8 +176,8 @@ class Onec implements ApiInterface
 
     private static function sendTaxing($orderId)
     {
-        $start = date('Y-m-d 00:00:00', strtotime('2022-11-08'));
-        $end = date('Y-m-d 23:59:59', strtotime('2023-03-10'));
+        $start = date('Y-m-d 00:00:00', strtotime('2023-02-01'));
+        $end = date('Y-m-d 23:59:59', strtotime('2023-03-31'));
 
         $percents = OperationsORM::where('type', 'PERCENTS')
             ->whereBetween('created', [$start, $end])
@@ -193,8 +203,6 @@ class Onec implements ApiInterface
                 if(empty($contract) || empty($contract->number))
                     continue;
 
-                self::$orderId = $contract->order_id;
-
                 $item[] =
                     [
                         'НомерДоговора' => $contract->number,
@@ -203,6 +211,8 @@ class Onec implements ApiInterface
                         'Сумма' => $operation->amount
                     ];
             }
+
+            self::$orderId = 123;
 
             $request = new StdClass();
             $request->TextJSON = json_encode($item);

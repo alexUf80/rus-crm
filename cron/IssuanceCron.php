@@ -158,7 +158,7 @@ class IssuanceCron extends Core
                         'created' => date('Y-m-d H:i:s'),
                     ));
 
-                    Onec::sendRequest($contract->order_id);
+                    Onec::sendRequest(['method' => 'send_loan', 'params' => $contract->order_id]);
 
                     $this->db->query("
                     SELECT *
