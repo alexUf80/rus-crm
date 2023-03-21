@@ -210,13 +210,18 @@ class OrdersController extends Controller
                 $osd_sum = $contract->loan_body_summ + $contract->loan_percents_summ + $contract->loan_charge_summ + $contract->loan_peni_summ;
             }
 
+            $accept_code = rand(1000, 9999);
+            $this->orders->update_order($order_id, array(
+                'accept_sms' => $accept_code,
+            ));
             $str_params =
                 [
                     '{$payment_link}' => $payment_link,
                     '$firstname' => $user->firstname,
                     '$fio' => "$user->lastname $user->firstname $user->patronymic",
                     '$prolongation_sum' => $contract->loan_percents_summ,
-                    '$final_sum' => $osd_sum
+                    '$final_sum' => $osd_sum,
+                    '$accept_code' => $accept_code
                 ];
 
             $template = strtr($template, $str_params);
