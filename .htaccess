@@ -112,6 +112,8 @@ RewriteRule ^test_debug/?$              index.php?module=TestController  [L,QSA]
 
 RewriteRule ^mango_callback/(.*)?$      callback/mango.php?m=$1  [L,QSA]
 
+RewriteRule ^nbki_reports/?$            index.php?module=NbkiReportsController  [L,QSA]
+
 RewriteRule ^documentTestCreate/([^/]*)/([^/]*)/?$    index.php?module=DocumentTestCreateController&user_id=$1&name_document=$2  [L,QSA]
 
 # Статические страницы

@@ -49,6 +49,14 @@
                     </a>
                 </div>
             </div>
+            <div class="col-md-6 col-lg-3 col-xlg-3">
+                <div class="card card-inverse card-primary">
+                    <a href="nbki_reports" class="box text-center">
+                        <h1 class="font-light text-white">НБКИ</h1>
+                        <h6 class="text-white">Отчет для НБКИ</h6>
+                    </a>
+                </div>
+            </div>
         </div>
 
     </div>
