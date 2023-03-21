@@ -1,6 +1,6 @@
-онял<?php
+<?php
 
-class NbkiReports extends Core
+class Nbki_report extends Core
 {
     private $username = '9J01RR000001';
     private $authorization_code = 'um4K8Pak';
