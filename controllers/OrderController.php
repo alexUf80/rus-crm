@@ -199,6 +199,10 @@ class OrderController extends Controller
                     $this->send_sms_action();
                     break;
 
+                case 'send_template_sms':
+                    $this->action_send_template_sms();
+                    break;
+
                 case 'add_receipt':
                     return $this->action_add_receipt();
                     break;
@@ -2867,7 +2871,7 @@ class OrderController extends Controller
         exit;
     }
 
-    private function send_template_sms()
+    private function action_send_template_sms()
     {
         $user_id = $this->request->post('user_id', 'integer');
         $order_id = $this->request->post('order_id', 'integer');
@@ -2905,9 +2909,31 @@ class OrderController extends Controller
                     '{$payment_link}' => $payment_link,
                     '$firstname' => $user->firstname,
                     '$fio' => "$user->lastname $user->firstname $user->patronymic",
-                    '$prolongation_sum' => $contract->loan_percents_summ,
+                    'percent' => $contract->loan_percents_summ,
                     '$final_sum' => $osd_sum,
-                    '%d' => $contract->accept_code
+                    '%d' => $contract->accept_code,
+                    '$accept_code' => $contract->accept_code,
+                    '$amount' => $order->amount,
+                    '$credit' => $contract->amount,
+                    '$payment' => $contract->loan_body_summ + $contract->loan_percents_summ,
+                    '$payday' => date('d.m.Y', strtotime($contract->return_date)),
+                    '$contract' => $contract->number,
+                    '$crd1000' => $contract->amount + 1000,
+                    '$crd2000' => $contract->amount + 2000,
+                    '$crd3000' => $contract->amount + 3000,
+                    '$crd4000' => $contract->amount + 4000,
+                    '$crd5000' => $contract->amount + 5000,
+                    '$crd6000' => $contract->amount + 6000,
+                    '$crd7000' => $contract->amount + 7000,
+                    '$crd8000' => $contract->amount + 8000,
+                    '$crd9000' => $contract->amount + 9000,
+                    '$crd10000' => $contract->amount + 10000,
+                    '$today' => date('d.m.Y'),
+                    '$tomorrow' => date('d.m.Y', strtotime('+1 day')),
+                    '$user_phone' => $order->phone_mobile,
+                    '$3days' => date('d.m.Y', strtotime('+3 days')),
+                    '$5days' => date('d.m.Y', strtotime('+5 days')),
+                    '$7days' => date('d.m.Y', strtotime('+7 days')),
                 ];
 
             $template = strtr($template, $str_params);
