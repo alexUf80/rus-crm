@@ -31,19 +31,15 @@ class NbkiReportCron extends Core
         $date_from = date('Y-m-d', time() - 4 * 86400);
         $date_to = date('Y-m-d', time() - 1 * 86400);
         
-//        $date_from = '2023-03-01';
-//        $date_to = '2023-03-08';
-        
         $this->db->query("
             SELECT * FROM __operations 
-            WHERE type IN ('P2P', 'PAY', 'REPAYMENT_OD', 'REPAYMENT_PENI', 'REPAYMENT_PERCENT', 'REPAYMENT_PERCENT_ADV')
+            WHERE type IN ('P2P', 'PAY')
             AND DATE(created) >= ?
             AND DATE(created) <= ?
         ", $date_from, $date_to);
         
         $operations = $this->db->results();
-echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($operations);echo '</pre><hr />';
-//exit;
+
         $report = $this->nbki_report->send_operations($operations);
         
         if (!empty($report->filename))
@@ -58,14 +54,10 @@ echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($operations);echo '</pre><hr /
                 'date_to' => date('Y-m-d', strtotime($date_to)),
             ]);
         }
-        
-        
-        echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($report);echo '</pre><hr />';
         exit;
-    	
     }
     
-    
+
     public function save_report($report)
     {
         $this->filename = $this->config->root_dir.'files/nbki/'.$report->filename;

@@ -2,28 +2,31 @@
 
 class Nbki_report extends Core
 {
-    private $username = '9J01RR000001';
-    private $authorization_code = 'um4K8Pak';
-    
-    
+    private $username = '1401SS000002';
+    private $authorization_code = '934kjnG@';
+
+
     public function send_operations($operations)
     {
         $orders = [];
         $items = [];
-        foreach ($operations as $operation)
-        {
+        foreach ($operations as $operation) {
             $format_date = date('Ymd', strtotime($operation->created));
             $operation_type = $operation->type == 'P2P' ? 'P2P' : 'PAY';
-            
+
             if ($operation->amount <= 0)
                 continue;
-            
-            if (!isset($items[$operation->order_id]))
-            {
+
+            if (!isset($items[$operation->order_id])) {
                 $orders[$operation->order_id] = $this->orders->get_order($operation->order_id);
-                $orders[$operation->order_id]->loantype = $this->loantypes->get_loantype($orders[$operation->order_id]->loantype_id);
+
+                $contract = $this->contracts->get_contract($orders[$operation->order_id]->contract_id);
+
+                if(empty($contract->uid))
+                    continue;
+
                 $orders[$operation->order_id]->contract = $this->contracts->get_contract($orders[$operation->order_id]->contract_id);
-                
+
                 $orders[$operation->order_id]->payment_amount = '0';
                 $orders[$operation->order_id]->principal_payment_amount = '0';
                 $orders[$operation->order_id]->interest_payment_amount = '0';
@@ -37,110 +40,67 @@ class Nbki_report extends Core
                 $orders[$operation->order_id]->days_past_due = '0';
                 $orders[$operation->order_id]->closed = '0';
             }
-            
-            if ($orders[$operation->order_id]->loantype_id != 1 && $operation->type == 'PAY')
-                continue;
 
             if (!isset($items[$operation_type]))
                 $items[$operation_type] = [];
-            
+
             if (!isset($items[$operation_type][$format_date]))
                 $items[$operation_type][$format_date] = [];
 
-            if (!isset($items[$operation_type][$format_date][$operation->order_id]))
-            {
+            if (!isset($items[$operation_type][$format_date][$operation->order_id])) {
                 $items[$operation_type][$format_date][$operation->order_id] = $orders[$operation->order_id];
                 $items[$operation_type][$format_date][$operation->order_id]->operation = $operation;
             }
-            
-            
-            if ($operation_type == 'PAY')
-            {
+
+
+            if ($operation_type == 'PAY') {
                 $items[$operation_type][$format_date][$operation->order_id]->payment_date = date('d.m.Y', strtotime($operation->created));
-                
+
                 if ($operation->type == 'PAY') {
                     $transaction = $this->transactions->get_transaction($operation->transaction_id);
-    //echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($operation, $transaction);echo '</pre><hr />';                
-                    $items[$operation_type][$format_date][$operation->order_id]->principal_payment_amount += $transaction->loan_body_summ;            
+                    $items[$operation_type][$format_date][$operation->order_id]->principal_payment_amount += $transaction->loan_body_summ;
                     $items[$operation_type][$format_date][$operation->order_id]->interest_payment_amount += $transaction->loan_percents_summ;
                     $items[$operation_type][$format_date][$operation->order_id]->other_payment_amount += $transaction->loan_peni_summ;
-                    
-                    $items[$operation_type][$format_date][$operation->order_id]->payment_amount += $transaction->loan_body_summ + $transaction->loan_percents_summ + $transaction->loan_peni_summ;            
+
+                    $items[$operation_type][$format_date][$operation->order_id]->payment_amount += $transaction->loan_body_summ + $transaction->loan_percents_summ + $transaction->loan_peni_summ;
                     if ($operation->loan_body_summ <= 0)
-                        $items[$operation_type][$format_date][$operation->order_id]->closed = 1;                                
-                }
-                else
-                {
-                    $items[$operation_type][$format_date][$operation->order_id]->payment_amount += $operation->amount;                        
+                        $items[$operation_type][$format_date][$operation->order_id]->closed = 1;
+                } else {
+                    $items[$operation_type][$format_date][$operation->order_id]->payment_amount += $operation->amount;
                     if ($operation->loan_body_summ <= 0)
-                        $items[$operation_type][$format_date][$operation->order_id]->closed = 1;                                
+                        $items[$operation_type][$format_date][$operation->order_id]->closed = 1;
                 }
-                if ($operation->type == 'REPAYMENT_OD')
-                    $items[$operation_type][$format_date][$operation->order_id]->principal_payment_amount += $operation->amount;            
-                if ($operation->type == 'REPAYMENT_PERCENT' || $operation->type == 'REPAYMENT_PERCENT_ADV')
-                    $items[$operation_type][$format_date][$operation->order_id]->interest_payment_amount += $operation->amount;
-                if ($operation->type == 'REPAYMENT_PENI')
-                    $items[$operation_type][$format_date][$operation->order_id]->other_payment_amount += $operation->amount;
-    
-                
                 $items[$operation_type][$format_date][$operation->order_id]->amount_keep_code = '1';
                 $items[$operation_type][$format_date][$operation->order_id]->terms_due_code = '2';
                 $items[$operation_type][$format_date][$operation->order_id]->days_past_due = '0';
-                
             }
-
-
-            
         }
-        
+
         foreach ($items['PAY'] as $operation_date => $orders) {
-            foreach ($orders as $order)
-            {
-                if ($order->loantype->type == 'standart')
-                    $query_operations = $this->operations->get_operations(['contract_id' => $order->contract->id, 'type' => ['PAY']]);
-                else
-                    $query_operations = $this->operations->get_operations(['contract_id' => $order->contract->id, 'type' => ['REPAYMENT_OD', 'REPAYMENT_PENI', 'REPAYMENT_PERCENT', 'REPAYMENT_PERCENT_ADV']]);
-                if (!empty($query_operations))
-                {
-                    foreach ($query_operations as $query_operation)
-                    {
-                        if (strtotime(date('Y-m-d', strtotime($query_operation->created))) <= strtotime(date('Y-m-d', strtotime($operation->created))))
-                        {
+            foreach ($orders as $order) {
+                $query_operations = $this->operations->get_operations(['contract_id' => $order->contract->id, 'type' => ['PAY']]);
+
+                if (!empty($query_operations)) {
+                    foreach ($query_operations as $query_operation) {
+                        if (strtotime(date('Y-m-d', strtotime($query_operation->created))) <= strtotime(date('Y-m-d', strtotime($operation->created)))) {
                             if ($query_operation->type == 'PAY') {
-                                if ($query_transaction = $this->transactions->get_transaction($query_operation->transaction_id))
-                                {
+                                if ($query_transaction = $this->transactions->get_transaction($query_operation->transaction_id)) {
                                     $order->total_amount += $query_transaction->loan_body_summ + $query_transaction->loan_percents_summ + $query_transaction->loan_peni_summ;
-                                    $order->principal_total_amount += $query_transaction->loan_body_summ;            
+                                    $order->principal_total_amount += $query_transaction->loan_body_summ;
                                     $order->interest_total_amount += $query_transaction->loan_percents_summ;
                                     $order->other_total_amount += $query_transaction->loan_peni_summ;
                                 }
                             }
-                            if ($query_operation->type == 'REPAYMENT_OD')
-                            {
-                                $order->total_amount += $query_operation->amount;
-                                $order->principal_total_amount += $query_operation->amount;            
-                            }
-                            if ($query_operation->type == 'REPAYMENT_PERCENT' || $query_operation->type == 'REPAYMENT_PERCENT_ADV')
-                            {
-                                $order->total_amount += $query_operation->amount;
-                                $order->interest_total_amount += $query_operation->amount;
-                            }
-                            if ($query_operation->type == 'REPAYMENT_PENI')
-                            {
-                                $order->total_amount += $query_operation->amount;
-                                $order->other_total_amount += $query_operation->amount;                        
-                            }
                         }
                     }
                 }
-                
             }
         }
-        
+
         $wrapper = $this->get_wrapper($items);
-        
+
         $resp = $this->send($wrapper, 'v2/report/');
-        
+
         return $resp;
     }
 
@@ -154,49 +114,32 @@ class Nbki_report extends Core
         $HEADER->password = $this->authorization_code;
 
         $wrapper->HEADER = $HEADER;
-        
-        if (!empty($items['P2P']))
-        {
+
+        if (!empty($items['P2P'])) {
             foreach ($items['P2P'] as $operation_date => $orders) {
                 foreach ($orders as $order)
                     $wrapper->MANY_EVENTS[] = $this->get_p2p_item($order);
             }
         }
-        
-        if (!empty($items['PAY']))
-        {
+
+        if (!empty($items['PAY'])) {
             foreach ($items['PAY'] as $operation_date => $orders) {
                 foreach ($orders as $order)
                     $wrapper->MANY_EVENTS[] = $this->get_pay_item($order);
             }
         }
-        
+
         return $wrapper;
     }
-    
+
     private function get_pay_item($order)
     {
-        if ($contract = $this->contracts->get_contract($order->contract_id))
-        {
-            $total_summ = $contract->loan_body_summ + $contract->loan_percents_summ + $contract->loan_charge_summ + $contract->loan_peni_summ;
-            if ($contract->payments = $this->operations->get_operations(['contract_id'=>$contract->id, 'type'=>'PAY']))
-            {
-                $total_payments = array_reduce($contract->payments, function($a, $b){return $a + $b->amount;}, 0);
-                $last_payment = array_pop($contract->payments);
-            }
+        $contract = $this->contracts->get_contract($order->contract_id);
 
-            $return_date = new DateTime($contract->return_date);
-            $inssuance_date = new DateTime($contract->inssuance_date);
-            $diff = $return_date->diff($inssuance_date);
-            $real_period = $diff->days;
-        }
-        
-        $loantype = $this->loantypes->get_loantype($order->loantype_id);
-
-        $passport_serial = str_replace([' ','-'], '', $order->passport_serial);
+        $passport_serial = str_replace([' ', '-'], '', $order->passport_serial);
         $passport_series = substr($passport_serial, 0, 4);
         $passport_number = substr($passport_serial, 4, 6);
-        
+
 
         $data = new StdClass();
 
@@ -204,7 +147,7 @@ class Nbki_report extends Core
         $GROUPHEADER->event_number = "2.3";
         $GROUPHEADER->operation_code = "B";
         $GROUPHEADER->event_date = date('d.m.Y', strtotime($order->operation->created));
-        
+
         $data->GROUPHEADER = $GROUPHEADER;
 
 
@@ -218,15 +161,15 @@ class Nbki_report extends Core
 
         $C2_PREVNAME = new StdClass();
         $C2_PREVNAME->is_prev_name = '0';
-        
+
         $data->C2_PREVNAME = $C2_PREVNAME;
 
 
         $C3_BIRTH = new StdClass();
-        $C3_BIRTH->birth_date = $order->birth;
+        $C3_BIRTH->birth_date = date('d.m.Y', strtotime($order->birth));
         $C3_BIRTH->country_code = '643';
         $C3_BIRTH->birth_place = $this->clearing($order->birth_place);
-        
+
         $data->C3_BIRTH = $C3_BIRTH;
 
 
@@ -238,13 +181,13 @@ class Nbki_report extends Core
         $C4_ID->issue_date = date('d.m.Y', strtotime($order->passport_date));
         $C4_ID->issued_by_division = $this->clearing($order->passport_issued);
         $C4_ID->division_code = $order->subdivision_code;
-        
+
         $data->C4_ID = $C4_ID;
 
 
         $C5_PREVID = new StdClass();
         $C5_PREVID->is_prev_document = '0';
-                
+
         $data->C5_PREVID = $C5_PREVID;
 
 
@@ -280,7 +223,7 @@ class Nbki_report extends Core
         $C19_ACCOUNTAMT = new StdClass();
         $C19_ACCOUNTAMT->credit_limit = str_replace('.', ',', sprintf("%01.2f", $contract->amount));
         $C19_ACCOUNTAMT->currency_code = 'RUB';
-        
+
         $data->C19_ACCOUNTAMT = $C19_ACCOUNTAMT;
 
 
@@ -300,7 +243,7 @@ class Nbki_report extends Core
         $C22_OVERALLVAL->total_credit_amount_interest = sprintf("%01.2f", $contract->base_percent * 365);
         $C22_OVERALLVAL->total_credit_amount_monetary = str_replace('.', ',', sprintf("%01.2f", $interest_terms_amount));
         $C22_OVERALLVAL->total_credit_amount_date = date('d.m.Y', strtotime($contract->inssuance_date));
-        
+
         $data->C22_OVERALLVAL = $C22_OVERALLVAL;
 
 
@@ -337,7 +280,7 @@ class Nbki_report extends Core
 
         $C27_PASTDUEARREAR = new StdClass();
         $C27_PASTDUEARREAR->amount_outstanding = '0,00';
-        
+
         $data->C27_PASTDUEARREAR = $C27_PASTDUEARREAR;
 
 
@@ -364,10 +307,10 @@ class Nbki_report extends Core
 
         $data->C29_MONTHAVERPAYMT = $C29_MONTHAVERPAYMT;
 
-        
+
         $C54_OBLIGACCOUNT = new StdClass();
         $C54_OBLIGACCOUNT->has_obligation = 1;
-        
+
         $data->C54_OBLIGACCOUNT = $C54_OBLIGACCOUNT;
 
 
@@ -376,37 +319,24 @@ class Nbki_report extends Core
         $C56_OBLIGPARTTAKE->approved_loan_type_code = '1';
         $C56_OBLIGPARTTAKE->agreement_number = $contract->uid;
         $C56_OBLIGPARTTAKE->funding_date = date('d.m.Y', strtotime($contract->inssuance_date));
-        $C56_OBLIGPARTTAKE->default_flag = '0';        
+        $C56_OBLIGPARTTAKE->default_flag = '0';
         $C56_OBLIGPARTTAKE->loan_indicator = intval($order->closed) > 0 ? '1' : '0';
-        
+
         $data->C56_OBLIGPARTTAKE = $C56_OBLIGPARTTAKE;
-        
+
         return $data;
     }
 
     private function get_p2p_item($order)
     {
-        if ($contract = $this->contracts->get_contract($order->contract_id))
-        {
-            $total_summ = $contract->loan_body_summ + $contract->loan_percents_summ + $contract->loan_charge_summ + $contract->loan_peni_summ;
-            if ($contract->payments = $this->operations->get_operations(['contract_id'=>$contract->id, 'type'=>'PAY']))
-            {
-                $total_payments = array_reduce($contract->payments, function($a, $b){return $a + $b->amount;}, 0);
-                $last_payment = array_pop($contract->payments);
-            }
+        $contract = $this->contracts->get_contract($order->contract_id);
+        $contract->payments = $this->operations->get_operations(['contract_id' => $contract->id, 'type' => 'PAY']);
 
-            $return_date = new DateTime($contract->return_date);
-            $inssuance_date = new DateTime($contract->inssuance_date);
-            $diff = $return_date->diff($inssuance_date);
-            $real_period = $diff->days;
-        }
-        
-        $loantype = $this->loantypes->get_loantype($order->loantype_id);
 
-        $passport_serial = str_replace([' ','-'], '', $order->passport_serial);
+        $passport_serial = str_replace([' ', '-'], '', $order->passport_serial);
         $passport_series = substr($passport_serial, 0, 4);
         $passport_number = substr($passport_serial, 4, 6);
-        
+
 
         $data = new StdClass();
 
@@ -414,7 +344,7 @@ class Nbki_report extends Core
         $GROUPHEADER->event_number = "2.2";
         $GROUPHEADER->operation_code = "B";
         $GROUPHEADER->event_date = date('d.m.Y', strtotime($order->operation->created));
-        
+
         $data->GROUPHEADER = $GROUPHEADER;
 
 
@@ -428,15 +358,15 @@ class Nbki_report extends Core
 
         $C2_PREVNAME = new StdClass();
         $C2_PREVNAME->is_prev_name = '0';
-        
+
         $data->C2_PREVNAME = $C2_PREVNAME;
 
 
         $C3_BIRTH = new StdClass();
-        $C3_BIRTH->birth_date = $order->birth;
+        $C3_BIRTH->birth_date = date('d.m.Y', strtotime($order->birth));
         $C3_BIRTH->country_code = '643';
         $C3_BIRTH->birth_place = $this->clearing($order->birth_place);
-        
+
         $data->C3_BIRTH = $C3_BIRTH;
 
 
@@ -448,13 +378,13 @@ class Nbki_report extends Core
         $C4_ID->issue_date = date('d.m.Y', strtotime($order->passport_date));
         $C4_ID->issued_by_division = $this->clearing($order->passport_issued);
         $C4_ID->division_code = $order->subdivision_code;
-        
+
         $data->C4_ID = $C4_ID;
 
 
         $C5_PREVID = new StdClass();
         $C5_PREVID->is_prev_document = '0';
-                
+
         $data->C5_PREVID = $C5_PREVID;
 
 
@@ -490,7 +420,7 @@ class Nbki_report extends Core
         $C19_ACCOUNTAMT = new StdClass();
         $C19_ACCOUNTAMT->credit_limit = str_replace('.', ',', sprintf("%01.2f", $contract->amount));
         $C19_ACCOUNTAMT->currency_code = 'RUB';
-        
+
         $data->C19_ACCOUNTAMT = $C19_ACCOUNTAMT;
 
 
@@ -510,7 +440,7 @@ class Nbki_report extends Core
         $C22_OVERALLVAL->total_credit_amount_interest = sprintf("%01.2f", $contract->base_percent * 365);
         $C22_OVERALLVAL->total_credit_amount_monetary = str_replace('.', ',', sprintf("%01.2f", $interest_terms_amount));
         $C22_OVERALLVAL->total_credit_amount_date = date('d.m.Y', strtotime($contract->inssuance_date));
-        
+
         $data->C22_OVERALLVAL = $C22_OVERALLVAL;
 
 
@@ -547,7 +477,7 @@ class Nbki_report extends Core
 
         $C27_PASTDUEARREAR = new StdClass();
         $C27_PASTDUEARREAR->amount_outstanding = '0,00';
-        
+
         $data->C27_PASTDUEARREAR = $C27_PASTDUEARREAR;
 
 
@@ -564,7 +494,7 @@ class Nbki_report extends Core
         $C28_PAYMT->amount_keep_code = '3';
         $C28_PAYMT->terms_due_code = '1';
         $C28_PAYMT->days_past_due = '0';
-        
+
         $data->C28_PAYMT = $C28_PAYMT;
 
 
@@ -573,7 +503,7 @@ class Nbki_report extends Core
         $C29_MONTHAVERPAYMT->calculation_date = date('d.m.Y', strtotime($contract->inssuance_date));
 
         $data->C29_MONTHAVERPAYMT = $C29_MONTHAVERPAYMT;
-        
+
 
         $C56_OBLIGPARTTAKE = new StdClass();
         $C56_OBLIGPARTTAKE->flag_indicator_code = '1';
@@ -582,73 +512,74 @@ class Nbki_report extends Core
         $C56_OBLIGPARTTAKE->funding_date = date('d.m.Y', strtotime($contract->inssuance_date));
         $C56_OBLIGPARTTAKE->default_flag = '0';
         $C56_OBLIGPARTTAKE->loan_indindicator = '0';
-        
+
         $data->C56_OBLIGPARTTAKE = $C56_OBLIGPARTTAKE;
-echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($data);echo '</pre><hr />';        
+        echo __FILE__ . ' ' . __LINE__ . '<br /><pre>';
+        var_dump($data);
+        echo '</pre><hr />';
         return $data;
     }
 
     private function send($data, $url = 'v1/report/test/')
     {
-        $url = 'http://185.182.111.110:9009/api/'.$url;
-        
+        $url = 'http://185.182.111.110:9009/api/' . $url;
+
         $curl = curl_init();
-        
+
         curl_setopt($curl, CURLOPT_URL, $url);
         curl_setopt($curl, CURLOPT_HTTPHEADER, ["Content-Type: application/json"]);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_POST, true);
         curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($data));
-        
+
         $json_res = curl_exec($curl);
         $error = curl_error($curl);
-        
+
         curl_close($curl);
-        
+
         $res = json_decode($json_res);
-        
+
         $this->soap1c->logging(__METHOD__, $url, $data, $res, 'nbki.txt');
 //echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($data, $error);echo '</pre><hr />';
         return $res;
     }
 
-	public function get_report($id)
-	{
-		$query = $this->db->placehold("
+    public function get_report($id)
+    {
+        $query = $this->db->placehold("
             SELECT * 
             FROM __nbki_reports
             WHERE id = ?
         ", (int)$id);
         $this->db->query($query);
         $result = $this->db->result();
-	
+
         return $result;
     }
-    
-	public function get_reports($filter = array())
-	{
-		$id_filter = '';
+
+    public function get_reports($filter = array())
+    {
+        $id_filter = '';
         $keyword_filter = '';
         $limit = 1000;
-		$page = 1;
-        
+        $page = 1;
+
         if (!empty($filter['id']))
             $id_filter = $this->db->placehold("AND id IN (?@)", array_map('intval', (array)$filter['id']));
-        
-		if(isset($filter['keyword']))
-		{
-			$keywords = explode(' ', $filter['keyword']);
-			foreach($keywords as $keyword)
-				$keyword_filter .= $this->db->placehold('AND (name LIKE "%'.$this->db->escape(trim($keyword)).'%" )');
-		}
-        
-		if(isset($filter['limit']))
-			$limit = max(1, intval($filter['limit']));
 
-		if(isset($filter['page']))
-			$page = max(1, intval($filter['page']));
-            
-        $sql_limit = $this->db->placehold(' LIMIT ?, ? ', ($page-1)*$limit, $limit);
+        if (isset($filter['keyword'])) {
+            $keywords = explode(' ', $filter['keyword']);
+            foreach ($keywords as $keyword)
+                $keyword_filter .= $this->db->placehold('AND (name LIKE "%' . $this->db->escape(trim($keyword)) . '%" )');
+        }
+
+        if (isset($filter['limit']))
+            $limit = max(1, intval($filter['limit']));
+
+        if (isset($filter['page']))
+            $page = max(1, intval($filter['page']));
+
+        $sql_limit = $this->db->placehold(' LIMIT ?, ? ', ($page - 1) * $limit, $limit);
 
         $query = $this->db->placehold("
             SELECT * 
@@ -661,26 +592,25 @@ echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($data);echo '</pre><hr />';
         ");
         $this->db->query($query);
         $results = $this->db->results();
-        
+
         return $results;
-	}
-    
-	public function count_reports($filter = array())
-	{
+    }
+
+    public function count_reports($filter = array())
+    {
         $id_filter = '';
         $keyword_filter = '';
-        
+
         if (!empty($filter['id']))
             $id_filter = $this->db->placehold("AND id IN (?@)", array_map('intval', (array)$filter['id']));
-		
-        if(isset($filter['keyword']))
-		{
-			$keywords = explode(' ', $filter['keyword']);
-			foreach($keywords as $keyword)
-				$keyword_filter .= $this->db->placehold('AND (name LIKE "%'.$this->db->escape(trim($keyword)).'%" )');
-		}
-                
-		$query = $this->db->placehold("
+
+        if (isset($filter['keyword'])) {
+            $keywords = explode(' ', $filter['keyword']);
+            foreach ($keywords as $keyword)
+                $keyword_filter .= $this->db->placehold('AND (name LIKE "%' . $this->db->escape(trim($keyword)) . '%" )');
+        }
+
+        $query = $this->db->placehold("
             SELECT COUNT(id) AS count
             FROM __nbki_reports
             WHERE 1
@@ -689,39 +619,39 @@ echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($data);echo '</pre><hr />';
         ");
         $this->db->query($query);
         $count = $this->db->result('count');
-	
+
         return $count;
     }
-    
+
     public function add_report($nbki_report)
     {
-		$query = $this->db->placehold("
+        $query = $this->db->placehold("
             INSERT INTO __nbki_reports SET ?%
         ", (array)$nbki_report);
         $this->db->query($query);
         $id = $this->db->insert_id();
-        
+
         return $id;
     }
-    
+
     public function update_report($id, $nbki_report)
     {
-		$query = $this->db->placehold("
+        $query = $this->db->placehold("
             UPDATE __nbki_reports SET ?% WHERE id = ?
         ", (array)$nbki_report, (int)$id);
         $this->db->query($query);
-        
+
         return $id;
     }
-    
+
     public function delete_report($id)
     {
-		$query = $this->db->placehold("
+        $query = $this->db->placehold("
             DELETE FROM __nbki_reports WHERE id = ?
         ", (int)$id);
         $this->db->query($query);
     }
-    
+
     public function clearing($string)
     {
         $replace = [
@@ -730,11 +660,11 @@ echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($data);echo '</pre><hr />';
             ' -' => '-',
             '- ' => '-',
         ];
-        
+
         $string = str_replace(array_keys($replace), array_values($replace), $string);
         $string = trim($string);
-        
+
         return $string;
     }
-    
+
 }
