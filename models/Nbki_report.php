@@ -2,7 +2,7 @@
 
 class Nbki_report extends Core
 {
-    private $username = '1401SS000002';
+    private $username = '1401SS000000';
     private $authorization_code = '934kjnG@';
 
 
