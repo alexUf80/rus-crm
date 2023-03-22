@@ -151,7 +151,7 @@ class Onec implements ApiInterface
         return $format_phone;
     }
 
-    private static function send_services($service)
+    public static function send_services($service)
     {
         $item = new StdClass();
         $item->Дата = date('Ymd000000', strtotime($service->date));
@@ -160,6 +160,9 @@ class Onec implements ApiInterface
         $item->НомерДоговора = (string)$service->number;
         $item->Операция_id = (string)$service->operation_id;
         $item->Страховка = $service->is_insurance;
+        $item->OrderID = $service->order_id;
+        $item->OperationID = $service->operation_id;
+        $item->НомерКарты = $service->card_pan;
 
         self::$orderId = $service->order_id;
 
