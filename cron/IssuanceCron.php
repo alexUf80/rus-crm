@@ -123,17 +123,14 @@ class IssuanceCron extends Core
                                 }
                             }
                         }
-                    }
-
-                    if (!empty($contract->service_insurance)) {
-                        $insurance_cost = $this->insurances->get_insurance_cost($contract->amount);
-                        $contract->amount += $insurance_cost;
+                        // $insurance_cost = $this->insurances->get_insurance_cost($contract->amount);
+                        // $contract->amount += 1500;
                     }
 
                     // Снимаем смс-информирование если есть
+                    $sms_cost = 149;
                     if (!empty($contract->service_sms)) 
                     {
-                        $sms_cost = 149;
                         $sms_amount = $sms_cost * 100;
 
                         $description = 'СМС-информирование';
@@ -202,6 +199,15 @@ class IssuanceCron extends Core
                             //     ));
                             // }
                         }
+                    }
+
+                    if (!empty($contract->service_insurance)) {
+                        $insurance_cost = $this->insurances->get_insurance_cost($contract->amount);
+                        $contract->amount += $insurance_cost;
+                    }
+
+                    if (!empty($contract->service_sms)) {
+                        $contract->amount += $sms_cost;
                     }
 
                     $user = $this->users->get_users($contract->user_id);
