@@ -75,6 +75,9 @@ class Best2pay extends Core
                 'sent_date' => date('Y-m-d H:i:s')
             ));
 
+            //создаем документ на оказание услуг
+            // $this->create_document('INFORMATION_SERVICES_AGREEMENT', $contract);
+
             $this->operations->update_operation($operation->id, array('sent_receipt' => 1));
 
             return true;
@@ -818,7 +821,7 @@ class Best2pay extends Core
         $this->db->query($query);
     }
 
-    public function pay_contract_with_register($contract_id, $insurance = false)
+    public function pay_contract_with_register($contract_id, $insurance = false, $sms = false)
     {
         echo 'START ' . __METHOD__ . '<br />';
         $sector = $this->sectors['PAY_CREDIT'];
@@ -843,6 +846,10 @@ class Best2pay extends Core
         if (!empty($insurance)) {
             $insurance_cost = $this->insurances->get_insurance_cost($contract->amount);
             $contract->amount += $insurance_cost;
+        }
+        
+        if (!empty($sms)) {
+            $contract->amount += 149;
         }
 
         $fio = $user->lastname . ' ' . $user->firstname . ' ' . $user->patronymic;

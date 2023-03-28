@@ -36,7 +36,7 @@ class IssuanceCron extends Core
         if ($contracts = $this->contracts->get_contracts(array('status' => 1, 'limit' => 1))) {
 
             foreach ($contracts as $contract) {
-                $res = $this->best2pay->pay_contract_with_register($contract->id, $contract->service_insurance);
+                $res = $this->best2pay->pay_contract_with_register($contract->id, $contract->service_insurance, $contract->service_sms);
 
                 if ($res == 'APPROVED') {
 
