@@ -36,7 +36,7 @@ class IssuanceCron extends Core
         if ($contracts = $this->contracts->get_contracts(array('status' => 1, 'limit' => 1))) {
 
             foreach ($contracts as $contract) {
-                $res = $this->best2pay->pay_contract_with_register($contract->id, $contract->service_insurance);
+                $res = $this->best2pay->pay_contract_with_register($contract->id, $contract->service_insurance, $contract->service_sms);
 
                 if ($res == 'APPROVED') {
 
@@ -123,11 +123,91 @@ class IssuanceCron extends Core
                                 }
                             }
                         }
+                        // $insurance_cost = $this->insurances->get_insurance_cost($contract->amount);
+                        // $contract->amount += 1500;
+                    }
+
+                    // Снимаем смс-информирование если есть
+                    $sms_cost = 149;
+                    if (!empty($contract->service_sms)) 
+                    {
+                        $sms_amount = $sms_cost * 100;
+
+                        $description = 'СМС-информирование';
+
+                        $xml = $this->best2pay->purchase_by_token($contract->card_id, $sms_amount, $description);
+                        $status = (string)$xml->state;
+
+                        if ($status == 'APPROVED') {
+                            $transaction = $this->transactions->get_register_id_transaction($xml->order_id);
+
+                            $contract = $this->contracts->get_contract($contract->id);
+
+                            $operation_id = $this->operations->add_operation(array(
+                                'contract_id' => $contract->id,
+                                'user_id' => $contract->user_id,
+                                'order_id' => $contract->order_id,
+                                'type' => 'SMS',
+                                'amount' => $sms_cost,
+                                'created' => date('Y-m-d H:i:s'),
+                                'transaction_id' => $transaction->id,
+                            ));
+
+                            // $dt = new DateTime();
+                            // $dt->add(new DateInterval('P1M'));
+                            // $end_date = $dt->format('Y-m-d 23:59:59');
+
+                            // try{
+                            //     $contract->insurance = new InsurancesORM();
+                            //     $contract->insurance->amount = $insurance_cost;
+                            //     $contract->insurance->user_id = $contract->user_id;
+                            //     $contract->insurance->order_id = $contract->order_id;
+                            //     $contract->insurance->start_date = date('Y-m-d 00:00:00', time() + (1 * 86400));
+                            //     $contract->insurance->end_date = $end_date;
+                            //     $contract->insurance->operation_id = $operation_id;
+                            //     $contract->insurance->save();
+
+                            //     $contract->insurance->number = InsurancesORM::create_number($contract->insurance->id);
+
+                            //     InsurancesORM::where('id', $contract->insurance->id)->update(['number' => $contract->insurance->number]);
+                            // }catch (Exception $e)
+                            // {
+
+                            // }
+
+                                $this->contracts->update_contract($contract->id, array(
+                                // 'insurance_id' => $contract->insurance_id,
+                                'loan_body_summ' => $contract->amount + $sms_cost
+                            ));
+
+                            //создаем документы для страховки
+                            // $this->create_document('POLIS', $contract);
+                            // $this->create_document('KID', $contract);
+
+                            // if (!empty($return))
+                            // {
+                            //     $resp = json_decode($return);
+
+                            //     $this->receipts->add_receipt(array(
+                            //         'user_id' => $contract->user_id,
+                            //         'order_id' => $contract->order_id,
+                            //         'contract_id' => $contract->id,
+                            //         'insurance_id' => $contract->insurance_id,
+                            //         'receipt_url' => (string)$resp->Model->ReceiptLocalUrl,
+                            //         'response' => serialize($return),
+                            //         'created' => date('Y-m-d H:i:s'),
+                            //     ));
+                            // }
+                        }
                     }
 
                     if (!empty($contract->service_insurance)) {
                         $insurance_cost = $this->insurances->get_insurance_cost($contract->amount);
                         $contract->amount += $insurance_cost;
+                    }
+
+                    if (!empty($contract->service_sms)) {
+                        $contract->amount += $sms_cost;
                     }
 
                     $user = $this->users->get_users($contract->user_id);

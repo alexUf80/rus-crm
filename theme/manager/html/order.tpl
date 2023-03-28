@@ -3131,7 +3131,7 @@
                                                     {if in_array($operation->type, ['PAY'])}table-success{/if}
                                                     {if in_array($operation->type, ['PERCENTS', 'CHARGE', 'PENI'])}table-danger{/if}
                                                     {if in_array($operation->type, ['P2P', 'IMPORT'])}table-info{/if}
-                                                    {if in_array($operation->type, ['INSURANCE', 'INSURANCE_BC','BUD_V_KURSE', 'REJECT_REASON', 'RETURN_INSURANCE'])}table-warning{/if}
+                                                    {if in_array($operation->type, ['INSURANCE', 'INSURANCE_BC','BUD_V_KURSE', 'REJECT_REASON', 'RETURN_INSURANCE', 'SMS'])}table-warning{/if}
                                                 ">
                                                 <td>
                                                     {*}
@@ -3144,6 +3144,7 @@
                                                 </td>
                                                 <td>
                                                     {if $operation->type == 'P2P'}Выдача займа{/if}
+                                                    {if $operation->type == 'SMS'}СМС-информирование{/if}
                                                     {if $operation->type == 'PAY'}
                                                         {if $operation->transaction->prolongation}
                                                             Пролонгация
