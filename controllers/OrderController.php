@@ -351,9 +351,34 @@ class OrderController extends Controller
                     $this->design->assign('files', $files);
 
                     $documents = array();
+                    $availability_SOGLASIE_OPD = false;
+                    $availability_ANKETA_PEP = false;
                     foreach ($this->documents->get_documents(array('user_id' => $order->user_id)) as $doc) {
-                        if (empty($doc->order_id) || $doc->order_id == $order_id)
+                        if (empty($doc->order_id) || $doc->order_id == $order_id){
                             $documents[] = $doc;
+
+                            if($doc->type == 'SOGLASIE_OPD')
+                                $availability_SOGLASIE_OPD = true;
+                            if($doc->type == 'ANKETA_PEP')
+                                $availability_ANKETA_PEP = true;
+                        }
+                    }
+
+                    if(!$availability_SOGLASIE_OPD){
+                        foreach ($this->documents->get_documents(array('user_id' => $order->user_id)) as $doc) {
+                            if($doc->type == 'SOGLASIE_OPD'){
+                                $documents[] = $doc;
+                                break;
+                            }
+                        }
+                    }
+                    if(!$availability_ANKETA_PEP){
+                        foreach ($this->documents->get_documents(array('user_id' => $order->user_id)) as $doc) {
+                            if($doc->type == 'ANKETA_PEP'){
+                                $documents[] = $doc;
+                                break;
+                            }
+                        }
                     }
 
                     $this->design->assign('documents', $documents);
