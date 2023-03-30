@@ -2,7 +2,7 @@ AddDefaultCharset UTF-8
 ErrorDocument 404 /404
 ErrorDocument 403 /403
 
-RewriteEngine on
+RewriteEngine on 
 
 SetEnvIfNoCase User-Agent "^Googlebot" search_bot
 SetEnvIfNoCase User-Agent "^Yandex" search_bot
