@@ -124,6 +124,8 @@
                                         <td>{$ad_service->number}</td>
                                         {if $ad_service->type == 'INSURANCE'}
                                             <td>Страхование от НС</td>
+                                        {elseif $ad_service->type == 'BUD_V_KURSE'}
+                                            <td>СМС-информирование</td>
                                         {else}
                                             <td>Страхование от БК</td>
                                         {/if}
