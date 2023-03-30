@@ -3144,7 +3144,7 @@
                                                 </td>
                                                 <td>
                                                     {if $operation->type == 'P2P'}Выдача займа{/if}
-                                                    {if $operation->type == 'SMS'}СМС-информирование{/if}
+                                                    {if $operation->type == 'SMS'}---{/if}
                                                     {if $operation->type == 'PAY'}
                                                         {if $operation->transaction->prolongation}
                                                             Пролонгация
@@ -3157,7 +3157,7 @@
                                                     {if $operation->type == 'RETURN_INSURANCE'}Возврат страховки{/if}
                                                     {if $operation->type == 'PERCENTS'}Начисление процентов{/if}
                                                     {if in_array($operation->type, ['INSURANCE_BC', 'INSURANCE'])}Страховка{/if}
-                                                    {if $operation->type == 'BUD_V_KURSE'}Будь в курсе{/if}
+                                                    {if $operation->type == 'BUD_V_KURSE'}СМС-информирование{/if}
                                                     {if $operation->type == 'REJECT_REASON'}Причина отказа{/if}
                                                     {if $operation->type == 'CHARGE'}Ответственность{/if}
                                                     {if $operation->type == 'PENI'}Пени{/if}
