@@ -1328,6 +1328,13 @@ class StatisticsController extends Controller
                         'sum_repeat_orders' => 0
                     ];
                 }
+
+                // $sum_insurance_obj = OperationsORM::where('order_id', $contract->id)->where('type', 'INSURANCE')->first();
+                // if($sum_insurance_obj)
+                //     $sum_insurance = $sum_insurance_obj['amount'];
+                // else
+                //     $sum_insurance = 0;
+
                 if ($contract->client_status == 'nk' || $contract->client_status == 'rep') {
                     $new_rep_orders[$date]['count_new_orders'] += 1;
                     $new_rep_orders[$date]['sum_new_orders'] += $contract->amount;
