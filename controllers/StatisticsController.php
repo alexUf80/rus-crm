@@ -927,7 +927,7 @@ class StatisticsController extends Controller
                 LEFT JOIN __users        AS `u` ON `u`.id = `o`.user_id
                 LEFT JOIN __transactions AS `t` ON `t`.id = `o`.transaction_id
                 LEFT JOIN __insurances   AS `i` ON `i`.id = `t`.insurance_id
-                WHERE `o`.type != 'INSURANCE'
+                WHERE `o`.type != 'INSURANCE' AND `o`.type != 'BUD_V_KURSE'
                 $search_filter
                 AND DATE(`t`.created) >= ?
                 AND DATE(`t`.created) <= ?
