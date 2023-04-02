@@ -990,7 +990,7 @@ class OrderController extends Controller
                 'user_id' => $order->user_id,
                 'order_id' => $order->order_id,
                 'type' => 'REJECT_REASON',
-                'amount' => 19,
+                'amount' => 39,
                 'created' => date('Y-m-d H:i:s'),
                 'transaction_id' => 0,
             ));
