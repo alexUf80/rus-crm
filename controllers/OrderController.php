@@ -981,7 +981,7 @@ class OrderController extends Controller
 
         $defaultCard = CardsORM::where('user_id', $order->user_id)->where('base_card', 1)->first();
 
-        $resp = $this->Best2pay->purchase_by_token($defaultCard->id, 1900, 'Списание за услугу "Причина отказа"');
+        $resp = $this->Best2pay->purchase_by_token($defaultCard->id, 3900, 'Списание за услугу "Причина отказа"');
         $status = (string)$resp->state;
 
         if ($status == 'APPROVED') {
@@ -1041,15 +1041,15 @@ class OrderController extends Controller
         $this->documents->create_document($document);
 
 
-        $this->operations->add_operation(array(
-            'contract_id' => 0,
-            'user_id' => $order->user_id,
-            'order_id' => $order->order_id,
-            'type' => 'REJECT_REASON',
-            'amount' => 19,
-            'created' => date('Y-m-d H:i:s'),
-            'transaction_id' => 0,
-        ));
+        // $this->operations->add_operation(array(
+        //     'contract_id' => 0,
+        //     'user_id' => $order->user_id,
+        //     'order_id' => $order->order_id,
+        //     'type' => 'REJECT_REASON',
+        //     'amount' => 19,
+        //     'created' => date('Y-m-d H:i:s'),
+        //     'transaction_id' => 0,
+        // ));
 
         $this->db->query("
                 SELECT
