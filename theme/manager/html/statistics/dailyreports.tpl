@@ -228,16 +228,14 @@
                                         <td>{$operations['count_new_orders']} шт/ {$operations['sum_new_orders']
                                             + $operations['sum_insurance'] +
                                             $operations['sum_sms_services'] +
-                                            $operations['sum_reject_reason'] +
-                                            $operations['sum_card_binding']
+                                            $operations['sum_reject_reason'] 
                                         } руб</td>
                                         {/if}
                                         {if $date == 'Итого' && count($final_array) > 2}
                                             <td>{$operations['count_new_orders']} шт/ {$operations['sum_new_orders']
                                             + $operations['sum_insurance'] +
                                             $operations['sum_sms_services'] +
-                                            $operations['sum_reject_reason'] +
-                                            $operations['sum_card_binding']
+                                            $operations['sum_reject_reason'] 
                                             } руб</td>
                                         {/if}
                                     {/foreach}
@@ -382,6 +380,7 @@
                                         {/if}
                                     {/foreach}
                                 </tr>
+                                {*}
                                 <tr>
                                     <td>"Привязка карты"/Сумма</td>
                                     {foreach $final_array as $date => $operations}
@@ -393,6 +392,7 @@
                                         {/if}
                                     {/foreach}
                                 </tr>
+                                {*}
                                 <tr>
                                     <td>Итого доп продуктов/Сумма</td>
                                     {foreach $final_array as $date => $operations}
@@ -403,8 +403,7 @@
                                             $operations['count_card_binding']} шт /
                                             {$operations['sum_insurance'] +
                                             $operations['sum_sms_services'] +
-                                            $operations['sum_reject_reason'] +
-                                            $operations['sum_card_binding']} руб</td>
+                                            $operations['sum_reject_reason'] } руб</td>
                                         {/if}
                                         {if $date == 'Итого' && count($final_array) > 2}
                                             <td>{$operations['count_insurance'] +
@@ -413,8 +412,7 @@
                                                 $operations['count_card_binding']} шт /
                                                 {$operations['sum_insurance'] +
                                                 $operations['sum_sms_services'] +
-                                                $operations['sum_reject_reason'] +
-                                                $operations['sum_card_binding']} руб</td>
+                                                $operations['sum_reject_reason'] } руб</td>
                                         {/if}
                                     {/foreach}
                                 </tr>
