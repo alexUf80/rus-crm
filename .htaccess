@@ -31,6 +31,7 @@ RewriteRule ^contracts/?$               index.php?module=ContractsController  [L
 RewriteRule ^contract/([^/]*)/?$        index.php?module=ContractController&id=$1  [L,QSA]
 
 RewriteRule ^rfmlist/?$                 index.php?module=RfmlistController  [L,QSA]
+RewriteRule ^reminders_events/?$        index.php?module=RemindersEventsController  [L,QSA]
 
 RewriteRule ^test_debug/?$              index.php?module=TestController  [L,QSA]
 
