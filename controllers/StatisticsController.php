@@ -921,13 +921,16 @@ class StatisticsController extends Controller
                     `i`.number AS insurance_number,
                     `i`.amount AS insurance_amount,
                     `t`.sector,
-                    `o`.type_payment
+                    `o`.type_payment,
+                    `or`.card_id as card,
+                    `t`.id as transaction_id
                 FROM __operations        AS `o`
                 LEFT JOIN __contracts    AS `c` ON `c`.id = `o`.contract_id
                 LEFT JOIN __users        AS `u` ON `u`.id = `o`.user_id
                 LEFT JOIN __transactions AS `t` ON `t`.id = `o`.transaction_id
                 LEFT JOIN __insurances   AS `i` ON `i`.id = `t`.insurance_id
-                WHERE `o`.type != 'INSURANCE' AND `o`.type != 'BUD_V_KURSE'
+                LEFT JOIN __orders    AS `or` ON `or`.id = `o`.order_id
+                WHERE `o`.type != 'INSURANCE' AND `o`.type != 'BUD_V_KURSE' AND `o`.type != 'SMS'
                 $search_filter
                 AND DATE(`t`.created) >= ?
                 AND DATE(`t`.created) <= ?
@@ -938,6 +941,27 @@ class StatisticsController extends Controller
             $operations = array();
             foreach ($this->db->results() as $op) {
                 $operations[$op->id] = $op;
+
+                $card = $this->cards->get_card($operations[$op->id]->card);
+                $operations[$op->id]->pan = $card->pan;
+
+                $transaction = $this->transactions->get_transaction($operations[$op->id]->transaction_id);
+                $user = $this->users->get_user($transaction->user_id);
+                if (!$operations[$op->id]->lastname){
+                    $operations[$op->id]->lastname = $user->lastname;
+                }
+                if (!$operations[$op->id]->lastname){
+                    $operations[$op->id]->lastname = $user->lastname;
+                }
+                if (!$operations[$op->id]->firstname){
+                    $operations[$op->id]->firstname = $user->firstname;
+                }
+                if (!$operations[$op->id]->patronymic){
+                    $operations[$op->id]->patronymic = $user->patronymic;
+                }
+                if (!$operations[$op->id]->birth){
+                    $operations[$op->id]->birth = $user->birth;
+                }
             }
 
 
