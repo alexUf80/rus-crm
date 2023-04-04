@@ -29,6 +29,19 @@
         .table th td {
             text-align: center !important;
         }
+        tr{
+            background: #f4f4f4;
+        }
+        tr:nth-child(2) {
+            background: #e5e5e5;
+        }
+        thead tr {
+            background: #cdcdcd;
+        }
+        td, th{
+            padding: 5px;
+        }
+        
     </style>
 {/capture}
 
@@ -77,7 +90,7 @@
 
 
                         {if $contracts}
-                            <table>
+                            <table border="1">
                                 <thead>
                                 <tr>
                                     <th>Номер заявки</th>
