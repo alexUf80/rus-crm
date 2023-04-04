@@ -2972,6 +2972,7 @@ class OrderController extends Controller
                 $payment_link = $this->config->front_url . '/p/' . $code;
                 $contract = $this->contracts->get_contract($order->contract_id);
                 $osd_sum = $contract->loan_body_summ + $contract->loan_percents_summ + $contract->loan_charge_summ + $contract->loan_peni_summ;
+                $prolongation_sum = $contract->loan_percents_summ + $contract->loan_peni_summ;
             }
 
             $str_params =
@@ -2979,8 +2980,9 @@ class OrderController extends Controller
                     '{$payment_link}' => $payment_link,
                     '$firstname' => $user->firstname,
                     '$fio' => "$user->lastname $user->firstname $user->patronymic",
-                    'percent' => $contract->loan_percents_summ,
+                    '$percent' => $contract->loan_percents_summ,
                     '$final_sum' => $osd_sum,
+                    '$prolongation_sum' => $prolongation_sum,
                     '%d' => $contract->accept_code,
                     '$accept_code' => $contract->accept_code,
                     '$amount' => $order->amount,

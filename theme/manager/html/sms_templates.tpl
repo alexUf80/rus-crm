@@ -60,7 +60,10 @@
                             <div class="card-body">
                                 <b>$accept_code</b> код подтверждения<br>
                                 <b>$firstname</b> имя<br>
+                                <b>$fio</b> фамилия имя отчество<br>
                                 <b>$amount</b> запрашиваемая сумма в заявке<br>
+                                <b>$final_sum</b> сумма для погашения<br>
+                                <b>$prolongation_sum</b> сумма для пролонгации<br>
                                 <b>$credit</b> одобренная сумма займа<br>
                                 <b>$payment</b> сумма к оплате на текущую дату (тело + %)<br>
                                 <b>$percent</b> проценты на текущую дату<br>
