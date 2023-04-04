@@ -32,7 +32,7 @@
         tr{
             background: #f4f4f4;
         }
-        tr:nth-child(2) {
+        tr:nth-child(2n) {
             background: #e5e5e5;
         }
         thead tr {
@@ -40,6 +40,9 @@
         }
         td, th{
             padding: 5px;
+        }
+        .card-body {
+           overflow-x: auto;
         }
         
     </style>
