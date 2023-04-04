@@ -20,6 +20,10 @@ class ToolsController extends Controller
                     return $this->action_short_link();
                     break;
 
+                case 'reminders':
+                    return $this->action_reminders();
+                    break;
+
             endswitch;
         }
     }
@@ -236,5 +240,121 @@ class ToolsController extends Controller
         $id = $this->request->post('id_link');
 
         $this->shortlink->del_link($id);
+    }
+
+    private function action_reminders()
+    {
+        if ($this->request->method('post')) {
+            switch ($this->request->post('action', 'string')):
+
+                case 'addReminder':
+                    $this->action_addReminder();
+                    break;
+
+                case 'deleteReminder':
+                    $this->action_deleteReminder();
+                    break;
+
+                case 'getReminder':
+                    $this->action_getReminder();
+                    break;
+
+                case 'updateReminder':
+                    $this->action_updateReminder();
+                    break;
+
+                case 'switchReminder':
+                    $this->action_switchReminder();
+                    break;
+
+            endswitch;
+        }
+
+        $reminders = RemindersORM::get();
+        $this->design->assign('reminders', $reminders);
+
+        $remindersEvents = RemindersEventsORM::get();
+        $this->design->assign('remindersEvents', $remindersEvents);
+
+        $remindersSegments = RemindersSegmentsORM::get();
+        $this->design->assign('remindersSegments', $remindersSegments);
+
+        return $this->design->fetch('tools/reminders.tpl');
+    }
+
+    private function action_addReminder()
+    {
+        $eventId = $this->request->post('event');
+        $segmentId = $this->request->post('segment');
+        $typeTime = $this->request->post('typeTime');
+        $count = $this->request->post('count');
+        $msgSms = $this->request->post('msgSms');
+        $msgZvon = $this->request->post('msgZvon');
+        $timeToSend = $this->request->post('timeToSend');
+
+        $insert =
+            [
+                'eventId' => $eventId,
+                'segmentId' => $segmentId,
+                'timeType' => $typeTime,
+                'countTime' => $count,
+                'msgSms' => $msgSms,
+                'msgZvon' => $msgZvon,
+                'timeToSend' => $timeToSend
+            ];
+
+        RemindersORM::insert($insert);
+        exit;
+    }
+
+    private function action_switchReminder()
+    {
+        $id = $this->request->post('id');
+        $value = $this->request->post('value');
+
+        RemindersORM::where('id', $id)->update(['is_on' => $value]);
+        exit;
+    }
+
+    private function action_getReminder()
+    {
+        $id = $this->request->post('id');
+        $reminder = RemindersORM::find($id);
+
+        echo json_encode($reminder);
+        exit;
+    }
+
+    private function action_updateReminder()
+    {
+        $id = $this->request->post('id');
+        $eventId = $this->request->post('event');
+        $segmentId = $this->request->post('segment');
+        $typeTime = $this->request->post('typeTime');
+        $count = $this->request->post('count');
+        $msgSms = $this->request->post('msgSms');
+        $msgZvon = $this->request->post('msgZvon');
+        $timeToSend = $this->request->post('timeToSend');
+
+        $update =
+            [
+                'eventId' => $eventId,
+                'segmentId' => $segmentId,
+                'timeType' => $typeTime,
+                'countTime' => $count,
+                'msgSms' => $msgSms,
+                'msgZvon' => $msgZvon,
+                'timeToSend' => $timeToSend
+            ];
+
+        RemindersORM::where('id', $id)->update($update);
+        exit;
+    }
+
+    private function action_deleteReminder()
+    {
+        $id = $this->request->post('id');
+        RemindersORM::destroy($id);
+        exit;
     }
 }
