@@ -96,7 +96,7 @@ class Nbki_scoring extends Core
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
-            CURLOPT_URL => 'http://51.250.101.109/api/nbki_test',
+            CURLOPT_URL => 'http://185.182.111.110:9009/api/v2/history/',
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
@@ -167,7 +167,7 @@ class Nbki_scoring extends Core
         if ($result['number_of_active'] >= $number_of_active) {
             $add_scoring = array(
                 'status' => 'completed',
-                'body' => serialize($result['data']),
+                'body' => serialize($result['data'] + ['report_url' => $result['report_url']]),
                 'success' => 0,
                 'string_result' => 'Превышен допустимый порог активных займов'
             );
@@ -181,7 +181,7 @@ class Nbki_scoring extends Core
         if ($result['count_of_overdue'] >= $nbki_share_of_overdue) {
             $add_scoring = array(
                 'status' => 'completed',
-                'body' => serialize($result['data']),
+                'body' => serialize($result['data'] + ['report_url' => $result['report_url']]),
                 'success' => 0,
                 'string_result' => 'Превышен допустимый порог просроченных займов'
             );
@@ -193,7 +193,7 @@ class Nbki_scoring extends Core
 
         $add_scoring = array(
             'status' => 'completed',
-            'body' => serialize($result['data']),
+            'body' => serialize($result['data'] + ['report_url' => $result['report_url']]),
             'success' => 1,
             'string_result' => 'Проверки пройдены'
         );
