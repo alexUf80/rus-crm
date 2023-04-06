@@ -921,13 +921,16 @@ class StatisticsController extends Controller
                     `i`.number AS insurance_number,
                     `i`.amount AS insurance_amount,
                     `t`.sector,
-                    `o`.type_payment
+                    `o`.type_payment,
+                    `or`.card_id as card,
+                    `t`.id as transaction_id
                 FROM __operations        AS `o`
                 LEFT JOIN __contracts    AS `c` ON `c`.id = `o`.contract_id
                 LEFT JOIN __users        AS `u` ON `u`.id = `o`.user_id
                 LEFT JOIN __transactions AS `t` ON `t`.id = `o`.transaction_id
                 LEFT JOIN __insurances   AS `i` ON `i`.id = `t`.insurance_id
-                WHERE `o`.type != 'INSURANCE'
+                LEFT JOIN __orders    AS `or` ON `or`.id = `o`.order_id
+                WHERE `o`.type != 'INSURANCE' AND `o`.type != 'BUD_V_KURSE' AND `o`.type != 'SMS'
                 $search_filter
                 AND DATE(`t`.created) >= ?
                 AND DATE(`t`.created) <= ?
@@ -938,6 +941,27 @@ class StatisticsController extends Controller
             $operations = array();
             foreach ($this->db->results() as $op) {
                 $operations[$op->id] = $op;
+
+                $card = $this->cards->get_card($operations[$op->id]->card);
+                $operations[$op->id]->pan = $card->pan;
+
+                $transaction = $this->transactions->get_transaction($operations[$op->id]->transaction_id);
+                $user = $this->users->get_user($transaction->user_id);
+                if (!$operations[$op->id]->lastname){
+                    $operations[$op->id]->lastname = $user->lastname;
+                }
+                if (!$operations[$op->id]->lastname){
+                    $operations[$op->id]->lastname = $user->lastname;
+                }
+                if (!$operations[$op->id]->firstname){
+                    $operations[$op->id]->firstname = $user->firstname;
+                }
+                if (!$operations[$op->id]->patronymic){
+                    $operations[$op->id]->patronymic = $user->patronymic;
+                }
+                if (!$operations[$op->id]->birth){
+                    $operations[$op->id]->birth = $user->birth;
+                }
             }
 
 
@@ -1328,6 +1352,13 @@ class StatisticsController extends Controller
                         'sum_repeat_orders' => 0
                     ];
                 }
+
+                // $sum_insurance_obj = OperationsORM::where('order_id', $contract->id)->where('type', 'INSURANCE')->first();
+                // if($sum_insurance_obj)
+                //     $sum_insurance = $sum_insurance_obj['amount'];
+                // else
+                //     $sum_insurance = 0;
+
                 if ($contract->client_status == 'nk' || $contract->client_status == 'rep') {
                     $new_rep_orders[$date]['count_new_orders'] += 1;
                     $new_rep_orders[$date]['sum_new_orders'] += $contract->amount;
@@ -1523,8 +1554,8 @@ class StatisticsController extends Controller
                     $card_binding[$date] = ['count_card_binding' => 0, 'sum_card_binding' => 0];
                 }
 
-                $card_binding[$date]['count_card_binding'] += 1;
-                $card_binding[$date]['sum_card_binding'] += ($transaction->amount / 100);
+                // $card_binding[$date]['count_card_binding'] += 1;
+                // $card_binding[$date]['sum_card_binding'] += ($transaction->amount / 100);
             }
 
             foreach ($card_binding as $date => $operation) {
@@ -1645,22 +1676,30 @@ class StatisticsController extends Controller
                 $active_sheet->setCellValue('K1', 'Страховки при закрытии/Сумма');
                 // $active_sheet->setCellValue('L1', '"Будь в курсе"/Сумма');
                 $active_sheet->setCellValue('L1', '"Узнай причину отказа"/Сумма');
-                $active_sheet->setCellValue('M1', '"Привязка карты"/Сумма');
-                $active_sheet->setCellValue('N1', 'Итого доп продуктов/Сумма');
-                $active_sheet->setCellValue('O1', 'Отменено доп продуктов/Сумма');
-                $active_sheet->setCellValue('P1', 'Оплачено на р/сч ОД');
-                $active_sheet->setCellValue('Q1', 'Оплачено на р/сч %%');
-                $active_sheet->setCellValue('R1', 'Продления по р/сч');
-                $active_sheet->setCellValue('S1', 'Погашения по р/сч');
-                $active_sheet->setCellValue('T1', 'Частично погашено');
+                // $active_sheet->setCellValue('M1', '"Привязка карты"/Сумма');
+                $active_sheet->setCellValue('M1', 'Итого доп продуктов/Сумма');
+                $active_sheet->setCellValue('N1', 'Отменено доп продуктов/Сумма');
+                $active_sheet->setCellValue('O1', 'Оплачено на р/сч ОД');
+                $active_sheet->setCellValue('P1', 'Оплачено на р/сч %%');
+                $active_sheet->setCellValue('Q1', 'Продления по р/сч');
+                $active_sheet->setCellValue('R1', 'Погашения по р/сч');
+                $active_sheet->setCellValue('S1', 'Частично погашено');
 
                 $i = 2;
                 foreach ($final_array as $date => $report) {
-                    $count_add_services = $report['count_insurance'] + $report['count_sms_services'] + $report['count_reject_reason'] + $report['count_card_binding'];
-                    $sum_add_services = $report['sum_insurance'] + $report['sum_sms_services'] + $report['sum_reject_reason'] + $report['sum_card_binding'];
+                    $count_add_services = $report['count_insurance'] + $report['count_sms_services'] + $report['count_reject_reason'];
+                    // + $report['count_card_binding'];
+                    $sum_add_services = $report['sum_insurance'] + $report['sum_sms_services'] + $report['sum_reject_reason'];
+                    // + $report['sum_card_binding'];
 
                     $active_sheet->setCellValue('A' . $i, $date);
-                    $active_sheet->setCellValue('B' . $i, $report['count_new_orders'] . 'шт /' . $report['sum_new_orders'] . 'руб');
+                    $active_sheet->setCellValue('B' . $i, $report['count_new_orders'] . 'шт /' . 
+                        ($report['sum_new_orders'] + 
+                        $report['sum_insurance'] +
+                        $report['sum_sms_services'] +
+                        $report['sum_reject_reason'] +
+                        $report['sum_card_binding'])
+                        . 'руб');
                     $active_sheet->setCellValue('C' . $i, $report['count_repeat_orders'] . 'шт /' . $report['sum_repeat_orders'] . 'руб');
                     $active_sheet->setCellValue('D' . $i, $report['count_closed_contracts']);
                     $active_sheet->setCellValue('E' . $i, $report['count_prolongations']);
@@ -1672,14 +1711,14 @@ class StatisticsController extends Controller
                     $active_sheet->setCellValue('K' . $i, $report['count_insurance_close'] . 'шт /' . $report['sum_insurance_close'] . 'руб');
                     // $active_sheet->setCellValue('L' . $i, $report['count_sms_services'] . 'шт /' . $report['sum_sms_services'] . 'руб');
                     $active_sheet->setCellValue('L' . $i, $report['count_reject_reason'] . 'шт /' . $report['sum_reject_reason'] . 'руб');
-                    $active_sheet->setCellValue('M' . $i, $report['count_card_binding'] . 'шт /' . $report['sum_card_binding'] . 'руб');
-                    $active_sheet->setCellValue('N' . $i, $count_add_services . 'шт /' . $sum_add_services . 'руб');
-                    $active_sheet->setCellValue('O' . $i, $report['count_return'] . 'шт /' . $report['sum_return'] . 'руб');
-                    $active_sheet->setCellValue('P' . $i, $report['sum_cor_body'] . ' руб');
-                    $active_sheet->setCellValue('Q' . $i, $report['sum_cor_percents'] . ' руб');
-                    $active_sheet->setCellValue('R' . $i, $report['count_cor_prolongations'] . ' шт');
-                    $active_sheet->setCellValue('S' . $i, $report['count_cor_closed'] . ' шт');
-                    $active_sheet->setCellValue('T' . $i, $report['count_partial_release'] . ' шт');
+                    // $active_sheet->setCellValue('M' . $i, $report['count_card_binding'] . 'шт /' . $report['sum_card_binding'] . 'руб');
+                    $active_sheet->setCellValue('M' . $i, $count_add_services . 'шт /' . $sum_add_services . 'руб');
+                    $active_sheet->setCellValue('N' . $i, $report['count_return'] . 'шт /' . $report['sum_return'] . 'руб');
+                    $active_sheet->setCellValue('O' . $i, $report['sum_cor_body'] . ' руб');
+                    $active_sheet->setCellValue('P' . $i, $report['sum_cor_percents'] . ' руб');
+                    $active_sheet->setCellValue('Q' . $i, $report['count_cor_prolongations'] . ' шт');
+                    $active_sheet->setCellValue('R' . $i, $report['count_cor_closed'] . ' шт');
+                    $active_sheet->setCellValue('S' . $i, $report['count_partial_release'] . ' шт');
 
                     $i++;
                 }
@@ -1718,7 +1757,8 @@ class StatisticsController extends Controller
             $filter['date_from'] = $date_from;
             $filter['date_to'] = $date_to;
 
-            $ad_services = $this->operations->operations_contracts_insurance($filter);
+            // $ad_services = $this->operations->operations_contracts_insurance($filter);
+            $ad_services = $this->operations->operations_contracts_insurance_reject($filter);
 
             foreach ($ad_services as $service) {
                 $service->regAddr = AdressesORM::find($service->regaddress_id);
