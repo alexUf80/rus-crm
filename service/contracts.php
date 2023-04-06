@@ -42,6 +42,8 @@ class ContractsService extends Core
                 c.number,
                 c.inssuance_date,
                 c.amount,
+                c.service_insurance,
+                c.service_sms,
                 u.lastname,
                 u.firstname,
                 u.patronymic
@@ -62,6 +64,13 @@ class ContractsService extends Core
             $this->response['items'] = array();
             foreach ($contracts as $contract)
             {
+                if ($contract->service_insurance == 1)
+                    $contract->amount += $contract->amount * 0.1;
+                
+
+                if ($contract->service_sms == 1)
+                    $contract->amount += 149;
+
                 $item = new StdClass();
                 $item->number = $contract->number;
                 $item->date = $contract->inssuance_date;

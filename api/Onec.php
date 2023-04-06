@@ -42,6 +42,12 @@ class Onec implements ApiInterface
 
         $item = new StdClass();
 
+        if ($contract->service_insurance == 1)
+            $contract->amount += $contract->amount * 0.1;
+
+        if ($contract->service_sms == 1)
+            $contract->amount += 149;
+
         $item->ID = (string)$contract->id;
         $item->НомерДоговора = $contract->number;
         $item->Дата = date('Ymd000000', strtotime($contract->inssuance_date));
@@ -53,7 +59,7 @@ class Onec implements ApiInterface
         $item->УИДСделки = $contract->uid;
         $item->ИдентификаторФормыВыдачи = 'ТекущийСчетРасчетов';
         $item->ИдентификаторФормыОплаты = 'ТретьеЛицо';
-        $item->Сумма = ($contract->service_insurance == 1) ? ($contract->amount * 0.1) + $contract->amount : $contract->amount;
+        $item->Сумма = $contract->amount;
         $item->Порог = '1.5';
         $item->ИННОрганизации = '9717088848';
         $item->СпособПодачиЗаявления = 'Дистанционный';
@@ -190,8 +196,7 @@ class Onec implements ApiInterface
         $groupsOperations = [];
 
 
-        foreach ($percents as $percent)
-        {
+        foreach ($percents as $percent) {
             $date = date('Y-m-d', strtotime($percent->created));
             $groupsOperations[$date][] = $percent;
         }
@@ -203,7 +208,7 @@ class Onec implements ApiInterface
             foreach ($operations as $operation) {
                 $contract = ContractsORM::find($operation->contract_id);
 
-                if(empty($contract) || empty($contract->number))
+                if (empty($contract) || empty($contract->number))
                     continue;
 
                 $item[] =
@@ -226,5 +231,44 @@ class Onec implements ApiInterface
         }
 
         return 1;
+    }
+
+    private static function sendPayments($payment)
+    {
+        $item = new StdClass();
+        $item->ID = $payment->id;
+        $item->Дата = date('YmdHis', strtotime($payment->date));
+        $item->ЗаймID = (string)$payment->order_id;
+        $item->Пролонгация = $payment->prolongation;
+        $item->Закрытие = $payment->closed;
+        $item->СрокПролонгации = $payment->prolongationTerm;
+        $item->ИдентификаторФормыОплаты = 'ТретьеЛицо';
+        $item->Оплаты =
+            [
+                [
+                    'ИдентификаторВидаНачисления' => 'ОсновнойДолг',
+                    'Сумма' => $payment->od
+                ],
+                [
+                    'ИдентификаторВидаНачисления' => 'Проценты',
+                    'Сумма' => $payment->prc
+                ],
+                [
+                    'ИдентификаторВидаНачисления' => 'Пени',
+                    'Сумма' => $payment->peni
+                ]
+            ];
+
+        self::$orderId = $payment->order_id;
+
+        $request = new StdClass();
+        $request->TextJSON = json_encode($item);
+
+        $result = self::send_request('CRM_WebService', 'Payments', $request);
+
+        if (isset($result->return) && $result->return == 'OK')
+            return 1;
+        else
+            return 2;
     }
 }

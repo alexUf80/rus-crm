@@ -17,12 +17,51 @@ class test extends Core
     {
         parent::__construct();
 
-        $orders = OrdersORM::where('status', 7)->get();
+        $items =
+            [
+                34194
+            ];
 
-        foreach ($orders as $order) {
+        foreach ($items as $item)
+            Onec::sendRequest(['method' => 'send_loan', 'params' => $item]);
 
-            Onec::sendRequest(['method' => 'send_loan', 'params' => $order->id]);
+        /*
+
+        $startDate = date('Y-m-d 00:00:00', strtotime('2023-03-29'));
+
+        $items = ContractsORM::where('inssuance_date', '>=', $startDate)->get();
+
+        foreach ($items as $item)
+            Onec::sendRequest(['method' => 'send_loan', 'params' => $item->order_id]);
+
+        */
+
+        /*
+
+        $operations = OperationsORM::where('type', 'PAY')->get();
+
+        foreach ($operations as $operation) {
+
+            $transaction = TransactionsORM::find($operation->transaction_id);
+
+            if(empty($operation->order_id))
+                continue;
+
+            $payment = new stdClass();
+            $payment->id = $operation->id;
+            $payment->date = date('Y-m-d H:i:s', strtotime($operation->created));
+            $payment->order_id = $operation->order_id;
+            $payment->prolongation = $transaction->prolongation;
+            $payment->closed = ($transaction->prolongation == 1) ? 0 : 1;
+            $payment->prolongationTerm = ($transaction->prolongation == 1) ? 30 : 0;
+            $payment->od = $transaction->loan_body_summ;
+            $payment->prc = $transaction->loan_percents_summ;
+            $payment->peni = $transaction->loan_peni_summ;
+
+            Onec::sendRequest(['method' => 'sendPayments', 'params' => $payment]);
         }
+
+        */
 
     }
 
