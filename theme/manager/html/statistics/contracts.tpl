@@ -66,7 +66,7 @@
             <div class="col-12">
                 <!-- Column -->
                 <div class="card">
-                    <div class="card-body">
+                    <div class="card-body" style="overflow-x: auto;">
                         <h4 class="card-title">Выданные займы за период {if $date_from}{$date_from|date} - {$date_to|date}{/if}</h4>
                         <form>
                             <div class="row">
