@@ -124,6 +124,10 @@
                                         <td>{$ad_service->number}</td>
                                         {if $ad_service->type == 'INSURANCE'}
                                             <td>Страхование от НС</td>
+                                        {elseif $ad_service->type == 'BUD_V_KURSE'}
+                                            <td>СМС-информирование</td>
+                                        {elseif $ad_service->type == 'REJECT_REASON'}
+                                            <td>Причина отказа</td>
                                         {else}
                                             <td>Страхование от БК</td>
                                         {/if}
@@ -148,6 +152,7 @@
                                         <td>{$ad_service->amount_insurance} руб</td>
                                     </tr>
                                 {/foreach}
+                                {*}
                                 {foreach $card_binding as $card}
                                     <tr>
                                         <td>{$card->operation_date}</td>
@@ -168,6 +173,7 @@
                                         <td>1 руб</td>
                                     </tr>
                                 {/foreach}
+                                {*}
                                 </tbody>
                             </table>
                         </div>

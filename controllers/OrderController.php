@@ -351,9 +351,34 @@ class OrderController extends Controller
                     $this->design->assign('files', $files);
 
                     $documents = array();
+                    $availability_SOGLASIE_OPD = false;
+                    $availability_ANKETA_PEP = false;
                     foreach ($this->documents->get_documents(array('user_id' => $order->user_id)) as $doc) {
-                        if (empty($doc->order_id) || $doc->order_id == $order_id)
+                        if (empty($doc->order_id) || $doc->order_id == $order_id){
                             $documents[] = $doc;
+
+                            if($doc->type == 'SOGLASIE_OPD')
+                                $availability_SOGLASIE_OPD = true;
+                            if($doc->type == 'ANKETA_PEP')
+                                $availability_ANKETA_PEP = true;
+                        }
+                    }
+
+                    if(!$availability_SOGLASIE_OPD){
+                        foreach ($this->documents->get_documents(array('user_id' => $order->user_id)) as $doc) {
+                            if($doc->type == 'SOGLASIE_OPD'){
+                                $documents[] = $doc;
+                                break;
+                            }
+                        }
+                    }
+                    if(!$availability_ANKETA_PEP){
+                        foreach ($this->documents->get_documents(array('user_id' => $order->user_id)) as $doc) {
+                            if($doc->type == 'ANKETA_PEP'){
+                                $documents[] = $doc;
+                                break;
+                            }
+                        }
                     }
 
                     $this->design->assign('documents', $documents);
@@ -827,7 +852,7 @@ class OrderController extends Controller
         $this->orders->update_order($order_id, array('contract_id' => $contract_id));
 
         // отправялем смс
-        $msg = 'Активируй займ ' . ($order->amount * 1) . ' в личном кабинете, код ' . $accept_code . ' rus-zaym/lk';
+        $msg = 'Активируй займ ' . ($order->amount * 1) . ' в личном кабинете, код ' . $accept_code . ' https://rus-zaym.ru/lk';
         $this->sms->send($order->phone_mobile, $msg);
 
         return array('success' => 1, 'status' => 2);
@@ -908,7 +933,7 @@ class OrderController extends Controller
             $resp = $this->soap1c->block_order_1c($order->id_1c, 0);
 
         // отправялем смс
-        $msg = 'Активируй займ ' . ($order->amount * 1) . ' в личном кабинете, код ' . $accept_code . ' rus-zaym/lk';
+        $msg = 'Активируй займ ' . ($order->amount * 1) . ' в личном кабинете, код ' . $accept_code . ' https://rus-zaym.ru/lk';
         $this->sms->send($order->phone_mobile, $msg);
 
         return array('success' => 1, 'status' => 2);
@@ -957,33 +982,78 @@ class OrderController extends Controller
             'user_id' => $order->user_id,
         ));
 
-        if (!empty($resp)) {
-            $resp = json_decode($resp);
 
-            $this->receipts->add_receipt(array(
-                'user_id' => $contract->user_id,
-                'Информирование о причине отказа',
-                'order_id' => $contract->order_id,
+        $defaultCard = CardsORM::where('user_id', $order->user_id)->where('base_card', 1)->first();
+
+        $resp = $this->Best2pay->purchase_by_token($defaultCard->id, 3900, 'Списание за услугу "Причина отказа"');
+        $status = (string)$resp->state;
+
+        if ($status == 'APPROVED') {
+            $this->operations->add_operation(array(
                 'contract_id' => 0,
-                'insurance_id' => 0,
-                'receipt_url' => (string)$resp->Model->ReceiptLocalUrl,
-                'response' => serialize($resp),
-                'created' => date('Y-m-d H:i:s')
+                'user_id' => $order->user_id,
+                'order_id' => $order->order_id,
+                'type' => 'REJECT_REASON',
+                'amount' => 39,
+                'created' => date('Y-m-d H:i:s'),
+                'transaction_id' => 0,
             ));
+
+            //Отправляем чек по страховке
+            $resp = $this->Cloudkassir->send_reject_reason($order->order_id);
+
+            if (!empty($resp)) {
+                $resp = json_decode($resp);
+
+                $this->receipts->add_receipt(array(
+                    'user_id' => $order->user_id,
+                    'Информирование о причине отказа',
+                    'order_id' => $order->order_id,
+                    'contract_id' => 0,
+                    'insurance_id' => 0,
+                    'receipt_url' => (string)$resp->Model->ReceiptLocalUrl,
+                    'response' => serialize($resp),
+                    'created' => date('Y-m-d H:i:s')
+                ));
+            }
         }
+
+        CardsORM::where('user_id', $order->user_id)->delete();
 
         if (!empty($order->utm_source) && $order->utm_source == 'leadstech')
             PostbacksCronORM::insert(['order_id' => $order->order_id, 'status' => 2, 'goal_id' => 3]);
 
-        $this->operations->add_operation(array(
-            'contract_id' => 0,
+
+        // создаем документ на оказание услуг
+        $user = $this->users->get_user($order->user_id);
+        
+        $params = [
+            'contract' => $contract,
+            'user' => $user11,
+        ];
+
+        $document =
+        [
             'user_id' => $order->user_id,
             'order_id' => $order->order_id,
-            'type' => 'REJECT_REASON',
-            'amount' => 19,
-            'created' => date('Y-m-d H:i:s'),
-            'transaction_id' => 0,
-        ));
+            // 'contract_id' => $contract->id,
+            'type' => 'INFORMATION_SERVICES_AGREEMENT',
+            'params' => json_encode($params),
+            'created' => date('Y-m-d H:i:s')
+        ];
+
+        $this->documents->create_document($document);
+
+
+        // $this->operations->add_operation(array(
+        //     'contract_id' => 0,
+        //     'user_id' => $order->user_id,
+        //     'order_id' => $order->order_id,
+        //     'type' => 'REJECT_REASON',
+        //     'amount' => 19,
+        //     'created' => date('Y-m-d H:i:s'),
+        //     'transaction_id' => 0,
+        // ));
 
         $this->db->query("
                 SELECT
@@ -2906,6 +2976,7 @@ class OrderController extends Controller
                 $payment_link = $this->config->front_url . '/p/' . $code;
                 $contract = $this->contracts->get_contract($order->contract_id);
                 $osd_sum = $contract->loan_body_summ + $contract->loan_percents_summ + $contract->loan_charge_summ + $contract->loan_peni_summ;
+                $prolongation_sum = $contract->loan_percents_summ + $contract->loan_peni_summ;
             }
 
             $str_params =
@@ -2913,8 +2984,9 @@ class OrderController extends Controller
                     '{$payment_link}' => $payment_link,
                     '$firstname' => $user->firstname,
                     '$fio' => "$user->lastname $user->firstname $user->patronymic",
-                    'percent' => $contract->loan_percents_summ,
+                    '$percent' => $contract->loan_percents_summ,
                     '$final_sum' => $osd_sum,
+                    '$prolongation_sum' => $prolongation_sum,
                     '%d' => $contract->accept_code,
                     '$accept_code' => $contract->accept_code,
                     '$amount' => $order->amount,

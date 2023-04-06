@@ -1,4 +1,4 @@
-<?php
+    <?php
 error_reporting(-1);
 ini_set('display_errors', 'On');
 
@@ -147,7 +147,7 @@ class IssuanceCron extends Core
                                 'contract_id' => $contract->id,
                                 'user_id' => $contract->user_id,
                                 'order_id' => $contract->order_id,
-                                'type' => 'SMS',
+                                'type' => 'BUD_V_KURSE',
                                 'amount' => $sms_cost,
                                 'created' => date('Y-m-d H:i:s'),
                                 'transaction_id' => $transaction->id,

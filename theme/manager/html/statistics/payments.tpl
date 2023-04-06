@@ -164,7 +164,7 @@
             <div class="col-12">
                 <!-- Column -->
                 <div class="card">
-                    <div class="card-body">
+                    <div class="card-body"  style="overflow-x: auto;">
                         <h4 class="card-title">Отчет по оплатам за
                             период {if $date_from}{$date_from|date} - {$date_to|date}{/if}</h4>
                         <form>

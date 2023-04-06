@@ -2,7 +2,11 @@ AddDefaultCharset UTF-8
 ErrorDocument 404 /404
 ErrorDocument 403 /403
 
+<<<<<<< HEAD
 RewriteEngine on
+=======
+RewriteEngine on 
+>>>>>>> 5e25920431a2af8b50665f3b1a2dd3a1c19aa4de
 
 SetEnvIf X-Forwarded-Proto https SERVER_PORT=443
 SetEnvIf X-Forwarded-Proto https HTTPS=on
@@ -31,6 +35,7 @@ RewriteRule ^contracts/?$               index.php?module=ContractsController  [L
 RewriteRule ^contract/([^/]*)/?$        index.php?module=ContractController&id=$1  [L,QSA]
 
 RewriteRule ^rfmlist/?$                 index.php?module=RfmlistController  [L,QSA]
+RewriteRule ^reminders_events/?$        index.php?module=RemindersEventsController  [L,QSA]
 
 RewriteRule ^test_debug/?$              index.php?module=TestController  [L,QSA]
 

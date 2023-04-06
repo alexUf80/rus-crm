@@ -27,7 +27,7 @@ class Insurances extends Core
     */
     public function get_insurance_cost($amount)
     {
-        return $amount * 0.1;
+        return $amount * 0.2;
     }
 
 

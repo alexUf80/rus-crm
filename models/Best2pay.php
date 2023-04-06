@@ -76,7 +76,24 @@ class Best2pay extends Core
             ));
 
             //создаем документ на оказание услуг
-            // $this->create_document('INFORMATION_SERVICES_AGREEMENT', $contract);
+            $contract = $this->contracts->get_contract($order->contract_id);
+            $user = $this->users->get_user($order->user_id);
+            $params = [
+                'contract' => $contract,
+                'user' => $user,
+            ];
+
+            $document =
+            [
+                'user_id' => $contract->user_id,
+                'order_id' => $contract->order_id,
+                'contract_id' => $contract->id,
+                'type' => 'INFORMATION_SERVICES_AGREEMENT',
+                'params' => json_encode($params),
+                'created' => date('Y-m-d H:i:s')
+            ];
+
+            $this->documents->create_document($document);
 
             $this->operations->update_operation($operation->id, array('sent_receipt' => 1));
 

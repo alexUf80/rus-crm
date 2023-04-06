@@ -318,4 +318,82 @@ class Operations extends Core
 
         return $result;
     }
+
+    public function operations_contracts_insurance_reject($filter = array())
+    {
+        $date_from_filter = '';
+        $date_to_filter = '';
+
+        if (!empty($filter['date_from']))
+            $date_from_filter = $this->db->placehold("AND DATE(op.created) >= ?", $filter['date_from']);
+
+        if (!empty($filter['date_to']))
+            $date_to_filter = $this->db->placehold("AND DATE(op.created) <= ?", $filter['date_to']);
+
+        $query = $this->db->placehold("
+        (select
+        op.created,
+        op.contract_id,
+        op.type,
+        op.id,
+        cr.number as uid,
+        us.id as user_id,
+        us.lastname,
+        us.firstname,
+        us.patronymic,
+        us.birth,
+        us.phone_mobile,
+        us.gender,
+        us.passport_serial,
+        us.regaddress_id,
+        ins.number,
+        ins.start_date,
+        ins.end_date,
+        op.amount as amount_insurance,
+        cr.amount as amount_contract
+        from s_operations as op
+        join s_contracts as cr on cr.id = op.contract_id
+        join s_users as us on op.user_id = us.id
+        left join s_insurances as ins on ins.operation_id = op.id
+        where 1
+        and op.type in ('INSURANCE', 'BUD_V_KURSE',  'INSURANCE_CLOSED')
+        $date_from_filter
+        $date_to_filter)
+        UNION
+        (select
+        op.created,
+        op.contract_id,
+        op.type,
+        op.id,
+        '' uid,
+        us.id as user_id,
+        us.lastname,
+        us.firstname,
+        us.patronymic,
+        us.birth,
+        us.phone_mobile,
+        us.gender,
+        us.passport_serial,
+        us.regaddress_id,
+        ins.number,
+        ins.start_date,
+        ins.end_date,
+        op.amount as amount_insurance,
+        '' amount_contract
+        from s_operations as op
+        join s_users as us on op.user_id = us.id
+        left join s_insurances as ins on ins.operation_id = op.id
+        where 1
+        and op.type in ('REJECT_REASON')
+        $date_from_filter
+        $date_to_filter)
+
+        ");
+
+        $this->db->query($query);
+
+        $result = $this->db->results();
+
+        return $result;
+    }
 }
