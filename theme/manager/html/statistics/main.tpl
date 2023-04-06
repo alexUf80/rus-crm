@@ -170,6 +170,16 @@
                     </a>
                 </div>
             </div>
+
+            <div class="col-md-6 col-lg-3 col-xlg-3">
+                <div class="card card-info card-danger">
+                    <a href="statistics/adservices_osv" class="box text-center">
+                        <h1 class="font-light text-white">Услуги ОСВ</h1>
+                        <h6 class="text-white">Отчет по услугам в виде ОСВ</h6>
+                    </a>
+                </div>
+            </div>
+
         </div>
 
     </div>
