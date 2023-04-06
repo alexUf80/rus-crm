@@ -60,11 +60,7 @@
                                     {$report->date_from|date} - {$report->date_to|date}
                                 </td>
                                 <td class="text-right">
-<<<<<<< HEAD
                                     <a class="btn btn-sm btn-info" target="_blank" href="{$config->root_url}/files/nbki/{$report->filename}">
-=======
-                                    <a class="btn btn-sm btn-info" target="_blank" href="files/nbki/{$report->filename}" download="{$report->filename}.rutdf">
->>>>>>> 5e25920431a2af8b50665f3b1a2dd3a1c19aa4de
                                         <i class="fas fa-download"></i>
                                         <span> Скачать</span>
                                     </a>
