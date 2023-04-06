@@ -17,6 +17,9 @@ class Adservices extends Core
         $date_from = $this->request->get('from');
         $date_to = $this->request->get('to');
 
+        $date_from = date('Y-m-d 00:00:00', strtotime($date_from));
+        $date_to = date('Y-m-d 23:59:59', strtotime($date_to));
+
         if (empty($date_from) || empty($date_to)) {
             $this->response['error'] = 1;
             $this->response['message'] = 'Укажите даты в формате yyyy-mm-dd';
@@ -36,7 +39,8 @@ class Adservices extends Core
                 'REJECT_REASON',
                 'INSURANCE',
                 'SMS',
-                'INSURANCE_BC'
+                'INSURANCE_BC',
+                'BUD_V_KURSE'
             ];
 
         $adservices = OperationsORM::whereIn('type', $types)->whereBetween('created', [$date_from, $date_to])->get();
@@ -54,7 +58,7 @@ class Adservices extends Core
                 $item->Клиент_ID = $service->user_id;
                 $item->Дата = date('Ymd000000', strtotime($service->created));
                 $item->Страховка = (in_array($service->type, ['INSURANCE_BC', 'INSURANCE'])) ? 1 : 0;
-                $item->Смс_Информирование = ($service->type == 'SMS') ? 1 : 0;
+                $item->Смс_Информирование = (in_array($service->type, ['SMS', 'BUD_V_KURSE'])) ? 1 : 0;
                 $item->Причина_отказа = ($service->type == 'REJECT_REASON') ? 1 : 0;
                 $this->response['items'][] = $item;
             }
@@ -65,7 +69,7 @@ class Adservices extends Core
     private function output()
     {
         header('Content-type:application/json');
-        echo json_encode($this->response);
+        echo json_encode($this->response, JSON_UNESCAPED_UNICODE);
         exit;
     }
 }

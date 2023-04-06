@@ -9,11 +9,23 @@ class TestController extends Controller
 {
     public function fetch()
     {
-        $orders = OrdersORM::where('status', 5)->get();
 
-        foreach ($orders as $order) {
-            Onec::sendRequest(['method' => 'send_loan', 'params' => $order->id]);
-        }
+         $items =
+            [
+                34978, 35037
+            ];
+
+
+
+        //$startDate = date('Y-m-d 00:00:00', strtotime('2023-03-29'));
+
+        //$items = ContractsORM::where('inssuance_date', '>=', $startDate)->get();
+
+        foreach ($items as $item)
+            Onec::sendRequest(['method' => 'send_loan', 'params' => $item]);
+
+
+        exit;
     }
 
     public function services()
