@@ -207,6 +207,10 @@ class StatisticsController extends Controller
             $contract->last_operation = $this->db->result();
         }
 
+        $contacts = $this->Contactpersons->get_contactpersons(['user_id' => $contract->user->id]);
+        $contract->user->contact_person_name = $contacts[0]->name;
+        $contract->user->contact_person_phone = $contacts[0]->phone;
+
         $this->design->assign('contracts', $contracts);
 
         if ($this->request->get('download') == 'excel') {
@@ -297,8 +301,8 @@ class StatisticsController extends Controller
                 $active_sheet->setCellValue('C' . $i, $contract->inssuance_date);
                 $active_sheet->setCellValue('D' . $i, $contract->user->lastname . ' ' . $contract->user->firstname . ' ' . $contract->user->patronymic);
                 $active_sheet->setCellValue('E' . $i, $contract->user->phone_mobile);
-                $active_sheet->setCellValue('F' . $i, $contract->user->Regregion);
-                $active_sheet->setCellValue('G' . $i, $contract->user->Regcity);
+                $active_sheet->setCellValue('F' . $i, $contract->user->faktAddr->region . ', ' . $contract->user->faktAddr->region_type);
+                $active_sheet->setCellValue('G' . $i, $contract->user->faktAddr->city);
                 $active_sheet->setCellValue('H' . $i, $contract->user->regAddr->adressfull);
                 $active_sheet->setCellValue('I' . $i, $contract->user->faktAddr->adressfull);
                 $active_sheet->setCellValue('J' . $i, $contract->user->email);
@@ -328,7 +332,8 @@ class StatisticsController extends Controller
                 }
                 $active_sheet->setCellValue('AE' . $i, $contract->order_id);//---
                 $active_sheet->setCellValue('AF' . $i, $contract->user->income);//---
-                $active_sheet->setCellValue('AG' . $i, $contract->user->inn);//---
+                // $active_sheet->setCellValue('AG' . $i, $contract->user->inn);//---
+                $active_sheet->setCellValueExplicit('AG' . $i, $contract->user->inn, PHPExcel_Cell_DataType::TYPE_STRING);
 
 
                 $i++;
