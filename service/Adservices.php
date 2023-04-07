@@ -69,7 +69,8 @@ class Adservices extends Core
     private function output()
     {
         header('Content-type:application/json');
-        echo json_encode($this->response, JSON_UNESCAPED_UNICODE);
+        echo json_encode($this->response);
+        // echo json_encode($this->response, JSON_UNESCAPED_UNICODE);
         exit;
     }
 }

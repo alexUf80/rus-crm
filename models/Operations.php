@@ -270,7 +270,7 @@ class Operations extends Core
         return $result;
     }
 
-    public function operations_contracts_insurance($filter = array())
+    public function operations_contracts_insurance_reject($filter = array())
     {
         $date_from_filter = '';
         $date_to_filter = '';
@@ -303,7 +303,7 @@ class Operations extends Core
         op.amount as amount_insurance,
         cr.amount as amount_contract
         from s_operations as op
-        join s_contracts as cr on cr.id = op.contract_id
+        left join s_contracts as cr on cr.id = op.contract_id
         join s_users as us on op.user_id = us.id
         left join s_insurances as ins on ins.operation_id = op.id
         where 1
@@ -319,7 +319,7 @@ class Operations extends Core
         return $result;
     }
 
-    public function operations_contracts_insurance_reject($filter = array())
+    public function operations_contracts_insurance($filter = array())
     {
         $date_from_filter = '';
         $date_to_filter = '';

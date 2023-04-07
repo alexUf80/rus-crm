@@ -240,7 +240,7 @@ class NeworderController extends Controller
         $phone = preg_replace("/[^,.0-9]/", '', $phone);
         $code = random_int(0000, 9999);
 
-        $message = "Выш код: " . $code;
+        $message = "Ваш код: " . $code;
 
         $resp = $this->sms->send_smsc($phone, $message);
         $resp = $resp['resp'];
