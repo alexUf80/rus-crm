@@ -66,7 +66,7 @@
             <div class="col-12">
                 <!-- Column -->
                 <div class="card">
-                    <div class="card-body">
+                    <div class="card-body" style="overflow-x: auto">
                         <h4 class="card-title">Отказы за период {if $date_from}{$date_from|date} - {$date_to|date}{/if}</h4>
                         <form>
                             <div class="row">
@@ -80,7 +80,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-6 col-md-3">
+                                <div class="col-6 col-md-2">
                                     <div class="input-group mb-3">
                                         <select name="scoring" class="form-control">
                                             <option value="all" {if !$filter_scoring || $filter_scoring == 'all'}selected{/if}>Все</option>
@@ -90,7 +90,7 @@
                                         </select>
                                     </div>
                                 </div>
-                                <div class="col-6 col-md-3">
+                                <div class="col-6 col-md-2">
                                     <div class="input-group mb-3">
                                         <select name="reason_id" class="form-control">
                                             <option value="all"{if !$filter_reason || $filter_reason=='all'}selected{/if}>Все</option>
@@ -104,7 +104,7 @@
                                     <button type="submit" class="btn btn-info">Сформировать</button>
                                 </div>
                                 {if $date_from || $date_to}
-                                <div class="col-12 col-md-4 text-right">
+                                <div class="col-12 col-md-2 text-right">
                                     <a href="{url download='excel'}" class="btn btn-success ">
                                         <i class="fas fa-file-excel"></i> Скачать
                                     </a>
