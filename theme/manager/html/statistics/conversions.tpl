@@ -132,7 +132,7 @@
                                         </select>
                                     </div>
                                 </div>
-                                <div class="col-2 col-md-3">
+                                <div class="col-2 col-md-2" style="padding: 0">
                                     <div class="input-group mb-4">
                                         <div style="width: 300px!important; margin-left: 12px" id="calendar">
                                             <input type="text" name="daterange" class="form-control daterange"
@@ -271,7 +271,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-2 col-md-1">
+                                <div class="col-2 col-md-2">
                                     <button type="submit" class="btn btn-info">Применить</button>
                                 </div>
                                 {if $from || $to}

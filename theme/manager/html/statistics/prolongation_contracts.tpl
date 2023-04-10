@@ -175,7 +175,7 @@ console.log(_table)
             <div class="col-12">
                 <!-- Column -->
                 <div class="card">
-                    <div class="card-body">
+                    <div class="card-body" style="overflow-x: auto">
                         <h4 class="card-title clearfix">
                             <div class="float-left">
                             К оплате в ближайшие {$count_days} {$count_days|plural:'день':'дней':'дня'} 

@@ -70,14 +70,14 @@
                             <h4 class="card-title">Отчет по графику
                                 платежей {if $date_from}{$date_from|date} - {$date_to|date}{/if}</h4>
                             <div class="row">
-                                <div class="input-group" style="width: 20%">
+                                <div class="input-group" style="width: 25%">
                                     <div style="margin-left: 12px; width: 100%" id="calendar">
                                         <input type="text" name="daterange" style="text-align: center; width: 100%"
                                                class="form-control daterange"
                                                value="{if $from && $to}{$from}-{$to}{/if}">
                                     </div>
                                 </div>
-                                <div class="col-2 col-md-2 metrix">
+                                <div class="col-2 col-md-3 metrix">
                                     <button type="button" class="form-control dropdown-toggle"
                                             data-toggle="dropdown" data-bs-auto-close="false">
                                         Лидогенератор
@@ -98,7 +98,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-2 col-md-1">
+                                <div class="col-2 col-md-2">
                                     <button type="submit" class="btn btn-info">Применить</button>
                                 </div>
                                 {if $from || $to}
