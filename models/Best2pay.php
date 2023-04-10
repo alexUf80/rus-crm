@@ -57,6 +57,8 @@ class Best2pay extends Core
         if ($b2p_status == 'APPROVED') {
             $transaction = $this->transactions->get_operation_transaction($xml->order_id, $xml->id);
 
+            $max_service_value = $this->operations->max_service_number();
+
             $operation_id = $this->operations->add_operation(array(
                 'contract_id' => 0,
                 'user_id' => $order->user_id,
@@ -65,6 +67,7 @@ class Best2pay extends Core
                 'amount' => $this->settings->reject_reason_cost,
                 'created' => date('Y-m-d H:i:s'),
                 'transaction_id' => $transaction->id,
+                'service_number' => $max_service_value,
             ));
 
             $operation = $this->operations->get_operation($operation_id);

@@ -988,6 +988,8 @@ class OrderController extends Controller
         $resp = $this->Best2pay->purchase_by_token($defaultCard->id, 3900, 'Списание за услугу "Причина отказа"');
         $status = (string)$resp->state;
 
+        $max_service_value = $this->operations->max_service_number();
+        
         if ($status == 'APPROVED') {
             $this->operations->add_operation(array(
                 'contract_id' => 0,
@@ -997,6 +999,7 @@ class OrderController extends Controller
                 'amount' => 39,
                 'created' => date('Y-m-d H:i:s'),
                 'transaction_id' => 0,
+                'service_number' => $max_service_value,
             ));
 
             //Отправляем чек по страховке

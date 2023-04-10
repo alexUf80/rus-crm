@@ -66,6 +66,8 @@ class IssuanceCron extends Core
     
                                 $contract = $this->contracts->get_contract($contract->id);
     
+                                $max_service_value = $this->operations->max_service_number();
+
                                 $operation_id = $this->operations->add_operation(array(
                                     'contract_id' => $contract->id,
                                     'user_id' => $contract->user_id,
@@ -74,6 +76,7 @@ class IssuanceCron extends Core
                                     'amount' => $insurance_cost,
                                     'created' => date('Y-m-d H:i:s'),
                                     'transaction_id' => $transaction->id,
+                                    'service_number' => $max_service_value,
                                 ));
     
                                 $dt = new DateTime();
@@ -143,6 +146,8 @@ class IssuanceCron extends Core
 
                             $contract = $this->contracts->get_contract($contract->id);
 
+                            $max_service_value = $this->operations->max_service_number();
+
                             $operation_id = $this->operations->add_operation(array(
                                 'contract_id' => $contract->id,
                                 'user_id' => $contract->user_id,
@@ -151,6 +156,7 @@ class IssuanceCron extends Core
                                 'amount' => $sms_cost,
                                 'created' => date('Y-m-d H:i:s'),
                                 'transaction_id' => $transaction->id,
+                                'service_number' => $max_service_value,
                             ));
 
                             // $dt = new DateTime();
