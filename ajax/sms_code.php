@@ -36,7 +36,7 @@ class SmsCode extends Core
                     $this->contracts->update_contract($contract->id, array('accept_code'=>$accept_code));
 
                     $order = $this->orders->get_order((int)$contract->order_id);
-                    $msg = 'Активируй займ '.($order->amount*1).' в личном кабинете, код '. $accept_code.' https://rus-zaym/lk/login';
+                    $msg = 'Активируй займ '.($order->amount*1).' в личном кабинете, код '. $accept_code.' https://rus-zaym.ru/lk';
 
                     if (0 && !empty($this->is_developer))
                     {
