@@ -60,6 +60,8 @@ class Adservices extends Core
                 $item->Страховка = (in_array($service->type, ['INSURANCE_BC', 'INSURANCE'])) ? 1 : 0;
                 $item->Смс_Информирование = (in_array($service->type, ['SMS', 'BUD_V_KURSE'])) ? 1 : 0;
                 $item->Причина_отказа = ($service->type == 'REJECT_REASON') ? 1 : 0;
+                $item->Сумма = $service->amount;
+
                 $this->response['items'][] = $item;
             }
         }
@@ -70,7 +72,6 @@ class Adservices extends Core
     {
         header('Content-type:application/json');
         echo json_encode($this->response);
-        // echo json_encode($this->response, JSON_UNESCAPED_UNICODE);
         exit;
     }
 }
