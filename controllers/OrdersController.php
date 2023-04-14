@@ -133,7 +133,8 @@ class OrdersController extends Controller
             ));
             $order->have_crm_closed = !empty($user_close_orders);
 
-
+            $faktaddress = $this->addresses->get_address($order->faktaddress_id);
+            $order->Regregion = $faktaddress->region . ' ' . $faktaddress->region_type;
         }
 
         $managers = array();
