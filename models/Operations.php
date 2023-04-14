@@ -270,6 +270,24 @@ class Operations extends Core
         return $result;
     }
 
+    public function max_service_number(){
+        $query = $this->db->placehold("
+        SELECT max(`service_number`) as max_service_number FROM `s_operations` WHERE 1
+        ");
+
+        $this->db->query($query);
+        
+        $result = $this->db->results()[0]->max_service_number;
+
+        $result_first = substr($result, 0, 15);
+        $result_last = substr($result, 15, 5);
+        $result_last =  str_pad(strval(1 + $result_last), 5, '0', STR_PAD_LEFT);
+
+        $result = $result_first . $result_last;
+
+        return $result;
+    }
+
     public function operations_contracts_insurance_reject($filter = array())
     {
         $date_from_filter = '';
@@ -301,15 +319,17 @@ class Operations extends Core
         ins.start_date,
         ins.end_date,
         op.amount as amount_insurance,
-        cr.amount as amount_contract
+        cr.amount as amount_contract,
+        op.service_number
         from s_operations as op
         left join s_contracts as cr on cr.id = op.contract_id
         join s_users as us on op.user_id = us.id
         left join s_insurances as ins on ins.operation_id = op.id
         where 1
-        and op.type in ('INSURANCE', 'BUD_V_KURSE', 'REJECT_REASON', 'INSURANCE_CLOSED')
+        and op.type in ('INSURANCE', 'BUD_V_KURSE', 'REJECT_REASON')
         $date_from_filter
         $date_to_filter
+        order by id
         ");
 
         $this->db->query($query);

@@ -129,6 +129,8 @@ class AuditCron extends Core
 
                         $status = (string)$resp->state;
 
+                        $max_service_value = $this->operations->max_service_number();
+
                         if ($status == 'APPROVED') {
                             $this->operations->add_operation(array(
                                 'contract_id' => 0,
@@ -138,6 +140,7 @@ class AuditCron extends Core
                                 'amount' => 39,
                                 'created' => date('Y-m-d H:i:s'),
                                 'transaction_id' => 0,
+                                'service_number' => $max_service_value,
                             ));
                         }
                     }

@@ -205,11 +205,12 @@ class StatisticsController extends Controller
             ", $contract->order_id);
 
             $contract->last_operation = $this->db->result();
+
+            $contacts = $this->Contactpersons->get_contactpersons(['user_id' => $contract->user->id]);
+            $contract->user->contact_person_name = $contacts[0]->name;
+            $contract->user->contact_person_phone = $contacts[0]->phone; 
         }
 
-        $contacts = $this->Contactpersons->get_contactpersons(['user_id' => $contract->user->id]);
-        $contract->user->contact_person_name = $contacts[0]->name;
-        $contract->user->contact_person_phone = $contacts[0]->phone; 
 
         $this->design->assign('contracts', $contracts);
 
@@ -285,7 +286,7 @@ class StatisticsController extends Controller
             $active_sheet->setCellValue('V1', 'День рождения');//---
             $active_sheet->setCellValue('W1', 'Оплата в текущем месяце');//---
             $active_sheet->setCellValue('X1', 'Новый или повторный');//---
-            $active_sheet->setCellValue('y1', 'Номер региона');//---
+            $active_sheet->setCellValue('Y1', 'Номер региона');//---
             
             $active_sheet->setCellValue('Z1', 'Работодатель');//---
             $active_sheet->setCellValue('AA1', 'Адрес работодателя');//---
@@ -303,26 +304,31 @@ class StatisticsController extends Controller
                 $active_sheet->setCellValue('C' . $i, $contract->inssuance_date);
                 $active_sheet->setCellValue('D' . $i, $contract->user->lastname . ' ' . $contract->user->firstname . ' ' . $contract->user->patronymic);
                 $active_sheet->setCellValue('E' . $i, $contract->user->phone_mobile);
-                $active_sheet->setCellValue('F' . $i, $contract->user->Regregion);
-                $active_sheet->setCellValue('G' . $i, $contract->user->Regcity);
-                $active_sheet->setCellValue('H' . $i, $contract->user->regAddr->adressfull);
-                $active_sheet->setCellValue('I' . $i, $contract->user->faktAddr->adressfull);
-                $active_sheet->setCellValue('J' . $i, $contract->user->email);
-                $active_sheet->setCellValue('K' . $i, $contract->amount);//---
-                $active_sheet->setCellValue('L' . $i, date('d.m.Y', strtotime($contract->return_date)));//---
-                $active_sheet->setCellValue('M' . $i, $contract->period);//---
-                $active_sheet->setCellValue('N' . $i, $contract->expired_period);//---
-                $active_sheet->setCellValue('O' . $i, $contract->loan_body_summ);//---
-                $active_sheet->setCellValue('P' . $i, $contract->loan_percents_summ);//---
-                $active_sheet->setCellValue('Q' . $i, $contract->loan_body_summ + $contract->loan_percents_summ);//---
-                $active_sheet->setCellValue('R' . $i, $contract->allready_paid);//---Наличие погашений
-                $active_sheet->setCellValue('S' . $i, $contract->user->age);//---
-                $active_sheet->setCellValue('T' . $i, $contract->user->birth);//---
-                $active_sheet->setCellValue('U' . $i, $contract->payment_last_month);//---Оплата в текущем месяце
-                $active_sheet->setCellValue('V' . $i, $contract->client_status);//--
-                $active_sheet->setCellValue('W' . $i, $contract->user->Regcode);//---
-                $active_sheet->setCellValue('X' . $i, $contract->user->contact_person_name);//---
-                $active_sheet->setCellValue('Y' . $i, $contract->user->contact_person_phone);//---
+                $active_sheet->setCellValue('F' . $i, $contract->user->contact_person_name);
+                $active_sheet->setCellValueExplicit('G' . $i, $contract->user->contact_person_phone, PHPExcel_Cell_DataType::TYPE_STRING);
+                $active_sheet->setCellValue('H' . $i, $contract->user->regAddr->region . ' ' . $contract->user->regAddr->region_type);
+
+                if($contract->user->regAddr->city)
+                    $active_sheet->setCellValue('I' . $i, $contract->user->regAddr->city_type . '. ' . $contract->user->regAddr->city);
+                else
+                    $active_sheet->setCellValue('I' . $i, $contract->user->regAddr->locality_type . '. ' . $contract->user->regAddr->locality);
+
+                $active_sheet->setCellValue('J' . $i, $contract->user->regAddr->adressfull);
+                $active_sheet->setCellValue('K' . $i, $contract->user->faktAddr->adressfull);
+                $active_sheet->setCellValue('L' . $i, $contract->user->email);
+                $active_sheet->setCellValue('M' . $i, $contract->amount);//---
+                $active_sheet->setCellValue('N' . $i, date('d.m.Y', strtotime($contract->return_date)));//---
+                $active_sheet->setCellValue('O' . $i, $contract->period);//---
+                $active_sheet->setCellValue('P' . $i, $contract->expired_period);//---
+                $active_sheet->setCellValue('Q' . $i, $contract->loan_body_summ);//---
+                $active_sheet->setCellValue('R' . $i, $contract->loan_percents_summ);//---
+                $active_sheet->setCellValue('S' . $i, $contract->loan_body_summ + $contract->loan_percents_summ);//---
+                $active_sheet->setCellValue('T' . $i, $contract->allready_paid);//---Наличие погашений
+                $active_sheet->setCellValue('U' . $i, $contract->user->age);//---
+                $active_sheet->setCellValue('V' . $i, $contract->user->birth);//---
+                $active_sheet->setCellValue('W' . $i, $contract->payment_last_month);//---Оплата в текущем месяце
+                $active_sheet->setCellValue('X' . $i, $contract->client_status);//--
+                $active_sheet->setCellValue('Y' . $i, $contract->user->Regcode);//---
                 $active_sheet->setCellValue('Z' . $i, $contract->user->workplace);//---
                 $active_sheet->setCellValue('AA' . $i, $contract->user->workaddress);//---
                 $active_sheet->setCellValue('AB' . $i, $contract->user->workphone);//---
@@ -334,7 +340,10 @@ class StatisticsController extends Controller
                 }
                 $active_sheet->setCellValue('AE' . $i, $contract->order_id);//---
                 $active_sheet->setCellValue('AF' . $i, $contract->user->income);//---
-                $active_sheet->setCellValue('AG' . $i, $contract->user->inn);//---
+                // $active_sheet->setCellValue('AG' . $i, $contract->user->inn);//---
+
+                if ($contract->user->inn == 0 )
+                    $contract->user->inn = '';
 
                 $active_sheet->setCellValueExplicit('AG' . $i, $contract->user->inn, PHPExcel_Cell_DataType::TYPE_STRING);
 

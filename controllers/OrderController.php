@@ -946,6 +946,9 @@ class OrderController extends Controller
         $reason_id = $this->request->post('reason', 'integer');
         $status = $this->request->post('status', 'integer');
 
+        $order = $this->orders->get_order(34073);
+        $user = $this->users->get_user($order->user_id);
+        
         if (!($order = $this->orders->get_order((int)$order_id)))
             return array('error' => 'Неизвестный ордер');
 
@@ -988,6 +991,8 @@ class OrderController extends Controller
         $resp = $this->Best2pay->purchase_by_token($defaultCard->id, 3900, 'Списание за услугу "Причина отказа"');
         $status = (string)$resp->state;
 
+        $max_service_value = $this->operations->max_service_number();
+        
         if ($status == 'APPROVED') {
             $this->operations->add_operation(array(
                 'contract_id' => 0,
@@ -997,6 +1002,7 @@ class OrderController extends Controller
                 'amount' => 39,
                 'created' => date('Y-m-d H:i:s'),
                 'transaction_id' => 0,
+                'service_number' => $max_service_value,
             ));
 
             //Отправляем чек по страховке
@@ -1072,6 +1078,11 @@ class OrderController extends Controller
         $transaction = $this->db->result();
 
         $this->Best2pay->completeCardEnroll($transaction);
+
+        // отправялем смс
+        $msg = $user->firstname . ', получите займ у наших партнеров: https://lnkrdrct.com/go/sdu173m9e8';
+        $this->sms->send($order->phone_mobile, $msg);
+        
 
         return array('success' => 1, 'status' => $status);
     }
