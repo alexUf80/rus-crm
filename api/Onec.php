@@ -235,6 +235,11 @@ class Onec implements ApiInterface
 
     private static function sendPayments($payment)
     {
+        $contract = ContractsORM::find($payment->contract_id);
+
+        if(empty($contract))
+            return 1;
+
         $item = new StdClass();
         $item->ID = $payment->id;
         $item->Дата = date('YmdHis', strtotime($payment->date));
@@ -270,5 +275,97 @@ class Onec implements ApiInterface
             return 1;
         else
             return 2;
+    }
+
+    public static function sendTaxingWithPeni($date)
+    {
+        $start = date('Y-m-d 00:00:00', strtotime($date));
+        $end = date('Y-m-d 23:59:59', strtotime($date));
+
+        $percents = OperationsORM::whereIn('type', ['PERCENTS', 'PENI'])
+            ->whereBetween('created', [$start, $end])
+            ->groupBy()
+            ->get();
+
+        $groupsOperations = [];
+
+        foreach ($percents as $percent) {
+            $date = date('Y-m-d', strtotime($percent->created));
+            $groupsOperations[$date][] = $percent;
+        }
+
+        foreach ($groupsOperations as $date => $operations) {
+
+            $item = [];
+
+            foreach ($operations as $operation) {
+                $contract = ContractsORM::find($operation->contract_id);
+
+                if (empty($contract) || empty($contract->number))
+                    continue;
+
+                if ($operation->type == 'PENI')
+                {
+                    $item[] =
+                        [
+                            'НомерДоговора' => $contract->number,
+                            'ВидНачисления' => 'Пени',
+                            'ДатаПлатежа' => date('0001010101'),
+                            'Сумма' => $operation->amount
+                        ];
+                    
+                }
+                else
+                {
+                    $item[] =
+                        [
+                            'НомерДоговора' => $contract->number,
+                            'ВидНачисления' => 'Проценты',
+                            'ДатаПлатежа' => date('Ymd000000', strtotime($contract->return_date)),
+                            'Сумма' => $operation->amount
+                        ];
+                    
+                }
+            }
+
+            self::$orderId = 123;
+
+            $request = new StdClass();
+            $request->TextJSON = json_encode($item);
+            $request->Date = date('YmdHis', strtotime($date));
+            $request->INN = '7801323165';
+
+//echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($item, $date);echo '</pre><hr />';exit;
+
+echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($request, $item);echo '</pre><hr />';
+            $response = self::send_request('CRM_WebService', 'InterestCalculation', $request);
+            $result = json_decode($response);
+            
+            if (isset($result->return) && $result->return == 'ОК')
+            {
+                $update = array(
+                    'sent_date' => date('Y-m-d H:i:s'),
+                    'sent_status' => 2
+                );
+            }
+            else
+            {
+                $update = array(
+                    'sent_date' => date('Y-m-d H:i:s'),
+                    'sent_status' => 8
+                );                    
+            }
+            
+            foreach ($operations as $operation)
+            {
+                OperationsORM::where('id', $operation->id)->update($update);
+//                $this->operations->update_operation($operation->id, $update);
+            }
+
+
+echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($result);echo '</pre><hr />';        
+        }
+
+        return 1;
     }
 }
