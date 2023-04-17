@@ -32,6 +32,9 @@ class TaxingCron extends Core
         //Перевод в просрочку всех у кого подошел срок
         $this->contracts->check_expiration_contracts();
 
+        //автоотказ на одобренные заявки через 14 дней.
+        $this->orders->check_overdue_orders();
+
         //Начисления
         if ($contracts = $this->contracts->get_contracts(array('status' => [2, 4], 'type' => 'base', 'stop_profit' => 0, 'is_restructed' => 0))) {
 
