@@ -277,6 +277,15 @@ class Onec implements ApiInterface
             return 2;
     }
 
+
+
+
+    /**
+     * Onec::sendTaxingWithPeni()
+     * 
+     * @param string $date - дата (Y-m-d) за которую нужно отправить начисления 
+     * @return void
+     */
     public static function sendTaxingWithPeni($date)
     {
         $start = date('Y-m-d 00:00:00', strtotime($date));
@@ -335,9 +344,6 @@ class Onec implements ApiInterface
             $request->Date = date('YmdHis', strtotime($date));
             $request->INN = '7801323165';
 
-//echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($item, $date);echo '</pre><hr />';exit;
-
-echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($request, $item);echo '</pre><hr />';
             $response = self::send_request('CRM_WebService', 'InterestCalculation', $request);
             $result = json_decode($response);
             
@@ -359,13 +365,78 @@ echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($request, $item);echo '</pre><
             foreach ($operations as $operation)
             {
                 OperationsORM::where('id', $operation->id)->update($update);
-//                $this->operations->update_operation($operation->id, $update);
             }
-
 
 echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($result);echo '</pre><hr />';        
         }
-
-        return 1;
     }
+
+    /**
+     * Onec::sendPayment()
+     * 
+     * @param mixed $payment
+     * @return
+     */
+    public static function sendPayment($payment)
+    {
+        $item = new StdClass();
+        
+        $item->ID = $payment->id;
+        $item->Дата = date('YmdHis', strtotime($payment->created));
+        $item->ЗаймID = (string)$payment->contract_number;
+        $item->Пролонгация = empty($payment->prolongation) ? 0 : 1;
+        $item->СрокПролонгации = empty($payment->prolongation) ? 0 : 30;
+        $item->ИдентификаторФормыОплаты = 'ТретьеЛицо';
+        $item->OrderID = $payment->register_id;
+        $item->OperationID = $payment->operation;
+        
+        $item->Закрытие = 0;
+        if (!empty($payment->close_date))
+            if (strtotime(date('Y-m-d', strtotime($payment->created))) == strtotime(date('Y-m-d', strtotime($payment->close_date))))
+                $item->Закрытие = 1;
+
+        $item->Оплаты =
+            [
+                [
+                    'ИдентификаторВидаНачисления' => 'ОсновнойДолг',
+                    'Сумма' => empty($payment->loan_body_summ) ? 0 : (float)$payment->loan_body_summ
+                ],
+                [
+                    'ИдентификаторВидаНачисления' => 'Проценты',
+                    'Сумма' => empty($payment->loan_percents_summ) ? 0 : (float)$payment->loan_percents_summ
+                ],
+                [
+                    'ИдентификаторВидаНачисления' => 'Пени',
+                    'Сумма' => empty($payment->loan_peni_summ) ? 0 : (float)$payment->loan_peni_summ
+                ]
+            ];
+
+        self::$orderId = $payment->order_id;
+
+        $request = new StdClass();
+        $request->TextJSON = json_encode($item);
+
+        $response = self::send_request('CRM_WebService', 'Payments', $request);
+        $result = json_decode($response);
+
+        if (isset($result->return) && $result->return == 'OK')
+        {
+            $update = array(
+                'sent_date' => date('Y-m-d H:i:s'),
+                'sent_status' => 2
+            );
+        }
+        else
+        {
+            $update = array(
+                'sent_date' => date('Y-m-d H:i:s'),
+                'sent_status' => 8
+            );                    
+        }
+            
+        OperationsORM::where('id', $payment->id)->update($update);
+        
+        return $result;
+    }
+
 }
