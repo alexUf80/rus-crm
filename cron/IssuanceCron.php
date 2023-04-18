@@ -40,7 +40,109 @@ class IssuanceCron extends Core
 
                 if ($res == 'APPROVED') {
 
-                    //TODO: Создаем доки при выдаче
+                    //Создаем доки при повторной выдаче
+                    $count_closed_contracts = $this->contracts->count_contracts(array(
+                        'user_id' => $contract->user_id,
+                    ));
+                    if ($count_closed_contracts >= 2){
+                        
+                        $this->user = $this->users->get_user($contract->user_id);
+
+                        $passport = str_replace([' ','-'], '', $this->user->passport_serial);
+                        $passport_serial = substr($passport, 0, 4);
+                        $passport_number = substr($passport, 4, 6);
+
+                        $params = array(
+                            'lastname' => $this->user->lastname,
+                            'firstname' => $this->user->firstname,
+                            'patronymic' => $this->user->patronymic,
+                            'gender' => $this->user->gender,
+                            'phone' => $this->user->phone_mobile,
+                            'birth' => $this->user->birth,
+                            'birth_place' => $this->user->birth_place,
+                            'inn' => $this->user->inn,
+                            'snils' => $this->user->snils,
+                            'email' => $this->user->email,
+                            'created' => $this->user->created,
+            
+                            'passport_serial' => $passport_serial,
+                            'passport_number' => $passport_number,
+                            'passport_date' => $this->user->passport_date,
+                            'passport_code' => $this->user->subdivision_code,
+                            'passport_issued' => $this->user->passport_issued,
+            
+                            // 'regindex' => $this->user->Regindex,
+                            // 'regregion' => $this->user->Regregion,
+                            // 'regcity' => $this->user->Regcity,
+                            // 'regstreet' => $this->user->Regstreet,
+                            // 'reghousing' => $this->user->Reghousing,
+                            // 'regbuilding' => $this->user->Regbuilding,
+                            // 'regroom' => $this->user->Regroom,
+                            // 'faktindex' => $this->user->Faktindex,
+                            // 'faktregion' => $this->user->Faktregion,
+                            // 'faktcity' => $this->user->Faktcity,
+                            // 'faktstreet' => $this->user->Faktstreet,
+                            // 'fakthousing' => $this->user->Fakthousing,
+                            // 'faktbuilding' => $this->user->Faktbuilding,
+                            // 'faktroom' => $this->user->Faktroom,
+            
+                            'profession' => $this->user->profession,
+                            'workplace' => $this->user->workplace,
+                            'workphone' => $this->user->workphone,
+                            // 'chief_name' => $this->user->chief_name,
+                            // 'chief_position' => $this->user->chief_position,
+                            // 'chief_phone' => $this->user->chief_phone,
+                            'income' => $this->user->income,
+                            'expenses' => $this->user->expenses,
+            
+                            'first_loan_amount' => $this->user->first_loan_amount,
+                            'first_loan_period' => $this->user->first_loan_period,
+            
+                            'number' => $contract->order_id,
+                            'create_date' => date('Y-m-d'),
+                            'asp' => $this->user->sms,
+                            'accept_code' => $contract->accept_code,
+                        );
+                        if (!empty($this->user->contact_person_name))
+                        {
+                            $params['contactperson_phone'] = $this->user->contact_person_phone;
+            
+                            $contact_person_name = explode(' ', $this->user->contact_person_name);
+                            $params['contactperson_name'] = $this->user->contact_person_name;
+                            $params['contactperson_lastname'] = isset($contact_person_name[0]) ? $contact_person_name[0] : '';
+                            $params['contactperson_firstname'] = isset($contact_person_name[1]) ? $contact_person_name[1] : '';
+                            $params['contactperson_patronymic'] = isset($contact_person_name[2]) ? $contact_person_name[2] : '';
+                        }
+                        if (!empty($this->user->contact_person2_name))
+                        {
+                            $params['contactperson2_phone'] = $this->user->contact_person_phone;
+            
+                            $contact_person2_name = explode(' ', $this->user->contact_person2_name);
+                            $params['contactperson2_name'] = $this->user->contact_person2_name;
+                            $params['contactperson2_lastname'] = isset($contact_person2_name[0]) ? $contact_person2_name[0] : '';
+                            $params['contactperson2_firstname'] = isset($contact_person2_name[1]) ? $contact_person2_name[1] : '';
+                            $params['contactperson2_patronymic'] = isset($contact_person2_name[2]) ? $contact_person2_name[2] : '';
+                        }
+
+                        // Согласие на ОПД
+                        $this->documents->create_document(array(
+                            'user_id' => $this->user->id,
+                            'order_id' => $contract->order_id,
+                            'contract_id' => $contract->id,
+                            'type' => 'SOGLASIE_OPD',
+                            'params' => json_encode($params),
+                        ));
+                        
+                        // Заявление на получение займа
+                        $this->documents->create_document(array(
+                            'user_id' => $this->user->id,
+                            'order_id' => $contract->order_id,
+                            'contract_id' => $contract->id,
+                            'type' => 'ANKETA_PEP',
+                            'params' => json_encode($params),
+                        ));
+            
+                    }
 
                     $ob_date = new DateTime();
                     $ob_date->add(DateInterval::createFromDateString($contract->period . ' days'));

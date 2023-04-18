@@ -20,6 +20,21 @@ class Orders extends Core
         return $this->statuses;
     }
 
+    public function check_overdue_orders()
+    {
+        $date = new DateTime();
+        $date->modify('-14 day');
+
+    	$query = $this->db->placehold("
+            UPDATE __orders
+            SET status = 8
+            WHERE 
+            status = 2 
+            AND date < ?
+        ", $date->format('Y-m-d'));
+        $this->db->query($query);
+    }    
+
     public function leadgens($filter)
     {
         $limit = 10000;
