@@ -53,6 +53,15 @@ class Dadata extends Core
         return $this->suggest("party", array("query" => $query, "count" => $count));
     }
 
+    public function get_all($query, $count = 1)
+    {
+        $request = new StdClass();
+        $request->query = $query;
+        $request->count = $count;
+
+        return $this->suggest("address", $request);
+    }
+
     public function get_region($query, $count = 50)
     {
         $request = new StdClass();
