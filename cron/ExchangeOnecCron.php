@@ -31,6 +31,13 @@ class ExchangeOnecCron extends Core
             $i--;
         }
         while ($i > 0 && !empty($run_result));
+
+        $i = 5;
+        do {
+            $run_result = $this->send_services();
+            $i--;
+        }
+        while ($i > 0 && !empty($run_result));
     }
     
     private function send_taxings()
@@ -46,7 +53,7 @@ class ExchangeOnecCron extends Core
         ");
         if ($min_date = $this->db->result('created'))
             Onec::sendTaxingWithPeni($min_date);
-        
+echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($min_date);echo '</pre><hr />';        
         return $min_date;
     }
 
@@ -56,6 +63,7 @@ class ExchangeOnecCron extends Core
             SELECT 
                 o.id,
                 o.order_id,
+                o.contract_id,
                 o.created,
                 o.amount,
                 t.register_id,
@@ -89,25 +97,88 @@ class ExchangeOnecCron extends Core
         }
 
         return $payments;
-exit;
 
+    }
+    
+    /**
+     * ExchangeOnecCron::send_services()
+     * 
+        $item->Дата = date('Ymd000000', strtotime($service->date));
+        $item->Клиент_id = (string)$service->user_id;
+        $item->Сумма = $service->insurance_cost;
+        $item->НомерДоговора = (string)$service->number;
+        $item->Операция_id = (string)$service->crm_operation_id;
+        $item->Страховка = $service->is_insurance;
+        $item->OrderID = $service->order_id;
+        $item->OperationID = $service->operation_id;
+        $item->НомерКарты = $service->card_pan;
 
+     * @return void
+     */
+    private function send_services()
+    {
+        $this->db->query("
+            SELECT
+                o.id,
+                o.type,
+                o.user_id,
+                o.order_id,
+                o.amount,
+                c.number,
+                c.card_id,
+                t.register_id, 
+                t.operation,
+                t.created,
+                t.callback_response
+            FROM s_operations AS o
+            LEFT JOIN s_transactions AS t
+            ON t.id = o.transaction_id
+            LEFT JOIN s_contracts AS c
+            ON c.id = o.contract_id
+            WHERE o.sent_status = 0
+            AND o.type IN (
+                'BUD_V_KURSE',
+                'INSURANCE_BC',
+                'INSURANCE',
+                'REJECT_REASON'
+            )
+            AND t.id IS NOT NULL
+            LIMIT 10
+        ");
         
-        
-            $payment = new stdClass();
-            $payment->id = $operation->id;
-            $payment->date = date('Y-m-d H:i:s', strtotime($operation->created));
-            $payment->contract_id = $operation->contract_id;
-            $payment->order_id = $operation->contract_id;
-            $payment->prolongation = $transaction->prolongation;
-            $payment->closed = ($transaction->prolongation == 1) ? 0 : 1;
-            $payment->prolongationTerm = ($transaction->prolongation == 1) ? 30 : 0;
-            $payment->od = $transaction->loan_body_summ;
-            $payment->prc = $transaction->loan_percents_summ;
-            $payment->peni = $transaction->loan_peni_summ;
-            $payment->register_id = $transaction->register_id;
-            $payment->operation_id = $transaction->operation;
+        if ($items = $this->db->results())
+        {
+            foreach ($items as $item)
+            {
+                $xml = simplexml_load_string($item->callback_response);
+                
+                $service = new StdClass();
+                $service->date = $item->created;
+                $service->user_id = $item->user_id;
+                $service->insurance_cost = $item->amount;
+                $service->number = $item->number;
+                $service->crm_operation_id = $item->id;
+                $service->is_insurance = (int)in_array($item->type, ['INSURANCE_BC','INSURANCE']);
+                $service->order_id = $item->register_id;
+                $service->operation_id = $item->operation;
+                $service->card_pan = (string)$xml->pan;
+                
+                if (empty($service->card_pan))
+                {
+                    if ($item->type == 'INSURANCE_BC')
+                    {
+                        
+                                            
+                    }
+                }
+                
+                $result = Onec::send_service($service);
 
+echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($service, $result);echo '</pre><hr />';
+            }
+        }
+        
+        return $items;
     }
 }
 

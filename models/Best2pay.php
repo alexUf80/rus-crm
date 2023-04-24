@@ -989,6 +989,8 @@ class Best2pay extends Core
         $recurring = $this->send('PurchaseByToken', $data);
         $xml = simplexml_load_string($recurring);
         $status = (string)$xml->state;
+        $operation = (string)$xml->id;
+        $reason_code = (string)$xml->reason_code;
 //echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($recurring );echo '</pre><hr />';
 
         $transaction_id = $this->transactions->add_transaction(array(
@@ -997,6 +999,8 @@ class Best2pay extends Core
             'sector' => $sector,
             'body' => json_encode($data),
             'register_id' => $b2p_order_id,
+            'operation' => $operation,
+            'reason_code' => $reason_code,
             'reference' => $user->id,
             'description' => $description,
             'created' => date('Y-m-d H:i:s'),

@@ -383,7 +383,7 @@ echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($result);echo '</pre><hr />';
         
         $item->ID = $payment->id;
         $item->Дата = date('YmdHis', strtotime($payment->created));
-        $item->ЗаймID = (string)$payment->contract_number;
+        $item->ЗаймID = (string)$payment->contract_id;
         $item->Пролонгация = empty($payment->prolongation) ? 0 : 1;
         $item->СрокПролонгации = empty($payment->prolongation) ? 0 : 30;
         $item->ИдентификаторФормыОплаты = 'ТретьеЛицо';
@@ -438,5 +438,47 @@ echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($result);echo '</pre><hr />';
         
         return $result;
     }
+
+    public static function send_service($service)
+    {
+        $item = new StdClass();
+        $item->Дата = date('Ymd000000', strtotime($service->date));
+        $item->Клиент_id = (string)$service->user_id;
+        $item->Сумма = $service->insurance_cost;
+        $item->НомерДоговора = (string)$service->number;
+        $item->Операция_id = (string)$service->crm_operation_id;
+        $item->Страховка = $service->is_insurance;
+        $item->OrderID = $service->order_id;
+        $item->OperationID = $service->operation_id;
+        $item->НомерКарты = $service->card_pan;
+
+        self::$orderId = $service->order_id;
+
+        $request = new StdClass();
+        $request->TextJSON = json_encode($item);
+
+        $response = self::send_request('CRM_WebService', 'SaleService', $request);
+        $result = json_decode($response);
+
+        if (isset($result->return) && $result->return == 'OK')
+        {
+            $update = array(
+                'sent_date' => date('Y-m-d H:i:s'),
+                'sent_status' => 2
+            );
+        }
+        else
+        {
+            $update = array(
+                'sent_date' => date('Y-m-d H:i:s'),
+                'sent_status' => 8
+            );                    
+        }
+            
+        OperationsORM::where('id', $service->crm_operation_id)->update($update);
+        
+        return $result;
+    }
+
 
 }
