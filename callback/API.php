@@ -87,9 +87,13 @@ class MangoCallback extends Core
     
     private function run()
     {
+
+        header('Content-type: json/application');
+
+        $error = [];
+
         $json = json_decode($this->json);
         $json_array = (array)$json;
-        // var_dump($json_array);
 
         // Проверка партнера
         $query = $this->db->placehold("
@@ -101,51 +105,58 @@ class MangoCallback extends Core
 
         $tokens = $this->db->result();
         if(!isset($tokens) || empty($tokens)){
-            var_dump('Неверный токен!!!');
-
-            // ДАЛЬШЕ ПРОВЕРКА С ВОЗВРАТОМ json
-
-            die;
+            $error1[] = 'Неверный токен партнера';
         }
 
-        //  // Проверка по номеру телефона
-        // $query = $this->db->placehold("
-        //     SELECT *
-        //     FROM __users
-        //     WHERE phone_mobile = ?
-        // ", $json_array['phone_mobile']);
-        // $this->db->query($query);
-        // $is_phone = $this->db->result();
+        // Проверка по номеру телефона
+        $query = $this->db->placehold("
+            SELECT *
+            FROM __users
+            WHERE phone_mobile = ?
+        ", $json_array['phone_mobile']);
+        $this->db->query($query);
+        $is_phone = $this->db->result();
 
-        // if(isset($is_phone) && !empty($is_phone)){
-        //     var_dump('Есть пользователь с таким телефоном!!!');
+        if(isset($is_phone) && !empty($is_phone)){
+            $error[] = 'Есть пользователь с таким телефоном';
+        }
 
-        //     // ДАЛЬШЕ ПРОВЕРКА С ВОЗВРАТОМ json
-        //     die;
-        // }
+        // Проверка по паспорту
+        $query = $this->db->placehold("
+            SELECT *
+            FROM __users
+            WHERE passport_serial = ?
+        ", $json_array['passport_serial']);
+        $this->db->query($query);
+        $is_passport = $this->db->result();
 
-        // // Проверка по паспорту
-        // $query = $this->db->placehold("
-        //     SELECT *
-        //     FROM __users
-        //     WHERE passport_serial = ?
-        // ", $json_array['passport_serial']);
-        // $this->db->query($query);
-        // $is_passport = $this->db->result();
+        if(isset($is_passport) && !empty($is_passport)){
+            $error[] = 'Есть пользователь с таким паспортом';
+        }
 
-        // if(isset($is_passport) && !empty($is_passport)){
-        //     var_dump('Есть пользователь с таким паспортом!!!');
+        if (isset($error1)) {
+            $res = [
+                'status' => false,
+                'error' => $error[0]
+            ];
+            http_response_code(400);
+        }
+        elseif (isset($error)) {
+            $res = [
+                'status' => false,
+                'error' => $error[0]
+            ];
+            http_response_code(409);
+        }
+        else{
+            $res = [
+                'status' => true
+            ];
+            http_response_code(200);
+        }
 
-        //     // ДАЛЬШЕ ПРОВЕРКА С ВОЗВРАТОМ json
-        //     die;
-        // }
-
-       
-
-
-
-
-
+        echo json_encode($res);
+        die;
 
         // // Добавляем пользователя
         $user = array_slice($json_array, 1, 22);
@@ -159,13 +170,7 @@ class MangoCallback extends Core
         $user['stage_card'] = 0;
         $user['lead_partner_id'] = $tokens->ID;
         
-        var_dump($user);
-        // die;
-
         $user_id = $this->users->add_user($user);
-        var_dump($user_id);
-
-        // $user_id = 28869;
 
 
         // Добавляем контактное лицо
@@ -253,174 +258,37 @@ class MangoCallback extends Core
                 continue;
             }
 
-            $file = $json_array['files']->dir. '/' .$json_array['files']->{$key};
+            $file = $json_array['files']->dir.$json_array['files']->{$key};
             $path_info = pathinfo($file);
-            $newfile = 'c:\OSPanel\\' . $path_info['basename'];
-            
-            if (!copy($file, $newfile)) {
-                // ответ json
-                echo "не удалось скопировать $file...\n";
+            $newfile = $this->config->root_dir.'files/users/'.$path_info['basename'];
+            $newfile = str_replace("rus-crm", "rus-client", $newfile);
+
+            $ch = curl_init($file);
+            $fp = fopen($newfile, "w");
+            curl_setopt($ch, CURLOPT_FILE, $fp);
+            curl_setopt($ch, CURLOPT_HEADER, 0);
+            curl_exec($ch);
+            if(curl_error($ch)) {
+                fwrite($fp, curl_error($ch));
             }
-            else{
-                $update = array(
-                    'user_id' => $user_id,
-                    'name' => $value,
-                    'type' => $key,
-                    'status' => 0
-                );
-                $this->users->add_file($update);
-            }
+            curl_close($ch);
+            fclose($fp);
+
+            $update = array(
+                'user_id' => $user_id,
+                'name' => $value,
+                'type' => $key,
+                'status' => 0
+            );
+            var_dump($update);
+            $this->users->add_file($update);
+            var_dump('$update');
+
+
         }
         
-
         die;
 
-
-        
-
-        // $this->Contactpersons->add_contactperson($contact_person);
-
-
-        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        // ПРОВЕРЯТЬ НА ПОВТОРНОГО ПОЛЬЗОВАТЕЛЯ ПО НОМЕРУ ТЕЛЕФОНА???
-        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        // !!!1
-
-        // @@@s_users
-        // first_loan_amount
-        // first_loan_period
-        // service_sms = 1
-        // service_insurance = 1
-        // service_reason = 1
-        // enabled = 1
-        // created = текущая дата
-        // -----------------------------------
-
-        // !!!2 - Шаг ... 04 rzsdevgitg_rusz Введены данные заемщика.sql
-
-        // @@@s_contactpersons
-        // все поля
-
-        // @@@s_users
-        // email
-        // lastname
-        // firstname
-        // patronymic
-        // gender
-        // birth
-        // birth_place
-        // phone_mobile
-        // -----------------------------------
-
-        // !!!3 - Шаг ... 05 rzsdevgitg_rusz Введен паспорт заемщика (passport).sql
-
-        // @@@s_users
-        // passport_serial
-        // passport_date
-        // passport_issued
-        // inn = 0
-        // -----------------------------------
-
-        // !!!4 - Шаг address 06 rzsdevgitg_rusz Введен адрес заемщика (address).sql
-        // МОЖЕТ ТОЛЬКО ПОЛНЫЕ АДРЕСА А РАЗБИВКА - программно
-
-        // @@@s_addresses  ---  2 адреса (прописка и фактический)
-        // zip
-        // okato
-        // oktmo
-        // adressfull
-        // region
-        // region_type
-        // district
-        // district_type
-        // city
-        // city_type
-        // locality
-        // locality_type
-        // street
-        // street_type
-        // house
-        // building
-        // room
-
-        // @@@s_users
-        // regaddress_id
-        // faktaddress_id
-        // -----------------------------------
-
-        // !!!5 - Шаг work 07 rzsdevgitg_rusz Введены данные о работе заемщика (work).sql
-
-        // @@@s_works - данные руководителя
-        // name
-        // director_phone
-
-        // @@@s_users
-        // profession
-        // workplace
-        // workphone
-        // income
-        // expenses
-        // average_pay
-        // amount_pay
-        // -----------------------------------
-
-        // !!!6 - Шаг files 08 rzsdevgitg_rusz Введены фотографии заемщика (files).sql
-
-        // @@@s_files
-        // все поля - там есть и юзер id
-        // -----------------------------------
-
-        // !!!7 - ПРИВЯЗЫВАТЬ КАРТУ ПРИ ПЕРВОМ ВХОДЕ КЛИЕНТА 
-        // --(Вводит СМС и на страницу карты
-        // Добавляется карта и документы SOGLASIE_OPD и ANKETA_REP, атакже заявка
-        // @@@s_orders --- 09 rzsdevgitg_rusz !!!(был переход на страницу б2п) Введена карта заемщика.sql
-        // accept_sms
-        // card_id и т.д
-        // -----------------------
-        // , затем вводит пароль)
-        // -----------------------------------
-
-        // ПОСЛЕ ЭТОГО ИДЕТ РАБОТА МЕНЕДЖЕРА
-
-
-
-        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-        // $user = array(
-        //     'first_loan_amount' => $amount,
-        //     'first_loan_period' => $period,
-        //     'phone_mobile' => $phone,
-        //     'sms' => $code,
-        //     'service_reason' => $service_reason,
-        //     'service_insurance' => $service_insurance,
-        //     'service_sms' => $service_sms,
-        //     'reg_ip' => $_SERVER['REMOTE_ADDR'],
-        //     'last_ip' => $_SERVER['REMOTE_ADDR'],
-        //     'enabled' => 1,
-        //     'created' => date('Y-m-d H:i:s'),
-        // );
-
-        // $user_id = $this->users->add_user($user);
-
-
-        // header('Content-type: json/application');
-        // $sss = $this->users->get_user(27861);
-        // $sss = 'sss';
-        // echo $sss;
-        // var_dump($_SERVER['REQUEST_METHOD']);
-        // if($_SERVER['REQUEST_METHOD'] = 'POST'){
-            // if ($this->request->method('post'))
-            
-            // file_put_contents('C:\OSPanel\123.txt',$amount);
-            
-            
-        // }
-        // else{
-            // var_dump($_SERVER['REQUEST_METHOD']);
-            
-            // var_dump($this->json);
-            // var_dump($_POST);
-        // }
     }
 }
 
