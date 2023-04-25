@@ -110,9 +110,9 @@ class ApiLead extends Core
             $this->response($res, 400);
             exit;
         }
+        
+        $json_array = (array)json_decode(file_get_contents('php://input'));
 
-        $json = json_decode($this->json);
-        $json_array = (array)$json;
 
         // Проверка партнера
         $query = $this->db->placehold("
@@ -173,7 +173,7 @@ class ApiLead extends Core
 
         $user_fields = ['email','lastname','firstname','patronymic',
         'birth','birth_place','phone_mobile','passport_serial','passport_date',
-        'passport_issued','first_loan_amount','first_loan_period',
+        'passport_issued','first_loan_amount','first_loan_period','social',
         'profession','workplace','workphone','income','expenses',
         'average_pay','amount_pay','enabled','stage_personal','stage_passport',
         'stage_address','stage_work','stage_files','stage_card','lead_partner_id'];
@@ -204,7 +204,7 @@ class ApiLead extends Core
         $user['stage_personal'] = 1;
         $user['stage_passport'] = 1;
         $user['stage_address'] = 1;
-        $user['stage_work'] = 1;
+        $user['stage_work'] = 0;
         $user['stage_files'] = 1;
         $user['stage_card'] = 0;
         $user['lead_partner_id'] = $tokens->ID;
@@ -277,13 +277,19 @@ class ApiLead extends Core
             if($key == 'dir'){
                 continue;
             }
+            
+            $file_extensions = ['JPEG','JPG','PNG','GIF','RAW','TIFF','BMP'];
+            $file_info = new SplFileInfo($value);
+            if(!in_array(mb_strtoupper($file_info->getExtension()), $file_extensions)){
+                continue;
+            }
 
-            $file = $json_array['files']->dir.$json_array['files']->{$key};
+            $file = $json_array['files']->dir.$value;
             $path_info = pathinfo($file);
-            // $newfile = $this->config->root_dir.'files/users/'.$path_info['basename'];
-            // $newfile = str_replace("rus-crm", "rus-client", $newfile);
+            $newfile = $this->config->root_dir.'files/users/'.$path_info['basename'];
+            $newfile = str_replace("rus-crm", "rus-client", $newfile);
 
-            $newfile = "c:\OSPanel\domains\\rus-client\\files\users\\".$json_array['files']->{$key};
+            // $newfile = "c:\OSPanel\domains\\rus-client\\files\users\\".$value;
 
             $ch = curl_init($file);
             $fp = fopen($newfile, "w");
@@ -305,6 +311,54 @@ class ApiLead extends Core
             $this->users->add_file($update);
 
         }
+
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        
+        // добавляем заявку
+        
+        // $user_id = 27937;
+
+        $rand_code = mt_rand(1000, 9999);
+        $order = array(
+            // 'card_id' => $card->id,
+            'user_id' => $user_id,
+            'amount' => $user['first_loan_amount'],
+            'period' => $user['first_loan_period'],
+            'first_loan' => 1,
+            'date' => date('Y-m-d H:i:s'),
+            'accept_sms' => $rand_code,
+            'client_status' => 'nk',
+            'autoretry' => 1,
+        );
+
+        $order_id = $this->orders->add_order($order);
+
+        $uid = 'a0'.$order_id.'-'.date('Y').'-'.date('md').'-'.date('Hi').'-01771ca07de7';
+        $this->users->update_user($this->user_id, array(
+            'UID' => $uid,
+        ));
+
+
+
+        // добавляем задание для проведения активных скорингов
+        $scoring_types = $this->scorings->get_types();
+        foreach ($scoring_types as $scoring_type)
+        {
+            if ($scoring_type->active && empty($scoring_type->is_paid))
+            {
+                $add_scoring = array(
+                    'user_id' => $user_id,
+                    'order_id' => $order_id,
+                    'type' => $scoring_type->name,
+                    'status' => 'new',
+                    'created' => date('Y-m-d H:i:s')
+                );
+                $this->scorings->add_scoring($add_scoring);
+            }
+        }
+
+
+
 
         if ($user_id){
             $res = [
