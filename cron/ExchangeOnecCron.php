@@ -20,6 +20,13 @@ class ExchangeOnecCron extends Core
     {
         $i = 5;
         do {
+            $run_result = $this->send_contracts();
+            $i--;
+        }
+        while ($i > 0 && !empty($run_result));
+
+        $i = 5;
+        do {
             $run_result = $this->send_taxings();
             $i--;
         }
@@ -40,6 +47,24 @@ class ExchangeOnecCron extends Core
         while ($i > 0 && !empty($run_result));
     }
     
+    private function send_contracts()
+    {
+        $this->db->query("
+            SELECT *
+            FROM __contracts AS c
+            WHERE sent_status = 0
+            AND status IN (2, 3, 4)
+            LIMIT 10
+        ");
+        if ($contracts = $this->db->results())
+        {
+            foreach ($contracts as $contract)
+                Onec::send_loan($contract->order_id);
+        }
+            
+        return $contracts;
+    }
+
     private function send_taxings()
     {
         $this->db->query("
