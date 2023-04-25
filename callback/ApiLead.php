@@ -5,70 +5,72 @@ ini_set('display_errors', 'On');
 chdir('..');
 require_once 'autoload.php';
 
-class MangoCallback extends Core
+class ApiLead extends Core
 {
+    private $log_dir  = 'logs/';
+
     public function __construct()
     {
     	parent::__construct();
         
         
-        if ($this->request->method('get')){
+        if ($this->request->method('post')){
             
-            $query = $this->db->placehold("
-                SELECT 
-                u.id,
-                u.first_loan_amount,
-                u.first_loan_period,
-                u.email,
-                u.lastname,
-                u.firstname,
-                u.patronymic,
-                u.gender,
-                u.birth,
-                u.birth_place,
-                u.phone_mobile,
-                u.passport_serial,
-                u.passport_date,
-                u.passport_issued,
-                u.regaddress_id,
-                u.faktaddress_id,
-                u.profession,
-                u.workplace,
-                u.workphone,
-                u.income,
-                u.expenses,
-                u.average_pay,
-                u.amount_pay,
-                cp.name as contact_person_name,
-                cp.relation as contact_person_relation,
-                cp.phone as contact_person_phone,
-                w.name as work_name,
-                w.director_phone as work_director_phone
-                FROM s_users u
-                LEFT JOIN s_contactpersons AS cp
-                ON u.id = cp.user_id
-                LEFT JOIN s_works AS w
-                ON u.id = w.user_id
-                WHERE u.id = 27900
-            ");
-            $this->db->query($query);
-            $user = $this->db->result();
+            // $query = $this->db->placehold("
+            //     SELECT 
+            //     u.id,
+            //     u.first_loan_amount,
+            //     u.first_loan_period,
+            //     u.email,
+            //     u.lastname,
+            //     u.firstname,
+            //     u.patronymic,
+            //     u.gender,
+            //     u.birth,
+            //     u.birth_place,
+            //     u.phone_mobile,
+            //     u.passport_serial,
+            //     u.passport_date,
+            //     u.passport_issued,
+            //     u.regaddress_id,
+            //     u.faktaddress_id,
+            //     u.profession,
+            //     u.workplace,
+            //     u.workphone,
+            //     u.income,
+            //     u.expenses,
+            //     u.average_pay,
+            //     u.amount_pay,
+            //     cp.name as contact_person_name,
+            //     cp.relation as contact_person_relation,
+            //     cp.phone as contact_person_phone,
+            //     w.name as work_name,
+            //     w.director_phone as work_director_phone
+            //     FROM s_users u
+            //     LEFT JOIN s_contactpersons AS cp
+            //     ON u.id = cp.user_id
+            //     LEFT JOIN s_works AS w
+            //     ON u.id = w.user_id
+            //     WHERE u.id = 27900
+            // ");
+            // $this->db->query($query);
+            // $user = $this->db->result();
 
-            $regaddress = $this->addresses->get_address($user->regaddress_id)->adressfull;
-            $user->regaddress = $regaddress;
-            $faktaddress = $this->addresses->get_address($user->faktaddress_id)->adressfull;
-            $user->faktaddress = $faktaddress;
+            // $regaddress = $this->addresses->get_address($user->regaddress_id)->adressfull;
+            // $user->regaddress = $regaddress;
+            // $faktaddress = $this->addresses->get_address($user->faktaddress_id)->adressfull;
+            // $user->faktaddress = $faktaddress;
 
-            $files  = $this->users->get_files(array('user_id'=>$user->id));
-            $user->files = [];
-            $user->files['dir'] = 'http://rus-client/files/users/';
-            foreach ($files as $file) {
-                $user->files[$file->type] = $file->name;
-            }
+            // $files  = $this->users->get_files(array('user_id'=>$user->id));
+            // $user->files = [];
+            // $user->files['dir'] = 'http://rus-client/files/users/';
+            // foreach ($files as $file) {
+            //     $user->files[$file->type] = $file->name;
+            // }
 
-            $user->token = '3b42527be34ee985d8747ad190f0515e';
+            // $user->token = '3b42527be34ee985d8747ad190f0515e';
 
-            $json = json_encode($user, JSON_UNESCAPED_UNICODE);
+            // $json = json_encode($user, JSON_UNESCAPED_UNICODE);
 
 
             // echo $json;
@@ -81,7 +83,14 @@ class MangoCallback extends Core
             $this->run();
         }
         else{
-            exit('ERROR METHOD');
+
+            header('Content-type: json/application');
+            $res = [
+                'status' => false,
+                'error' => 'Неверный тип запроса. Исапользуйте POST'
+            ];
+            $this->response($res, 400);
+            exit;
         }
     }
     
@@ -91,6 +100,16 @@ class MangoCallback extends Core
         header('Content-type: json/application');
 
         $error = [];
+        $error1 = [];
+
+        if ($_SERVER['REQUEST_METHOD'] != 'POST') {
+            $res = [
+                'status' => false,
+                'error' => 'Неверный тип запроса. Исапользуйте POST'
+            ];
+            $this->response($res, 400);
+            exit;
+        }
 
         $json = json_decode($this->json);
         $json_array = (array)$json;
@@ -134,33 +153,53 @@ class MangoCallback extends Core
             $error[] = 'Есть пользователь с таким паспортом';
         }
 
-        if (isset($error1)) {
+        if (!empty($error1)) {
+            $res = [
+                'status' => false,
+                'error' => $error1[0]
+            ];
+            $this->response($res, 400);
+            exit;
+        }
+        elseif (!empty($error)) {
             $res = [
                 'status' => false,
                 'error' => $error[0]
             ];
-            http_response_code(400);
-        }
-        elseif (isset($error)) {
-            $res = [
-                'status' => false,
-                'error' => $error[0]
-            ];
-            http_response_code(409);
-        }
-        else{
-            $res = [
-                'status' => true
-            ];
-            http_response_code(200);
+            $this->response($res, 409);
+            exit;
         }
 
-        echo json_encode($res);
-        die;
 
-        // // Добавляем пользователя
-        $user = array_slice($json_array, 1, 22);
-        
+        $user_fields = ['email','lastname','firstname','patronymic',
+        'birth','birth_place','phone_mobile','passport_serial','passport_date',
+        'passport_issued','first_loan_amount','first_loan_period',
+        'profession','workplace','workphone','income','expenses',
+        'average_pay','amount_pay','enabled','stage_personal','stage_passport',
+        'stage_address','stage_work','stage_files','stage_card','lead_partner_id'];
+
+        $contact_fields = ['contact_person_name','contact_person_relation','contact_person_phone'];
+
+        $work_fields = ['work_name','work_director_phone'];
+
+        $user = [];
+        $contact_person = [];
+        $work = [];
+        foreach ($json_array as $key => $value) {
+            if (in_array($key, $user_fields)) {
+                $user[$key] = $value;
+            }
+            if (in_array($key, $contact_fields)) {
+                $key_new = substr($key, 15);
+                $contact_person[$key_new] = $value;
+            }
+            if (in_array($key, $work_fields)) {
+                $key_new = substr($key, 5);
+                $work[$key_new] = $value;
+            }
+        }
+
+        // Добавляем пользователя      
         $user['enabled'] = 1;
         $user['stage_personal'] = 1;
         $user['stage_passport'] = 1;
@@ -172,30 +211,11 @@ class MangoCallback extends Core
         
         $user_id = $this->users->add_user($user);
 
-
         // Добавляем контактное лицо
-        $contact_person_o = array_slice($json_array, 23, 3);
-
-        $contact_person['user_id'] = $user_id;
-        foreach ($contact_person_o as $key_o => $value) {
-            $key = substr($key_o, 15);
-            $contact_person[$key] = $value;
-        }
-
         $this->Contactpersons->add_contactperson($contact_person);
-
-
         // Добавляем данные по руководителю
-        $work_o = array_slice($json_array, 26, 2);
-
         $work['user_id'] = $user_id;
-        foreach ($work_o as $key_o => $value) {
-            $key = substr($key_o, 5);
-            $work[$key] = $value;
-        }
-
         worksORM::create($work);
-
 
         // Добавляем адреса
         $regaddress_string = $json_array['regaddress'];
@@ -260,8 +280,10 @@ class MangoCallback extends Core
 
             $file = $json_array['files']->dir.$json_array['files']->{$key};
             $path_info = pathinfo($file);
-            $newfile = $this->config->root_dir.'files/users/'.$path_info['basename'];
-            $newfile = str_replace("rus-crm", "rus-client", $newfile);
+            // $newfile = $this->config->root_dir.'files/users/'.$path_info['basename'];
+            // $newfile = str_replace("rus-crm", "rus-client", $newfile);
+
+            $newfile = "c:\OSPanel\domains\\rus-client\\files\users\\".$json_array['files']->{$key};
 
             $ch = curl_init($file);
             $fp = fopen($newfile, "w");
@@ -280,16 +302,44 @@ class MangoCallback extends Core
                 'type' => $key,
                 'status' => 0
             );
-            var_dump($update);
             $this->users->add_file($update);
-            var_dump('$update');
-
 
         }
-        
-        die;
 
+        if ($user_id){
+            $res = [
+                'status' => true,
+            ];
+            $this->response($res, 200);
+        }
+        else{
+            $res = [
+                'status' => false,
+                'error' => 'Ошибка добавления пользователя'
+            ];
+            $this->response($res, 500);
+        }
+        exit;
+    }
+
+    private function response($res, $http_response_code)
+    {
+        http_response_code(200);
+        echo json_encode($res, JSON_UNESCAPED_UNICODE);
+        $this->logging($res);
+    }
+
+
+    public function logging($res)
+    {
+        
+        $str = PHP_EOL.'==================================================================='.PHP_EOL;
+        $str .= date('d.m.Y H:i:s').PHP_EOL;
+        $str .= json_encode($res, JSON_UNESCAPED_UNICODE).PHP_EOL;
+        $str .= $this->json;
+
+        file_put_contents($this->log_dir.'API.txt', $str, FILE_APPEND);
     }
 }
 
-new MangoCallback();
+new ApiLead();
