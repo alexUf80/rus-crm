@@ -199,7 +199,8 @@ class ApiLead extends Core
             }
         }
 
-        // Добавляем пользователя      
+        // Добавляем пользователя  
+        $rand_code = mt_rand(1000, 9999);    
         $user['enabled'] = 1;
         $user['stage_personal'] = 1;
         $user['stage_passport'] = 1;
@@ -208,6 +209,7 @@ class ApiLead extends Core
         $user['stage_files'] = 1;
         $user['stage_card'] = 0;
         $user['lead_partner_id'] = $tokens->ID;
+        $user['sms'] = $rand_code;
         
         $user_id = $this->users->add_user($user);
 
@@ -325,7 +327,6 @@ class ApiLead extends Core
 
 
         // добавляем заявку
-        $rand_code = mt_rand(1000, 9999);
         $order = array(
             // 'card_id' => $card->id,
             'user_id' => $user_id,
