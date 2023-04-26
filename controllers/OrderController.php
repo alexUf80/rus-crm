@@ -833,7 +833,7 @@ class OrderController extends Controller
         $new_contract = array(
             'order_id' => $order_id,
             'user_id' => $order->user_id,
-            'card_id' => $order->card_id,
+            // 'card_id' => $order->card_id,
             'type' => 'base',
             'amount' => $order->amount,
             'period' => $order->period,
@@ -847,9 +847,17 @@ class OrderController extends Controller
             'service_insurance' => $order->service_insurance,
             'accept_code' => $accept_code,
         );
+
+        $user = $this->users->get_user($order->user_id);
+        if($user->stage_contact == 0){
+            $new_contract['card_id'] = $order->card_id;
+            // $this->orders->update_order($order_id, array('contract_id' => $contract_id));
+        }
+
+        
         $contract_id = $this->contracts->add_contract($new_contract);
 
-        $this->orders->update_order($order_id, array('contract_id' => $contract_id));
+        $this->orders->update_order($order_id, array('accept_sms' => $accept_code, 'contract_id' => $contract_id));
 
         // отправялем смс
         $user = $this->users->get_user($order->user_id);
