@@ -1002,6 +1002,9 @@ class OrderController extends Controller
         $max_service_value = $this->operations->max_service_number();
         
         if ($status == 'APPROVED') {
+
+            $transaction = $this->transactions->get_operation_transaction((string)$resp->order_id, (string)$resp->id);
+
             $this->operations->add_operation(array(
                 'contract_id' => 0,
                 'user_id' => $order->user_id,
@@ -1009,7 +1012,7 @@ class OrderController extends Controller
                 'type' => 'REJECT_REASON',
                 'amount' => 39,
                 'created' => date('Y-m-d H:i:s'),
-                'transaction_id' => 0,
+                'transaction_id' => $transaction->id,
                 'service_number' => $max_service_value,
             ));
 
