@@ -211,8 +211,21 @@ class ApiLead extends Core
         
         $user_id = $this->users->add_user($user);
 
+        if ($user_id == 0){
+            $res = [
+                'status' => false,
+                'error' => 'Ошибка добавления пользователя'
+            ];
+            $this->response($res, 500);
+            exit;
+        }
+
         // Добавляем контактное лицо
-        $this->Contactpersons->add_contactperson($contact_person);
+        $contactperson_id = $this->Contactpersons->add_contactperson($contact_person);
+        if($contactperson_id != 0){
+            $this->users->update_user($user_id, array('stage_contact' => 1));
+        }
+
         // Добавляем данные по руководителю
         $work['user_id'] = $user_id;
         worksORM::create($work);
@@ -289,8 +302,6 @@ class ApiLead extends Core
             $newfile = $this->config->root_dir.'files/users/'.$path_info['basename'];
             $newfile = str_replace("rus-crm", "rus-client", $newfile);
 
-            // $newfile = "c:\OSPanel\domains\\rus-client\\files\users\\".$value;
-
             $ch = curl_init($file);
             $fp = fopen($newfile, "w");
             curl_setopt($ch, CURLOPT_FILE, $fp);
@@ -312,12 +323,8 @@ class ApiLead extends Core
 
         }
 
-        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        
-        // добавляем заявку
-        
-        // $user_id = 27937;
 
+        // добавляем заявку
         $rand_code = mt_rand(1000, 9999);
         $order = array(
             // 'card_id' => $card->id,
@@ -327,7 +334,7 @@ class ApiLead extends Core
             'first_loan' => 1,
             'date' => date('Y-m-d H:i:s'),
             'accept_sms' => $rand_code,
-            'client_status' => 'nk',
+            'client_status' => 'api',
             'autoretry' => 1,
         );
 
@@ -337,7 +344,6 @@ class ApiLead extends Core
         $this->users->update_user($this->user_id, array(
             'UID' => $uid,
         ));
-
 
 
         // добавляем задание для проведения активных скорингов
@@ -358,21 +364,11 @@ class ApiLead extends Core
         }
 
 
+        $res = [
+            'status' => true,
+        ];
+        $this->response($res, 200);
 
-
-        if ($user_id){
-            $res = [
-                'status' => true,
-            ];
-            $this->response($res, 200);
-        }
-        else{
-            $res = [
-                'status' => false,
-                'error' => 'Ошибка добавления пользователя'
-            ];
-            $this->response($res, 500);
-        }
         exit;
     }
 

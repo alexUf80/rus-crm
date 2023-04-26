@@ -852,7 +852,13 @@ class OrderController extends Controller
         $this->orders->update_order($order_id, array('contract_id' => $contract_id));
 
         // отправялем смс
-        $msg = 'Активируй займ ' . ($order->amount * 1) . ' в личном кабинете, код ' . $accept_code . ' https://rus-zaym.ru/lk';
+        $user = $this->users->get_user($order->user_id);
+        if($user->lead_partner_id > 0){
+            $msg = 'Вам одобрен займ у партнера, получите деньги за 3 минуты, код подтверждения ' . $accept_code . ' https://rus-zaym.ru/lk';
+        }
+        else{
+            $msg = 'Активируй займ ' . ($order->amount * 1) . ' в личном кабинете, код ' . $accept_code . ' https://rus-zaym.ru/lk';
+        }
         $this->sms->send($order->phone_mobile, $msg);
 
         return array('success' => 1, 'status' => 2);
