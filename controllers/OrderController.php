@@ -848,21 +848,15 @@ class OrderController extends Controller
             'accept_code' => $accept_code,
         );
 
-        $user = $this->users->get_user($order->user_id);
-        if($user->stage_contact == 0){
-            $new_contract['card_id'] = $order->card_id;
-            // $this->orders->update_order($order_id, array('contract_id' => $contract_id));
-        }
-
-        
         $contract_id = $this->contracts->add_contract($new_contract);
 
         $this->orders->update_order($order_id, array('accept_sms' => $accept_code, 'contract_id' => $contract_id));
 
         // отправялем смс
         $user = $this->users->get_user($order->user_id);
-        if($user->lead_partner_id > 0){
+        if(($this->user->lead_partner_id != 0) && ($this->user->partners_processed == 0)){
             $msg = 'Вам одобрен займ у партнера, получите деньги за 3 минуты в личном кабинете  https://rus-zaym.ru/lk';
+            $this->users->update_user($user_id, array('partners_processed' => 1));
         }
         else{
             $msg = 'Активируй займ ' . ($order->amount * 1) . ' в личном кабинете, код ' . $accept_code . ' https://rus-zaym.ru/lk';
@@ -1090,6 +1084,10 @@ class OrderController extends Controller
                 ", $order->user_id);
 
         $transaction = $this->db->result();
+
+        if(($this->user->lead_partner_id != 0) && ($this->user->partners_processed == 0)){
+            $this->users->update_user($user_id, array('partners_processed' => 1));
+        }
 
         $this->Best2pay->completeCardEnroll($transaction);
 
