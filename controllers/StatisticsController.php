@@ -961,10 +961,23 @@ class StatisticsController extends Controller
 
             $operations = array();
             foreach ($this->db->results() as $op) {
+
+                if(is_null($op->callback_response))
+                    continue;
+
+                $callback = new SimpleXMLElement($op->callback_response);
+                if($callback->order_state != 'COMPLETED')
+                    continue;
+
+
                 $operations[$op->id] = $op;
 
                 $card = $this->cards->get_card($operations[$op->id]->card);
                 $operations[$op->id]->pan = $card->pan;
+                if(is_null($card->pan))
+                    $operations[$op->id]->pan = $card->pan;
+                else
+                    $operations[$op->id]->pan = $callback->pan;
 
                 $transaction = $this->transactions->get_transaction($operations[$op->id]->transaction_id);
                 $user = $this->users->get_user($transaction->user_id);
