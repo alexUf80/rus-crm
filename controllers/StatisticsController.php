@@ -215,7 +215,7 @@ class StatisticsController extends Controller
         $this->design->assign('contracts', $contracts);
 
         if ($this->request->get('download') == 'excel') {
-            $filename = 'files/reports/expired.xls';
+            $filename = 'files/reports/Просроченные займы.xls';
             require $this->config->root_dir . 'PHPExcel/Classes/PHPExcel.php';
 
             $excel = new PHPExcel();
@@ -412,7 +412,7 @@ class StatisticsController extends Controller
         $this->design->assign('contracts', $contracts);
 
         if ($this->request->get('download') == 'excel') {
-            $filename = 'files/reports/prolongation_contracts.xls';
+            $filename = 'files/reports/К оплате в ближайшие 5 дней.xls';
             require $this->config->root_dir . 'PHPExcel/Classes/PHPExcel.php';
 
             $excel = new PHPExcel();
@@ -573,7 +573,7 @@ class StatisticsController extends Controller
                 foreach ($this->managers->get_managers() as $m)
                     $managers[$m->id] = $m;
 
-                $filename = 'files/reports/orders.xls';
+                $filename = 'files/reports/Отчет по заявкам.xls';
                 require $this->config->root_dir . 'PHPExcel/Classes/PHPExcel.php';
 
                 $excel = new PHPExcel();
@@ -754,7 +754,7 @@ class StatisticsController extends Controller
                 foreach ($this->managers->get_managers() as $m)
                     $managers[$m->id] = $m;
 
-                $filename = 'files/reports/contracts.xls';
+                $filename = 'files/reports/Отчет по договорам.xls';
                 require $this->config->root_dir . 'PHPExcel/Classes/PHPExcel.php';
 
                 $excel = new PHPExcel();
@@ -1011,7 +1011,7 @@ class StatisticsController extends Controller
                 foreach ($this->managers->get_managers() as $m)
                     $managers[$m->id] = $m;
 
-                $filename = 'files/reports/payments.xls';
+                $filename = 'files/reports/Отчет по оплатам.xls';
                 require $this->config->root_dir . 'PHPExcel/Classes/PHPExcel.php';
 
                 $excel = new PHPExcel();
@@ -1145,7 +1145,7 @@ class StatisticsController extends Controller
 
                 $order_statuses = $this->orders->get_statuses();
 
-                $filename = 'files/reports/eventlogs.xls';
+                $filename = 'files/reports/Логи событий.xls';
                 require $this->config->root_dir . 'PHPExcel/Classes/PHPExcel.php';
 
                 $excel = new PHPExcel();
@@ -1737,7 +1737,7 @@ class StatisticsController extends Controller
 
             if ($this->request->get('download') == 'excel') {
 
-                $filename = 'files/reports/days.xls';
+                $filename = 'files/reports/Отчет по дням.xls';
                 require $this->config->root_dir . 'PHPExcel/Classes/PHPExcel.php';
 
                 $excel = new PHPExcel();
@@ -1892,7 +1892,7 @@ class StatisticsController extends Controller
 
             if ($this->request->get('download') == 'excel') {
 
-                $filename = 'files/reports/adservices.xls';
+                $filename = 'files/reports/Отчет по дополнительным услугам.xls';
                 require $this->config->root_dir . 'PHPExcel/Classes/PHPExcel.php';
 
                 $excel = new PHPExcel();
@@ -2060,7 +2060,7 @@ class StatisticsController extends Controller
 
             if ($this->request->get('download') == 'excel') {
 
-                $filename = 'files/reports/adservices_osv.xls';
+                $filename = 'files/reports/Отчет по услугам в виде ОСВ.xls';
                 require $this->config->root_dir . 'PHPExcel/Classes/PHPExcel.php';
 
                 $excel = new PHPExcel();
@@ -2676,7 +2676,7 @@ class StatisticsController extends Controller
 
                     $orders = $this->orders->get_orders_for_conversions($filter);
 
-                    $filename = 'files/reports/conversions.xls';
+                    $filename = 'files/reports/Отчет по конверсиям.xls';
                     require $this->config->root_dir . 'PHPExcel/Classes/PHPExcel.php';
 
                     $excel = new PHPExcel();
@@ -2868,7 +2868,7 @@ class StatisticsController extends Controller
                 $i++;
             }
 
-            $filename = 'Orders.xlsx';
+            $filename = 'Отчет по заявкам.xlsx';
             $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
             $writer->save($this->config->root_dir . $filename);
             header('Location:' . $this->config->root_url . '/' . $filename);
@@ -2987,7 +2987,7 @@ class StatisticsController extends Controller
                     $i++;
                 }
 
-                $filename = 'Leadgens.xlsx';
+                $filename = 'Отчет Лидген.xlsx';
                 $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
                 $writer->save($this->config->root_dir . $filename);
                 header('Location:' . $this->config->root_url . '/' . $filename);
