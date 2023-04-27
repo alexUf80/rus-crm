@@ -226,16 +226,16 @@
                                     {foreach $final_array as $date => $operations}
                                         {if $date != 'Итого'}
                                         <td>{$operations['count_new_orders']} шт/ {$operations['sum_new_orders']
-                                            + $operations['sum_insurance'] +
-                                            $operations['sum_sms_services'] +
-                                            $operations['sum_reject_reason'] 
+                                            + $operations['sum_insurance_new'] +
+                                            $operations['sum_sms_services_new'] +
+                                            $operations['sum_reject_reason_new'] 
                                         } руб</td>
                                         {/if}
                                         {if $date == 'Итого' && count($final_array) > 2}
                                             <td>{$operations['count_new_orders']} шт/ {$operations['sum_new_orders']
-                                            + $operations['sum_insurance'] +
-                                            $operations['sum_sms_services'] +
-                                            $operations['sum_reject_reason'] 
+                                            + $operations['sum_insurance_new'] +
+                                            $operations['sum_sms_services_new'] +
+                                            $operations['sum_reject_reason_new'] 
                                             } руб</td>
                                         {/if}
                                     {/foreach}
@@ -244,10 +244,18 @@
                                     <td>Выдано повторных/Сумма</td>
                                     {foreach $final_array as $date => $operations}
                                         {if $date != 'Итого'}
-                                        <td>{$operations['count_repeat_orders']} шт / {$operations['sum_repeat_orders']} руб</td>
+                                        <td>{$operations['count_repeat_orders']} шт / {$operations['sum_repeat_orders']
+                                            + $operations['sum_insurance_old'] +
+                                            $operations['sum_sms_services_old'] +
+                                            $operations['sum_reject_reason_old'] 
+                                            } руб</td>
                                         {/if}
                                         {if $date == 'Итого' && count($final_array) > 2}
-                                            <td>{$operations['count_repeat_orders']} шт / {$operations['sum_repeat_orders']} руб</td>
+                                            <td>{$operations['count_repeat_orders']} шт / {$operations['sum_repeat_orders']
+                                            + $operations['sum_insurance_old'] +
+                                            $operations['sum_sms_services_old'] +
+                                            $operations['sum_reject_reason_old'] 
+                                            } руб</td>
                                         {/if}
                                     {/foreach}
                                 </tr>

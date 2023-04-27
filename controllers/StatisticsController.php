@@ -215,7 +215,7 @@ class StatisticsController extends Controller
         $this->design->assign('contracts', $contracts);
 
         if ($this->request->get('download') == 'excel') {
-            $filename = 'files/reports/expired.xls';
+            $filename = 'files/reports/Просроченные займы.xls';
             require $this->config->root_dir . 'PHPExcel/Classes/PHPExcel.php';
 
             $excel = new PHPExcel();
@@ -412,7 +412,7 @@ class StatisticsController extends Controller
         $this->design->assign('contracts', $contracts);
 
         if ($this->request->get('download') == 'excel') {
-            $filename = 'files/reports/prolongation_contracts.xls';
+            $filename = 'files/reports/К оплате в ближайшие 5 дней.xls';
             require $this->config->root_dir . 'PHPExcel/Classes/PHPExcel.php';
 
             $excel = new PHPExcel();
@@ -573,7 +573,7 @@ class StatisticsController extends Controller
                 foreach ($this->managers->get_managers() as $m)
                     $managers[$m->id] = $m;
 
-                $filename = 'files/reports/orders.xls';
+                $filename = 'files/reports/Отчет по заявкам.xls';
                 require $this->config->root_dir . 'PHPExcel/Classes/PHPExcel.php';
 
                 $excel = new PHPExcel();
@@ -754,7 +754,7 @@ class StatisticsController extends Controller
                 foreach ($this->managers->get_managers() as $m)
                     $managers[$m->id] = $m;
 
-                $filename = 'files/reports/contracts.xls';
+                $filename = 'files/reports/Отчет по договорам.xls';
                 require $this->config->root_dir . 'PHPExcel/Classes/PHPExcel.php';
 
                 $excel = new PHPExcel();
@@ -961,10 +961,23 @@ class StatisticsController extends Controller
 
             $operations = array();
             foreach ($this->db->results() as $op) {
+
+                if(is_null($op->callback_response))
+                    continue;
+
+                $callback = new SimpleXMLElement($op->callback_response);
+                if($callback->order_state != 'COMPLETED')
+                    continue;
+
+
                 $operations[$op->id] = $op;
 
                 $card = $this->cards->get_card($operations[$op->id]->card);
                 $operations[$op->id]->pan = $card->pan;
+                if(is_null($card->pan))
+                    $operations[$op->id]->pan = $card->pan;
+                else
+                    $operations[$op->id]->pan = $callback->pan;
 
                 $transaction = $this->transactions->get_transaction($operations[$op->id]->transaction_id);
                 $user = $this->users->get_user($transaction->user_id);
@@ -998,7 +1011,7 @@ class StatisticsController extends Controller
                 foreach ($this->managers->get_managers() as $m)
                     $managers[$m->id] = $m;
 
-                $filename = 'files/reports/payments.xls';
+                $filename = 'files/reports/Отчет по оплатам.xls';
                 require $this->config->root_dir . 'PHPExcel/Classes/PHPExcel.php';
 
                 $excel = new PHPExcel();
@@ -1132,7 +1145,7 @@ class StatisticsController extends Controller
 
                 $order_statuses = $this->orders->get_statuses();
 
-                $filename = 'files/reports/eventlogs.xls';
+                $filename = 'files/reports/Логи событий.xls';
                 require $this->config->root_dir . 'PHPExcel/Classes/PHPExcel.php';
 
                 $excel = new PHPExcel();
@@ -1428,13 +1441,25 @@ class StatisticsController extends Controller
                     $operations_by_date[$date]['loan_body_summ'] = 0;
                     $operations_by_date[$date]['loan_charges_summ'] = 0;
                     $operations_by_date[$date]['count_insurance'] = 0;
+                    $operations_by_date[$date]['count_insurance_old'] = 0;
+                    $operations_by_date[$date]['count_insurance_new'] = 0;
                     $operations_by_date[$date]['sum_insurance'] = 0;
+                    $operations_by_date[$date]['sum_insurance_old'] = 0;
+                    $operations_by_date[$date]['sum_insurance_new'] = 0;
                     $operations_by_date[$date]['count_insurance_prolongation'] = 0;
                     $operations_by_date[$date]['sum_insurance_prolongation'] = 0;
                     $operations_by_date[$date]['count_sms_services'] = 0;
+                    $operations_by_date[$date]['count_sms_services_old'] = 0;
+                    $operations_by_date[$date]['count_sms_services_new'] = 0;
                     $operations_by_date[$date]['sum_sms_services'] = 0;
+                    $operations_by_date[$date]['sum_sms_services_old'] = 0;
+                    $operations_by_date[$date]['sum_sms_services_new'] = 0;
                     $operations_by_date[$date]['count_reject_reason'] = 0;
+                    $operations_by_date[$date]['count_reject_reason_old'] = 0;
+                    $operations_by_date[$date]['count_reject_reason_new'] = 0;
                     $operations_by_date[$date]['sum_reject_reason'] = 0;
+                    $operations_by_date[$date]['sum_reject_reason_old'] = 0;
+                    $operations_by_date[$date]['sum_reject_reason_new'] = 0;
                     $operations_by_date[$date]['count_return'] = 0;
                     $operations_by_date[$date]['sum_return'] = 0;
                     $operations_by_date[$date]['sum_cor_percents'] = 0;
@@ -1471,9 +1496,20 @@ class StatisticsController extends Controller
                     }
                 }
 
+                $order = $this->orders->get_order($operation->order_id);
+                
+                // die;
                 if ($operation->type == 'INSURANCE') {
                     $operations_by_date[$date]['count_insurance'] += 1;
                     $operations_by_date[$date]['sum_insurance'] += $operation->amount;
+                    if(in_array($order->client_status,array('nk', 'rep'))){
+                        $operations_by_date[$date]['count_insurance_new'] += 1;
+                        $operations_by_date[$date]['sum_insurance_new'] += $operation->amount;
+                    }
+                    else{
+                        $operations_by_date[$date]['count_insurance_old'] += 1;
+                        $operations_by_date[$date]['sum_insurance_old'] += $operation->amount;
+                    }
 
                     if ($operation->prolongation == 1) {
                         $operations_by_date[$date]['count_insurance_prolongation'] += 1;
@@ -1484,10 +1520,26 @@ class StatisticsController extends Controller
                 if ($operation->type == 'BUD_V_KURSE') {
                     $operations_by_date[$date]['count_sms_services'] += 1;
                     $operations_by_date[$date]['sum_sms_services'] += $operation->amount;
+                    if(in_array($order->client_status,array('nk', 'rep'))){
+                        $operations_by_date[$date]['count_sms_services_new'] += 1;
+                        $operations_by_date[$date]['sum_sms_services_new'] += $operation->amount;
+                    }
+                    else{
+                        $operations_by_date[$date]['count_sms_services_old'] += 1;
+                        $operations_by_date[$date]['sum_sms_services_old'] += $operation->amount;
+                    }
                 }
                 if ($operation->type == 'REJECT_REASON') {
                     $operations_by_date[$date]['count_reject_reason'] += 1;
                     $operations_by_date[$date]['sum_reject_reason'] += $operation->amount;
+                    if(in_array($order->client_status,array('nk', 'rep'))){
+                        $operations_by_date[$date]['count_reject_reason_new'] += 1;
+                        $operations_by_date[$date]['sum_reject_reason_new'] += $operation->amount;
+                    }
+                    else{
+                        $operations_by_date[$date]['count_reject_reason_old'] += 1;
+                        $operations_by_date[$date]['sum_reject_reason_old'] += $operation->amount;
+                    }
                 }
                 if (strrpos($operation->type, 'RETURN') !== false) {
                     $operations_by_date[$date]['count_return'] += 1;
@@ -1500,13 +1552,25 @@ class StatisticsController extends Controller
                 $final_array[$date]['loan_body_summ'] = $operation['loan_body_summ'];
                 $final_array[$date]['loan_charges_summ'] = $operation['loan_charges_summ'];
                 $final_array[$date]['count_insurance'] = $operation['count_insurance'];
+                $final_array[$date]['count_insurance_old'] = $operation['count_insurance_old'];
+                $final_array[$date]['count_insurance_new'] = $operation['count_insurance_new'];
                 $final_array[$date]['sum_insurance'] = $operation['sum_insurance'];
+                $final_array[$date]['sum_insurance_old'] = $operation['sum_insurance_old'];
+                $final_array[$date]['sum_insurance_new'] = $operation['sum_insurance_new'];
                 $final_array[$date]['count_insurance_prolongation'] = $operation['count_insurance_prolongation'];
                 $final_array[$date]['sum_insurance_prolongation'] = $operation['sum_insurance_prolongation'];
                 $final_array[$date]['count_sms_services'] = $operation['count_sms_services'];
+                $final_array[$date]['count_sms_services_old'] = $operation['count_sms_services_old'];
+                $final_array[$date]['count_sms_services_new'] = $operation['count_sms_services_new'];
                 $final_array[$date]['sum_sms_services'] = $operation['sum_sms_services'];
+                $final_array[$date]['sum_sms_services_old'] = $operation['sum_sms_services_old'];
+                $final_array[$date]['sum_sms_services_new'] = $operation['sum_sms_services_new'];
                 $final_array[$date]['count_reject_reason'] = $operation['count_reject_reason'];
+                $final_array[$date]['count_reject_reason_old'] = $operation['count_reject_reason_old'];
+                $final_array[$date]['count_reject_reason_new'] = $operation['count_reject_reason_new'];
                 $final_array[$date]['sum_reject_reason'] = $operation['sum_reject_reason'];
+                $final_array[$date]['sum_reject_reason_old'] = $operation['sum_reject_reason_old'];
+                $final_array[$date]['sum_reject_reason_new'] = $operation['sum_reject_reason_new'];
                 $final_array[$date]['count_return'] = $operation['count_return'];
                 $final_array[$date]['sum_return'] = $operation['sum_return'];
                 $final_array[$date]['sum_cor_percents'] = $operation['sum_cor_percents'];
@@ -1595,13 +1659,25 @@ class StatisticsController extends Controller
                     $final_array['Итого']['loan_body_summ'] = 0;
                     $final_array['Итого']['loan_charges_summ'] = 0;
                     $final_array['Итого']['count_insurance'] = 0;
+                    $final_array['Итого']['count_insurance_old'] = 0;
+                    $final_array['Итого']['count_insurance_new'] = 0;
                     $final_array['Итого']['sum_insurance'] = 0;
+                    $final_array['Итого']['sum_insurance_old'] = 0;
+                    $final_array['Итого']['sum_insurance_new'] = 0;
                     $final_array['Итого']['count_insurance_prolongation'] = 0;
                     $final_array['Итого']['sum_insurance_prolongation'] = 0;
                     $final_array['Итого']['count_sms_services'] = 0;
+                    $final_array['Итого']['count_sms_services_old'] = 0;
+                    $final_array['Итого']['count_sms_services_new'] = 0;
                     $final_array['Итого']['sum_sms_services'] = 0;
+                    $final_array['Итого']['sum_sms_services_old'] = 0;
+                    $final_array['Итого']['sum_sms_services_new'] = 0;
                     $final_array['Итого']['count_reject_reason'] = 0;
+                    $final_array['Итого']['count_reject_reason_old'] = 0;
+                    $final_array['Итого']['count_reject_reason_new'] = 0;
                     $final_array['Итого']['sum_reject_reason'] = 0;
+                    $final_array['Итого']['sum_reject_reason_old'] = 0;
+                    $final_array['Итого']['sum_reject_reason_new'] = 0;
                     $final_array['Итого']['count_return'] = 0;
                     $final_array['Итого']['sum_return'] = 0;
                     $final_array['Итого']['count_insurance_close'] = 0;
@@ -1625,13 +1701,25 @@ class StatisticsController extends Controller
                 $final_array['Итого']['loan_body_summ'] += ($array['loan_body_summ']) ?: 0;
                 $final_array['Итого']['loan_charges_summ'] += ($array['loan_charges_summ']) ?: 0;
                 $final_array['Итого']['count_insurance'] += ($array['count_insurance']) ?: 0;
+                $final_array['Итого']['count_insurance_old'] += ($array['count_insurance_old']) ?: 0;
+                $final_array['Итого']['count_insurance_new'] += ($array['count_insurance_new']) ?: 0;
                 $final_array['Итого']['sum_insurance'] += ($array['sum_insurance']) ?: 0;
+                $final_array['Итого']['sum_insurance_old'] += ($array['sum_insurance_old']) ?: 0;
+                $final_array['Итого']['sum_insurance_new'] += ($array['sum_insurance_new']) ?: 0;
                 $final_array['Итого']['count_insurance_prolongation'] += ($array['count_insurance_prolongation']) ?: 0;
                 $final_array['Итого']['sum_insurance_prolongation'] += ($array['sum_insurance_prolongation']) ?: 0;
                 $final_array['Итого']['count_sms_services'] += ($array['count_sms_services']) ?: 0;
+                $final_array['Итого']['count_sms_services_old'] += ($array['count_sms_services_old']) ?: 0;
+                $final_array['Итого']['count_sms_services_new'] += ($array['count_sms_services_new']) ?: 0;
                 $final_array['Итого']['sum_sms_services'] += ($array['sum_sms_services']) ?: 0;
+                $final_array['Итого']['sum_sms_services_old'] += ($array['sum_sms_services_old']) ?: 0;
+                $final_array['Итого']['sum_sms_services_new'] += ($array['sum_sms_services_new']) ?: 0;
                 $final_array['Итого']['count_reject_reason'] += ($array['count_reject_reason']) ?: 0;
+                $final_array['Итого']['count_reject_reason_old'] += ($array['count_reject_reason_old']) ?: 0;
+                $final_array['Итого']['count_reject_reason_new'] += ($array['count_reject_reason_new']) ?: 0;
                 $final_array['Итого']['sum_reject_reason'] += ($array['sum_reject_reason']) ?: 0;
+                $final_array['Итого']['sum_reject_reason_old'] += ($array['sum_reject_reason_old']) ?: 0;
+                $final_array['Итого']['sum_reject_reason_new'] += ($array['sum_reject_reason_new']) ?: 0;
                 $final_array['Итого']['count_return'] += ($array['count_return']) ?: 0;
                 $final_array['Итого']['sum_return'] += ($array['sum_return']) ?: 0;
                 $final_array['Итого']['count_insurance_close'] += ($array['count_insurance_close']) ?: 0;
@@ -1649,7 +1737,7 @@ class StatisticsController extends Controller
 
             if ($this->request->get('download') == 'excel') {
 
-                $filename = 'files/reports/days.xls';
+                $filename = 'files/reports/Отчет по дням.xls';
                 require $this->config->root_dir . 'PHPExcel/Classes/PHPExcel.php';
 
                 $excel = new PHPExcel();
@@ -1716,12 +1804,17 @@ class StatisticsController extends Controller
                     $active_sheet->setCellValue('A' . $i, $date);
                     $active_sheet->setCellValue('B' . $i, $report['count_new_orders'] . 'шт /' . 
                         ($report['sum_new_orders'] + 
-                        $report['sum_insurance'] +
-                        $report['sum_sms_services'] +
-                        $report['sum_reject_reason'] +
+                        $report['sum_insurance_new'] +
+                        $report['sum_sms_services_new'] +
+                        $report['sum_reject_reason_new'] +
                         $report['sum_card_binding'])
                         . 'руб');
-                    $active_sheet->setCellValue('C' . $i, $report['count_repeat_orders'] . 'шт /' . $report['sum_repeat_orders'] . 'руб');
+                    $active_sheet->setCellValue('C' . $i, $report['count_repeat_orders'] . 'шт /' . 
+                        ($report['sum_repeat_orders'] +
+                        $report['sum_insurance_old'] +
+                        $report['sum_sms_services_old'] +
+                        $report['sum_reject_reason_old'])
+                         . 'руб');
                     $active_sheet->setCellValue('D' . $i, $report['count_closed_contracts']);
                     $active_sheet->setCellValue('E' . $i, $report['count_prolongations']);
                     $active_sheet->setCellValue('F' . $i, $report['loan_body_summ']);
@@ -1799,7 +1892,7 @@ class StatisticsController extends Controller
 
             if ($this->request->get('download') == 'excel') {
 
-                $filename = 'files/reports/adservices.xls';
+                $filename = 'files/reports/Отчет по дополнительным услугам.xls';
                 require $this->config->root_dir . 'PHPExcel/Classes/PHPExcel.php';
 
                 $excel = new PHPExcel();
@@ -1967,7 +2060,7 @@ class StatisticsController extends Controller
 
             if ($this->request->get('download') == 'excel') {
 
-                $filename = 'files/reports/adservices_osv.xls';
+                $filename = 'files/reports/Отчет по услугам в виде ОСВ.xls';
                 require $this->config->root_dir . 'PHPExcel/Classes/PHPExcel.php';
 
                 $excel = new PHPExcel();
@@ -2583,7 +2676,7 @@ class StatisticsController extends Controller
 
                     $orders = $this->orders->get_orders_for_conversions($filter);
 
-                    $filename = 'files/reports/conversions.xls';
+                    $filename = 'files/reports/Отчет по конверсиям.xls';
                     require $this->config->root_dir . 'PHPExcel/Classes/PHPExcel.php';
 
                     $excel = new PHPExcel();
@@ -2775,7 +2868,7 @@ class StatisticsController extends Controller
                 $i++;
             }
 
-            $filename = 'Orders.xlsx';
+            $filename = 'Отчет по заявкам.xlsx';
             $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
             $writer->save($this->config->root_dir . $filename);
             header('Location:' . $this->config->root_url . '/' . $filename);
@@ -2894,7 +2987,7 @@ class StatisticsController extends Controller
                     $i++;
                 }
 
-                $filename = 'Leadgens.xlsx';
+                $filename = 'Отчет Лидген.xlsx';
                 $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
                 $writer->save($this->config->root_dir . $filename);
                 header('Location:' . $this->config->root_url . '/' . $filename);

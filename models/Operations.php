@@ -222,6 +222,7 @@ class Operations extends Core
         op.type,
         op.created,
         op.contract_id,
+        op.order_id,
         op.type_payment,
         op.contract_is_closed
         from s_operations as op

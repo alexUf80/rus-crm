@@ -101,6 +101,8 @@ RewriteRule ^nbki_reports/?$            index.php?module=NbkiReportsController  
 
 RewriteRule ^documentTestCreate/([^/]*)/([^/]*)/?$    index.php?module=DocumentTestCreateController&user_id=$1&name_document=$2  [L,QSA]
 
+RewriteRule ^api/lead/                   callback/ApiLead.php
+
 # Статические страницы
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d

@@ -267,5 +267,25 @@ class Helpers extends Core
 
     }
 
+    public function logging($local_method, $service, $request, $response, $filename, $log_dir)
+    {
+        $log_filename = $log_dir.$filename;
+        
+        if (date('d', filemtime($log_filename)) != date('d'))
+        {
+            $archive_filename = $log_dir.'archive/'.date('ymd', filemtime($log_filename)).'.'.$filename;
+            rename($log_filename, $archive_filename);
+            file_put_contents($log_filename, "\xEF\xBB\xBF");            
+        }
+
+        $str = PHP_EOL.'==================================================================='.PHP_EOL;
+        $str .= date('d.m.Y H:i:s').PHP_EOL;
+        $str .= $service.PHP_EOL;
+        $str .= var_export($request, true).PHP_EOL;
+        $str .= var_export($response, true).PHP_EOL;
+        $str .= 'END'.PHP_EOL;
+        
+        file_put_contents($log_filename, $str, FILE_APPEND);
+    }
 
 }
