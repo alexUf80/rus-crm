@@ -225,11 +225,7 @@
                                     <td>Выдано новых/Сумма</td>
                                     {foreach $final_array as $date => $operations}
                                         {if $date != 'Итого'}
-                                        <td>{$operations['count_new_orders']} шт/ {$operations['sum_new_orders']
-                                            + $operations['sum_insurance_new'] +
-                                            $operations['sum_sms_services_new'] +
-                                            $operations['sum_reject_reason_new'] 
-                                        } руб</td>
+                                        <td>{$operations['count_new_orders']} шт/ {$operations['sum_new_orders']} руб</td>
                                         {/if}
                                         {if $date == 'Итого' && count($final_array) > 2}
                                             <td>{$operations['count_new_orders']} шт/ {$operations['sum_new_orders']} руб</td>

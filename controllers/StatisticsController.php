@@ -1804,18 +1804,9 @@ class StatisticsController extends Controller
 
                     $active_sheet->setCellValue('A' . $i, $date);
                     $active_sheet->setCellValue('B' . $i, $report['count_new_orders'] . 'шт /' . 
-                        ($report['sum_new_orders'] + 
-                        $report['sum_insurance_new'] +
-                        $report['sum_sms_services_new'] +
-                        $report['sum_reject_reason_new'] +
-                        $report['sum_card_binding'])
-                        . 'руб');
+                        $report['sum_new_orders']. 'руб');
                     $active_sheet->setCellValue('C' . $i, $report['count_repeat_orders'] . 'шт /' . 
-                        ($report['sum_repeat_orders'] +
-                        $report['sum_insurance_old'] +
-                        $report['sum_sms_services_old'] +
-                        $report['sum_reject_reason_old'])
-                         . 'руб');
+                        $report['sum_repeat_orders']  . 'руб');
                     $active_sheet->setCellValue('D' . $i, $report['count_closed_contracts']);
                     $active_sheet->setCellValue('E' . $i, $report['count_prolongations']);
                     $active_sheet->setCellValue('F' . $i, $report['loan_body_summ']);
