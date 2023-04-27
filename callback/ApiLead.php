@@ -79,7 +79,6 @@ class ApiLead extends Core
 
             // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             
-            $this->json = $this->request->get('json');
             $this->run();
         }
         else{
@@ -111,7 +110,8 @@ class ApiLead extends Core
             exit;
         }
         
-        $json_array = (array)json_decode(file_get_contents('php://input'));
+        $this->json = json_decode(file_get_contents('php://input'));
+        $json_array = (array)$this->json;
 
 
         // Проверка партнера
@@ -335,8 +335,7 @@ class ApiLead extends Core
             'first_loan' => 1,
             'date' => date('Y-m-d H:i:s'),
             'accept_sms' => $rand_code,
-            'client_status' => 'api',
-            'autoretry' => 1,
+            'client_status' => 'nk',
         );
 
         $order_id = $this->orders->add_order($order);

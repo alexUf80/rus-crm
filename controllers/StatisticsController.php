@@ -1441,13 +1441,25 @@ class StatisticsController extends Controller
                     $operations_by_date[$date]['loan_body_summ'] = 0;
                     $operations_by_date[$date]['loan_charges_summ'] = 0;
                     $operations_by_date[$date]['count_insurance'] = 0;
+                    $operations_by_date[$date]['count_insurance_old'] = 0;
+                    $operations_by_date[$date]['count_insurance_new'] = 0;
                     $operations_by_date[$date]['sum_insurance'] = 0;
+                    $operations_by_date[$date]['sum_insurance_old'] = 0;
+                    $operations_by_date[$date]['sum_insurance_new'] = 0;
                     $operations_by_date[$date]['count_insurance_prolongation'] = 0;
                     $operations_by_date[$date]['sum_insurance_prolongation'] = 0;
                     $operations_by_date[$date]['count_sms_services'] = 0;
+                    $operations_by_date[$date]['count_sms_services_old'] = 0;
+                    $operations_by_date[$date]['count_sms_services_new'] = 0;
                     $operations_by_date[$date]['sum_sms_services'] = 0;
+                    $operations_by_date[$date]['sum_sms_services_old'] = 0;
+                    $operations_by_date[$date]['sum_sms_services_new'] = 0;
                     $operations_by_date[$date]['count_reject_reason'] = 0;
+                    $operations_by_date[$date]['count_reject_reason_old'] = 0;
+                    $operations_by_date[$date]['count_reject_reason_new'] = 0;
                     $operations_by_date[$date]['sum_reject_reason'] = 0;
+                    $operations_by_date[$date]['sum_reject_reason_old'] = 0;
+                    $operations_by_date[$date]['sum_reject_reason_new'] = 0;
                     $operations_by_date[$date]['count_return'] = 0;
                     $operations_by_date[$date]['sum_return'] = 0;
                     $operations_by_date[$date]['sum_cor_percents'] = 0;
@@ -1484,9 +1496,20 @@ class StatisticsController extends Controller
                     }
                 }
 
+                $order = $this->orders->get_order($operation->order_id);
+                
+                // die;
                 if ($operation->type == 'INSURANCE') {
                     $operations_by_date[$date]['count_insurance'] += 1;
                     $operations_by_date[$date]['sum_insurance'] += $operation->amount;
+                    if(in_array($order->client_status,array('nk', 'rep'))){
+                        $operations_by_date[$date]['count_insurance_new'] += 1;
+                        $operations_by_date[$date]['sum_insurance_new'] += $operation->amount;
+                    }
+                    else{
+                        $operations_by_date[$date]['count_insurance_old'] += 1;
+                        $operations_by_date[$date]['sum_insurance_old'] += $operation->amount;
+                    }
 
                     if ($operation->prolongation == 1) {
                         $operations_by_date[$date]['count_insurance_prolongation'] += 1;
@@ -1497,10 +1520,26 @@ class StatisticsController extends Controller
                 if ($operation->type == 'BUD_V_KURSE') {
                     $operations_by_date[$date]['count_sms_services'] += 1;
                     $operations_by_date[$date]['sum_sms_services'] += $operation->amount;
+                    if(in_array($order->client_status,array('nk', 'rep'))){
+                        $operations_by_date[$date]['count_sms_services_new'] += 1;
+                        $operations_by_date[$date]['sum_sms_services_new'] += $operation->amount;
+                    }
+                    else{
+                        $operations_by_date[$date]['count_sms_services_old'] += 1;
+                        $operations_by_date[$date]['sum_sms_services_old'] += $operation->amount;
+                    }
                 }
                 if ($operation->type == 'REJECT_REASON') {
                     $operations_by_date[$date]['count_reject_reason'] += 1;
                     $operations_by_date[$date]['sum_reject_reason'] += $operation->amount;
+                    if(in_array($order->client_status,array('nk', 'rep'))){
+                        $operations_by_date[$date]['count_reject_reason_new'] += 1;
+                        $operations_by_date[$date]['sum_reject_reason_new'] += $operation->amount;
+                    }
+                    else{
+                        $operations_by_date[$date]['count_reject_reason_old'] += 1;
+                        $operations_by_date[$date]['sum_reject_reason_old'] += $operation->amount;
+                    }
                 }
                 if (strrpos($operation->type, 'RETURN') !== false) {
                     $operations_by_date[$date]['count_return'] += 1;
@@ -1513,13 +1552,25 @@ class StatisticsController extends Controller
                 $final_array[$date]['loan_body_summ'] = $operation['loan_body_summ'];
                 $final_array[$date]['loan_charges_summ'] = $operation['loan_charges_summ'];
                 $final_array[$date]['count_insurance'] = $operation['count_insurance'];
+                $final_array[$date]['count_insurance_old'] = $operation['count_insurance_old'];
+                $final_array[$date]['count_insurance_new'] = $operation['count_insurance_new'];
                 $final_array[$date]['sum_insurance'] = $operation['sum_insurance'];
+                $final_array[$date]['sum_insurance_old'] = $operation['sum_insurance_old'];
+                $final_array[$date]['sum_insurance_new'] = $operation['sum_insurance_new'];
                 $final_array[$date]['count_insurance_prolongation'] = $operation['count_insurance_prolongation'];
                 $final_array[$date]['sum_insurance_prolongation'] = $operation['sum_insurance_prolongation'];
                 $final_array[$date]['count_sms_services'] = $operation['count_sms_services'];
+                $final_array[$date]['count_sms_services_old'] = $operation['count_sms_services_old'];
+                $final_array[$date]['count_sms_services_new'] = $operation['count_sms_services_new'];
                 $final_array[$date]['sum_sms_services'] = $operation['sum_sms_services'];
+                $final_array[$date]['sum_sms_services_old'] = $operation['sum_sms_services_old'];
+                $final_array[$date]['sum_sms_services_new'] = $operation['sum_sms_services_new'];
                 $final_array[$date]['count_reject_reason'] = $operation['count_reject_reason'];
+                $final_array[$date]['count_reject_reason_old'] = $operation['count_reject_reason_old'];
+                $final_array[$date]['count_reject_reason_new'] = $operation['count_reject_reason_new'];
                 $final_array[$date]['sum_reject_reason'] = $operation['sum_reject_reason'];
+                $final_array[$date]['sum_reject_reason_old'] = $operation['sum_reject_reason_old'];
+                $final_array[$date]['sum_reject_reason_new'] = $operation['sum_reject_reason_new'];
                 $final_array[$date]['count_return'] = $operation['count_return'];
                 $final_array[$date]['sum_return'] = $operation['sum_return'];
                 $final_array[$date]['sum_cor_percents'] = $operation['sum_cor_percents'];
@@ -1608,13 +1659,25 @@ class StatisticsController extends Controller
                     $final_array['Итого']['loan_body_summ'] = 0;
                     $final_array['Итого']['loan_charges_summ'] = 0;
                     $final_array['Итого']['count_insurance'] = 0;
+                    $final_array['Итого']['count_insurance_old'] = 0;
+                    $final_array['Итого']['count_insurance_new'] = 0;
                     $final_array['Итого']['sum_insurance'] = 0;
+                    $final_array['Итого']['sum_insurance_old'] = 0;
+                    $final_array['Итого']['sum_insurance_new'] = 0;
                     $final_array['Итого']['count_insurance_prolongation'] = 0;
                     $final_array['Итого']['sum_insurance_prolongation'] = 0;
                     $final_array['Итого']['count_sms_services'] = 0;
+                    $final_array['Итого']['count_sms_services_old'] = 0;
+                    $final_array['Итого']['count_sms_services_new'] = 0;
                     $final_array['Итого']['sum_sms_services'] = 0;
+                    $final_array['Итого']['sum_sms_services_old'] = 0;
+                    $final_array['Итого']['sum_sms_services_new'] = 0;
                     $final_array['Итого']['count_reject_reason'] = 0;
+                    $final_array['Итого']['count_reject_reason_old'] = 0;
+                    $final_array['Итого']['count_reject_reason_new'] = 0;
                     $final_array['Итого']['sum_reject_reason'] = 0;
+                    $final_array['Итого']['sum_reject_reason_old'] = 0;
+                    $final_array['Итого']['sum_reject_reason_new'] = 0;
                     $final_array['Итого']['count_return'] = 0;
                     $final_array['Итого']['sum_return'] = 0;
                     $final_array['Итого']['count_insurance_close'] = 0;
@@ -1638,13 +1701,25 @@ class StatisticsController extends Controller
                 $final_array['Итого']['loan_body_summ'] += ($array['loan_body_summ']) ?: 0;
                 $final_array['Итого']['loan_charges_summ'] += ($array['loan_charges_summ']) ?: 0;
                 $final_array['Итого']['count_insurance'] += ($array['count_insurance']) ?: 0;
+                $final_array['Итого']['count_insurance_old'] += ($array['count_insurance_old']) ?: 0;
+                $final_array['Итого']['count_insurance_new'] += ($array['count_insurance_new']) ?: 0;
                 $final_array['Итого']['sum_insurance'] += ($array['sum_insurance']) ?: 0;
+                $final_array['Итого']['sum_insurance_old'] += ($array['sum_insurance_old']) ?: 0;
+                $final_array['Итого']['sum_insurance_new'] += ($array['sum_insurance_new']) ?: 0;
                 $final_array['Итого']['count_insurance_prolongation'] += ($array['count_insurance_prolongation']) ?: 0;
                 $final_array['Итого']['sum_insurance_prolongation'] += ($array['sum_insurance_prolongation']) ?: 0;
                 $final_array['Итого']['count_sms_services'] += ($array['count_sms_services']) ?: 0;
+                $final_array['Итого']['count_sms_services_old'] += ($array['count_sms_services_old']) ?: 0;
+                $final_array['Итого']['count_sms_services_new'] += ($array['count_sms_services_new']) ?: 0;
                 $final_array['Итого']['sum_sms_services'] += ($array['sum_sms_services']) ?: 0;
+                $final_array['Итого']['sum_sms_services_old'] += ($array['sum_sms_services_old']) ?: 0;
+                $final_array['Итого']['sum_sms_services_new'] += ($array['sum_sms_services_new']) ?: 0;
                 $final_array['Итого']['count_reject_reason'] += ($array['count_reject_reason']) ?: 0;
+                $final_array['Итого']['count_reject_reason_old'] += ($array['count_reject_reason_old']) ?: 0;
+                $final_array['Итого']['count_reject_reason_new'] += ($array['count_reject_reason_new']) ?: 0;
                 $final_array['Итого']['sum_reject_reason'] += ($array['sum_reject_reason']) ?: 0;
+                $final_array['Итого']['sum_reject_reason_old'] += ($array['sum_reject_reason_old']) ?: 0;
+                $final_array['Итого']['sum_reject_reason_new'] += ($array['sum_reject_reason_new']) ?: 0;
                 $final_array['Итого']['count_return'] += ($array['count_return']) ?: 0;
                 $final_array['Итого']['sum_return'] += ($array['sum_return']) ?: 0;
                 $final_array['Итого']['count_insurance_close'] += ($array['count_insurance_close']) ?: 0;
@@ -1729,12 +1804,17 @@ class StatisticsController extends Controller
                     $active_sheet->setCellValue('A' . $i, $date);
                     $active_sheet->setCellValue('B' . $i, $report['count_new_orders'] . 'шт /' . 
                         ($report['sum_new_orders'] + 
-                        $report['sum_insurance'] +
-                        $report['sum_sms_services'] +
-                        $report['sum_reject_reason'] +
+                        $report['sum_insurance_new'] +
+                        $report['sum_sms_services_new'] +
+                        $report['sum_reject_reason_new'] +
                         $report['sum_card_binding'])
                         . 'руб');
-                    $active_sheet->setCellValue('C' . $i, $report['count_repeat_orders'] . 'шт /' . $report['sum_repeat_orders'] . 'руб');
+                    $active_sheet->setCellValue('C' . $i, $report['count_repeat_orders'] . 'шт /' . 
+                        ($report['sum_repeat_orders'] +
+                        $report['sum_insurance_old'] +
+                        $report['sum_sms_services_old'] +
+                        $report['sum_reject_reason_old'])
+                         . 'руб');
                     $active_sheet->setCellValue('D' . $i, $report['count_closed_contracts']);
                     $active_sheet->setCellValue('E' . $i, $report['count_prolongations']);
                     $active_sheet->setCellValue('F' . $i, $report['loan_body_summ']);
