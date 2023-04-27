@@ -336,6 +336,7 @@ class ApiLead extends Core
             'date' => date('Y-m-d H:i:s'),
             'accept_sms' => $rand_code,
             'client_status' => 'nk',
+            'webmaster_id' => $tokens->ID
         );
 
         $order_id = $this->orders->add_order($order);
@@ -344,7 +345,6 @@ class ApiLead extends Core
         $this->users->update_user($this->user_id, array(
             'UID' => $uid,
         ));
-
 
         // добавляем задание для проведения активных скорингов
         $scoring_types = $this->scorings->get_types();
@@ -364,9 +364,7 @@ class ApiLead extends Core
         }
 
 
-        $res = [
-            'status' => true,
-        ];
+        $res = ['status' => true];
         $this->response($res, 200);
 
         exit;
@@ -374,22 +372,11 @@ class ApiLead extends Core
 
     private function response($res, $http_response_code)
     {
-        http_response_code(200);
+        http_response_code($http_response_code);
         echo json_encode($res, JSON_UNESCAPED_UNICODE);
-        $this->logging($res);
+        $this->helpers->logging(__METHOD__, 'API', $this->json, $res, 'API.txt', $this->log_dir);
     }
-
-
-    public function logging($res)
-    {
-        
-        $str = PHP_EOL.'==================================================================='.PHP_EOL;
-        $str .= date('d.m.Y H:i:s').PHP_EOL;
-        $str .= json_encode($res, JSON_UNESCAPED_UNICODE).PHP_EOL;
-        $str .= $this->json;
-
-        file_put_contents($this->log_dir.'API.txt', $str, FILE_APPEND);
-    }
+    
 }
 
 new ApiLead();
