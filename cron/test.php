@@ -17,26 +17,28 @@ class test extends Core
     {
         parent::__construct();
 
-        $items =
-            [
-                34194
-            ];
-
-        foreach ($items as $item)
-            Onec::sendRequest(['method' => 'send_loan', 'params' => $item]);
-
         /*
 
-        $startDate = date('Y-m-d 00:00:00', strtotime('2023-03-29'));
+       $items =
+           [
+               34194
+           ];
 
-        $items = ContractsORM::where('inssuance_date', '>=', $startDate)->get();
+       foreach ($items as $item)
+           Onec::sendRequest(['method' => 'send_loan', 'params' => $item]);
 
-        foreach ($items as $item)
-            Onec::sendRequest(['method' => 'send_loan', 'params' => $item->order_id]);
+       /*
 
-        */
+       $startDate = date('Y-m-d 00:00:00', strtotime('2023-03-29'));
 
-        /*
+       $items = ContractsORM::where('inssuance_date', '>=', $startDate)->get();
+
+       foreach ($items as $item)
+           Onec::sendRequest(['method' => 'send_loan', 'params' => $item->order_id]);
+
+       */
+
+
 
         $operations = OperationsORM::where('type', 'PAY')->get();
 
@@ -44,13 +46,16 @@ class test extends Core
 
             $transaction = TransactionsORM::find($operation->transaction_id);
 
-            if(empty($operation->order_id))
+            if(empty($operation->contract_id))
+                continue;
+
+            if(empty($operation->transaction_id))
                 continue;
 
             $payment = new stdClass();
             $payment->id = $operation->id;
             $payment->date = date('Y-m-d H:i:s', strtotime($operation->created));
-            $payment->order_id = $operation->order_id;
+            $payment->order_id = $operation->contract_id;
             $payment->prolongation = $transaction->prolongation;
             $payment->closed = ($transaction->prolongation == 1) ? 0 : 1;
             $payment->prolongationTerm = ($transaction->prolongation == 1) ? 30 : 0;
@@ -60,8 +65,6 @@ class test extends Core
 
             Onec::sendRequest(['method' => 'sendPayments', 'params' => $payment]);
         }
-
-        */
 
     }
 

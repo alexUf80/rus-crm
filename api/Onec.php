@@ -15,7 +15,7 @@ class Onec implements ApiInterface
         return self::{$params['method']}($params['params']);
     }
 
-    private static function send_loan($order_id)
+    public static function send_loan($order_id)
     {
         self::$orderId = $order_id;
 
@@ -98,12 +98,23 @@ class Onec implements ApiInterface
         $request = new StdClass();
         $request->TextJSON = json_encode($item);
 
-        $result = self::send_request('CRM_WebService', 'Loans', $request);
-
+        $response = self::send_request('CRM_WebService', 'Loans', $request);
+        $result = json_decode($response);
+echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($result);echo '</pre><hr />';
         if (isset($result->return) && $result->return == 'OK')
+        {
+            $update = [
+                'sent_status' => 2,
+                'sent_date' => date('Y-m-d H:i:s')
+            ];
+            ContractsORM::where('id', $contract->id)->update($update);
+
             return 1;
+        }
         else
+        {
             return 2;
+        }
     }
 
     private static function send_request($service, $method, $request)
