@@ -1393,13 +1393,14 @@ class StatisticsController extends Controller
                 // else
                 //     $sum_insurance = 0;
 
+                $operations = $this->operations->get_operations(['type' => 'P2P', 'order_id' => $contract->id]);
                 if ($contract->client_status == 'nk' || $contract->client_status == 'rep') {
                     $new_rep_orders[$date]['count_new_orders'] += 1;
-                    $new_rep_orders[$date]['sum_new_orders'] += $contract->amount;
+                    $new_rep_orders[$date]['sum_new_orders'] += $operations[0]->amount;
                 }
                 if ($contract->client_status == 'pk' || $contract->client_status == 'crm') {
                     $new_rep_orders[$date]['count_repeat_orders'] += 1;
-                    $new_rep_orders[$date]['sum_repeat_orders'] += $contract->amount;
+                    $new_rep_orders[$date]['sum_repeat_orders'] += $operations[0]->amount;
                 }
             }
 
