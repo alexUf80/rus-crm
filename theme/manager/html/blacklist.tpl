@@ -137,7 +137,7 @@
                                         <div class="input-group">
                                             <div class="custom-file">
                                                 <input type="hidden" name="run" value="1" />
-                                                <input type="file" name="import_file" class="custom-file-input js-image-input" id="" />
+                                                <input type="file" name="import_file" class="custom-file-input js-image-input" id="" accept=".xls,.xlsx"/>
                                                 <label style="white-space: nowrap;overflow: hidden;" class="custom-file-label" for="">Выбрать</label>
                                             </div>
                                         </div>
