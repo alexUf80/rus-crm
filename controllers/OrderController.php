@@ -854,9 +854,9 @@ class OrderController extends Controller
 
         // отправялем смс
         $user = $this->users->get_user($order->user_id);
-        if(($this->user->lead_partner_id != 0) && ($this->user->partners_processed == 0)){
+        if(($user->lead_partner_id != 0) && ($user->partners_processed == 0)){
             $msg = 'Вам одобрен займ у партнера, получите деньги за 3 минуты в личном кабинете  https://rus-zaym.ru/lk';
-            $this->users->update_user($this->user->id, array('partners_processed' => 1));
+            // $this->users->update_user($user->id, array('partners_processed' => 1));
         }
         else{
             $msg = 'Активируй займ ' . ($order->amount * 1) . ' в личном кабинете, код ' . $accept_code . ' https://rus-zaym.ru/lk';
@@ -1088,8 +1088,8 @@ class OrderController extends Controller
 
         $transaction = $this->db->result();
 
-        if(($this->user->lead_partner_id != 0) && ($this->user->partners_processed == 0)){
-            $this->users->update_user($this->user->id, array('partners_processed' => 1));
+        if(($user->lead_partner_id != 0) && ($user->partners_processed == 0)){
+            $this->users->update_user($user->id, array('partners_processed' => 1));
         }
 
         $this->Best2pay->completeCardEnroll($transaction);
