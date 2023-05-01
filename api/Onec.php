@@ -43,7 +43,11 @@ class Onec implements ApiInterface
         $item = new StdClass();
 
         if ($contract->service_insurance == 1)
-            $contract->amount += $contract->amount * 0.1;
+        {
+            $insurance = OperationsORM::where(['contract_id' => $contract->id, 'type' => 'INSURANCE'])->get()->first();
+            if (!empty($insurance->amount))
+                $contract->amount += $insurance->amount;
+        }
 
         if ($contract->service_sms == 1)
             $contract->amount += 149;
@@ -100,7 +104,7 @@ class Onec implements ApiInterface
 
         $response = self::send_request('CRM_WebService', 'Loans', $request);
         $result = json_decode($response);
-echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($result);echo '</pre><hr />';
+echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($result, $item);echo '</pre><hr />';
         if (isset($result->return) && $result->return == 'OK')
         {
             $update = [

@@ -53,10 +53,10 @@ class payments extends Core
 
                 $item = new StdClass();
                 $item->Date = date('Ymd000000', strtotime($payment->created));
-                $item->Contract_number = $contract->number;
-                $item->Od = $transaction->loan_body_summ;
-                $item->Percent = $transaction->loan_percents_summ;
-                $item->Peni = $transaction->loan_peni_summ;
+                $item->Contract_number = (string)$contract->number;
+                $item->Od = (float)$transaction->loan_body_summ;
+                $item->Percent = (float)$transaction->loan_percents_summ;
+                $item->Peni = (float)$transaction->loan_peni_summ;
 
                 $this->response['items'][] = $item;
             }
