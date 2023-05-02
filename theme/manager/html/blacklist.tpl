@@ -2,6 +2,21 @@
 
 {capture name='page_scripts'}
 <script>
+
+    $(document).on('submit', '.form-horizontal', function (e) {
+        if($('.custom-file-input').val() == ''){
+            e.preventDefault();
+            $('.check_file').css('display', 'inline');
+
+            $('.info').removeClass('alert-info').addClass('alert-danger');
+        }
+        else{
+            $('.info').removeClass('alert-info').removeClass('alert-danger').addClass('alert-success');
+            $('.info span').html('Идет загрузка<br/>').css('background-color', 'green');
+            $('.check_file').css('display', 'inline');
+        }
+    });
+
     function ImportApp()
     {
         var app = this;
@@ -158,7 +173,8 @@
                             
                             <div class="row">
                                 <div class="col-12">
-                                    <div class="alert alert-info">
+                                    <div class="alert alert-info info">
+                                    <span class="check_file" style="background-color:red; color: white; display: none">Выберите файл для загрузки<br /></span>
                                     Для загрузки используйте формат xlsx
                                     <br />
                                     <a href="/files/import/blacklist_example.xlsx">скачать пример файла</a>
