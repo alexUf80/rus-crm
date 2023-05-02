@@ -1099,8 +1099,8 @@ class OrderController extends Controller
         $this->Best2pay->completeCardEnroll($transaction);
 
         // отправялем смс
-        // $msg = $user->firstname . ', получите займ у наших партнеров: https://lnkrdrct.com/go/sdu173m9e8';
-        // $this->sms->send($order->phone_mobile, $msg);
+        $msg = $user->firstname . ', получите займ у наших партнеров: srazu-dengi.ru';
+        $this->sms->send($order->phone_mobile, $msg);
         
 
         return array('success' => 1, 'status' => $status);
