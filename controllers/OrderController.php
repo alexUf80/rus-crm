@@ -848,6 +848,10 @@ class OrderController extends Controller
             'accept_code' => $accept_code,
         );
 
+        if($user->lead_partner_id == 0){
+            $new_contract['card_id'] = $order->card_id;
+        }
+
         $contract_id = $this->contracts->add_contract($new_contract);
 
         $this->orders->update_order($order_id, array('accept_sms' => $accept_code, 'contract_id' => $contract_id));
