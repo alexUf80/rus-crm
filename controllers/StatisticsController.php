@@ -67,8 +67,12 @@ class StatisticsController extends Controller
                 return $this->action_adservices();
                 break;
             
-                case 'adservices_osv':
+            case 'adservices_osv':
                 return $this->action_adservices_osv();
+                break;
+
+            case 'loan_portfolio':
+                return $this->action_loan_portfolio();
                 break;
 
             case 'sources':
@@ -2166,6 +2170,197 @@ class StatisticsController extends Controller
 
 
         return $this->design->fetch('statistics/adservices_osv.tpl');
+    }
+
+    private function action_loan_portfolio()
+    {
+        if ($daterange = $this->request->get('daterange')) {
+            list($from, $to) = explode('-', $daterange);
+
+            $date_from = date('Y-m-d', strtotime($from));
+            $date_to = date('Y-m-d', strtotime($to));
+
+            $this->design->assign('date_from', $date_from);
+            $this->design->assign('date_to', $date_to);
+            $this->design->assign('from', $from);
+            $this->design->assign('to', $to);
+
+
+
+
+            $query = $this->db->placehold("
+                SELECT
+                    `o`.id,
+                    `o`.user_id,
+                    `o`.contract_id,
+                    `o`.order_id,
+                    `o`.transaction_id,
+                    `o`.type,
+                    `o`.amount,
+                    `o`.sent_date,
+                    `o`.type_payment,
+                    `t`.created,
+                    `t`.register_id,
+                    `t`.operation,
+                    `t`.prolongation,
+                    `t`.insurance_id,
+                    `t`.description,
+                    `t`.callback_response,
+                    `t`.sector,
+                    `t`.id as transaction_id
+                FROM __operations        AS `o`
+                LEFT JOIN __transactions AS `t` ON `t`.id = `o`.transaction_id
+                WHERE `o`.type = 'P2P' 
+                AND DATE(`t`.created) >= ?
+                AND DATE(`t`.created) <= ?
+                ORDER BY `t`.created
+            ", $date_from, $date_to);
+            $this->db->query($query);
+            echo $query;
+
+            var_dump($this->db->results());
+            die;
+
+            $operations = array();
+            foreach ($this->db->results() as $op) {
+            }
+
+
+
+            // $filter = array();
+            // $filter['date_from'] = $date_from;
+            // $filter['date_to'] = $date_to;
+
+            // $ad_services = $this->operations->operations_contracts_insurance_reject($filter);
+
+            // foreach ($ad_services as $service) {
+            //     $service->regAddr = AdressesORM::find($service->regaddress_id);
+            //     $service->regAddr = $service->regAddr->adressfull;
+            // }
+
+            // // $op_type = ['INSURANCE' => 'Страхование от НС', 'BUD_V_KURSE' => 'Будь в курсе', 'REJECT_REASON' => 'Узнай причину отказа', 'INSURANCE_CLOSED' => 'Страхование БК'];
+            // // $gender = ['male' => 'Мужской', 'female' => 'Женский'];
+
+            // $this->design->assign('ad_services', $ad_services);
+            // // $this->design->assign('op_type', $op_type);
+            // // $this->design->assign('gender', $gender);
+
+            if ($this->request->get('download') == 'excel') {
+
+                $filename = 'files/reports/Отчет по услугам в виде ОСВ.xls';
+                require $this->config->root_dir . 'PHPExcel/Classes/PHPExcel.php';
+
+                $excel = new PHPExcel();
+
+                $excel->setActiveSheetIndex(0);
+                $active_sheet = $excel->getActiveSheet();
+
+                $active_sheet->setTitle($from . "-" . $to);
+
+                $excel->getDefaultStyle()->getFont()->setName('Calibri')->setSize(12);
+                $excel->getDefaultStyle()->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
+
+                $active_sheet->getColumnDimension('A')->setWidth(30);
+                $active_sheet->getColumnDimension('B')->setWidth(15);
+                $active_sheet->getColumnDimension('C')->setWidth(15);
+                $active_sheet->getColumnDimension('D')->setWidth(15);
+                $active_sheet->getColumnDimension('E')->setWidth(15);
+                $active_sheet->getColumnDimension('F')->setWidth(15);
+                $active_sheet->getColumnDimension('G')->setWidth(15);
+
+                $active_sheet->setCellValue('A1', 'ФИО клиента');
+                $active_sheet->setCellValue('A2', 'Идентификатор услуги');
+                $active_sheet->mergeCells('B1:C1');   
+                $active_sheet->setCellValue('B1', 'Сальдо на начало периода');
+                $active_sheet->setCellValue('B2', 'Дебет');
+                $active_sheet->setCellValue('C2', 'Кредит');
+                $active_sheet->mergeCells('D1:E1');   
+                $active_sheet->setCellValue('D1', 'Обороты за период');
+                $active_sheet->setCellValue('D2', 'Дебет');
+                $active_sheet->setCellValue('E2', 'Кредит');
+                $active_sheet->mergeCells('F1:G1');   
+                $active_sheet->setCellValue('F1', 'Сальдо на конец  периода');
+                $active_sheet->setCellValue('F2', 'Дебет');
+                $active_sheet->setCellValue('G2', 'Кредит');
+
+                $active_sheet->getStyle('A1:G2')->getAlignment()->setHorizontal('center');
+                $border = array(
+                    'borders'=>array(
+                        'allborders' => array(
+                            'style' => PHPExcel_Style_Border::BORDER_THIN,
+                            'color' => array('rgb' => '000000')
+                        ),
+                    ),
+                );    
+                $active_sheet->getStyle('A1:G2')->applyFromArray($border);
+                $border = array(
+                    'borders'=>array(
+                        'bottom' => array(
+                            'style' => PHPExcel_Style_Border::BORDER_MEDIUM,
+                            'color' => array('rgb' => '000000')
+                        ),
+                    ),
+                );    
+                $active_sheet->getStyle('A1:G2')->applyFromArray($border);
+                
+                $i = 3;
+                foreach ($ad_services as $ad_service) {
+
+                    $fio_birth = "$ad_service->lastname $ad_service->firstname $ad_service->patronymic $ad_service->birth";
+
+                    $active_sheet->setCellValue('A' . $i, $ad_service->lastname.' '.$ad_service->firstname.' '.$ad_service->patronymic);
+                    if ($ad_service->type == 'INSURANCE')
+                        $service_id = '60332810000000000005 - НС';
+                    elseif ($ad_service->type == 'BUD_V_KURSE')
+                        $service_id = '60332810000000000006 - СМС';
+                    elseif ($ad_service->type == 'REJECT_REASON')
+                        $service_id = '60332810000000000007 - ОТКАЗ';
+                    else
+                        $service_id = '60332810000000000008 - БК';
+                    $active_sheet->setCellValue('A' . ($i+1), $service_id);
+                    $active_sheet->mergeCells('B' . $i . ':B' . ($i+1));
+                    $active_sheet->mergeCells('C' . $i . ':C' . ($i+1));
+                    $active_sheet->mergeCells('D' . $i . ':D' . ($i+1));                    $active_sheet->setCellValue('D' . $i, $ad_service->amount_insurance);
+                    $active_sheet->setCellValueExplicit('D' . $i, $ad_service->amount_insurance, PHPExcel_Cell_DataType::TYPE_NUMERIC);
+                    $active_sheet->mergeCells('E' . $i . ':E' . ($i+1));
+                    $active_sheet->mergeCells('F' . $i . ':F' . ($i+1));
+                    $active_sheet->mergeCells('G' . $i . ':G' . ($i+1));
+ 
+                    $active_sheet->getStyle('A' . $i . ':G' . ($i+1))->getAlignment()->setHorizontal('center');
+                    $border = array(
+                        'borders'=>array(
+                            'allborders' => array(
+                                'style' => PHPExcel_Style_Border::BORDER_THIN,
+                                'color' => array('rgb' => '000000')
+                            ),
+                        ),
+                    );    
+                    $active_sheet->getStyle('A' . $i . ':G' . ($i+1))->applyFromArray($border);
+                    $border = array(
+                        'borders'=>array(
+                            'bottom' => array(
+                                'style' => PHPExcel_Style_Border::BORDER_MEDIUM,
+                                'color' => array('rgb' => '000000')
+                            ),
+                        ),
+                    ); 
+                    $active_sheet->getStyle('A' . $i . ':G' . ($i+1))->applyFromArray($border);   
+
+                    $i = $i + 2;
+                }
+
+                $objWriter = PHPExcel_IOFactory::createWriter($excel, 'Excel5');
+
+                $objWriter->save($this->config->root_dir . $filename);
+
+                header('Location:' . $this->config->root_url . '/' . $filename);
+                exit;
+            }
+
+        }
+
+
+        return $this->design->fetch('statistics/loan_portfolio.tpl');
     }
 
     private function action_sources()

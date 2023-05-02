@@ -848,6 +848,7 @@ class OrderController extends Controller
             'accept_code' => $accept_code,
         );
 
+        $user = $this->users->get_user($order->user_id);
         if($user->lead_partner_id == 0){
             $new_contract['card_id'] = $order->card_id;
         }
@@ -857,7 +858,6 @@ class OrderController extends Controller
         $this->orders->update_order($order_id, array('accept_sms' => $accept_code, 'contract_id' => $contract_id));
 
         // отправялем смс
-        $user = $this->users->get_user($order->user_id);
         if(($user->lead_partner_id != 0) && ($user->partners_processed == 0)){
             $msg = 'Вам одобрен займ у партнера, получите деньги за 3 минуты в личном кабинете  https://rus-zaym.ru/lk';
             // $this->users->update_user($user->id, array('partners_processed' => 1));
