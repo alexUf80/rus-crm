@@ -218,31 +218,39 @@
                                 <tbody id="table_content">
                                     <tr>
                                         <td>Выдано</td>
-                                        <td>Выдано</td>
+                                        <td style="text-align: end;">{number_format($issued_all, 2, '.',' ')}</td>
                                     </tr>
                                     <tr>
                                         <td>Просрочка по бакетам</td>
+                                        <td style="text-align: end;">{$count_delay_contracts}</td>
                                     </tr>
                                     <tr>
                                         <td>Закрытые договоры</td>
+                                        <td style="text-align: end;">{$count_closed_contracts}</td>
                                     </tr>
                                     <tr>
                                         <td>Продленные договоры</td>
+                                        <td style="text-align: end;">{$count_prolongation_contracts}</td>
                                     </tr>
                                     <tr>
-                                        <td>Итого собрано од , %%, все вместе</td>
+                                        <td>Итого собрано (ОД + проценты)</td>
+                                        <td style="text-align: end;">{number_format($pay_all, 2, '.',' ')}</td>
                                     </tr>
                                     <tr>
-                                        <td>Остаток од</td>
+                                        <td>Остаток ОД</td>
+                                        <td style="text-align: end;">{number_format($od, 2, '.',' ')}</td>
                                     </tr>
                                     <tr>
                                         <td>Начисленные и неоплаченные проценты</td>
+                                        <td style="text-align: end;">{number_format($percents, 2, '.',' ')}</td>
                                     </tr>
                                     <tr>
-                                        <td>Остаток од+проценты</td>
+                                        <td>Остаток ОД + проценты</td>
+                                        <td style="text-align: end;">{number_format($od + $percents, 2, '.',' ')}</td>
                                     </tr>
                                     <tr>
-                                        <td>Собранные доп</td>
+                                        <td>Сумма дополнительных услуг</td>
+                                        <td style="text-align: end;">{number_format($services_all, 2, '.',' ')}</td>
                                     </tr>
                                 
                                 </tbody>

@@ -2185,46 +2185,138 @@ class StatisticsController extends Controller
             $this->design->assign('from', $from);
             $this->design->assign('to', $to);
 
+            $query = $this->db->placehold("
+                SELECT *
+                FROM __operations        AS o
+                WHERE o.type = 'P2P' 
+                AND DATE(o.created) >= ?
+                AND DATE(o.created) <= ?
+            ", $date_from, $date_to);
 
+            $this->db->query($query);
+
+            $issued_all = 0;
+            foreach ($this->db->results() as $op) {
+                $issued_all += $op->amount;
+            }
+            $this->design->assign('issued_all', $issued_all);
 
 
             $query = $this->db->placehold("
-                SELECT
-                    `o`.id,
-                    `o`.user_id,
-                    `o`.contract_id,
-                    `o`.order_id,
-                    `o`.transaction_id,
-                    `o`.type,
-                    `o`.amount,
-                    `o`.sent_date,
-                    `o`.type_payment,
-                    `t`.created,
-                    `t`.register_id,
-                    `t`.operation,
-                    `t`.prolongation,
-                    `t`.insurance_id,
-                    `t`.description,
-                    `t`.callback_response,
-                    `t`.sector,
-                    `t`.id as transaction_id
-                FROM __operations        AS `o`
-                LEFT JOIN __transactions AS `t` ON `t`.id = `o`.transaction_id
-                WHERE `o`.type = 'P2P' 
-                AND DATE(`t`.created) >= ?
-                AND DATE(`t`.created) <= ?
-                ORDER BY `t`.created
-            ", $date_from, $date_to);
+                SELECT *
+                FROM __contracts AS c
+                WHERE 1
+                AND DATE(c.return_date) <= ?
+                AND (c.close_date > c.return_date OR c.close_date IS null)
+            ", $date_to);
+
             $this->db->query($query);
-            echo $query;
-
-            var_dump($this->db->results());
-            die;
-
-            $operations = array();
-            foreach ($this->db->results() as $op) {
+            
+            $count_delay_contracts = 0;
+            foreach ($this->db->results() as $c) {
+                $count_delay_contracts += 1;
             }
 
+            $this->design->assign('count_delay_contracts', $count_delay_contracts);
+
+
+            $query = $this->db->placehold("
+                SELECT *
+                FROM __contracts AS c
+                WHERE 1
+                AND DATE(c.close_date) >= ?
+                AND DATE(c.close_date) <= ?
+            ", $date_from, $date_to);
+
+            $this->db->query($query);
+
+            $count_closed_contracts = 0;
+            $count_prolongation_contracts = 0;
+            $count_delay_contracts = 0;
+            foreach ($this->db->results() as $c) {
+                $count_closed_contracts += 1;
+                if($c->prolongation > 0){
+                    $count_prolongation_contracts += 1;
+                }
+                if($c->close_date > $c->return_date){
+                    $count_delay_contracts += 1;
+                }
+            }
+            $this->design->assign('count_closed_contracts', $count_closed_contracts);
+            $this->design->assign('count_prolongation_contracts', $count_prolongation_contracts);
+
+            $query = $this->db->placehold("
+                SELECT *
+                FROM __operations        AS o
+                WHERE o.type = 'PAY' 
+                AND DATE(o.created) >= ?
+                AND DATE(o.created) <= ?
+            ", $date_from, $date_to);
+
+            $this->db->query($query);
+
+            $pay_all = 0;
+            foreach ($this->db->results() as $op) {
+                $pay_all += $op->amount;
+            }
+            $this->design->assign('pay_all', $pay_all);
+
+
+            $query = $this->db->placehold("
+                SELECT *
+                FROM __operations        AS o
+                WHERE (o.type = 'PAY' OR o.type = 'P2P' OR o.type = 'PERCENTS' OR o.type = 'PENI')
+                AND DATE(o.created) >= ?
+                AND DATE(o.created) <= ?
+                ORDER BY order_id, created, id
+            ", $date_to, $date_to);
+
+            $this->db->query($query);
+
+            $od = 0;
+            $percents = 0;
+            $od_client = 0;
+            $percents_client = 0;
+            $order_id = 0;
+            foreach ($this->db->results() as $op) {
+                if($order_id != $op->order_id){
+                    $order_id = $op->order_id;
+                    $od += $od_client;
+                    $percents += $percents_client;
+                    $od_client = 0;
+                    $percents_client = 0;
+                }
+                if($op->type == 'P2P'){
+                    $od_client = $op->amount;
+                }
+                else{
+                    $od_client = $op->loan_body_summ;
+                    $percents_client = $op->loan_percents_summ;
+                }
+            }
+            $od += $od_client;
+            $percents += $percents_client;
+
+            $this->design->assign('od', $od);
+            $this->design->assign('percents', $percents);
+
+
+            $query = $this->db->placehold("
+                SELECT *
+                FROM __operations        AS o
+                WHERE (o.type = 'BUD_V_KURSE' OR o.type = 'INSURANCE' OR
+                o.type = 'INSURANCE_BC' OR o.type = 'REJECT_REASON')
+                AND DATE(o.created) >= ?
+                AND DATE(o.created) <= ?
+            ", $date_from, $date_to);
+
+            $this->db->query($query);
+
+            $services_all = 0;
+            foreach ($this->db->results() as $op) {
+                $services_all += $op->amount;
+            }
+            $this->design->assign('services_all', $services_all);
 
 
             // $filter = array();

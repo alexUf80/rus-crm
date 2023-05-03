@@ -180,7 +180,6 @@
                 </div>
             </div>
 
-            {*}
             <div class="col-md-6 col-lg-3 col-xlg-3">
                 <div class="card card-info card-danger">
                     <a href="statistics/loan_portfolio" class="box text-center">
@@ -189,7 +188,6 @@
                     </a>
                 </div>
             </div>
-            {*}
 
         </div>
 
