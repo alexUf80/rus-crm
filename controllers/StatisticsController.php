@@ -2172,6 +2172,54 @@ class StatisticsController extends Controller
         return $this->design->fetch('statistics/adservices_osv.tpl');
     }
 
+
+    private function action_loan_portfolio_orders($contract_id , $date_to)
+    {
+        
+        $query = $this->db->placehold("
+            SELECT *
+            FROM __operations        AS o
+            WHERE o.contract_id = ?
+            AND (o.type = 'PAY' OR o.type = 'P2P' OR o.type = 'PERCENTS' OR o.type = 'PENI')
+            AND DATE(o.created) >= ?
+            AND DATE(o.created) <= ?
+            ORDER BY order_id, created, id
+        ", $contract_id , $date_to, $date_to);
+
+        $this->db->query($query);
+
+        $od = 0;
+        $percents = 0;
+        $peni = 0;
+        $od_client = 0;
+        $percents_client = 0;
+        $peni_client = 0;
+        $order_id = 0;
+        foreach ($this->db->results() as $op) {
+            if($order_id != $op->order_id){
+                $order_id = $op->order_id;
+                $od += $od_client;
+                $percents += $percents_client;
+                $peni += $peni_client;
+                $od_client = 0;
+                $percents_client = 0;
+                $peni_client = 0;
+            }
+            if($op->type == 'P2P'){
+                $od_client = $op->amount;
+            }
+            else{
+                $od_client = $op->loan_body_summ;
+                $percents_client = $op->loan_percents_summ;
+                $peni_client = $op->loan_peni_summ;
+            }
+        }
+        $od += $od_client;
+        $percents += $percents_client;
+        $peni += $peni_client;
+        return [$od, $percents, $peni];
+
+    }
     private function action_loan_portfolio()
     {
         if ($daterange = $this->request->get('daterange')) {
@@ -2184,6 +2232,9 @@ class StatisticsController extends Controller
             $this->design->assign('date_to', $date_to);
             $this->design->assign('from', $from);
             $this->design->assign('to', $to);
+            
+            $date = date('Y-m-d', strtotime($this->request->get('date')));
+            $this->design->assign('date', $date);
 
             $query = $this->db->placehold("
                 SELECT *
@@ -2217,13 +2268,28 @@ class StatisticsController extends Controller
             
             $count_delay_contracts = 0;
             $delay_contracts_all = 0;
-            foreach ($this->db->results() as $c) {
+
+            $delay_contracts_od = 0;
+            $delay_contracts_percents = 0;
+            $delay_contracts_peni = 0;
+            $contracts = $this->db->results();
+            foreach ($contracts as $c) {
                 $delay_contracts_all += $c->amount;
                 $count_delay_contracts += 1;
+
+                $ret = $this->action_loan_portfolio_orders($c->id, $date);
+                $delay_contracts_od += $ret[0];
+                $delay_contracts_percents += $ret[1];
+                $delay_contracts_peni += $ret[2];
+
+
             }
 
             $this->design->assign('delay_contracts_all', $delay_contracts_all);
             $this->design->assign('count_delay_contracts', $count_delay_contracts);
+            $this->design->assign('delay_contracts_od', $delay_contracts_od);
+            $this->design->assign('delay_contracts_percents', $delay_contracts_percents);
+            $this->design->assign('delay_contracts_peni', $delay_contracts_peni);
 
 
             $query = $this->db->placehold("
@@ -2239,12 +2305,23 @@ class StatisticsController extends Controller
             $count_closed_contracts = 0;
             $closed_contracts_all = 0;
 
+            $closed_contracts_od = 0;
+            $closed_contracts_percents = 0;
+            $closed_contracts_peni = 0;
             foreach ($this->db->results() as $c) {
                 $count_closed_contracts += 1;
                 $closed_contracts_all += $c->amount;
+
+                $ret = $this->action_loan_portfolio_orders($c->id, $date);
+                $closed_contracts_od += $ret[0];
+                $closed_contracts_percents += $ret[1];
+                $closed_contracts_peni += $ret[2];
             }
             $this->design->assign('count_closed_contracts', $count_closed_contracts);
             $this->design->assign('closed_contracts_all', $closed_contracts_all);
+            $this->design->assign('closed_contracts_od', $closed_contracts_od);
+            $this->design->assign('closed_contracts_percents', $closed_contracts_percents);
+            $this->design->assign('closed_contracts_peni', $closed_contracts_peni);
 
             $query = $this->db->placehold("
             SELECT *
@@ -2260,12 +2337,24 @@ class StatisticsController extends Controller
             
             $count_prolongation_contracts = 0;
             $prolongation_contracts_all = 0;
+
+            $prolongation_contracts_od = 0;
+            $prolongation_contracts_percents = 0;
+            $prolongation_contracts_peni = 0;
             foreach ($this->db->results() as $c) {
                 $count_prolongation_contracts += 1;
                 $prolongation_contracts_all += $c->amount;
+
+                $ret = $this->action_loan_portfolio_orders($c->id, $date);
+                $prolongation_contracts_od += $ret[0];
+                $prolongation_contracts_percents += $ret[1];
+                $prolongation_contracts_peni += $ret[2];
             }
             $this->design->assign('count_prolongation_contracts', $count_prolongation_contracts);
             $this->design->assign('prolongation_contracts_all', $prolongation_contracts_all);
+            $this->design->assign('prolongation_contracts_od', $prolongation_contracts_od);
+            $this->design->assign('prolongation_contracts_percents', $prolongation_contracts_percents);
+            $this->design->assign('prolongation_contracts_peni', $prolongation_contracts_peni);
 
             $query = $this->db->placehold("
                 SELECT *
@@ -2359,33 +2448,47 @@ class StatisticsController extends Controller
                 $active_sheet->getColumnDimension('A')->setWidth(30);
                 $active_sheet->getColumnDimension('B')->setWidth(15);
                 $active_sheet->getColumnDimension('C')->setWidth(15);
-                
 
                 $active_sheet->setCellValue('A1', 'Наименование');
-                $active_sheet->setCellValue('B1', 'Сумма');
-                $active_sheet->setCellValue('C1', 'Количество');
+                $active_sheet->setCellValue('B1', 'Количество ШТ');
+                $active_sheet->setCellValue('C1', 'Всего');
+                $active_sheet->setCellValue('D1', 'ОД');
+                $active_sheet->setCellValue('E1', 'Проценты');
+                $active_sheet->setCellValue('F1', 'Пени');
                 $active_sheet->setCellValue('A2', 'Выдано');
-                $active_sheet->setCellValue('B2' , $issued_all);
-                $active_sheet->setCellValue('C2' , $issued_count);
+                $active_sheet->setCellValue('B2' , $issued_count);
+                $active_sheet->setCellValue('C2' , $issued_all);
+                $active_sheet->setCellValue('D2' , 0);
+                $active_sheet->setCellValue('E2' , 0);
+                $active_sheet->setCellValue('F2' , 0);
                 $active_sheet->setCellValue('A3', 'Просрочка по бакетам');
-                $active_sheet->setCellValue('B3' , $delay_contracts_all);
-                $active_sheet->setCellValue('C3' , $count_delay_contracts);
+                $active_sheet->setCellValue('B3' , $count_delay_contracts);
+                $active_sheet->setCellValue('C3' , $delay_contracts_od+$delay_contracts_percents+$delay_contracts_peni);
+                $active_sheet->setCellValue('D3' , $delay_contracts_od);
+                $active_sheet->setCellValue('E3' , $delay_contracts_percents);
+                $active_sheet->setCellValue('F3' , $delay_contracts_peni);
                 $active_sheet->setCellValue('A4', 'Закрытые договоры');
-                $active_sheet->setCellValue('B4' , $closed_contracts_all);
-                $active_sheet->setCellValue('C4' , $count_closed_contracts);
+                $active_sheet->setCellValue('B4' , $count_closed_contracts);
+                $active_sheet->setCellValue('C4' , $closed_contracts_od+$closed_contracts_percents+$closed_contracts_peni);
+                $active_sheet->setCellValue('D4' , $closed_contracts_od);
+                $active_sheet->setCellValue('E4' , $closed_contracts_percents);
+                $active_sheet->setCellValue('F4' , $closed_contracts_peni);
                 $active_sheet->setCellValue('A5', 'Продленные договоры');
-                $active_sheet->setCellValue('B5' , $prolongation_contracts_all);
-                $active_sheet->setCellValue('C5' , $count_prolongation_contracts);
+                $active_sheet->setCellValue('B5' , $count_prolongation_contracts);
+                $active_sheet->setCellValue('C5' , $prolongation_contracts_od+$prolongation_contracts_percents+$prolongation_contracts_peni);
+                $active_sheet->setCellValue('D5' , $prolongation_contracts_od);
+                $active_sheet->setCellValue('E5' , $prolongation_contracts_percents);
+                $active_sheet->setCellValue('F5' , $prolongation_contracts_peni);
                 $active_sheet->setCellValue('A6', 'Итого собрано (ОД + проценты)');
-                $active_sheet->setCellValue('B6' , $pay_all);
+                $active_sheet->setCellValue('C6' , $pay_all);
                 $active_sheet->setCellValue('A7', 'Остаток ОД');
-                $active_sheet->setCellValue('B7' , $od);
+                $active_sheet->setCellValue('C7' , $od);
                 $active_sheet->setCellValue('A8', 'Начисленные и неоплаченные проценты');
-                $active_sheet->setCellValue('B8' , $percents);
+                $active_sheet->setCellValue('C8' , $percents);
                 $active_sheet->setCellValue('A9', 'Остаток ОД + проценты');
-                $active_sheet->setCellValue('B9' , $od + $percents);
+                $active_sheet->setCellValue('C9' , $od + $percents);
                 $active_sheet->setCellValue('A10', 'Остаток ОД + проценты');
-                $active_sheet->setCellValue('B10' , $services_all);
+                $active_sheet->setCellValue('C10' , $services_all);
 
  
 
