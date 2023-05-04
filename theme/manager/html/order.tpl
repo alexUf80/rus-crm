@@ -538,14 +538,22 @@
                                                 <span class="label label-warning"
                                                       title="Клиент уже подавал ранее заявки">Повтор</span>
                                             {elseif $order->client_status == 'nk'}
-                                                <span class="label label-info" title="Новый клиент">Новая</span>
+                                                {if $order->lead_partner_id == 0}
+                                                    <span class="label label-info" title="Новый клиент">Новая</span>
+                                                {else}
+                                                    <span class="label label-success" title="API">API</span>
+                                                {/if}
                                             {/if}
                                         {else}
                                             {if $order->have_crm_closed}
                                                 <span class="label label-primary"
                                                       title="Клиент уже имеет погашенные займы в CRM">ПК CRM</span>
                                             {elseif $order->first_loan}
-                                                <span class="label label-info" title="Новый клиент">Новая</span>
+                                                {if $order->lead_partner_id == 0}
+                                                    <span class="label label-info" title="Новый клиент">Новая</span>
+                                                {else}
+                                                    <span class="label label-success" title="API">API</span>
+                                                {/if}
                                             {else}
                                                 <span class="label label-warning"
                                                       title="Клиент уже подавал ранее заявки">Повтор</span>

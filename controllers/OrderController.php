@@ -958,8 +958,8 @@ class OrderController extends Controller
         $reason_id = $this->request->post('reason', 'integer');
         $status = $this->request->post('status', 'integer');
 
-        // $order = $this->orders->get_order($order_id);
-        // $user = $this->users->get_user($order->user_id);
+        $order = $this->orders->get_order($order_id);
+        $user = $this->users->get_user($order->user_id);
         
         if (!($order = $this->orders->get_order((int)$order_id)))
             return array('error' => 'Неизвестный ордер');
@@ -1099,8 +1099,10 @@ class OrderController extends Controller
         $this->Best2pay->completeCardEnroll($transaction);
 
         // отправялем смс
-        $msg = $user->firstname . ', получите займ у наших партнеров: srazu-dengi.ru';
-        $this->sms->send($order->phone_mobile, $msg);
+        if($order->lead_partner_id == 0){
+            $msg = $user->firstname . 'Получите займ у наших партнеров: srazu-dengi.ru';
+            $this->sms->send($order->phone_mobile, $msg);
+        }
         
 
         return array('success' => 1, 'status' => $status);
