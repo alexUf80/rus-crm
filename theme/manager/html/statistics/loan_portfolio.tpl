@@ -237,9 +237,9 @@
                                         <td>Выдано</td>
                                         <td class="right">{$issued_count}</td>
                                         <td class="right">{number_format($issued_all, 2, '.',' ')}</td>
-                                        <td class="right">0.00</td>
-                                        <td class="right">0.00</td>
-                                        <td class="right">0.00</td>
+                                        <td class="right">{number_format($issued_contracts_od, 2, '.',' ')}</td>
+                                        <td class="right">{number_format($issued_contracts_percents, 2, '.',' ')}</td>
+                                        <td class="right">{number_format($issued_contracts_peni, 2, '.',' ')}</td>
                                     </tr>
                                     <tr>
                                         <td>Просрочка по бакетам</td>

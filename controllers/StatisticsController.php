@@ -2236,21 +2236,50 @@ class StatisticsController extends Controller
             $date = date('Y-m-d', strtotime($this->request->get('date')));
             $this->design->assign('date', $date);
 
+            // $query = $this->db->placehold("
+            //     SELECT *
+            //     FROM __operations        AS o
+            //     WHERE o.type = 'P2P' 
+            //     AND DATE(o.created) >= ?
+            //     AND DATE(o.created) <= ?
+            // ", $date_from, $date_to);
+
+            // $this->db->query($query);
+
+            // $issued_all = 0;
+            // $issued_count = 0;
+            // foreach ($this->db->results() as $op) {
+            //     $issued_all += $op->amount;
+            //     $issued_count += 1;
+            // }
+            // $this->design->assign('issued_all', $issued_all);
+            // $this->design->assign('issued_count', $issued_count);
+
             $query = $this->db->placehold("
                 SELECT *
-                FROM __operations        AS o
-                WHERE o.type = 'P2P' 
-                AND DATE(o.created) >= ?
-                AND DATE(o.created) <= ?
+                FROM __contracts AS c
+                WHERE 1
+                AND DATE(c.accept_date) >= ?
+                AND DATE(c.accept_date) <= ?
+                AND c.status = 2
             ", $date_from, $date_to);
-
             $this->db->query($query);
 
             $issued_all = 0;
             $issued_count = 0;
-            foreach ($this->db->results() as $op) {
+
+            $issued_contracts_od = 0;
+            $issued_contracts_percents = 0;
+            $issued_contracts_peni = 0;
+            $contracts = $this->db->results();
+            foreach ($contracts as $c) {
                 $issued_all += $op->amount;
                 $issued_count += 1;
+
+                $ret = $this->action_loan_portfolio_orders($c->id, $date);
+                $issued_contracts_od += $ret[0];
+                $issued_contracts_percents += $ret[1];
+                $issued_contracts_peni += $ret[2];
             }
             $this->design->assign('issued_all', $issued_all);
             $this->design->assign('issued_count', $issued_count);
