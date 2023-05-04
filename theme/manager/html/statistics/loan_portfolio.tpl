@@ -141,6 +141,9 @@
         .table th td {
             text-align:center!important;
         }
+        .right {
+            text-align: end;
+        }
     </style>
 {/capture}
 
@@ -192,7 +195,6 @@
                                 <div class="col-12 col-md-4">
                                     <button type="submit" class="btn btn-info">Сформировать</button>
                                 </div>
-                                {*}
                                 {if $date_from || $date_to}
                                     <div class="col-12 col-md-4 text-right">
                                         <a href="{url download='excel'}" class="btn btn-success ">
@@ -200,7 +202,6 @@
                                         </a>
                                     </div>
                                 {/if}
-                                {*}
                             </div>
 
                         </form>
@@ -212,45 +213,55 @@
                                 <thead>
                                     <tr>
                                         <th>Наименование</th>
-                                        <th>Значение</th>
+                                        <th>Сумма</th>
+                                        <th>Количество</th>
                                     </tr>
                                 </thead>
                                 <tbody id="table_content">
                                     <tr>
                                         <td>Выдано</td>
-                                        <td style="text-align: end;">{number_format($issued_all, 2, '.',' ')}</td>
+                                        <td class="right">{number_format($issued_all, 2, '.',' ')}</td>
+                                        <td class="right">{$issued_count}</td>
                                     </tr>
                                     <tr>
                                         <td>Просрочка по бакетам</td>
-                                        <td style="text-align: end;">{$count_delay_contracts}</td>
+                                        <td class="right">{number_format($delay_contracts_all, 2, '.',' ')}</td>
+                                        <td class="right">{$count_delay_contracts}</td>
                                     </tr>
                                     <tr>
                                         <td>Закрытые договоры</td>
-                                        <td style="text-align: end;">{$count_closed_contracts}</td>
+                                        <td class="right">{number_format($closed_contracts_all, 2, '.',' ')}</td>
+                                        <td class="right">{$count_closed_contracts}</td>
                                     </tr>
                                     <tr>
                                         <td>Продленные договоры</td>
-                                        <td style="text-align: end;">{$count_prolongation_contracts}</td>
+                                        <td class="right">{number_format($prolongation_contracts_all, 2, '.',' ')}</td>
+                                        <td class="right">{$count_prolongation_contracts}</td>
                                     </tr>
                                     <tr>
                                         <td>Итого собрано (ОД + проценты)</td>
-                                        <td style="text-align: end;">{number_format($pay_all, 2, '.',' ')}</td>
+                                        <td class="right">{number_format($pay_all, 2, '.',' ')}</td>
+                                        <td class="right"> </td>
                                     </tr>
                                     <tr>
                                         <td>Остаток ОД</td>
-                                        <td style="text-align: end;">{number_format($od, 2, '.',' ')}</td>
+                                        <td class="right">{number_format($od, 2, '.',' ')}</td>
+                                        <td class="right"> </td>
                                     </tr>
                                     <tr>
                                         <td>Начисленные и неоплаченные проценты</td>
-                                        <td style="text-align: end;">{number_format($percents, 2, '.',' ')}</td>
+                                        <td class="right">{number_format($percents, 2, '.',' ')}</td>
+                                        <td class="right"> </td>
                                     </tr>
                                     <tr>
                                         <td>Остаток ОД + проценты</td>
-                                        <td style="text-align: end;">{number_format($od + $percents, 2, '.',' ')}</td>
+                                        <td class="right">{number_format($od + $percents, 2, '.',' ')}</td>
+                                        <td class="right"> </td>
                                     </tr>
                                     <tr>
                                         <td>Сумма дополнительных услуг</td>
-                                        <td style="text-align: end;">{number_format($services_all, 2, '.',' ')}</td>
+                                        <td class="right">{number_format($services_all, 2, '.',' ')}</td>
+                                        <td class="right"> </td>
                                     </tr>
                                 
                                 </tbody>

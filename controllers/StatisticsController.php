@@ -2196,10 +2196,13 @@ class StatisticsController extends Controller
             $this->db->query($query);
 
             $issued_all = 0;
+            $issued_count = 0;
             foreach ($this->db->results() as $op) {
                 $issued_all += $op->amount;
+                $issued_count += 1;
             }
             $this->design->assign('issued_all', $issued_all);
+            $this->design->assign('issued_count', $issued_count);
 
 
             $query = $this->db->placehold("
@@ -2213,10 +2216,13 @@ class StatisticsController extends Controller
             $this->db->query($query);
             
             $count_delay_contracts = 0;
+            $delay_contracts_all = 0;
             foreach ($this->db->results() as $c) {
+                $delay_contracts_all += $c->amount;
                 $count_delay_contracts += 1;
             }
 
+            $this->design->assign('delay_contracts_all', $delay_contracts_all);
             $this->design->assign('count_delay_contracts', $count_delay_contracts);
 
 
@@ -2231,19 +2237,35 @@ class StatisticsController extends Controller
             $this->db->query($query);
 
             $count_closed_contracts = 0;
-            $count_prolongation_contracts = 0;
-            $count_delay_contracts = 0;
+            $closed_contracts_all = 0;
+
             foreach ($this->db->results() as $c) {
                 $count_closed_contracts += 1;
-                if($c->prolongation > 0){
-                    $count_prolongation_contracts += 1;
-                }
-                if($c->close_date > $c->return_date){
-                    $count_delay_contracts += 1;
-                }
+                $closed_contracts_all += $c->amount;
             }
             $this->design->assign('count_closed_contracts', $count_closed_contracts);
+            $this->design->assign('closed_contracts_all', $closed_contracts_all);
+
+            $query = $this->db->placehold("
+            SELECT *
+                FROM __contracts AS c
+                RIGHT JOIN __prolongations AS p
+                ON c.id = p.contract_id
+                WHERE 1
+                AND DATE(p.created) >= ?
+                AND DATE(p.created) <= ?
+            ", $date_from, $date_to);
+
+            $this->db->query($query);
+            
+            $count_prolongation_contracts = 0;
+            $prolongation_contracts_all = 0;
+            foreach ($this->db->results() as $c) {
+                $count_prolongation_contracts += 1;
+                $prolongation_contracts_all += $c->amount;
+            }
             $this->design->assign('count_prolongation_contracts', $count_prolongation_contracts);
+            $this->design->assign('prolongation_contracts_all', $prolongation_contracts_all);
 
             $query = $this->db->placehold("
                 SELECT *
@@ -2319,27 +2341,9 @@ class StatisticsController extends Controller
             $this->design->assign('services_all', $services_all);
 
 
-            // $filter = array();
-            // $filter['date_from'] = $date_from;
-            // $filter['date_to'] = $date_to;
-
-            // $ad_services = $this->operations->operations_contracts_insurance_reject($filter);
-
-            // foreach ($ad_services as $service) {
-            //     $service->regAddr = AdressesORM::find($service->regaddress_id);
-            //     $service->regAddr = $service->regAddr->adressfull;
-            // }
-
-            // // $op_type = ['INSURANCE' => 'Страхование от НС', 'BUD_V_KURSE' => 'Будь в курсе', 'REJECT_REASON' => 'Узнай причину отказа', 'INSURANCE_CLOSED' => 'Страхование БК'];
-            // // $gender = ['male' => 'Мужской', 'female' => 'Женский'];
-
-            // $this->design->assign('ad_services', $ad_services);
-            // // $this->design->assign('op_type', $op_type);
-            // // $this->design->assign('gender', $gender);
-
             if ($this->request->get('download') == 'excel') {
 
-                $filename = 'files/reports/Отчет по услугам в виде ОСВ.xls';
+                $filename = 'files/reports/Отчет Портфель.xls';
                 require $this->config->root_dir . 'PHPExcel/Classes/PHPExcel.php';
 
                 $excel = new PHPExcel();
@@ -2355,91 +2359,35 @@ class StatisticsController extends Controller
                 $active_sheet->getColumnDimension('A')->setWidth(30);
                 $active_sheet->getColumnDimension('B')->setWidth(15);
                 $active_sheet->getColumnDimension('C')->setWidth(15);
-                $active_sheet->getColumnDimension('D')->setWidth(15);
-                $active_sheet->getColumnDimension('E')->setWidth(15);
-                $active_sheet->getColumnDimension('F')->setWidth(15);
-                $active_sheet->getColumnDimension('G')->setWidth(15);
-
-                $active_sheet->setCellValue('A1', 'ФИО клиента');
-                $active_sheet->setCellValue('A2', 'Идентификатор услуги');
-                $active_sheet->mergeCells('B1:C1');   
-                $active_sheet->setCellValue('B1', 'Сальдо на начало периода');
-                $active_sheet->setCellValue('B2', 'Дебет');
-                $active_sheet->setCellValue('C2', 'Кредит');
-                $active_sheet->mergeCells('D1:E1');   
-                $active_sheet->setCellValue('D1', 'Обороты за период');
-                $active_sheet->setCellValue('D2', 'Дебет');
-                $active_sheet->setCellValue('E2', 'Кредит');
-                $active_sheet->mergeCells('F1:G1');   
-                $active_sheet->setCellValue('F1', 'Сальдо на конец  периода');
-                $active_sheet->setCellValue('F2', 'Дебет');
-                $active_sheet->setCellValue('G2', 'Кредит');
-
-                $active_sheet->getStyle('A1:G2')->getAlignment()->setHorizontal('center');
-                $border = array(
-                    'borders'=>array(
-                        'allborders' => array(
-                            'style' => PHPExcel_Style_Border::BORDER_THIN,
-                            'color' => array('rgb' => '000000')
-                        ),
-                    ),
-                );    
-                $active_sheet->getStyle('A1:G2')->applyFromArray($border);
-                $border = array(
-                    'borders'=>array(
-                        'bottom' => array(
-                            'style' => PHPExcel_Style_Border::BORDER_MEDIUM,
-                            'color' => array('rgb' => '000000')
-                        ),
-                    ),
-                );    
-                $active_sheet->getStyle('A1:G2')->applyFromArray($border);
                 
-                $i = 3;
-                foreach ($ad_services as $ad_service) {
 
-                    $fio_birth = "$ad_service->lastname $ad_service->firstname $ad_service->patronymic $ad_service->birth";
+                $active_sheet->setCellValue('A1', 'Наименование');
+                $active_sheet->setCellValue('B1', 'Сумма');
+                $active_sheet->setCellValue('C1', 'Количество');
+                $active_sheet->setCellValue('A2', 'Выдано');
+                $active_sheet->setCellValue('B2' , $issued_all);
+                $active_sheet->setCellValue('C2' , $issued_count);
+                $active_sheet->setCellValue('A3', 'Просрочка по бакетам');
+                $active_sheet->setCellValue('B3' , $delay_contracts_all);
+                $active_sheet->setCellValue('C3' , $count_delay_contracts);
+                $active_sheet->setCellValue('A4', 'Закрытые договоры');
+                $active_sheet->setCellValue('B4' , $closed_contracts_all);
+                $active_sheet->setCellValue('C4' , $count_closed_contracts);
+                $active_sheet->setCellValue('A5', 'Продленные договоры');
+                $active_sheet->setCellValue('B5' , $prolongation_contracts_all);
+                $active_sheet->setCellValue('C5' , $count_prolongation_contracts);
+                $active_sheet->setCellValue('A6', 'Итого собрано (ОД + проценты)');
+                $active_sheet->setCellValue('B6' , $pay_all);
+                $active_sheet->setCellValue('A7', 'Остаток ОД');
+                $active_sheet->setCellValue('B7' , $od);
+                $active_sheet->setCellValue('A8', 'Начисленные и неоплаченные проценты');
+                $active_sheet->setCellValue('B8' , $percents);
+                $active_sheet->setCellValue('A9', 'Остаток ОД + проценты');
+                $active_sheet->setCellValue('B9' , $od + $percents);
+                $active_sheet->setCellValue('A10', 'Остаток ОД + проценты');
+                $active_sheet->setCellValue('B10' , $services_all);
 
-                    $active_sheet->setCellValue('A' . $i, $ad_service->lastname.' '.$ad_service->firstname.' '.$ad_service->patronymic);
-                    if ($ad_service->type == 'INSURANCE')
-                        $service_id = '60332810000000000005 - НС';
-                    elseif ($ad_service->type == 'BUD_V_KURSE')
-                        $service_id = '60332810000000000006 - СМС';
-                    elseif ($ad_service->type == 'REJECT_REASON')
-                        $service_id = '60332810000000000007 - ОТКАЗ';
-                    else
-                        $service_id = '60332810000000000008 - БК';
-                    $active_sheet->setCellValue('A' . ($i+1), $service_id);
-                    $active_sheet->mergeCells('B' . $i . ':B' . ($i+1));
-                    $active_sheet->mergeCells('C' . $i . ':C' . ($i+1));
-                    $active_sheet->mergeCells('D' . $i . ':D' . ($i+1));                    $active_sheet->setCellValue('D' . $i, $ad_service->amount_insurance);
-                    $active_sheet->setCellValueExplicit('D' . $i, $ad_service->amount_insurance, PHPExcel_Cell_DataType::TYPE_NUMERIC);
-                    $active_sheet->mergeCells('E' . $i . ':E' . ($i+1));
-                    $active_sheet->mergeCells('F' . $i . ':F' . ($i+1));
-                    $active_sheet->mergeCells('G' . $i . ':G' . ($i+1));
  
-                    $active_sheet->getStyle('A' . $i . ':G' . ($i+1))->getAlignment()->setHorizontal('center');
-                    $border = array(
-                        'borders'=>array(
-                            'allborders' => array(
-                                'style' => PHPExcel_Style_Border::BORDER_THIN,
-                                'color' => array('rgb' => '000000')
-                            ),
-                        ),
-                    );    
-                    $active_sheet->getStyle('A' . $i . ':G' . ($i+1))->applyFromArray($border);
-                    $border = array(
-                        'borders'=>array(
-                            'bottom' => array(
-                                'style' => PHPExcel_Style_Border::BORDER_MEDIUM,
-                                'color' => array('rgb' => '000000')
-                            ),
-                        ),
-                    ); 
-                    $active_sheet->getStyle('A' . $i . ':G' . ($i+1))->applyFromArray($border);   
-
-                    $i = $i + 2;
-                }
 
                 $objWriter = PHPExcel_IOFactory::createWriter($excel, 'Excel5');
 
