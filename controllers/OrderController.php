@@ -833,7 +833,7 @@ class OrderController extends Controller
         $new_contract = array(
             'order_id' => $order_id,
             'user_id' => $order->user_id,
-            // 'card_id' => $order->card_id,
+            'card_id' => $order->card_id,
             'type' => 'base',
             'amount' => $order->amount,
             'period' => $order->period,
@@ -847,24 +847,12 @@ class OrderController extends Controller
             'service_insurance' => $order->service_insurance,
             'accept_code' => $accept_code,
         );
-
-        $user = $this->users->get_user($order->user_id);
-        if($user->lead_partner_id == 0){
-            $new_contract['card_id'] = $order->card_id;
-        }
-
         $contract_id = $this->contracts->add_contract($new_contract);
 
-        $this->orders->update_order($order_id, array('accept_sms' => $accept_code, 'contract_id' => $contract_id));
+        $this->orders->update_order($order_id, array('contract_id' => $contract_id));
 
         // отправялем смс
-        if(($user->lead_partner_id != 0) && ($user->partners_processed == 0)){
-            $msg = 'Вам одобрен займ у партнера, получите деньги за 3 минуты в личном кабинете  https://rus-zaym.ru/lk';
-            // $this->users->update_user($user->id, array('partners_processed' => 1));
-        }
-        else{
-            $msg = 'Активируй займ ' . ($order->amount * 1) . ' в личном кабинете, код ' . $accept_code . ' https://rus-zaym.ru/lk';
-        }
+        $msg = 'Активируй займ ' . ($order->amount * 1) . ' в личном кабинете, код ' . $accept_code . ' https://rus-zaym.ru/lk';
         $this->sms->send($order->phone_mobile, $msg);
 
         return array('success' => 1, 'status' => 2);
@@ -958,8 +946,8 @@ class OrderController extends Controller
         $reason_id = $this->request->post('reason', 'integer');
         $status = $this->request->post('status', 'integer');
 
-        $order = $this->orders->get_order($order_id);
-        $user = $this->users->get_user($order->user_id);
+        // $order = $this->orders->get_order($order_id);
+        // $user = $this->users->get_user($order->user_id);
         
         if (!($order = $this->orders->get_order((int)$order_id)))
             return array('error' => 'Неизвестный ордер');
@@ -1006,9 +994,9 @@ class OrderController extends Controller
         $max_service_value = $this->operations->max_service_number();
         
         if ($status == 'APPROVED') {
-
+            
             $transaction = $this->transactions->get_operation_transaction((string)$resp->order_id, (string)$resp->id);
-
+            
             $this->operations->add_operation(array(
                 'contract_id' => 0,
                 'user_id' => $order->user_id,
@@ -1092,18 +1080,11 @@ class OrderController extends Controller
 
         $transaction = $this->db->result();
 
-        if(($user->lead_partner_id != 0) && ($user->partners_processed == 0)){
-            $this->users->update_user($user->id, array('partners_processed' => 1));
-        }
-
         $this->Best2pay->completeCardEnroll($transaction);
 
         // отправялем смс
-        if($order->lead_partner_id == 0){
-            $msg = $user->firstname . 'Получите займ у наших партнеров: srazu-dengi.ru';
-            $this->sms->send($order->phone_mobile, $msg);
-        }
-        
+        $msg = $user->firstname . 'Получите займ у наших партнеров: srazu-dengi.ru';
+        $this->sms->send($order->phone_mobile, $msg);        
 
         return array('success' => 1, 'status' => $status);
     }

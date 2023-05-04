@@ -215,8 +215,7 @@ class Orders extends Core
                 u.time_zone,
                 u.sms,
                 u.regaddress_id,
-                u.faktaddress_id,
-                u.lead_partner_id
+                u.faktaddress_id
             FROM __orders AS o
             LEFT JOIN __users AS u
             ON u.id = o.user_id
@@ -514,8 +513,7 @@ class Orders extends Core
                 u.social,
                 u.contact_status,
                 u.loan_history,
-                u.faktaddress_id,
-                u.lead_partner_id
+                u.faktaddress_id
             FROM __orders AS o
             LEFT JOIN __users AS u
             ON u.id = o.user_id
