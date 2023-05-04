@@ -64,9 +64,14 @@ class ContractsService extends Core
             $this->response['items'] = array();
             foreach ($contracts as $contract)
             {
+
                 if ($contract->service_insurance == 1)
-                    $contract->amount += $contract->amount * 0.1;
-                
+                {
+                    $insurance = OperationsORM::where(['contract_id' => $contract->id, 'type' => 'INSURANCE'])->get()->first();
+                    if (!empty($insurance->amount))
+                        $contract->amount += $insurance->amount;
+                    
+                }
 
                 if ($contract->service_sms == 1)
                     $contract->amount += 149;
