@@ -67,8 +67,12 @@ class StatisticsController extends Controller
                 return $this->action_adservices();
                 break;
             
-                case 'adservices_osv':
+            case 'adservices_osv':
                 return $this->action_adservices_osv();
+                break;
+
+            case 'loan_portfolio':
+                return $this->action_loan_portfolio();
                 break;
 
             case 'sources':
@@ -2166,6 +2170,340 @@ class StatisticsController extends Controller
 
 
         return $this->design->fetch('statistics/adservices_osv.tpl');
+    }
+
+
+    private function action_loan_portfolio_orders($contract_id , $date_to)
+    {
+        
+        $query = $this->db->placehold("
+            SELECT *
+            FROM __operations        AS o
+            WHERE o.contract_id = ?
+            AND (o.type = 'PAY' OR o.type = 'P2P' OR o.type = 'PERCENTS' OR o.type = 'PENI')
+            AND DATE(o.created) >= ?
+            AND DATE(o.created) <= ?
+            ORDER BY order_id, created, id
+        ", $contract_id , $date_to, $date_to);
+
+        $this->db->query($query);
+
+        $od = 0;
+        $percents = 0;
+        $peni = 0;
+        $od_client = 0;
+        $percents_client = 0;
+        $peni_client = 0;
+        $order_id = 0;
+        foreach ($this->db->results() as $op) {
+            if($order_id != $op->order_id){
+                $order_id = $op->order_id;
+                $od += $od_client;
+                $percents += $percents_client;
+                $peni += $peni_client;
+                $od_client = 0;
+                $percents_client = 0;
+                $peni_client = 0;
+            }
+            if($op->type == 'P2P'){
+                $od_client = $op->amount;
+            }
+            else{
+                $od_client = $op->loan_body_summ;
+                $percents_client = $op->loan_percents_summ;
+                $peni_client = $op->loan_peni_summ;
+            }
+        }
+        $od += $od_client;
+        $percents += $percents_client;
+        $peni += $peni_client;
+        return [$od, $percents, $peni];
+
+    }
+    private function action_loan_portfolio()
+    {
+        if ($daterange = $this->request->get('daterange')) {
+            list($from, $to) = explode('-', $daterange);
+
+            $date_from = date('Y-m-d', strtotime($from));
+            $date_to = date('Y-m-d', strtotime($to));
+
+            $this->design->assign('date_from', $date_from);
+            $this->design->assign('date_to', $date_to);
+            $this->design->assign('from', $from);
+            $this->design->assign('to', $to);
+            
+            $date = date('Y-m-d', strtotime($this->request->get('date')));
+            $this->design->assign('date', $date);
+
+            $query = $this->db->placehold("
+                SELECT *
+                FROM __operations        AS o
+                WHERE o.type = 'P2P' 
+                AND DATE(o.created) >= ?
+                AND DATE(o.created) <= ?
+            ", $date_from, $date_to);
+
+            $this->db->query($query);
+
+            $issued_all = 0;
+            $issued_count = 0;
+            foreach ($this->db->results() as $op) {
+                $issued_all += $op->amount;
+                $issued_count += 1;
+            }
+            $this->design->assign('issued_all', $issued_all);
+            $this->design->assign('issued_count', $issued_count);
+
+
+            $query = $this->db->placehold("
+                SELECT *
+                FROM __contracts AS c
+                WHERE 1
+                AND DATE(c.return_date) <= ?
+                AND (c.close_date > c.return_date OR c.close_date IS null)
+            ", $date_to);
+
+            $this->db->query($query);
+            
+            $count_delay_contracts = 0;
+            $delay_contracts_all = 0;
+
+            $delay_contracts_od = 0;
+            $delay_contracts_percents = 0;
+            $delay_contracts_peni = 0;
+            $contracts = $this->db->results();
+            foreach ($contracts as $c) {
+                $delay_contracts_all += $c->amount;
+                $count_delay_contracts += 1;
+
+                $ret = $this->action_loan_portfolio_orders($c->id, $date);
+                $delay_contracts_od += $ret[0];
+                $delay_contracts_percents += $ret[1];
+                $delay_contracts_peni += $ret[2];
+
+
+            }
+
+            $this->design->assign('delay_contracts_all', $delay_contracts_all);
+            $this->design->assign('count_delay_contracts', $count_delay_contracts);
+            $this->design->assign('delay_contracts_od', $delay_contracts_od);
+            $this->design->assign('delay_contracts_percents', $delay_contracts_percents);
+            $this->design->assign('delay_contracts_peni', $delay_contracts_peni);
+
+
+            $query = $this->db->placehold("
+                SELECT *
+                FROM __contracts AS c
+                WHERE 1
+                AND DATE(c.close_date) >= ?
+                AND DATE(c.close_date) <= ?
+            ", $date_from, $date_to);
+
+            $this->db->query($query);
+
+            $count_closed_contracts = 0;
+            $closed_contracts_all = 0;
+
+            $closed_contracts_od = 0;
+            $closed_contracts_percents = 0;
+            $closed_contracts_peni = 0;
+            foreach ($this->db->results() as $c) {
+                $count_closed_contracts += 1;
+                $closed_contracts_all += $c->amount;
+
+                $ret = $this->action_loan_portfolio_orders($c->id, $date);
+                $closed_contracts_od += $ret[0];
+                $closed_contracts_percents += $ret[1];
+                $closed_contracts_peni += $ret[2];
+            }
+            $this->design->assign('count_closed_contracts', $count_closed_contracts);
+            $this->design->assign('closed_contracts_all', $closed_contracts_all);
+            $this->design->assign('closed_contracts_od', $closed_contracts_od);
+            $this->design->assign('closed_contracts_percents', $closed_contracts_percents);
+            $this->design->assign('closed_contracts_peni', $closed_contracts_peni);
+
+            $query = $this->db->placehold("
+            SELECT *
+                FROM __contracts AS c
+                RIGHT JOIN __prolongations AS p
+                ON c.id = p.contract_id
+                WHERE 1
+                AND DATE(p.created) >= ?
+                AND DATE(p.created) <= ?
+            ", $date_from, $date_to);
+
+            $this->db->query($query);
+            
+            $count_prolongation_contracts = 0;
+            $prolongation_contracts_all = 0;
+
+            $prolongation_contracts_od = 0;
+            $prolongation_contracts_percents = 0;
+            $prolongation_contracts_peni = 0;
+            foreach ($this->db->results() as $c) {
+                $count_prolongation_contracts += 1;
+                $prolongation_contracts_all += $c->amount;
+
+                $ret = $this->action_loan_portfolio_orders($c->id, $date);
+                $prolongation_contracts_od += $ret[0];
+                $prolongation_contracts_percents += $ret[1];
+                $prolongation_contracts_peni += $ret[2];
+            }
+            $this->design->assign('count_prolongation_contracts', $count_prolongation_contracts);
+            $this->design->assign('prolongation_contracts_all', $prolongation_contracts_all);
+            $this->design->assign('prolongation_contracts_od', $prolongation_contracts_od);
+            $this->design->assign('prolongation_contracts_percents', $prolongation_contracts_percents);
+            $this->design->assign('prolongation_contracts_peni', $prolongation_contracts_peni);
+
+            $query = $this->db->placehold("
+                SELECT *
+                FROM __operations        AS o
+                WHERE o.type = 'PAY' 
+                AND DATE(o.created) >= ?
+                AND DATE(o.created) <= ?
+            ", $date_from, $date_to);
+
+            $this->db->query($query);
+
+            $pay_all = 0;
+            foreach ($this->db->results() as $op) {
+                $pay_all += $op->amount;
+            }
+            $this->design->assign('pay_all', $pay_all);
+
+
+            $query = $this->db->placehold("
+                SELECT *
+                FROM __operations        AS o
+                WHERE (o.type = 'PAY' OR o.type = 'P2P' OR o.type = 'PERCENTS' OR o.type = 'PENI')
+                AND DATE(o.created) >= ?
+                AND DATE(o.created) <= ?
+                ORDER BY order_id, created, id
+            ", $date_to, $date_to);
+
+            $this->db->query($query);
+
+            $od = 0;
+            $percents = 0;
+            $od_client = 0;
+            $percents_client = 0;
+            $order_id = 0;
+            foreach ($this->db->results() as $op) {
+                if($order_id != $op->order_id){
+                    $order_id = $op->order_id;
+                    $od += $od_client;
+                    $percents += $percents_client;
+                    $od_client = 0;
+                    $percents_client = 0;
+                }
+                if($op->type == 'P2P'){
+                    $od_client = $op->amount;
+                }
+                else{
+                    $od_client = $op->loan_body_summ;
+                    $percents_client = $op->loan_percents_summ;
+                }
+            }
+            $od += $od_client;
+            $percents += $percents_client;
+
+            $this->design->assign('od', $od);
+            $this->design->assign('percents', $percents);
+
+
+            $query = $this->db->placehold("
+                SELECT *
+                FROM __operations        AS o
+                WHERE (o.type = 'BUD_V_KURSE' OR o.type = 'INSURANCE' OR
+                o.type = 'INSURANCE_BC' OR o.type = 'REJECT_REASON')
+                AND DATE(o.created) >= ?
+                AND DATE(o.created) <= ?
+            ", $date_from, $date_to);
+
+            $this->db->query($query);
+
+            $services_all = 0;
+            foreach ($this->db->results() as $op) {
+                $services_all += $op->amount;
+            }
+            $this->design->assign('services_all', $services_all);
+
+
+            if ($this->request->get('download') == 'excel') {
+
+                $filename = 'files/reports/Отчет Портфель.xls';
+                require $this->config->root_dir . 'PHPExcel/Classes/PHPExcel.php';
+
+                $excel = new PHPExcel();
+
+                $excel->setActiveSheetIndex(0);
+                $active_sheet = $excel->getActiveSheet();
+
+                $active_sheet->setTitle($from . "-" . $to);
+
+                $excel->getDefaultStyle()->getFont()->setName('Calibri')->setSize(12);
+                $excel->getDefaultStyle()->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
+
+                $active_sheet->getColumnDimension('A')->setWidth(30);
+                $active_sheet->getColumnDimension('B')->setWidth(15);
+                $active_sheet->getColumnDimension('C')->setWidth(15);
+
+                $active_sheet->setCellValue('A1', 'Наименование');
+                $active_sheet->setCellValue('B1', 'Количество ШТ');
+                $active_sheet->setCellValue('C1', 'Всего');
+                $active_sheet->setCellValue('D1', 'ОД');
+                $active_sheet->setCellValue('E1', 'Проценты');
+                $active_sheet->setCellValue('F1', 'Пени');
+                $active_sheet->setCellValue('A2', 'Выдано');
+                $active_sheet->setCellValue('B2' , $issued_count);
+                $active_sheet->setCellValue('C2' , $issued_all);
+                $active_sheet->setCellValue('D2' , 0);
+                $active_sheet->setCellValue('E2' , 0);
+                $active_sheet->setCellValue('F2' , 0);
+                $active_sheet->setCellValue('A3', 'Просрочка по бакетам');
+                $active_sheet->setCellValue('B3' , $count_delay_contracts);
+                $active_sheet->setCellValue('C3' , $delay_contracts_od+$delay_contracts_percents+$delay_contracts_peni);
+                $active_sheet->setCellValue('D3' , $delay_contracts_od);
+                $active_sheet->setCellValue('E3' , $delay_contracts_percents);
+                $active_sheet->setCellValue('F3' , $delay_contracts_peni);
+                $active_sheet->setCellValue('A4', 'Закрытые договоры');
+                $active_sheet->setCellValue('B4' , $count_closed_contracts);
+                $active_sheet->setCellValue('C4' , $closed_contracts_od+$closed_contracts_percents+$closed_contracts_peni);
+                $active_sheet->setCellValue('D4' , $closed_contracts_od);
+                $active_sheet->setCellValue('E4' , $closed_contracts_percents);
+                $active_sheet->setCellValue('F4' , $closed_contracts_peni);
+                $active_sheet->setCellValue('A5', 'Продленные договоры');
+                $active_sheet->setCellValue('B5' , $count_prolongation_contracts);
+                $active_sheet->setCellValue('C5' , $prolongation_contracts_od+$prolongation_contracts_percents+$prolongation_contracts_peni);
+                $active_sheet->setCellValue('D5' , $prolongation_contracts_od);
+                $active_sheet->setCellValue('E5' , $prolongation_contracts_percents);
+                $active_sheet->setCellValue('F5' , $prolongation_contracts_peni);
+                $active_sheet->setCellValue('A6', 'Итого собрано (ОД + проценты)');
+                $active_sheet->setCellValue('C6' , $pay_all);
+                $active_sheet->setCellValue('A7', 'Остаток ОД');
+                $active_sheet->setCellValue('C7' , $od);
+                $active_sheet->setCellValue('A8', 'Начисленные и неоплаченные проценты');
+                $active_sheet->setCellValue('C8' , $percents);
+                $active_sheet->setCellValue('A9', 'Остаток ОД + проценты');
+                $active_sheet->setCellValue('C9' , $od + $percents);
+                $active_sheet->setCellValue('A10', 'Остаток ОД + проценты');
+                $active_sheet->setCellValue('C10' , $services_all);
+
+ 
+
+                $objWriter = PHPExcel_IOFactory::createWriter($excel, 'Excel5');
+
+                $objWriter->save($this->config->root_dir . $filename);
+
+                header('Location:' . $this->config->root_url . '/' . $filename);
+                exit;
+            }
+
+        }
+
+
+        return $this->design->fetch('statistics/loan_portfolio.tpl');
     }
 
     private function action_sources()

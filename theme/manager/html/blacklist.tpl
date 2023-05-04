@@ -2,6 +2,21 @@
 
 {capture name='page_scripts'}
 <script>
+
+    $(document).on('submit', '.form-horizontal', function (e) {
+        if($('.custom-file-input').val() == ''){
+            e.preventDefault();
+            $('.check_file').css('display', 'inline');
+
+            $('.info').removeClass('alert-info').addClass('alert-danger');
+        }
+        else{
+            $('.info').removeClass('alert-info').removeClass('alert-danger').addClass('alert-success');
+            $('.info span').html('Идет загрузка<br/>').css('background-color', 'green');
+            $('.check_file').css('display', 'inline');
+        }
+    });
+
     function ImportApp()
     {
         var app = this;
@@ -137,7 +152,7 @@
                                         <div class="input-group">
                                             <div class="custom-file">
                                                 <input type="hidden" name="run" value="1" />
-                                                <input type="file" name="import_file" class="custom-file-input js-image-input" id="" />
+                                                <input type="file" name="import_file" class="custom-file-input js-image-input" id="" accept=".xls,.xlsx"/>
                                                 <label style="white-space: nowrap;overflow: hidden;" class="custom-file-label" for="">Выбрать</label>
                                             </div>
                                         </div>
@@ -158,7 +173,8 @@
                             
                             <div class="row">
                                 <div class="col-12">
-                                    <div class="alert alert-info">
+                                    <div class="alert alert-info info">
+                                    <span class="check_file" style="background-color:red; color: white; display: none">Выберите файл для загрузки<br /></span>
                                     Для загрузки используйте формат xlsx
                                     <br />
                                     <a href="/files/import/blacklist_example.xlsx">скачать пример файла</a>
