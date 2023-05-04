@@ -2256,12 +2256,14 @@ class StatisticsController extends Controller
             // $this->design->assign('issued_count', $issued_count);
 
             $query = $this->db->placehold("
-                SELECT *
+                SELECT c.*
                 FROM __contracts AS c
-                WHERE 1
-                AND DATE(c.accept_date) >= ?
-                AND DATE(c.accept_date) <= ?
-                AND c.status = 2
+                LEFT JOIN __orders AS o
+                ON o.id = c.order_id
+                WHERE  1
+                AND DATE(o.accept_date) >= ?
+                AND DATE(o.accept_date) <= ?
+                AND o.status=5
             ", $date_from, $date_to);
             $this->db->query($query);
 
@@ -2272,6 +2274,7 @@ class StatisticsController extends Controller
             $issued_contracts_percents = 0;
             $issued_contracts_peni = 0;
             $contracts = $this->db->results();
+
             foreach ($contracts as $c) {
                 $issued_all += $op->amount;
                 $issued_count += 1;
@@ -2283,6 +2286,9 @@ class StatisticsController extends Controller
             }
             $this->design->assign('issued_all', $issued_all);
             $this->design->assign('issued_count', $issued_count);
+            $this->design->assign('issued_contracts_od', $issued_contracts_od);
+            $this->design->assign('issued_contracts_percents', $issued_contracts_percents);
+            $this->design->assign('issued_contracts_peni', $issued_contracts_peni);
 
 
             $query = $this->db->placehold("
