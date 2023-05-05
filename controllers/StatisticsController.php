@@ -2180,7 +2180,7 @@ class StatisticsController extends Controller
             SELECT *
             FROM __operations        AS o
             WHERE o.contract_id = ?
-            AND (o.type = 'PAY' OR o.type = 'P2P' OR o.type = 'PERCENTS' OR o.type = 'PENI')
+            AND (o.type = 'P2P' OR o.type = 'PERCENTS' OR o.type = 'PENI')
             AND DATE(o.created) >= ?
             AND DATE(o.created) <= ?
             ORDER BY order_id, created, id
@@ -2195,6 +2195,7 @@ class StatisticsController extends Controller
         $percents_client = 0;
         $peni_client = 0;
         $order_id = 0;
+
         foreach ($this->db->results() as $op) {
             if($order_id != $op->order_id){
                 $order_id = $op->order_id;
@@ -2235,35 +2236,17 @@ class StatisticsController extends Controller
             
             $date = date('Y-m-d', strtotime($this->request->get('date')));
             $this->design->assign('date', $date);
-
-            // $query = $this->db->placehold("
-            //     SELECT *
-            //     FROM __operations        AS o
-            //     WHERE o.type = 'P2P' 
-            //     AND DATE(o.created) >= ?
-            //     AND DATE(o.created) <= ?
-            // ", $date_from, $date_to);
-
-            // $this->db->query($query);
-
-            // $issued_all = 0;
-            // $issued_count = 0;
-            // foreach ($this->db->results() as $op) {
-            //     $issued_all += $op->amount;
-            //     $issued_count += 1;
-            // }
-            // $this->design->assign('issued_all', $issued_all);
-            // $this->design->assign('issued_count', $issued_count);
+            $period = $this->request->get('period');
+            
+            $this->design->assign('period', $period);
 
             $query = $this->db->placehold("
-                SELECT c.*
-                FROM __contracts AS c
-                LEFT JOIN __orders AS o
-                ON o.id = c.order_id
+                SELECT *
+                FROM __contracts
                 WHERE  1
-                AND DATE(o.accept_date) >= ?
-                AND DATE(o.accept_date) <= ?
-                AND o.status=5
+                AND DATE(accept_date) >= ?
+                AND DATE(accept_date) <= ?
+                AND status=2
             ", $date_from, $date_to);
             $this->db->query($query);
 
@@ -2289,6 +2272,37 @@ class StatisticsController extends Controller
             $this->design->assign('issued_contracts_od', $issued_contracts_od);
             $this->design->assign('issued_contracts_percents', $issued_contracts_percents);
             $this->design->assign('issued_contracts_peni', $issued_contracts_peni);
+
+
+            $query = $this->db->placehold("
+                SELECT *
+                FROM __contracts AS c
+                WHERE 1
+                AND DATE(c.return_date) >= ?
+                AND DATE(c.create_date) <= ?
+            ", $date_to, $date_to);
+
+            $this->db->query($query);
+            
+            $count_active_contracts = 0;
+
+            $active_contracts_od = 0;
+            $active_contracts_percents = 0;
+            $active_contracts_peni = 0;
+            $contracts = $this->db->results();
+            foreach ($contracts as $c) {
+                $count_active_contracts += 1;
+
+                $ret = $this->action_loan_portfolio_orders($c->id, $date);
+                $active_contracts_od += $ret[0];
+                $active_contracts_percents += $ret[1];
+                $active_contracts_peni += $ret[2];
+            }
+
+            $this->design->assign('count_active_contracts', $count_active_contracts);
+            $this->design->assign('active_contracts_od', $active_contracts_od);
+            $this->design->assign('active_contracts_percents', $active_contracts_percents);
+            $this->design->assign('active_contracts_peni', $active_contracts_peni);
 
 
             $query = $this->db->placehold("
@@ -2347,7 +2361,7 @@ class StatisticsController extends Controller
                 $count_closed_contracts += 1;
                 $closed_contracts_all += $c->amount;
 
-                $ret = $this->action_loan_portfolio_orders($c->id, $date);
+                $ret = $this->action_loan_portfolio_orders($c->id, date('Y-m-d', strtotime($c->close_date)));
                 $closed_contracts_od += $ret[0];
                 $closed_contracts_percents += $ret[1];
                 $closed_contracts_peni += $ret[2];
@@ -2359,7 +2373,7 @@ class StatisticsController extends Controller
             $this->design->assign('closed_contracts_peni', $closed_contracts_peni);
 
             $query = $this->db->placehold("
-            SELECT *
+            SELECT c.*
                 FROM __contracts AS c
                 RIGHT JOIN __prolongations AS p
                 ON c.id = p.contract_id
@@ -2391,21 +2405,39 @@ class StatisticsController extends Controller
             $this->design->assign('prolongation_contracts_percents', $prolongation_contracts_percents);
             $this->design->assign('prolongation_contracts_peni', $prolongation_contracts_peni);
 
+            $period_start_date = $period == 'period' ? $date_from : '2020-01-01';
+
             $query = $this->db->placehold("
-                SELECT *
+                SELECT o.*,
+                t.callback_response
                 FROM __operations        AS o
+                LEFT JOIN __transactions AS t ON t.id = o.transaction_id
                 WHERE o.type = 'PAY' 
                 AND DATE(o.created) >= ?
                 AND DATE(o.created) <= ?
-            ", $date_from, $date_to);
+            ", $period_start_date, $date_to);
 
             $this->db->query($query);
 
-            $pay_all = 0;
+            $pay_all_contracts_od = 0;
+            $pay_all_contracts_percents = 0;
+            $pay_all_contracts_peni = 0;
             foreach ($this->db->results() as $op) {
-                $pay_all += $op->amount;
+                if(is_null($op->callback_response))
+                    continue;
+
+                $callback = new SimpleXMLElement($op->callback_response);
+                if($callback->order_state != 'COMPLETED')
+                    continue;
+                    
+                $ret = $this->action_loan_portfolio_orders($op->contract_id, date('Y-m-d', strtotime($op->created)));
+                $pay_all_contracts_od += $ret[0];
+                $pay_all_contracts_percents += $ret[1];
+                $pay_all_contracts_peni += $ret[2];
             }
-            $this->design->assign('pay_all', $pay_all);
+            $this->design->assign('pay_all_contracts_od', $pay_all_contracts_od);
+            $this->design->assign('pay_all_contracts_percents', $pay_all_contracts_percents);
+            $this->design->assign('pay_all_contracts_peni', $pay_all_contracts_peni);
 
 
             $query = $this->db->placehold("
@@ -2496,7 +2528,7 @@ class StatisticsController extends Controller
                 $active_sheet->setCellValue('D2' , 0);
                 $active_sheet->setCellValue('E2' , 0);
                 $active_sheet->setCellValue('F2' , 0);
-                $active_sheet->setCellValue('A3', 'Просрочка по бакетам');
+                $active_sheet->setCellValue('A3', 'Просроченные займы');
                 $active_sheet->setCellValue('B3' , $count_delay_contracts);
                 $active_sheet->setCellValue('C3' , $delay_contracts_od+$delay_contracts_percents+$delay_contracts_peni);
                 $active_sheet->setCellValue('D3' , $delay_contracts_od);

@@ -1100,7 +1100,7 @@ class OrderController extends Controller
 
         // отправялем смс
         if($order->lead_partner_id == 0){
-            $msg = $user->firstname . 'Получите займ у наших партнеров: srazu-dengi.ru';
+            $msg = $user->firstname . ', получите займ у наших партнеров: srazu-dengi.ru';
             $this->sms->send($order->phone_mobile, $msg);
         }
         
