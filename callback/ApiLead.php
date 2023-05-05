@@ -223,9 +223,15 @@ class ApiLead extends Core
         }
 
         // Добавляем контактное лицо
-        $contactperson_id = $this->Contactpersons->add_contactperson($contact_person);
-        if($contactperson_id != 0){
-            $this->users->update_user($user_id, array('stage_contact' => 1));
+        $contact_person['user_id'] = $user_id;
+        if($json_array['contact_person_name'] != ""){
+        //     $this->users->update_user($user_id, array('stage_contact' => 0));
+        // }
+        // else{
+            $contactperson_id = $this->Contactpersons->add_contactperson($contact_person);
+            if($contactperson_id != 0){
+                $this->users->update_user($user_id, array('stage_contact' => 1));
+            }
         }
 
         // Добавляем данные по руководителю

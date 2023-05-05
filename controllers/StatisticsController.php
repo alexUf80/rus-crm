@@ -2246,7 +2246,7 @@ class StatisticsController extends Controller
                 WHERE  1
                 AND DATE(accept_date) >= ?
                 AND DATE(accept_date) <= ?
-                AND status=2
+                AND (status = 2 OR status = 3 OR status = 4)
             ", $date_from, $date_to);
             $this->db->query($query);
 
@@ -2259,6 +2259,7 @@ class StatisticsController extends Controller
             $contracts = $this->db->results();
 
             foreach ($contracts as $c) {
+                // echo($c->id.", ");
                 $issued_all += $op->amount;
                 $issued_count += 1;
 
@@ -2267,6 +2268,7 @@ class StatisticsController extends Controller
                 $issued_contracts_percents += $ret[1];
                 $issued_contracts_peni += $ret[2];
             }
+            // echo "<hr>";
             $this->design->assign('issued_all', $issued_all);
             $this->design->assign('issued_count', $issued_count);
             $this->design->assign('issued_contracts_od', $issued_contracts_od);
@@ -2280,7 +2282,10 @@ class StatisticsController extends Controller
                 WHERE 1
                 AND DATE(c.return_date) >= ?
                 AND DATE(c.create_date) <= ?
-            ", $date_to, $date_to);
+                AND DATE(accept_date) >= ?
+                AND DATE(accept_date) <= ?
+                AND (status = 2 OR status = 3 OR status = 4)
+            ", $date_to, $date_to, $date_from, $date_to);
 
             $this->db->query($query);
             
@@ -2291,6 +2296,7 @@ class StatisticsController extends Controller
             $active_contracts_peni = 0;
             $contracts = $this->db->results();
             foreach ($contracts as $c) {
+                // echo($c->id.", ");
                 $count_active_contracts += 1;
 
                 $ret = $this->action_loan_portfolio_orders($c->id, $date);
@@ -2298,6 +2304,7 @@ class StatisticsController extends Controller
                 $active_contracts_percents += $ret[1];
                 $active_contracts_peni += $ret[2];
             }
+            // echo "<hr>";
 
             $this->design->assign('count_active_contracts', $count_active_contracts);
             $this->design->assign('active_contracts_od', $active_contracts_od);
@@ -2311,7 +2318,10 @@ class StatisticsController extends Controller
                 WHERE 1
                 AND DATE(c.return_date) <= ?
                 AND (c.close_date > c.return_date OR c.close_date IS null)
-            ", $date_to);
+                AND DATE(accept_date) >= ?
+                AND DATE(accept_date) <= ?
+                AND (status = 2 OR status = 3 OR status = 4)
+            ", $date_to, $date_from, $date_to);
 
             $this->db->query($query);
             
@@ -2347,7 +2357,10 @@ class StatisticsController extends Controller
                 WHERE 1
                 AND DATE(c.close_date) >= ?
                 AND DATE(c.close_date) <= ?
-            ", $date_from, $date_to);
+                AND DATE(accept_date) >= ?
+                AND DATE(accept_date) <= ?
+                AND (status = 2 OR status = 3 OR status = 4)
+            ", $date_from, $date_to, $date_from, $date_to);
 
             $this->db->query($query);
 
@@ -2358,6 +2371,7 @@ class StatisticsController extends Controller
             $closed_contracts_percents = 0;
             $closed_contracts_peni = 0;
             foreach ($this->db->results() as $c) {
+                // echo($c->id.", ");
                 $count_closed_contracts += 1;
                 $closed_contracts_all += $c->amount;
 
@@ -2366,6 +2380,7 @@ class StatisticsController extends Controller
                 $closed_contracts_percents += $ret[1];
                 $closed_contracts_peni += $ret[2];
             }
+            // die;
             $this->design->assign('count_closed_contracts', $count_closed_contracts);
             $this->design->assign('closed_contracts_all', $closed_contracts_all);
             $this->design->assign('closed_contracts_od', $closed_contracts_od);
@@ -2380,7 +2395,10 @@ class StatisticsController extends Controller
                 WHERE 1
                 AND DATE(p.created) >= ?
                 AND DATE(p.created) <= ?
-            ", $date_from, $date_to);
+                AND DATE(accept_date) >= ?
+                AND DATE(accept_date) <= ?
+                AND (status = 2 OR status = 3 OR status = 4)
+            ", $date_from, $date_to, $date_from, $date_to);
 
             $this->db->query($query);
             
