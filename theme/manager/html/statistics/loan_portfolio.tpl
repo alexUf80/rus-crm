@@ -199,10 +199,16 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-4 col-md-4">
+                                <div class="col-2 col-md-2">
                                     <div class="input-group mb-3">
-                                        <input type="date" name="date" id="date" class="form-control" value="{if $date}{$date}{/if}">
+                                        <input type="date" name="date" id="date" class="form-control"period value="{if $date}{$date}{/if}">
                                     </div>
+                                </div>
+                                <div class="col-1 col-md-2">
+                                    <select class="form-control" name="period" style="text-align: center">
+                                        <option value="period" {if $period && $period == 'period'}selected{/if}>Выбранный период</option>
+                                        <option value="all" {if $period && $period == 'all'}selected{/if}>Весь период</option>
+                                    </select>
                                 </div>
                                 <div class="col-2 col-md-2">
                                     <button type="submit" class="btn btn-info">Сформировать</button>
@@ -242,7 +248,15 @@
                                         <td class="right">{number_format($issued_contracts_peni, 2, '.',' ')}</td>
                                     </tr>
                                     <tr>
-                                        <td>Просрочка по бакетам</td>
+                                        <td>Активные займы</td>
+                                        <td class="right">{$count_active_contracts}</td>
+                                        <td class="right">{number_format($active_contracts_od+$active_contracts_percents+$active_contracts_peni, 2, '.',' ')}</td>
+                                        <td class="right">{number_format($active_contracts_od, 2, '.',' ')}</td>
+                                        <td class="right">{number_format($active_contracts_percents, 2, '.',' ')}</td>
+                                        <td class="right">{number_format($active_contracts_peni, 2, '.',' ')}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Просроченные займы</td>
                                         <td class="right">{$count_delay_contracts}</td>
                                         <td class="right">{number_format(($delay_contracts_od+$delay_contracts_percents+$delay_contracts_peni), 2, '.',' ')}</td>
                                         <td class="right">{number_format($delay_contracts_od, 2, '.',' ')}</td>
@@ -268,10 +282,10 @@
                                     <tr>
                                         <td>Итого собрано (ОД + проценты)</td>
                                         <td class="right"> </td>
-                                        <td class="right">{number_format($pay_all, 2, '.',' ')}</td>
-                                        <td class="right"> </td>
-                                        <td class="right"> </td>
-                                        <td class="right"> </td>
+                                        <td class="right">{number_format($pay_all_contracts_od+$pay_all_contracts_percents+$pay_all_contracts_peni, 2, '.',' ')}</td>
+                                        <td class="right">{number_format($pay_all_contracts_od, 2, '.',' ')}</td>
+                                        <td class="right">{number_format($pay_all_contracts_percents, 2, '.',' ')}</td>
+                                        <td class="right">{number_format($pay_all_contracts_peni, 2, '.',' ')}</td>
                                     </tr>
                                     <tr>
                                         <td>Остаток ОД</td>
