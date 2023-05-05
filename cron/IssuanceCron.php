@@ -349,6 +349,20 @@ class IssuanceCron extends Core
                     if($this->config->send_onec == 1)
                         Onec::sendRequest(['method' => 'send_loan', 'params' => $contract->order_id]);
 
+                    $order = $this->orders->get_order($contract->order_id);
+                    if (!empty($order->utm_source))
+                    {
+                        $this->leadgens->add_postback([
+                            'order_id' => $order->order_id,
+                            'created' => date('Y-m-d H:i:s'),
+                            'lead_name' => $order->utm_source,
+                            'webmaster' => $order->webmaster_id,
+                            'click_hash' => $order->click_hash,
+                            'offer_id' => 0,
+                            'type' => 'approve',
+                        ]);
+                    }
+
                 }else {
                     $this->contracts->update_contract($contract->id, array('status' => 6));
 
