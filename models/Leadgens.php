@@ -47,31 +47,34 @@ https://c2mpbtrck.com/cpaCallback?cid={CID}&partner=[рекламодатель]
 
         switch ($postback->type):
             case 'pending':
-                $build_query['action'] = 'hold';
-                break;
-            case 'approve':
                 $build_query['action'] = 'approve';
                 break;
-            case 'reject':
-                $build_query['action'] = 'reject';
-                break;
+//            case 'approve':
+//                $build_query['action'] = 'approve';
+//                break;
+//            case 'reject':
+//                $build_query['action'] = 'reject';
+//                break;
         endswitch;
 
-        $link_lead = $link.'?'.http_build_query($build_query);
-        
-        $ch = curl_init($link_lead);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 15);
-        $res = curl_exec($ch);
-        curl_close($ch);
-echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($link_lead, $res);echo '</pre><hr />';        
-        $this->update_postback($postback->id, [
-            'sent_status' => 2,
-            'sent_date' => date('Y-m-d H:i:s'),
-            'link' => $link_lead,
-            'response' => serialize($res),
-        ]);
+        if (!empty($build_query))
+        {
+            $link_lead = $link.'?'.http_build_query($build_query);
+            
+            $ch = curl_init($link_lead);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+            $res = curl_exec($ch);
+            curl_close($ch);
+    echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($link_lead, $res);echo '</pre><hr />';        
+            $this->update_postback($postback->id, [
+                'sent_status' => 2,
+                'sent_date' => date('Y-m-d H:i:s'),
+                'link' => $link_lead,
+                'response' => serialize($res),
+            ]);
+        }
     }
     
     public function send_approved_postback_click2money($order_id, $order)
