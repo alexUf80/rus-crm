@@ -13,38 +13,29 @@ class ExchangeOnecCron extends Core
     {
         parent::__construct();
         
-        $this->run();
+        if ($this->request->get('test'))
+            $this->send_services();
+        else
+            $this->run();
     }
     
     private function run()
+    {    
+        $this->send('send_contracts');
+        $this->send('send_taxings');
+        $this->send('send_payments');
+        $this->send('send_services');
+    }
+    
+    private function send($methodname)
     {
         $i = 5;
         do {
-            $run_result = $this->send_contracts();
+            $run_result = $this->$methodname();
             $i--;
         }
         while ($i > 0 && !empty($run_result));
-
-        $i = 5;
-        do {
-            $run_result = $this->send_taxings();
-            $i--;
-        }
-        while ($i > 0 && !empty($run_result));
-
-        $i = 5;
-        do {
-            $run_result = $this->send_payments();
-            $i--;
-        }
-        while ($i > 0 && !empty($run_result));
-
-        $i = 5;
-        do {
-            $run_result = $this->send_services();
-            $i--;
-        }
-        while ($i > 0 && !empty($run_result));
+        
     }
     
     private function send_contracts()
@@ -154,12 +145,15 @@ echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($min_date);echo '</pre><hr />'
                 t.register_id, 
                 t.operation,
                 t.created,
-                t.callback_response
+                t.callback_response,
+                i.number AS polis
             FROM s_operations AS o
             LEFT JOIN s_transactions AS t
             ON t.id = o.transaction_id
             LEFT JOIN s_contracts AS c
             ON c.id = o.contract_id
+            LEFT JOIN s_insurances AS i
+            ON o.id = i.operation_id
             WHERE o.sent_status = 0
             AND o.type IN (
                 'BUD_V_KURSE',
@@ -181,22 +175,13 @@ echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($min_date);echo '</pre><hr />'
                 $service->date = $item->created;
                 $service->user_id = $item->user_id;
                 $service->insurance_cost = $item->amount;
-                $service->number = $item->number;
+                $service->number = empty($item->polis) ? '' : $item->polis;
                 $service->crm_operation_id = $item->id;
                 $service->is_insurance = (int)in_array($item->type, ['INSURANCE_BC','INSURANCE']);
                 $service->order_id = $item->register_id;
                 $service->operation_id = $item->operation;
                 $service->card_pan = (string)$xml->pan;
-                
-                if (empty($service->card_pan))
-                {
-                    if ($item->type == 'INSURANCE_BC')
-                    {
-                        
-                                            
-                    }
-                }
-                
+                                
                 $result = Onec::send_service($service);
 
 echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($service, $result);echo '</pre><hr />';
