@@ -2490,10 +2490,11 @@ class StatisticsController extends Controller
 
             $query = $this->db->placehold("
                 SELECT o.*,
-                t.callback_response
+                t.callback_response,
+                t.sector
                 FROM __operations        AS o
                 LEFT JOIN __transactions AS t ON t.id = o.transaction_id
-                WHERE o.type = 'PAY' 
+                WHERE (o.type = 'PAY' OR o.type = 'INSURANCE_BC')
                 AND DATE(o.created) >= ?
                 AND DATE(o.created) <= ?
             ", $period_start_date, $date_to);
@@ -2504,18 +2505,27 @@ class StatisticsController extends Controller
             $pay_all_contracts_percents = 0;
             $pay_all_contracts_peni = 0;
             foreach ($this->db->results() as $op) {
-                if(is_null($op->callback_response))
-                    continue;
+                if($op->sector != 0){
+                    if(is_null($op->callback_response))
+                        continue;
 
-                $callback = new SimpleXMLElement($op->callback_response);
-                if($callback->order_state != 'COMPLETED')
-                    continue;
-                    
-                $ret = $this->action_loan_portfolio_orders($op->contract_id, date('Y-m-d', strtotime($op->created)));
-                $pay_all_contracts_od += $ret[0];
-                $pay_all_contracts_percents += $ret[1];
-                $pay_all_contracts_peni += $ret[2];
+                    $callback = new SimpleXMLElement($op->callback_response);
+                    if($callback->order_state != 'COMPLETED')
+                        continue;
+                }
+                
+
+                if($op->type == 'PAY'){
+                    $ret = $this->action_loan_portfolio_orders($op->contract_id, date('Y-m-d', strtotime($op->created)));
+                    $pay_all_contracts_od += $op->amount - $ret[1] - $ret[2];
+                    $pay_all_contracts_percents += $ret[1];
+                    $pay_all_contracts_peni += $ret[2];
+                }
+                else{
+                    $pay_all_contracts_od += $op->amount;
+                }
             }
+
             // // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             // $pay_all_contracts_od = $count_active_contracts + $count_delay_contracts + $count_closed_contracts + $count_prolongation_contracts;
             // // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -2567,10 +2577,12 @@ class StatisticsController extends Controller
                 SELECT *
                 FROM __operations        AS o
                 WHERE (o.type = 'BUD_V_KURSE' OR o.type = 'INSURANCE' OR
-                o.type = 'INSURANCE_BC' OR o.type = 'REJECT_REASON')
+                o.type = 'REJECT_REASON')
                 AND DATE(o.created) >= ?
                 AND DATE(o.created) <= ?
             ", $date_from, $date_to);
+            // echo $query;
+            // die;
 
             $this->db->query($query);
 
