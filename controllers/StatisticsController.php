@@ -2618,40 +2618,57 @@ class StatisticsController extends Controller
                 $active_sheet->setCellValue('D1', 'ОД');
                 $active_sheet->setCellValue('E1', 'Проценты');
                 $active_sheet->setCellValue('F1', 'Пени');
+
                 $active_sheet->setCellValue('A2', 'Выдано');
                 $active_sheet->setCellValue('B2' , $issued_count);
-                $active_sheet->setCellValue('C2' , $issued_all);
-                $active_sheet->setCellValue('D2' , 0);
-                $active_sheet->setCellValue('E2' , 0);
-                $active_sheet->setCellValue('F2' , 0);
-                $active_sheet->setCellValue('A3', 'Просроченные займы');
-                $active_sheet->setCellValue('B3' , $count_delay_contracts);
-                $active_sheet->setCellValue('C3' , $delay_contracts_od+$delay_contracts_percents+$delay_contracts_peni);
-                $active_sheet->setCellValue('D3' , $delay_contracts_od);
-                $active_sheet->setCellValue('E3' , $delay_contracts_percents);
-                $active_sheet->setCellValue('F3' , $delay_contracts_peni);
-                $active_sheet->setCellValue('A4', 'Закрытые договоры');
-                $active_sheet->setCellValue('B4' , $count_closed_contracts);
-                $active_sheet->setCellValue('C4' , $closed_contracts_od+$closed_contracts_percents+$closed_contracts_peni);
-                $active_sheet->setCellValue('D4' , $closed_contracts_od);
-                $active_sheet->setCellValue('E4' , $closed_contracts_percents);
-                $active_sheet->setCellValue('F4' , $closed_contracts_peni);
-                $active_sheet->setCellValue('A5', 'Продленные договоры');
-                $active_sheet->setCellValue('B5' , $count_prolongation_contracts);
-                $active_sheet->setCellValue('C5' , $prolongation_contracts_od+$prolongation_contracts_percents+$prolongation_contracts_peni);
-                $active_sheet->setCellValue('D5' , $prolongation_contracts_od);
-                $active_sheet->setCellValue('E5' , $prolongation_contracts_percents);
-                $active_sheet->setCellValue('F5' , $prolongation_contracts_peni);
-                $active_sheet->setCellValue('A6', 'Итого собрано (ОД + проценты)');
-                $active_sheet->setCellValue('C6' , $pay_all);
-                $active_sheet->setCellValue('A7', 'Остаток ОД');
-                $active_sheet->setCellValue('C7' , $od);
-                $active_sheet->setCellValue('A8', 'Начисленные и неоплаченные проценты');
-                $active_sheet->setCellValue('C8' , $percents);
-                $active_sheet->setCellValue('A9', 'Остаток ОД + проценты');
-                $active_sheet->setCellValue('C9' , $od + $percents);
+                $active_sheet->setCellValue('C2' , $issued_contracts_od+$issued_contracts_percents+$issued_contracts_peni);
+                $active_sheet->setCellValue('D2' , $issued_contracts_od);
+                $active_sheet->setCellValue('E2' , $issued_contracts_percents);
+                $active_sheet->setCellValue('F2' , $issued_contracts_peni);
+
+                $active_sheet->setCellValue('A3', 'Активные займы');
+                $active_sheet->setCellValue('B3' , $count_active_contracts);
+                $active_sheet->setCellValue('C3' , $active_contracts_od+$active_contracts_percents+$active_contracts_peni);
+                $active_sheet->setCellValue('D3' , $active_contracts_od);
+                $active_sheet->setCellValue('E3' , $active_contracts_percents);
+                $active_sheet->setCellValue('F3' , $active_contracts_peni);
+
+                $active_sheet->setCellValue('A4', 'Просроченные займы');
+                $active_sheet->setCellValue('B4' , $count_delay_contracts);
+                $active_sheet->setCellValue('C4' , $delay_contracts_od+$delay_contracts_percents+$delay_contracts_peni);
+                $active_sheet->setCellValue('D4' , $delay_contracts_od);
+                $active_sheet->setCellValue('E4' , $delay_contracts_percents);
+                $active_sheet->setCellValue('F4' , $delay_contracts_peni);
+
+                $active_sheet->setCellValue('A5', 'Закрытые договоры');
+                $active_sheet->setCellValue('B5' , $count_closed_contracts);
+                $active_sheet->setCellValue('C5' , $closed_contracts_od+$closed_contracts_percents+$closed_contracts_peni);
+                $active_sheet->setCellValue('D5' , $closed_contracts_od);
+                $active_sheet->setCellValue('E5' , $closed_contracts_percents);
+                $active_sheet->setCellValue('F5' , $closed_contracts_peni);
+
+                $active_sheet->setCellValue('A6', 'Продленные договоры');
+                $active_sheet->setCellValue('B6' , $count_prolongation_contracts);
+                $active_sheet->setCellValue('C6' , $prolongation_contracts_od+$prolongation_contracts_percents+$prolongation_contracts_peni);
+                $active_sheet->setCellValue('D6' , $prolongation_contracts_od);
+                $active_sheet->setCellValue('E6' , $prolongation_contracts_percents);
+                $active_sheet->setCellValue('F6' , $prolongation_contracts_peni);
+
+                $active_sheet->setCellValue('A7', 'Итого собрано (ОД + проценты)');
+                $active_sheet->setCellValue('C7' , $pay_all_contracts_od+$pay_all_contracts_percents+$pay_all_contracts_peni);
+                $active_sheet->setCellValue('D7' , $pay_all_contracts_od);
+                $active_sheet->setCellValue('E7' , $pay_all_contracts_percents);
+                $active_sheet->setCellValue('F7' , $pay_all_contracts_peni);
+
+                $active_sheet->setCellValue('A8', 'Остаток ОД');
+                $active_sheet->setCellValue('C8' , $od);
+
+                $active_sheet->setCellValue('A9', 'Начисленные и неоплаченные проценты');
+                $active_sheet->setCellValue('C9' , $percents);
                 $active_sheet->setCellValue('A10', 'Остаток ОД + проценты');
-                $active_sheet->setCellValue('C10' , $services_all);
+                $active_sheet->setCellValue('C10' , $od + $percents);
+                $active_sheet->setCellValue('A11', 'Сумма дополнительных услуг');
+                $active_sheet->setCellValue('C11' , $services_all);
 
  
 
