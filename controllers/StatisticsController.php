@@ -1503,7 +1503,6 @@ class StatisticsController extends Controller
 
                 $order = $this->orders->get_order($operation->order_id);
                 
-                // die;
                 if ($operation->type == 'INSURANCE') {
                     $operations_by_date[$date]['count_insurance'] += 1;
                     $operations_by_date[$date]['sum_insurance'] += $operation->amount;
@@ -2173,7 +2172,7 @@ class StatisticsController extends Controller
     }
 
 
-    private function action_loan_portfolio_orders($contract_id , $date_to)
+    private function payment_split($contract_id , $date_to)
     {
         
         $query = $this->db->placehold("
@@ -2241,7 +2240,7 @@ class StatisticsController extends Controller
             $this->design->assign('period', $period);
 
             $query = $this->db->placehold("
-                SELECT *
+                SELECT distinct *
                 FROM __contracts
                 WHERE  1
                 AND DATE(accept_date) >= ?
@@ -2259,10 +2258,18 @@ class StatisticsController extends Controller
             $contracts = $this->db->results();
 
             foreach ($contracts as $c) {
-                $issued_all += $op->amount;
+                $issued_all += $c->amount;
                 $issued_count += 1;
 
-                $ret = $this->action_loan_portfolio_orders($c->id, $date);
+
+                if(date('Y-m-d', strtotime($c->close_date)) >= $date_from && 
+                date('Y-m-d', strtotime($c->close_date)) <= $date){
+                    $ret = $this->payment_split($c->id, date('Y-m-d', strtotime($c->close_date)));
+                }
+                else{
+                    $ret = $this->payment_split($c->id, $date);
+
+                }
                 $issued_contracts_od += $ret[0];
                 $issued_contracts_percents += $ret[1];
                 $issued_contracts_peni += $ret[2];
@@ -2272,7 +2279,6 @@ class StatisticsController extends Controller
             $this->design->assign('issued_contracts_od', $issued_contracts_od);
             $this->design->assign('issued_contracts_percents', $issued_contracts_percents);
             $this->design->assign('issued_contracts_peni', $issued_contracts_peni);
-
 
             $query = $this->db->placehold("
                 SELECT *
@@ -2289,7 +2295,7 @@ class StatisticsController extends Controller
                 AND (status = 2 OR status = 3 OR status = 4)
 
                 AND c.id NOT in(
-                    SELECT c.id
+                    SELECT distinct c.id
                     FROM __contracts AS c
                     RIGHT JOIN __prolongations AS p
                     ON c.id = p.contract_id
@@ -2300,13 +2306,10 @@ class StatisticsController extends Controller
                     AND DATE(c.accept_date) <= ?
                     AND (c.status = 2 OR c.status = 3 OR c.status = 4)
 
-                    AND (DATE(c.close_date) <= ?
-                    OR DATE(c.close_date) >= ?)
+                    AND (DATE(c.close_date) > ? OR c.close_date IS null)
                     )
-
-
             ", $date, $date_to, $date, $date_from, $date_to,
-            $date_from, $date, $date_from, $date_to, $date_from, $date);
+            $date_from, $date, $date_from, $date_to, $date);
 
             $this->db->query($query);
             
@@ -2319,7 +2322,7 @@ class StatisticsController extends Controller
             foreach ($contracts as $c) {
                 $count_active_contracts += 1;
 
-                $ret = $this->action_loan_portfolio_orders($c->id, $date);
+                $ret = $this->payment_split($c->id, $date);
                 $active_contracts_od += $ret[0];
                 $active_contracts_percents += $ret[1];
                 $active_contracts_peni += $ret[2];
@@ -2346,7 +2349,7 @@ class StatisticsController extends Controller
                 AND (status = 2 OR status = 3 OR status = 4)
 
                 AND c.id NOT in(
-                    SELECT c.id
+                    SELECT distinct c.id
                     FROM __contracts AS c
                     RIGHT JOIN __prolongations AS p
                     ON c.id = p.contract_id
@@ -2357,11 +2360,10 @@ class StatisticsController extends Controller
                     AND DATE(c.accept_date) <= ?
                     AND (c.status = 2 OR c.status = 3 OR c.status = 4)
 
-                    AND (DATE(c.close_date) <= ?
-                    OR DATE(c.close_date) >= ?)
+                    AND (DATE(c.close_date) > ? OR c.close_date IS null)
                     )
             ", $date, $date, $date_from, $date_to,
-            $date_from, $date, $date_from, $date_to, $date_from, $date);
+            $date_from, $date, $date_from, $date_to, $date);
 
             $this->db->query($query);
             
@@ -2376,12 +2378,10 @@ class StatisticsController extends Controller
                 $delay_contracts_all += $c->amount;
                 $count_delay_contracts += 1;
 
-                $ret = $this->action_loan_portfolio_orders($c->id, $date);
+                $ret = $this->payment_split($c->id, $date);
                 $delay_contracts_od += $ret[0];
                 $delay_contracts_percents += $ret[1];
                 $delay_contracts_peni += $ret[2];
-
-
             }
 
             $this->design->assign('delay_contracts_all', $delay_contracts_all);
@@ -2403,7 +2403,7 @@ class StatisticsController extends Controller
                 AND (status = 2 OR status = 3 OR status = 4)
 
                 AND c.id NOT in(
-                    SELECT c.id
+                    SELECT distinct c.id
                     FROM __contracts AS c
                     RIGHT JOIN __prolongations AS p
                     ON c.id = p.contract_id
@@ -2414,11 +2414,10 @@ class StatisticsController extends Controller
                     AND DATE(c.accept_date) <= ?
                     AND (c.status = 2 OR c.status = 3 OR c.status = 4)
                     
-                    AND (DATE(c.close_date) <= ?
-                    OR DATE(c.close_date) >= ?)
+                    AND (DATE(c.close_date) > ? OR c.close_date IS null)
                     )
             ", $date_from, $date, $date_from, $date_to,
-            $date_from, $date, $date_from, $date_to, $date_from, $date);
+            $date_from, $date, $date_from, $date_to, $date);
 
             $this->db->query($query);
 
@@ -2432,7 +2431,7 @@ class StatisticsController extends Controller
                 $count_closed_contracts += 1;
                 $closed_contracts_all += $c->amount;
 
-                $ret = $this->action_loan_portfolio_orders($c->id, date('Y-m-d', strtotime($c->close_date)));
+                $ret = $this->payment_split($c->id, date('Y-m-d', strtotime($c->close_date)));
                 $closed_contracts_od += $ret[0];
                 $closed_contracts_percents += $ret[1];
                 $closed_contracts_peni += $ret[2];
@@ -2445,7 +2444,7 @@ class StatisticsController extends Controller
             $this->design->assign('closed_contracts_peni', $closed_contracts_peni);
 
             $query = $this->db->placehold("
-            SELECT c.*
+            SELECT distinct c.*
                 FROM __contracts AS c
                 RIGHT JOIN __prolongations AS p
                 ON c.id = p.contract_id
@@ -2457,10 +2456,9 @@ class StatisticsController extends Controller
                 AND DATE(c.accept_date) <= ?
                 AND (c.status = 2 OR c.status = 3 OR c.status = 4)
 
-                AND (DATE(c.close_date) <= ?
-                OR DATE(c.close_date) >= ?)
+                AND (DATE(c.close_date) > ? OR c.close_date IS null)
 
-            ", $date_from, $date, $date_from, $date_to, $date_from, $date);
+            ", $date_from, $date, $date_from, $date_to, $date);
 
             $this->db->query($query);
             
@@ -2474,10 +2472,11 @@ class StatisticsController extends Controller
                 $count_prolongation_contracts += 1;
                 $prolongation_contracts_all += $c->amount;
 
-                $ret = $this->action_loan_portfolio_orders($c->id, $date);
+                $ret = $this->payment_split($c->id, $date);
                 $prolongation_contracts_od += $ret[0];
                 $prolongation_contracts_percents += $ret[1];
                 $prolongation_contracts_peni += $ret[2];
+
             }
 
             $this->design->assign('count_prolongation_contracts', $count_prolongation_contracts);
@@ -2495,9 +2494,15 @@ class StatisticsController extends Controller
                 FROM __operations        AS o
                 LEFT JOIN __transactions AS t ON t.id = o.transaction_id
                 WHERE (o.type = 'PAY' OR o.type = 'INSURANCE_BC')
-                AND DATE(o.created) >= ?
                 AND DATE(o.created) <= ?
-            ", $period_start_date, $date_to);
+                AND o.contract_id IN
+                (SELECT distinct id
+                FROM __contracts
+                WHERE  1
+                AND DATE(accept_date) >= ?
+                AND DATE(accept_date) <= ?
+                AND (status = 2 OR status = 3 OR status = 4))
+            ", $date, $date_from, $date_to);
 
             $this->db->query($query);
 
@@ -2516,7 +2521,7 @@ class StatisticsController extends Controller
                 
 
                 if($op->type == 'PAY'){
-                    $ret = $this->action_loan_portfolio_orders($op->contract_id, date('Y-m-d', strtotime($op->created)));
+                    $ret = $this->payment_split($op->contract_id, date('Y-m-d', strtotime($op->created)));
                     $pay_all_contracts_od += $op->amount - $ret[1] - $ret[2];
                     $pay_all_contracts_percents += $ret[1];
                     $pay_all_contracts_peni += $ret[2];
@@ -2581,8 +2586,6 @@ class StatisticsController extends Controller
                 AND DATE(o.created) >= ?
                 AND DATE(o.created) <= ?
             ", $date_from, $date_to);
-            // echo $query;
-            // die;
 
             $this->db->query($query);
 
