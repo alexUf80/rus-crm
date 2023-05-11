@@ -290,7 +290,7 @@
                                     <tr>
                                         <td>Остаток ОД</td>
                                         <td class="right"> </td>
-                                        <td class="right">{number_format($od, 2, '.',' ')}</td>
+                                        <td class="right">{number_format($issued_contracts_od - $pay_all_contracts_od, 2, '.',' ')}</td>
                                         <td class="right"> </td>
                                         <td class="right"> </td>
                                         <td class="right"> </td>
@@ -298,7 +298,7 @@
                                     <tr>
                                         <td>Начисленные и неоплаченные проценты</td>
                                         <td class="right"> </td>
-                                        <td class="right">{number_format($percents, 2, '.',' ')}</td>
+                                        <td class="right">{number_format($issued_contracts_percents - $pay_all_contracts_percents, 2, '.',' ')}</td>
                                         <td class="right"> </td>
                                         <td class="right"> </td>
                                         <td class="right"> </td>
@@ -306,7 +306,7 @@
                                     <tr>
                                         <td>Остаток ОД + проценты</td>
                                         <td class="right"> </td>
-                                        <td class="right">{number_format($od + $percents, 2, '.',' ')}</td>
+                                        <td class="right">{number_format($issued_contracts_od - $pay_all_contracts_od + $issued_contracts_percents - $pay_all_contracts_percents, 2, '.',' ')}</td>
                                         <td class="right"> </td>
                                         <td class="right"> </td>
                                         <td class="right"> </td>
