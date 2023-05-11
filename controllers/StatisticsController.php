@@ -2234,9 +2234,12 @@ class StatisticsController extends Controller
             $this->design->assign('to', $to);
             
             $date = date('Y-m-d', strtotime($this->request->get('date')));
+            if($date < $date_from){
+                $date = $date_to;
+            }
             $this->design->assign('date', $date);
+
             $period = $this->request->get('period');
-            
             $this->design->assign('period', $period);
 
             $query = $this->db->placehold("
@@ -2493,7 +2496,7 @@ class StatisticsController extends Controller
                 t.sector
                 FROM __operations        AS o
                 LEFT JOIN __transactions AS t ON t.id = o.transaction_id
-                WHERE (o.type = 'PAY' OR o.type = 'INSURANCE_BC')
+                WHERE (o.type = 'PAY')
                 AND DATE(o.created) <= ?
                 AND o.contract_id IN
                 (SELECT distinct id
@@ -2531,51 +2534,48 @@ class StatisticsController extends Controller
                 }
             }
 
-            // // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            // $pay_all_contracts_od = $count_active_contracts + $count_delay_contracts + $count_closed_contracts + $count_prolongation_contracts;
-            // // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            $this->design->assign('pay_all_contracts_od', $pay_all_contracts_od);
-            $this->design->assign('pay_all_contracts_percents', $pay_all_contracts_percents);
-            $this->design->assign('pay_all_contracts_peni', $pay_all_contracts_peni);
+            // $this->design->assign('pay_all_contracts_od', $pay_all_contracts_od);
+            // $this->design->assign('pay_all_contracts_percents', $pay_all_contracts_percents);
+            // $this->design->assign('pay_all_contracts_peni', $pay_all_contracts_peni);
 
 
-            $query = $this->db->placehold("
-                SELECT *
-                FROM __operations        AS o
-                WHERE (o.type = 'PAY' OR o.type = 'P2P' OR o.type = 'PERCENTS' OR o.type = 'PENI')
-                AND DATE(o.created) >= ?
-                AND DATE(o.created) <= ?
-                ORDER BY order_id, created, id
-            ", $date_to, $date_to);
+            // $query = $this->db->placehold("
+            //     SELECT *
+            //     FROM __operations        AS o
+            //     WHERE (o.type = 'PAY' OR o.type = 'P2P' OR o.type = 'PERCENTS' OR o.type = 'PENI')
+            //     AND DATE(o.created) >= ?
+            //     AND DATE(o.created) <= ?
+            //     ORDER BY order_id, created, id
+            // ", $date_to, $date_to);
 
-            $this->db->query($query);
+            // $this->db->query($query);
 
-            $od = 0;
-            $percents = 0;
-            $od_client = 0;
-            $percents_client = 0;
-            $order_id = 0;
-            foreach ($this->db->results() as $op) {
-                if($order_id != $op->order_id){
-                    $order_id = $op->order_id;
-                    $od += $od_client;
-                    $percents += $percents_client;
-                    $od_client = 0;
-                    $percents_client = 0;
-                }
-                if($op->type == 'P2P'){
-                    $od_client = $op->amount;
-                }
-                else{
-                    $od_client = $op->loan_body_summ;
-                    $percents_client = $op->loan_percents_summ;
-                }
-            }
-            $od += $od_client;
-            $percents += $percents_client;
+            // $od = 0;
+            // $percents = 0;
+            // $od_client = 0;
+            // $percents_client = 0;
+            // $order_id = 0;
+            // foreach ($this->db->results() as $op) {
+            //     if($order_id != $op->order_id){
+            //         $order_id = $op->order_id;
+            //         $od += $od_client;
+            //         $percents += $percents_client;
+            //         $od_client = 0;
+            //         $percents_client = 0;
+            //     }
+            //     if($op->type == 'P2P'){
+            //         $od_client = $op->amount;
+            //     }
+            //     else{
+            //         $od_client = $op->loan_body_summ;
+            //         $percents_client = $op->loan_percents_summ;
+            //     }
+            // }
+            // $od += $od_client;
+            // $percents += $percents_client;
 
-            $this->design->assign('od', $od);
-            $this->design->assign('percents', $percents);
+            // $this->design->assign('od', $od);
+            // $this->design->assign('percents', $percents);
 
 
             $query = $this->db->placehold("
@@ -2664,12 +2664,12 @@ class StatisticsController extends Controller
                 $active_sheet->setCellValue('F7' , $pay_all_contracts_peni);
 
                 $active_sheet->setCellValue('A8', 'Остаток ОД');
-                $active_sheet->setCellValue('C8' , $od);
+                $active_sheet->setCellValue('C8' , $issued_contracts_od - $pay_all_contracts_od);
 
                 $active_sheet->setCellValue('A9', 'Начисленные и неоплаченные проценты');
-                $active_sheet->setCellValue('C9' , $percents);
+                $active_sheet->setCellValue('C9' , $issued_contracts_percents - $pay_all_contracts_percents);
                 $active_sheet->setCellValue('A10', 'Остаток ОД + проценты');
-                $active_sheet->setCellValue('C10' , $od + $percents);
+                $active_sheet->setCellValue('C10' , $issued_contracts_od - $pay_all_contracts_od + $issued_contracts_percents - $pay_all_contracts_percents);
                 $active_sheet->setCellValue('A11', 'Сумма дополнительных услуг');
                 $active_sheet->setCellValue('C11' , $services_all);
 
