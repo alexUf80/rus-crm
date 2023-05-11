@@ -2238,8 +2238,8 @@ class StatisticsController extends Controller
                 $date = $date_to;
             }
             $this->design->assign('date', $date);
-
             $period = $this->request->get('period');
+            
             $this->design->assign('period', $period);
 
             $query = $this->db->placehold("
@@ -2534,9 +2534,9 @@ class StatisticsController extends Controller
                 }
             }
 
-            // $this->design->assign('pay_all_contracts_od', $pay_all_contracts_od);
-            // $this->design->assign('pay_all_contracts_percents', $pay_all_contracts_percents);
-            // $this->design->assign('pay_all_contracts_peni', $pay_all_contracts_peni);
+            $this->design->assign('pay_all_contracts_od', $pay_all_contracts_od);
+            $this->design->assign('pay_all_contracts_percents', $pay_all_contracts_percents);
+            $this->design->assign('pay_all_contracts_peni', $pay_all_contracts_peni);
 
 
             // $query = $this->db->placehold("
