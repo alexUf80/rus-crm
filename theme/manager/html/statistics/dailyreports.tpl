@@ -395,8 +395,7 @@
                                     <td>Итого доп продуктов/Сумма</td>
                                     {foreach $final_array as $date => $operations}
                                         {if $date != 'Итого'}
-                                        <td>{$operations['count_insurance'] +
-                                            $operations['count_sms_services'] +
+                                        <td>{*}$operations['count_sms_services'] +{*}{$operations['count_insurance'] +
                                             $operations['count_reject_reason'] +
                                             $operations['count_card_binding']} шт /
                                             {$operations['sum_insurance'] +
@@ -404,8 +403,7 @@
                                             $operations['sum_reject_reason'] } руб</td>
                                         {/if}
                                         {if $date == 'Итого' && count($final_array) > 2}
-                                            <td>{$operations['count_insurance'] +
-                                                $operations['count_sms_services'] +
+                                            <td>{*}$operations['count_sms_services'] +{*}{$operations['count_insurance'] +
                                                 $operations['count_reject_reason'] +
                                                 $operations['count_card_binding']} шт /
                                                 {$operations['sum_insurance'] +
