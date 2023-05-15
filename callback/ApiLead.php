@@ -15,70 +15,7 @@ class ApiLead extends Core
         
         
         if ($this->request->method('post')){
-            
-            // $query = $this->db->placehold("
-            //     SELECT 
-            //     u.id,
-            //     u.first_loan_amount,
-            //     u.first_loan_period,
-            //     u.email,
-            //     u.lastname,
-            //     u.firstname,
-            //     u.patronymic,
-            //     u.gender,
-            //     u.birth,
-            //     u.birth_place,
-            //     u.phone_mobile,
-            //     u.passport_serial,
-            //     u.passport_date,
-            //     u.passport_issued,
-            //     u.regaddress_id,
-            //     u.faktaddress_id,
-            //     u.profession,
-            //     u.workplace,
-            //     u.workphone,
-            //     u.income,
-            //     u.expenses,
-            //     u.average_pay,
-            //     u.amount_pay,
-            //     cp.name as contact_person_name,
-            //     cp.relation as contact_person_relation,
-            //     cp.phone as contact_person_phone,
-            //     w.name as work_name,
-            //     w.director_phone as work_director_phone
-            //     FROM s_users u
-            //     LEFT JOIN s_contactpersons AS cp
-            //     ON u.id = cp.user_id
-            //     LEFT JOIN s_works AS w
-            //     ON u.id = w.user_id
-            //     WHERE u.id = 27900
-            // ");
-            // $this->db->query($query);
-            // $user = $this->db->result();
-
-            // $regaddress = $this->addresses->get_address($user->regaddress_id)->adressfull;
-            // $user->regaddress = $regaddress;
-            // $faktaddress = $this->addresses->get_address($user->faktaddress_id)->adressfull;
-            // $user->faktaddress = $faktaddress;
-
-            // $files  = $this->users->get_files(array('user_id'=>$user->id));
-            // $user->files = [];
-            // $user->files['dir'] = 'http://rus-client/files/users/';
-            // foreach ($files as $file) {
-            //     $user->files[$file->type] = $file->name;
-            // }
-
-            // $user->token = '3b42527be34ee985d8747ad190f0515e';
-
-            // $json = json_encode($user, JSON_UNESCAPED_UNICODE);
-
-
-            // echo $json;
-            // die;
-
-
-            // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            
+                        
             $this->run();
         }
         else{
@@ -174,7 +111,7 @@ class ApiLead extends Core
         $user_fields = ['email','lastname','firstname','patronymic',
         'birth','birth_place','phone_mobile','passport_serial','passport_date',
         'passport_issued','first_loan_amount','first_loan_period','social',
-        'profession','workplace','workphone','income','expenses',
+        'profession','workplace','workaddress','workphone','income','expenses',
         'average_pay','amount_pay','enabled','stage_personal','stage_passport',
         'stage_address','stage_work','stage_files','stage_card','lead_partner_id'];
 
