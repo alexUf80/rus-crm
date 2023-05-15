@@ -594,6 +594,8 @@ class Best2pay extends Core
         ));
         $b2p = file_get_contents($this->url . $type . '/' . $method, false, $context);
 
+        $this->soap1c->logging($type, $method, $data, $b2p, 'b2p.txt');
+
         return $b2p;
     }
 
