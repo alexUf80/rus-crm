@@ -22,7 +22,7 @@ class Transactions extends Core
             FROM __transactions
             WHERE register_id = ?
             AND operation = ?
-        ", (int)$register_id, $operation);
+        ", $register_id, $operation);
         $this->db->query($query);
         $result = $this->db->result();
 	
