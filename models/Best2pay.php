@@ -865,11 +865,11 @@ class Best2pay extends Core
 
         if (!empty($insurance)) {
             $insurance_cost = $this->insurances->get_insurance_cost($contract->amount);
-            $contract->amount += $insurance_cost;
+            // $contract->amount += $insurance_cost;
         }
         
         if (!empty($sms)) {
-            $contract->amount += 149;
+            // $contract->amount += 149;
         }
 
         $fio = $user->lastname . ' ' . $user->firstname . ' ' . $user->patronymic;

@@ -1115,7 +1115,8 @@ class OrderController extends Controller
             $msg = $user->firstname . ', получите займ у наших партнеров: srazu-dengi.ru';
             $this->sms->send($order->phone_mobile, $msg);
         }
-        
+
+        // $this->Leadsend->guruleads_send($order_id);
 
         return array('success' => 1, 'status' => $status);
     }

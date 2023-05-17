@@ -205,7 +205,8 @@ class IssuanceCron extends Core
 
                                     $this->contracts->update_contract($contract->id, array(
                                     'insurance_id' => $contract->insurance_id,
-                                    'loan_body_summ' => $contract->amount + $insurance_cost
+                                    // 'loan_body_summ' => $contract->amount + $insurance_cost
+                                    'loan_body_summ' => $contract->amount
                                 ));
 
                                 //создаем документы для страховки
@@ -228,8 +229,6 @@ class IssuanceCron extends Core
                                 }
                             }
                         }
-                        // $insurance_cost = $this->insurances->get_insurance_cost($contract->amount);
-                        // $contract->amount += 1500;
                     }
 
                     // Снимаем смс-информирование если есть
@@ -283,10 +282,10 @@ class IssuanceCron extends Core
 
                             // }
 
-                                $this->contracts->update_contract($contract->id, array(
-                                // 'insurance_id' => $contract->insurance_id,
-                                'loan_body_summ' => $contract->amount + $sms_cost
-                            ));
+                            // $this->contracts->update_contract($contract->id, array(
+                            //     // 'insurance_id' => $contract->insurance_id,
+                            //     'loan_body_summ' => $contract->amount + $sms_cost
+                            // ));
 
                             //создаем документы для страховки
                             // $this->create_document('POLIS', $contract);
@@ -309,14 +308,14 @@ class IssuanceCron extends Core
                         }
                     }
 
-                    if (!empty($contract->service_insurance)) {
-                        $insurance_cost = $this->insurances->get_insurance_cost($contract->amount);
-                        $contract->amount += $insurance_cost;
-                    }
+                    // if (!empty($contract->service_insurance)) {
+                    //     $insurance_cost = $this->insurances->get_insurance_cost($contract->amount);
+                    //     $contract->amount += $insurance_cost;
+                    // }
 
-                    if (!empty($contract->service_sms)) {
-                        $contract->amount += $sms_cost;
-                    }
+                    // if (!empty($contract->service_sms)) {
+                    //     $contract->amount += $sms_cost;
+                    // }
 
                     $user = $this->users->get_users($contract->user_id);
 
