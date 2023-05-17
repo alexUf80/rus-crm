@@ -294,6 +294,9 @@ class OrderController extends Controller
                     //echo '<pre>';print_r($dt->format($date));echo'</pre>';
                     //echo $date;
 
+                    if(!$client->time_zone)
+                    $time_zone = "Нет данных";
+
                     $this->design->assign('client_time', $client->time_zone);
                     $this->design->assign('client_time_zone', $time_zone);
 
