@@ -385,6 +385,7 @@ class OrderController extends Controller
                     }
 
                     $this->design->assign('documents', $documents);
+                    $this->design->assign('receipts', $this->receipts->get_receipts($order->user_id));
 
 
                     $user_close_orders = $this->orders->get_orders(array(
