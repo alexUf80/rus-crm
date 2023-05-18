@@ -1024,7 +1024,7 @@ class OrderController extends Controller
                 'service_number' => $max_service_value,
             ));
 
-            //Отправляем чек по страховке
+            //Отправляем чек по отказу
             $resp = $this->Cloudkassir->send_reject_reason($order->order_id);
 
             if (!empty($resp)) {
@@ -1032,7 +1032,7 @@ class OrderController extends Controller
 
                 $this->receipts->add_receipt(array(
                     'user_id' => $order->user_id,
-                    'Информирование о причине отказа',
+                    'name' => 'Информирование о причине отказа',
                     'order_id' => $order->order_id,
                     'contract_id' => 0,
                     'insurance_id' => 0,
@@ -3120,6 +3120,8 @@ class OrderController extends Controller
                 $operation_id = $operations[0]->id;
                 $operation_amount = $operations[0]->amount;
                 $title = 'Возврат услуги "Узнай причину отказа"';
+
+                // $res = $this->Cloudkassir->return_reject_reason($order_id);
                 break;
 
             case 'POLIS_STRAHOVANIYA':
@@ -3127,13 +3129,16 @@ class OrderController extends Controller
                 $operation_amount = $operation->amount;
                 $type = 'RETURN_INSURANCE';
                 $title = 'Возврат услуги "Страхование от несчастного случая"';
+
+                // $res = $this->Cloudkassir->return_insurance($operation->id);
                 break;
 
             case 'POLIS_ZAKRITIE':
                 $operation = $this->operations->get_operation($operation_id);
                 $operation_amount = $operation->amount;
                 $type = 'RETURN_INSURANCE';
-                $title = 'Возврат услуги "Страхование банковской карты"';
+
+                // $title = 'Возврат услуги "Страхование банковской карты"';
                 break;
 
         endswitch;
