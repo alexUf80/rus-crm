@@ -214,7 +214,7 @@ class IssuanceCron extends Core
                                 $this->create_document('KID', $contract);
 
                                 //Отправляем чек по страховке
-                                $return = $this->Cloudkassir->send_insurance($operation_id);
+                                // $return = $this->Cloudkassir->send_insurance($operation_id);
 
                                 if (!empty($return))
                                 {

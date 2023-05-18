@@ -42,11 +42,11 @@ class Onec implements ApiInterface
 
         $item = new StdClass();
 
-        if ($contract->service_insurance == 1)
-            $contract->amount += $contract->amount * 0.1;
+        // if ($contract->service_insurance == 1)
+        //     $contract->amount += $contract->amount * 0.1;
 
-        if ($contract->service_sms == 1)
-            $contract->amount += 149;
+        // if ($contract->service_sms == 1)
+        //     $contract->amount += 149;
 
         $item->ID = (string)$contract->id;
         $item->НомерДоговора = $contract->number;

@@ -99,7 +99,7 @@ class Best2pay extends Core
             $this->documents->create_document($document);
 
             //Отправляем чек 
-            $this->Cloudkassir->send_reject_reason($order->order_id);
+            // $this->Cloudkassir->send_reject_reason($order->order_id);
             if (!empty($resp)) {
                 $resp = json_decode($resp);
 
