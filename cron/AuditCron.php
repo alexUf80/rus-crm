@@ -147,7 +147,7 @@ class AuditCron extends Core
                         }
 
                         //Отправляем чек по отказу
-                        // $resp = $this->Cloudkassir->send_reject_reason($order->order_id);
+                        $resp = $this->Cloudkassir->send_reject_reason($order->order_id);
 
                         if (!empty($resp)) {
                             $resp = json_decode($resp);
