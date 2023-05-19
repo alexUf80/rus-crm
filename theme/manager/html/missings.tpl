@@ -172,8 +172,27 @@ console.log($this.closest('.jsgrid-row'))
                                                 {$client->created|time}
                                             </td>
                                             <td style="width: 80px;" class="jsgrid-cell">
+                                                {if $client->stage_card}
+                                                    {*}<span>Получение займа</span>{*}
+                                                {elseif $client->stage_files}
+                                                    <span>Добавление данных карты</span>
+                                                {elseif $client->stage_work}
+                                                    <span>Добавление файлов</span>
+                                                {elseif $client->stage_address}
+                                                    <span>Добавление данных о работе</span>
+                                                {elseif $client->stage_passport}
+                                                    <span>Добавление адреса</span>
+                                                {elseif $client->stage_personal}
+                                                    <span>Добавление данных из паспорта</span>
+                                                {else}
+                                                    <span>Добавление данных контактного лица</span>
+                                                {/if}
+
+                                                
+                                                {*}
                                                 <span>{$client->last_stage_date|date}</span>
                                                 {$client->last_stage_date|time}
+                                                {*}
                                             </td>
                                             <td style="width: 120px;" class="jsgrid-cell">
                                                 {$client->lastname|escape}
