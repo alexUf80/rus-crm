@@ -152,7 +152,7 @@ class AuditCron extends Core
 
                             $this->receipts->add_receipt(array(
                                 'user_id' => $order->user_id,
-                                'name' => 'Информирование о причине отказа',
+                                'name' => 'информирование о причине отказа',
                                 'order_id' => $order->order_id,
                                 'contract_id' => 0,
                                 'insurance_id' => 0,
