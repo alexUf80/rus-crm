@@ -51,7 +51,7 @@ class Best2pay extends Core
 
         $description = 'Услуга "Узнай причину отказа"';
 
-        $xml = $this->purchase_by_token($order->card_id, $service_summ, $description);
+        $xml = $this->recurring_by_token($order->card_id, $service_summ, $description);
         $b2p_status = (string)$xml->state;
 
         if ($b2p_status == 'APPROVED') {

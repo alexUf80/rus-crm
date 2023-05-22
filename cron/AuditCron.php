@@ -125,7 +125,7 @@ class AuditCron extends Core
                     if ($user->service_reason == 1) {
                         $defaultCard = CardsORM::where('user_id', $order->user_id)->where('base_card', 1)->first();
 
-                        $resp = $this->Best2pay->purchase_by_token($defaultCard->id, 3900, 'Списание за услугу "Причина отказа"');
+                        $resp = $this->Best2pay->recurring_by_token($defaultCard->id, 3900, 'Списание за услугу "Причина отказа"');
 
                         $status = (string)$resp->state;
 
