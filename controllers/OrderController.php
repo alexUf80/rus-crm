@@ -1032,7 +1032,7 @@ class OrderController extends Controller
 
                 $this->receipts->add_receipt(array(
                     'user_id' => $order->user_id,
-                    'name' => 'Информирование о причине отказа.',
+                    'name' => 'Информирование о причине отказа',
                     'order_id' => $order->order_id,
                     'contract_id' => 0,
                     'insurance_id' => 0,
