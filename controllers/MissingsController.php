@@ -54,7 +54,23 @@ class MissingsController extends Controller
         $current_page = max(1, $current_page);
         $this->design->assign('current_page_num', $current_page);
 
-        $clients_count = $this->users->count_users($filter);
+        // $clients_count = $this->users->count_users($filter);
+
+        $query = $this->db->placehold("
+            SELECT count(*) as cou 
+            FROM __users
+            WHERE 
+            stage_personal = 0 OR
+	        stage_passport = 0 OR
+	        stage_address = 0 OR
+	        stage_work = 0 OR
+	        stage_files = 0 OR
+	        stage_card = 0
+        ");
+        $this->db->query($query);
+
+        $clients_cou = $this->db->results();
+        $clients_count = $clients_cou[0]->cou;
 
         $pages_num = ceil($clients_count / $items_per_page);
         $this->design->assign('total_pages_num', $pages_num);
@@ -63,7 +79,33 @@ class MissingsController extends Controller
         $filter['page'] = $current_page;
         $filter['limit'] = $items_per_page;
 
-        $clients = $this->users->get_users($filter);
+        // $clients = $this->users->get_users($filter);
+
+        if (isset($filter['limit']))
+            $limit = max(1, intval($filter['limit']));
+
+        if (isset($filter['page']))
+            $page = max(1, intval($filter['page']));
+
+        $sql_limit = $this->db->placehold(' LIMIT ?, ? ', ($page - 1) * $limit, $limit);
+
+        $query = $this->db->placehold("
+            SELECT * 
+            FROM __users
+            WHERE 
+            stage_personal = 0 OR
+	        stage_passport = 0 OR
+	        stage_address = 0 OR
+	        stage_work = 0 OR
+	        stage_files = 0 OR
+	        stage_card = 0
+            $sql_limit
+        ");
+        $this->db->query($query);
+        // echo $query;
+        // die;
+
+        $clients = $this->db->results();
 
         foreach ($clients as $client) {
             $usersId[] = $client->id;
@@ -122,22 +164,22 @@ class MissingsController extends Controller
 
         $this->design->assign('clients', $clients);
 
-        $statistic = new StdClass();
+        // $statistic = new StdClass();
 
-        $st_params = array(
-            'date_from' => date('Y-m-d 00:00:00'),
-            'date_to' => date('Y-m-d 20:00:00'),
-            'missing_status' => 1,
-        );
-        $statistic->closed = $this->users->count_users($st_params);
+        // $st_params = array(
+        //     'date_from' => date('Y-m-d 00:00:00'),
+        //     'date_to' => date('Y-m-d 20:00:00'),
+        //     'missing_status' => 1,
+        // );
+        // $statistic->closed = $this->users->count_users($st_params);
 
-        $cmplt_params = array(
-            'date_from' => date('Y-m-d 00:00:00'),
-            'date_to' => date('Y-m-d 23:59:59'),
-            'missing_status' => 1,
-            'completed' => 1
-        );
-        $statistic->completed = $this->users->count_users($cmplt_params);
+        // $cmplt_params = array(
+        //     'date_from' => date('Y-m-d 00:00:00'),
+        //     'date_to' => date('Y-m-d 23:59:59'),
+        //     'missing_status' => 1,
+        //     'completed' => 1
+        // );
+        // $statistic->completed = $this->users->count_users($cmplt_params);
 
 
 
