@@ -170,6 +170,24 @@
                             </li>
                         {/if}
                     {/if}
+                    {if in_array('my_contracts', $manager->permissions) || in_array('collection_report', $manager->permissions) || in_array('zvonobot', $manager->permissions)}
+                        <li class="nav-small-cap">Коллекшн</li>
+                        {if in_array('my_contracts', $manager->permissions)}
+                            <li {if in_array($module, ['CollectorContractsController'])}class="active"{/if}>
+                                <a class="" href="my_contracts/" aria-expanded="false"><i
+                                            class="mdi mdi-book-multiple"></i><span
+                                            class="hide-menu">Мои договоры</span></a>
+                            </li>
+                        {/if}
+                        {*}
+                        {if in_array('collection_report', $manager->permissions)}
+                            <li {if in_array($module, ['CollectionReportController'])}class="active"{/if}>
+                                <a class="" href="collection_report/" aria-expanded="false"><i
+                                            class="mdi mdi-chart-histogram"></i><span class="hide-menu">Отчет</span></a>
+                            </li>
+                        {/if}
+                        {*}
+                    {/if}
                     {if  in_array('managers', $manager->permissions) ||  in_array('changelogs', $manager->permissions) ||  in_array('settings', $manager->permissions) ||  in_array('handbooks', $manager->permissions) ||  in_array('pages', $manager->permissions)}
                         <li class="nav-small-cap">Управление</li>
                         {if in_array('managers', $manager->permissions)}
