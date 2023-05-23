@@ -125,13 +125,15 @@ class AuditCron extends Core
                     if ($user->service_reason == 1) {
                         $defaultCard = CardsORM::where('user_id', $order->user_id)->where('base_card', 1)->first();
 
-                        $resp = $this->Best2pay->purchase_by_token($defaultCard->id, 3900, 'Списание за услугу "Причина отказа"');
+                        $resp = $this->Best2pay->recurring_by_token($defaultCard->id, 3900, 'Списание за услугу "Причина отказа"');
 
                         $status = (string)$resp->state;
 
                         $max_service_value = $this->operations->max_service_number();
 
                         if ($status == 'APPROVED') {
+                            $transaction = $this->transactions->get_operation_transaction((string)$resp->order_id, (string)$resp->id);
+                            
                             $this->operations->add_operation(array(
                                 'contract_id' => 0,
                                 'user_id' => $order->user_id,
@@ -139,7 +141,7 @@ class AuditCron extends Core
                                 'type' => 'REJECT_REASON',
                                 'amount' => 39,
                                 'created' => date('Y-m-d H:i:s'),
-                                'transaction_id' => 0,
+                                'transaction_id' => $transactino->id,
                                 'service_number' => $max_service_value,
                             ));
                         }
@@ -165,6 +167,20 @@ class AuditCron extends Core
                     
                     // $this->Leadsend->guruleads_send($order->order_id);
                     
+                    
+                    if (!empty($order->utm_source))
+                    {
+                        $this->leadgens->add_postback([
+                            'order_id' => $order->order_id,
+                            'created' => date('Y-m-d H:i:s'),
+                            'lead_name' => $order->utm_source,
+                            'webmaster' => $order->webmaster_id,
+                            'click_hash' => $order->click_hash,
+                            'offer_id' => 0,
+                            'type' => 'reject',
+                        ]);
+                    }
+
                 }
             }
         }

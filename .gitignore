@@ -18,3 +18,9 @@ Thumbs.db
 !/files/.htaccess
 /cron/log.txt
 /PHPExcel
+
+Leadgens.xlsx
+Orders.xlsx
+/scripts/TestScript.php
+/controllers/TestController.php
+/cron/test.php

@@ -1,24 +1,12 @@
 <?php
-
 error_reporting(-1);
 ini_set('display_errors', 'On');
 
 
-//chdir('/home/v/vse4etkoy2/nalic_eva-p_ru/public_html/');
 chdir(dirname(__FILE__) . '/../');
 
 require 'autoload.php';
 
-/**
- * IssuanceCron
- *
- * Скрипт выдает кредиты, и списывает страховку
- *
- * @author Ruslan Kopyl
- * @copyright 2021
- * @version $Id$
- * @access public
- */
 class SendPostbackCron extends Core
 {
     public function __construct()
@@ -29,22 +17,14 @@ class SendPostbackCron extends Core
 
     private function run()
     {
-        $crons = PostbacksCronORM::where('is_complited', 0)->get();
-
-        foreach ($crons as $cron)
+        if ($postbacks = $this->leadgens->get_postbacks(['sent_status' => 0]))
         {
-            $order = OrdersORM::find($cron->order_id);
-
-            $postback = new stdClass();
-            $postback->status = $cron->status;
-            $postback->click_hash = $order->click_hash;
-            $postback->goalId = $cron->goal_id;
-            $postback->transactionId = rand(0, 999999);
-
-            LeadFinancesPostbacks::sendRequest($postback);
-
-            PostbacksCronORM::find($cron->id)->update(['is_complited' => 1, 'transaction_id' => $postback->transactionId]);
+            foreach ($postbacks as $postback)
+            {
+                $this->leadgens->send_postback($postback);
+            }
         }
+echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($postbacks);echo '</pre><hr />';        
     }
 }
 $cron = new SendPostbackCron();

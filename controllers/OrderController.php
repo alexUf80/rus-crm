@@ -1004,7 +1004,7 @@ class OrderController extends Controller
 
         $defaultCard = CardsORM::where('user_id', $order->user_id)->where('base_card', 1)->first();
 
-        $resp = $this->Best2pay->purchase_by_token($defaultCard->id, 3900, 'Списание за услугу "Причина отказа"');
+        $resp = $this->Best2pay->recurring_by_token($defaultCard->id, 3900, 'Списание за услугу "Причина отказа"');
         $status = (string)$resp->state;
 
         $max_service_value = $this->operations->max_service_number();
@@ -1048,13 +1048,25 @@ class OrderController extends Controller
         if (!empty($order->utm_source) && $order->utm_source == 'leadstech')
             PostbacksCronORM::insert(['order_id' => $order->order_id, 'status' => 2, 'goal_id' => 3]);
 
+        if (!empty($order->utm_source))
+        {
+            $this->leadgens->add_postback([
+                'order_id' => $order->order_id,
+                'created' => date('Y-m-d H:i:s'),
+                'lead_name' => $order->utm_source,
+                'webmaster' => $order->webmaster_id,
+                'click_hash' => $order->click_hash,
+                'offer_id' => 0,
+                'type' => 'reject',
+            ]);
+        }
 
         // создаем документ на оказание услуг
         $user = $this->users->get_user($order->user_id);
         
         $params = [
             'contract' => $contract,
-            'user' => $user11,
+            'user' => $user,
         ];
 
         $document =

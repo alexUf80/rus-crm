@@ -15,7 +15,7 @@ class Onec implements ApiInterface
         return self::{$params['method']}($params['params']);
     }
 
-    private static function send_loan($order_id)
+    public static function send_loan($order_id)
     {
         self::$orderId = $order_id;
 
@@ -98,12 +98,23 @@ class Onec implements ApiInterface
         $request = new StdClass();
         $request->TextJSON = json_encode($item);
 
-        $result = self::send_request('CRM_WebService', 'Loans', $request);
-
+        $response = self::send_request('CRM_WebService', 'Loans', $request);
+        $result = json_decode($response);
+echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($result, $item);echo '</pre><hr />';
         if (isset($result->return) && $result->return == 'OK')
+        {
+            $update = [
+                'sent_status' => 2,
+                'sent_date' => date('Y-m-d H:i:s')
+            ];
+            ContractsORM::where('id', $contract->id)->update($update);
+
             return 1;
+        }
         else
+        {
             return 2;
+        }
     }
 
     private static function send_request($service, $method, $request)
@@ -235,6 +246,11 @@ class Onec implements ApiInterface
 
     private static function sendPayments($payment)
     {
+        $contract = ContractsORM::find($payment->contract_id);
+
+        if(empty($contract))
+            return 1;
+
         $item = new StdClass();
         $item->ID = $payment->id;
         $item->Дата = date('YmdHis', strtotime($payment->date));
@@ -271,4 +287,209 @@ class Onec implements ApiInterface
         else
             return 2;
     }
+
+
+
+
+    /**
+     * Onec::sendTaxingWithPeni()
+     * 
+     * @param string $date - дата (Y-m-d) за которую нужно отправить начисления 
+     * @return void
+     */
+    public static function sendTaxingWithPeni($date)
+    {
+        $start = date('Y-m-d 00:00:00', strtotime($date));
+        $end = date('Y-m-d 23:59:59', strtotime($date));
+
+        $percents = OperationsORM::whereIn('type', ['PERCENTS', 'PENI'])
+            ->whereBetween('created', [$start, $end])
+            ->groupBy()
+            ->get();
+
+        $groupsOperations = [];
+
+        foreach ($percents as $percent) {
+            $date = date('Y-m-d', strtotime($percent->created));
+            $groupsOperations[$date][] = $percent;
+        }
+
+        foreach ($groupsOperations as $date => $operations) {
+
+            $item = [];
+
+            foreach ($operations as $operation) {
+                $contract = ContractsORM::find($operation->contract_id);
+
+                if (empty($contract) || empty($contract->number))
+                    continue;
+
+                if ($operation->type == 'PENI')
+                {
+                    $item[] =
+                        [
+                            'НомерДоговора' => $contract->number,
+                            'ВидНачисления' => 'Пени',
+                            'ДатаПлатежа' => date('0001010101'),
+                            'Сумма' => $operation->amount
+                        ];
+                    
+                }
+                else
+                {
+                    $item[] =
+                        [
+                            'НомерДоговора' => $contract->number,
+                            'ВидНачисления' => 'Проценты',
+                            'ДатаПлатежа' => date('Ymd000000', strtotime($contract->return_date)),
+                            'Сумма' => $operation->amount
+                        ];
+                    
+                }
+            }
+
+            self::$orderId = 123;
+
+            $request = new StdClass();
+            $request->TextJSON = json_encode($item);
+            $request->Date = date('YmdHis', strtotime($date));
+            $request->INN = '7801323165';
+
+            $response = self::send_request('CRM_WebService', 'InterestCalculation', $request);
+            $result = json_decode($response);
+            
+            if (isset($result->return) && $result->return == 'ОК')
+            {
+                $update = array(
+                    'sent_date' => date('Y-m-d H:i:s'),
+                    'sent_status' => 2
+                );
+            }
+            else
+            {
+                $update = array(
+                    'sent_date' => date('Y-m-d H:i:s'),
+                    'sent_status' => 8
+                );                    
+            }
+            
+            foreach ($operations as $operation)
+            {
+                OperationsORM::where('id', $operation->id)->update($update);
+            }
+
+echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($result);echo '</pre><hr />';        
+        }
+    }
+
+    /**
+     * Onec::sendPayment()
+     * 
+     * @param mixed $payment
+     * @return
+     */
+    public static function sendPayment($payment)
+    {
+        $item = new StdClass();
+        
+        $item->ID = $payment->id;
+        $item->Дата = date('YmdHis', strtotime($payment->created));
+        $item->ЗаймID = (string)$payment->contract_id;
+        $item->Пролонгация = empty($payment->prolongation) ? 0 : 1;
+        $item->СрокПролонгации = empty($payment->prolongation) ? 0 : 30;
+        $item->ИдентификаторФормыОплаты = 'ТретьеЛицо';
+        $item->OrderID = $payment->register_id;
+        $item->OperationID = $payment->operation;
+        
+        $item->Закрытие = 0;
+        if (!empty($payment->close_date))
+            if (strtotime(date('Y-m-d', strtotime($payment->created))) == strtotime(date('Y-m-d', strtotime($payment->close_date))))
+                $item->Закрытие = 1;
+
+        $item->Оплаты =
+            [
+                [
+                    'ИдентификаторВидаНачисления' => 'ОсновнойДолг',
+                    'Сумма' => empty($payment->loan_body_summ) ? 0 : (float)$payment->loan_body_summ
+                ],
+                [
+                    'ИдентификаторВидаНачисления' => 'Проценты',
+                    'Сумма' => empty($payment->loan_percents_summ) ? 0 : (float)$payment->loan_percents_summ
+                ],
+                [
+                    'ИдентификаторВидаНачисления' => 'Пени',
+                    'Сумма' => empty($payment->loan_peni_summ) ? 0 : (float)$payment->loan_peni_summ
+                ]
+            ];
+
+        self::$orderId = $payment->order_id;
+
+        $request = new StdClass();
+        $request->TextJSON = json_encode($item);
+
+        $response = self::send_request('CRM_WebService', 'Payments', $request);
+        $result = json_decode($response);
+echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($item, $result);echo '</pre><hr />';
+        if (isset($result->return) && $result->return == 'OK')
+        {
+            $update = array(
+                'sent_date' => date('Y-m-d H:i:s'),
+                'sent_status' => 2
+            );
+        }
+        else
+        {
+            $update = array(
+                'sent_date' => date('Y-m-d H:i:s'),
+                'sent_status' => 8
+            );                    
+        }
+            
+        OperationsORM::where('id', $payment->id)->update($update);
+        
+        return $result;
+    }
+
+    public static function send_service($service)
+    {
+        $item = new StdClass();
+        $item->Дата = date('Ymd000000', strtotime($service->date));
+        $item->Клиент_id = (string)$service->user_id;
+        $item->Сумма = $service->insurance_cost;
+        $item->НомерДоговора = (string)$service->number;
+        $item->Операция_id = (string)$service->crm_operation_id;
+        $item->Страховка = $service->is_insurance;
+        $item->OrderID = $service->order_id;
+        $item->OperationID = $service->operation_id;
+        $item->НомерКарты = $service->card_pan;
+
+        self::$orderId = $service->order_id;
+
+        $request = new StdClass();
+        $request->TextJSON = json_encode($item);
+
+        $response = self::send_request('CRM_WebService', 'SaleService', $request);
+        $result = json_decode($response);
+
+        if (isset($result->return) && $result->return == 'OK')
+        {
+            $update = array(
+                'sent_date' => date('Y-m-d H:i:s'),
+                'sent_status' => 2
+            );
+        }
+        else
+        {
+            $update = array(
+                'sent_date' => date('Y-m-d H:i:s'),
+                'sent_status' => 8
+            );                    
+        }
+            
+        OperationsORM::where('id', $service->crm_operation_id)->update($update);
+        
+        return $result;
+    }
+
+
 }
