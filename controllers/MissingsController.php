@@ -39,6 +39,8 @@ class MissingsController extends Controller
 //            $filter['missing_manager_id'] = $this->manager->id;
         }
 
+        $filter['stage'] = 1;
+
         if (!($sort = $this->request->get('sort', 'string'))) {
             $sort = 'id_desc';
         }
@@ -80,45 +82,50 @@ class MissingsController extends Controller
         }
 
 
+        // var_dump(count($clients));
+
         $clients = array_map(function($var) {
             if (!empty($var->stage_card))
             {
                 $var->stages = 7;
-                $var->last_stage_date = $var->card_added_date;
+                // $var->last_stage_date = $var->card_added_date;
             }
             elseif (!empty($var->stage_files))
             {
                 $var->stages = 6;
-                $var->last_stage_date = $var->files_added_date;
+                // $var->last_stage_date = $var->files_added_date;
             }
             elseif (!empty($var->stage_work))
             {
                 $var->stages = 5;
-                $var->last_stage_date = $var->work_added_date;
+                // $var->last_stage_date = $var->work_added_date;
             }
             elseif (!empty($var->stage_address))
             {
                 $var->stages = 4;
-                $var->last_stage_date = $var->address_data_added_date;
+                // $var->last_stage_date = $var->address_data_added_date;
             }
             elseif (!empty($var->stage_passport))
             {
                 $var->stages = 3;
-                $var->last_stage_date = $var->passport_date_added_date;
+                // $var->last_stage_date = $var->passport_date_added_date;
             }
             elseif (!empty($var->stage_personal))
             {
                 $var->stages = 2;
-                $var->last_stage_date = $var->stage_personal_date;
+                // $var->last_stage_date = $var->stage_personal_date;
             }
             else
             {
                 $var->stages = 1;
-                $var->last_stage_date = $var->created;
+                // $var->last_stage_date = $var->created;
             }
 
             return $var;
         }, $clients);
+
+        // var_dump(count($clients));
+        // die;
 
         $this->design->assign('clients', $clients);
 

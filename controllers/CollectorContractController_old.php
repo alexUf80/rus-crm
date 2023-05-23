@@ -47,11 +47,6 @@ class CollectorContractController extends Controller
                     $this->design->assign('blacklisted', $blacklisted);
                 }
 
-                $regaddress = $this->Addresses->get_address($user->regaddress_id);
-                $faktaddress = $this->Addresses->get_address($user->faktaddress_id);
-                $this->design->assign('regaddress', $regaddress->adressfull);
-                $this->design->assign('faktaddress', $faktaddress->adressfull);
-
 
                 $fetch_api = $this->dadata->fetch_clean_api('address', [$user->Regregion]);
 
@@ -343,7 +338,7 @@ class CollectorContractController extends Controller
 
         if (!empty($text_sms)) {
             $template = $text_sms;
-            $template .= " ООО МКК Финансовый Аспект ecozaym24.ru/lk/login";
+            $template .= " ООО МКК Финансовый Аспект rus-zaym/lk/login";
             $template .= " $manager->phone ";
         }
 
@@ -351,7 +346,7 @@ class CollectorContractController extends Controller
 
             $template = $this->sms->get_template($template_id);
             $template = $template->template;
-            $template .= " ООО МКК Финансовый Аспект ecozaym24.ru/lk/login";
+            $template .= " ООО МКК Финансовый Аспект rus-zaym/lk/login";
             $template .= " $manager->phone ";
         }
 
