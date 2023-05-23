@@ -213,24 +213,24 @@ class IssuanceCron extends Core
                                 $this->create_document('POLIS', $contract);
                                 $this->create_document('KID', $contract);
 
-                                //Отправляем чек по страховке
-                                $return = $this->Cloudkassir->send_insurance($operation_id);
+                                // //Отправляем чек по страховке
+                                // $return = $this->Cloudkassir->send_insurance($operation_id);
 
-                                if (!empty($return))
-                                {
-                                    $resp = json_decode($return);
+                                // if (!empty($return))
+                                // {
+                                //     $resp = json_decode($return);
     
-                                    $this->receipts->add_receipt(array(
-                                        'user_id' => $contract->user_id,
-                                        'name' => 'Страхование от несчастных случаев',
-                                        'order_id' => $contract->order_id,
-                                        'contract_id' => $contract->id,
-                                        'insurance_id' => $contract->insurance_id,
-                                        'receipt_url' => (string)$resp->Model->ReceiptLocalUrl,
-                                        'response' => serialize($return),
-                                        'created' => date('Y-m-d H:i:s'),
-                                    ));
-                                }
+                                //     $this->receipts->add_receipt(array(
+                                //         'user_id' => $contract->user_id,
+                                //         'name' => 'Страхование от несчастных случаев',
+                                //         'order_id' => $contract->order_id,
+                                //         'contract_id' => $contract->id,
+                                //         'insurance_id' => $contract->insurance_id,
+                                //         'receipt_url' => (string)$resp->Model->ReceiptLocalUrl,
+                                //         'response' => serialize($return),
+                                //         'created' => date('Y-m-d H:i:s'),
+                                //     ));
+                                // }
                             }
                         }
                     }
