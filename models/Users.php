@@ -87,9 +87,20 @@ class Users extends Core
         $id_filter = '';
         $keyword_filter = '';
         $search_filter = '';
+        $stage_filter = '';
         $limit = 1000;
         $page = 1;
         $sort = 'id DESC';
+
+
+        if (!empty($filter['stage'])){
+            $stage_filter = $this->db->placehold("AND (stage_personal = 0 OR
+            stage_passport = 0 OR
+            stage_address = 0 OR
+            stage_work = 0 OR
+            stage_files = 0 OR
+            stage_card = 0)");
+        }
 
         if (!empty($filter['id']))
             $id_filter = $this->db->placehold("AND id IN (?@)", array_map('intval', (array)$filter['id']));
@@ -188,6 +199,7 @@ class Users extends Core
             SELECT * 
             FROM __users
             WHERE 1
+                $stage_filter
                 $id_filter
                 $search_filter
                 $keyword_filter
@@ -209,6 +221,16 @@ class Users extends Core
         $id_filter = '';
         $keyword_filter = '';
         $search_filter = '';
+        $stage_filter = '';
+
+        if (!empty($filter['stage'])){
+            $stage_filter = $this->db->placehold("AND (stage_personal = 0 OR
+            stage_passport = 0 OR
+            stage_address = 0 OR
+            stage_work = 0 OR
+            stage_files = 0 OR
+            stage_card = 0)");
+        }
 
         if (!empty($filter['id']))
             $id_filter = $this->db->placehold("AND id IN (?@)", array_map('intval', (array)$filter['id']));
@@ -253,6 +275,7 @@ class Users extends Core
             SELECT COUNT(id) AS count
             FROM __users
             WHERE 1
+                $stage_filter
                 $id_filter
                 $search_filter
                 $keyword_filter

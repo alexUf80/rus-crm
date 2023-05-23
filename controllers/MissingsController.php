@@ -39,6 +39,8 @@ class MissingsController extends Controller
 //            $filter['missing_manager_id'] = $this->manager->id;
         }
 
+        $filter['stage'] = 1;
+
         if (!($sort = $this->request->get('sort', 'string'))) {
             $sort = 'id_desc';
         }
@@ -54,23 +56,7 @@ class MissingsController extends Controller
         $current_page = max(1, $current_page);
         $this->design->assign('current_page_num', $current_page);
 
-        // $clients_count = $this->users->count_users($filter);
-
-        $query = $this->db->placehold("
-            SELECT count(*) as cou 
-            FROM __users
-            WHERE 
-            stage_personal = 0 OR
-	        stage_passport = 0 OR
-	        stage_address = 0 OR
-	        stage_work = 0 OR
-	        stage_files = 0 OR
-	        stage_card = 0
-        ");
-        $this->db->query($query);
-
-        $clients_cou = $this->db->results();
-        $clients_count = $clients_cou[0]->cou;
+        $clients_count = $this->users->count_users($filter);
 
         $pages_num = ceil($clients_count / $items_per_page);
         $this->design->assign('total_pages_num', $pages_num);
@@ -79,33 +65,7 @@ class MissingsController extends Controller
         $filter['page'] = $current_page;
         $filter['limit'] = $items_per_page;
 
-        // $clients = $this->users->get_users($filter);
-
-        if (isset($filter['limit']))
-            $limit = max(1, intval($filter['limit']));
-
-        if (isset($filter['page']))
-            $page = max(1, intval($filter['page']));
-
-        $sql_limit = $this->db->placehold(' LIMIT ?, ? ', ($page - 1) * $limit, $limit);
-
-        $query = $this->db->placehold("
-            SELECT * 
-            FROM __users
-            WHERE 
-            stage_personal = 0 OR
-	        stage_passport = 0 OR
-	        stage_address = 0 OR
-	        stage_work = 0 OR
-	        stage_files = 0 OR
-	        stage_card = 0
-            $sql_limit
-        ");
-        $this->db->query($query);
-        // echo $query;
-        // die;
-
-        $clients = $this->db->results();
+        $clients = $this->users->get_users($filter);
 
         foreach ($clients as $client) {
             $usersId[] = $client->id;
@@ -122,64 +82,69 @@ class MissingsController extends Controller
         }
 
 
-        // $clients = array_map(function($var) {
-        //     if (!empty($var->stage_card))
-        //     {
-        //         $var->stages = 7;
-        //         $var->last_stage_date = $var->card_added_date;
-        //     }
-        //     elseif (!empty($var->stage_files))
-        //     {
-        //         $var->stages = 6;
-        //         $var->last_stage_date = $var->files_added_date;
-        //     }
-        //     elseif (!empty($var->stage_work))
-        //     {
-        //         $var->stages = 5;
-        //         $var->last_stage_date = $var->work_added_date;
-        //     }
-        //     elseif (!empty($var->stage_address))
-        //     {
-        //         $var->stages = 4;
-        //         $var->last_stage_date = $var->address_data_added_date;
-        //     }
-        //     elseif (!empty($var->stage_passport))
-        //     {
-        //         $var->stages = 3;
-        //         $var->last_stage_date = $var->passport_date_added_date;
-        //     }
-        //     elseif (!empty($var->stage_personal))
-        //     {
-        //         $var->stages = 2;
-        //         $var->last_stage_date = $var->stage_personal_date;
-        //     }
-        //     else
-        //     {
-        //         $var->stages = 1;
-        //         $var->last_stage_date = $var->created;
-        //     }
+        // var_dump(count($clients));
 
-        //     return $var;
-        // }, $clients);
+        $clients = array_map(function($var) {
+            if (!empty($var->stage_card))
+            {
+                $var->stages = 7;
+                // $var->last_stage_date = $var->card_added_date;
+            }
+            elseif (!empty($var->stage_files))
+            {
+                $var->stages = 6;
+                // $var->last_stage_date = $var->files_added_date;
+            }
+            elseif (!empty($var->stage_work))
+            {
+                $var->stages = 5;
+                // $var->last_stage_date = $var->work_added_date;
+            }
+            elseif (!empty($var->stage_address))
+            {
+                $var->stages = 4;
+                // $var->last_stage_date = $var->address_data_added_date;
+            }
+            elseif (!empty($var->stage_passport))
+            {
+                $var->stages = 3;
+                // $var->last_stage_date = $var->passport_date_added_date;
+            }
+            elseif (!empty($var->stage_personal))
+            {
+                $var->stages = 2;
+                // $var->last_stage_date = $var->stage_personal_date;
+            }
+            else
+            {
+                $var->stages = 1;
+                // $var->last_stage_date = $var->created;
+            }
+
+            return $var;
+        }, $clients);
+
+        // var_dump(count($clients));
+        // die;
 
         $this->design->assign('clients', $clients);
 
-        // $statistic = new StdClass();
+        $statistic = new StdClass();
 
-        // $st_params = array(
-        //     'date_from' => date('Y-m-d 00:00:00'),
-        //     'date_to' => date('Y-m-d 20:00:00'),
-        //     'missing_status' => 1,
-        // );
-        // $statistic->closed = $this->users->count_users($st_params);
+        $st_params = array(
+            'date_from' => date('Y-m-d 00:00:00'),
+            'date_to' => date('Y-m-d 20:00:00'),
+            'missing_status' => 1,
+        );
+        $statistic->closed = $this->users->count_users($st_params);
 
-        // $cmplt_params = array(
-        //     'date_from' => date('Y-m-d 00:00:00'),
-        //     'date_to' => date('Y-m-d 23:59:59'),
-        //     'missing_status' => 1,
-        //     'completed' => 1
-        // );
-        // $statistic->completed = $this->users->count_users($cmplt_params);
+        $cmplt_params = array(
+            'date_from' => date('Y-m-d 00:00:00'),
+            'date_to' => date('Y-m-d 23:59:59'),
+            'missing_status' => 1,
+            'completed' => 1
+        );
+        $statistic->completed = $this->users->count_users($cmplt_params);
 
 
 

@@ -110,10 +110,10 @@ console.log($this.closest('.jsgrid-row'))
                                             {if $sort == 'date_asc'}<a href="{url page=null sort='date_desc'}">Регистрация</a>
                                             {else}<a href="{url page=null sort='date_asc'}">Регистрация</a>{/if}
                                         </th>
-                                        <th style="width: 80px;" class="jsgrid-header-cell jsgrid-header-sortable {if $sort == 'date_asc'}jsgrid-header-sort jsgrid-header-sort-asc{elseif $sort == 'date_desc'}jsgrid-header-sort jsgrid-header-sort-desc{/if}">
+                                        {*}<th style="width: 80px;" class="jsgrid-header-cell jsgrid-header-sortable {if $sort == 'date_asc'}jsgrid-header-sort jsgrid-header-sort-asc{elseif $sort == 'date_desc'}jsgrid-header-sort jsgrid-header-sort-desc{/if}">
                                             {if $sort == 'date_asc'}<a href="{url page=null sort='date_desc'}">Посл. действие</a>
                                             {else}<a href="{url page=null sort='date_asc'}">Посл. действие</a>{/if}
-                                        </th>
+                                        </th>{*}
                                         <th style="width: 120px;" class="jsgrid-header-cell jsgrid-header-sortable {if $sort == 'fio_asc'}jsgrid-header-sort jsgrid-header-sort-asc{elseif $sort == 'fio_desc'}jsgrid-header-sort jsgrid-header-sort-desc{/if}">
                                             {if $sort == 'fio_asc'}<a href="{url page=null sort='fio_desc'}">ФИО</a>
                                             {else}<a href="{url page=null sort='fio_asc'}">ФИО</a>{/if}
@@ -138,9 +138,11 @@ console.log($this.closest('.jsgrid-row'))
                                         <td style="width: 80px;" class="jsgrid-cell jsgrid-align-right">
                                             <input type="text" name="created" value="{$search['created']}" class="form-control input-sm">
                                         </td>
+                                        {*}
                                         <td style="width: 80px;" class="jsgrid-cell jsgrid-align-right">
                                             <input type="text" name="created" value="{$search['created']}" class="form-control input-sm">
                                         </td>
+                                        {*}
                                         <td style="width: 120px;" class="jsgrid-cell jsgrid-align-right">
                                             <input type="text" name="fio" value="{$search['fio']}" class="form-control input-sm">
                                         </td>
@@ -171,9 +173,11 @@ console.log($this.closest('.jsgrid-row'))
                                                 <span>{$client->created|date}</span>
                                                 {$client->created|time}
                                             </td>
+                                            {*}
                                             <td style="width: 80px;" class="jsgrid-cell">
+                                                {$client->created}
                                                 {if $client->stage_card}
-                                                    {*}<span>Получение займа</span>{*}
+                                                    <span>Получение займа</span>
                                                 {elseif $client->stage_files}
                                                     <span>Добавление данных карты</span>
                                                 {elseif $client->stage_work}
@@ -189,11 +193,12 @@ console.log($this.closest('.jsgrid-row'))
                                                 {/if}
 
                                                 
-                                                {*}
+                                                
                                                 <span>{$client->last_stage_date|date}</span>
                                                 {$client->last_stage_date|time}
-                                                {*}
+                                                
                                             </td>
+                                            {*}
                                             <td style="width: 120px;" class="jsgrid-cell">
                                                 {$client->lastname|escape}
                                                 {$client->firstname|escape}

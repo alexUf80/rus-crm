@@ -1,6 +1,6 @@
 <?php
-error_reporting(E-ALL);
-ini_set('display_errors', 'On');
+error_reporting(-1);
+ini_set('display_errors', 'Off');
 
 class CollectorContractsController extends Controller
 {
@@ -122,9 +122,6 @@ class CollectorContractsController extends Controller
         $this->design->assign('period', $period);
 
         if ($search = $this->request->get('search')) {
-            if (isset($search['order_id']))
-                $search['order_id'] = explode(' ', $search['order_id']);
-
             $filter['search'] = array_filter($search);
             $this->design->assign('search', array_filter($search));
         }
@@ -132,12 +129,16 @@ class CollectorContractsController extends Controller
         $filter['type'] = 'base';
 
 
-        if (in_array($this->manager->role, ['collector', 'manager'])) {
+
+        if ($this->manager->role == 'collector') {
             $filter['collection_status'] = array($this->manager->collection_status_id);
             $filter['collection_manager_id'] = $this->manager->id;
-        } elseif (in_array($this->manager->role, array('developer', 'admin', 'senior collector'))) {
+        } elseif (in_array($this->manager->role, array('developer', 'admin', 'chief_collector'))) {
             $filter['collection_status'] = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
             $filter['collection_manager_id'] = null;
+        } elseif ($this->manager->role == 'team_collector') {
+            $filter['collection_status'] = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+            $filter['collection_manager_id'] = $this->manager->team_id;
         }
 
 
@@ -224,6 +225,7 @@ class CollectorContractsController extends Controller
             }
 
 
+
             foreach ($this->managers->get_managers(['id' => $managers]) as $manager) {
                 foreach ($managers as $key => &$manager_id) {
                     if ($manager_id == $manager->id) {
@@ -284,8 +286,10 @@ class CollectorContractsController extends Controller
                 }
 
 
-                if (!empty($contract->order) && !empty($contract->order->time_zone))
+                if (!empty($contract->order))
+                {
                     $contract->client_time = date('Y-m-d H:i:s', time() + $contract->order->time_zone * 3600);
+                }
                 else
                     $contract->client_time = date('Y-m-d H:i:s');
 
@@ -294,33 +298,24 @@ class CollectorContractsController extends Controller
                 $weekday = date('N', strtotime($contract->client_time));
 
 
-                if (in_array($weekday, [6, 7])) {
-                    if ($clock < 9 || $clock > 20)
-                        $contract->client_time_warning = true;
-                } else {
-                    if ($clock < 8 || $clock > 21)
-                        $contract->client_time_warning = true;
-                }
-
-                $user = $this->db->users->get_user($contract->user_id);
-                $shift = $user->time_zone;
-
-                if (empty($shift)) {
-                    $time = 0;
-                    $user_time = date('Y-m-d H:i:s', time() + $time * 3600);
-                } else {
-                    $user_time = date('Y-m-d H:i:s', time() + $shift * 3600);
-                }
-
-                $contract->user_time = DateTime::createFromFormat("Y-m-d H:i:s", $user_time);
-                $contract->user_time = $contract->user_time->format('H:i');
-
-                $contract->order->last_activity = date('d.m.Y H:i:s', $contract->order->last_activity);
+                if ($weekday == 6 || $weekday == 7)
+                    $contract->client_time_warning = $clock < 9 || $clock > 20;
+                else
+                    $contract->client_time_warning = $clock < 8 || $clock > 21;
 
             }
-            // echo '<pre>';print_r ($contracts[0]->order->Regregion);echo '</pre>';
-            // echo '<pre>';print_r ($contracts[102287]->order->Regregion);echo '</pre>';
-            //  echo '<pre>';print_r ($contracts);echo '</pre>';
+            /*
+            usort($contracts, function($a, $b){
+                 if (empty($a->collection_workout) && empty($b->collection_workout))
+                    return 0;
+                 if (!empty($a->collection_workout) && !empty($b->collection_workout))
+                    return 0;
+                 if (empty($a->collection_workout) && !empty($b->collection_workout))
+                    return -1;
+                 if (!empty($a->collection_workout) && empty($b->collection_workout))
+                    return 1;
+            });
+            */
 
             $this->design->assign('contracts', $contracts);
 
@@ -349,14 +344,8 @@ class CollectorContractsController extends Controller
         }
 
 
-        $collection_statuses = CollectorPeriodsORM::get();
-        $sortCollectors = [];
-
-        foreach ($collection_statuses as $status) {
-            $sortCollectors[$status->id] = $status->name;
-        }
-
-        $this->design->assign('collection_statuses', $sortCollectors);
+        $collection_statuses = $this->contracts->get_collection_statuses();
+        $this->design->assign('collection_statuses', $collection_statuses);
         $this->design->assign('contract_dates', $this->contract_dates);
 
         $risk_op = ['complaint' => 'Жалоба', 'bankrupt' => 'Банкрот', 'refusal' => 'Отказ от взаимодействия',
@@ -373,78 +362,7 @@ class CollectorContractsController extends Controller
             $collector_tags[$ct->id] = $ct;
         $this->design->assign('collector_tags', $collector_tags);
 
-//echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($collection_statuses);echo '</pre><hr />';
-
-        if ($this->request->get('download') == 'excel') {
-
-            $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
-            $spreadsheet->getDefaultStyle()->getFont()->setName('Calibri')->setSize(12);
-
-            $sheet = $spreadsheet->getActiveSheet();
-            $sheet->getDefaultRowDimension()->setRowHeight(20);
-            $sheet->getColumnDimension('A')->setWidth(20);
-            $sheet->getColumnDimension('B')->setWidth(40);
-            $sheet->getColumnDimension('C')->setWidth(18);
-            $sheet->getColumnDimension('D')->setWidth(35);
-            $sheet->getColumnDimension('E')->setWidth(15);
-            $sheet->getColumnDimension('F')->setWidth(15);
-            $sheet->getColumnDimension('G')->setWidth(15);
-            $sheet->getColumnDimension('H')->setWidth(15);
-            $sheet->getColumnDimension('I')->setWidth(20);
-            $sheet->getColumnDimension('J')->setWidth(20);
-            $sheet->getColumnDimension('K')->setWidth(20);
-            $sheet->getColumnDimension('L')->setWidth(20);
-            $sheet->getColumnDimension('M')->setWidth(20);
-            $sheet->getColumnDimension('N')->setWidth(20);
-
-            $sheet->setCellValue('A1', 'Пользователь');
-            $sheet->setCellValue('B1', 'ID');
-            $sheet->setCellValue('C1', 'Статус');
-            $sheet->setCellValue('D1', 'ФИО');
-            $sheet->setCellValue('E1', 'Дата рождения');
-            $sheet->setCellValue('F1', 'Последнее посещение');
-            $sheet->setCellValue('G1', 'ОД, руб');
-            $sheet->setCellValue('H1', '%, руб');
-            $sheet->setCellValue('I1', 'Итог, руб');
-            $sheet->setCellValue('J1', 'Время клиента');
-            $sheet->setCellValue('K1', 'Телефон');
-            $sheet->setCellValue('L1', 'Просрочен');
-            $sheet->setCellValue('M1', 'Дата платежа');
-            $sheet->setCellValue('N1', 'Тег');
-
-            $i = 2;
-
-            foreach ($contracts as $contract) {
-                $lastname = $contract->order->lastname;
-                $fristname = $contract->order->firstname;
-                $patronymic = $contract->order->patronymic;
-
-                $fio = "$lastname $fristname $patronymic";
-
-                $sheet->setCellValue('A' . $i, $managers[$contract->collection_manager_id]->name);
-                $sheet->setCellValue('B' . $i, $contract->order->order_id);
-                $sheet->setCellValue('C' . $i, $sortCollectors[$contract->collection_status]);
-                $sheet->setCellValue('D' . $i, $fio);
-                $sheet->setCellValue('E' . $i, $contract->order->birth);
-                $sheet->setCellValue('F' . $i, $contract->order->last_activity);
-                $sheet->setCellValue('G' . $i, $contract->loan_body_summ);
-                $sheet->setCellValue('H' . $i, $contract->loan_percents_summ + $contract->loan_charge_summ + $contract->loan_peni_summ);
-                $sheet->setCellValue('I' . $i, $contract->loan_body_summ + $contract->loan_percents_summ + $contract->loan_charge_summ + $contract->loan_peni_summ);
-                $sheet->setCellValue('J' . $i, $contract->user_time);
-                $sheet->setCellValue('K' . $i, $contract->order->phone_mobile);
-                $sheet->setCellValue('L' . $i, $contract->delay);
-                $sheet->setCellValue('M' . $i, $contract->return_date);
-                $sheet->setCellValue('N' . $i, $collector_tags[$contract->order->contact_status]->name);
-
-                $i++;
-            }
-
-            $filename = 'Collections.xlsx';
-            $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
-            $writer->save($this->config->root_dir . $filename);
-            header('Location:' . $this->config->root_url . '/' . $filename);
-            exit;
-        }
+//echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($collection_statuses);echo '</pre><hr />';        
 
         return $this->design->fetch('collector_contracts.tpl');
     }
@@ -603,16 +521,9 @@ class CollectorContractsController extends Controller
         $user = $this->users->get_user($user_id);
         $manager = $this->managers->get_manager($this->manager->id);
 
-        $limitCommuniactions = $this->communications->check_user($user_id);
-
-        if (!$limitCommuniactions) {
-            $this->json_output(array('error' => 'Превышен лимит коммуникаций'));
-            exit;
-        }
-
         if (!empty($text_sms)) {
             $template = $text_sms;
-            $template .= " ООО МКК Финансовый Аспект ecozaym24.ru/lk/login";
+            $template .= " ООО МКК Финансовый Аспект rus-zaym/lk/login";
             $template .= " $manager->phone ";
         }
 
@@ -620,7 +531,7 @@ class CollectorContractsController extends Controller
 
             $template = $this->sms->get_template($template_id);
             $template = $template->template;
-            $template .= " ООО МКК Финансовый Аспект ecozaym24.ru/lk/login";
+            $template .= " ООО МКК Финансовый Аспект rus-zaym/lk/login";
             $template .= " $manager->phone ";
         }
 
@@ -773,7 +684,7 @@ class CollectorContractsController extends Controller
                     if ($this->manager->role == 'collector') {
                         $filter['collection_status'] = array($this->manager->collection_status_id);
                         $filter['collection_manager_id'] = $this->manager->id;
-                    } elseif (in_array($this->manager->role, array('developer', 'admin', 'senior collector'))) {
+                    } elseif (in_array($this->manager->role, array('developer', 'admin', 'chief_collector'))) {
                         $filter['collection_status'] = array(1, 2, 3, 4, 5, 6, 7, 8, 9);
                         $filter['collection_manager_id'] = null;
                     } elseif ($this->manager->role == 'team_collector') {
@@ -855,5 +766,10 @@ class CollectorContractsController extends Controller
 
             $this->json_output(array('success' => '1', 'distribute' => $distribute));
         }
+    }
+
+    private function get_current_manager()
+    {
+
     }
 }
