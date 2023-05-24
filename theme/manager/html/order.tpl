@@ -2066,7 +2066,7 @@
                                                     {*}
                                                     <div class="col-md-12">
                                                         <div class="form-group  mb-0 row">
-                                                            <label class="control-label col-md-4">ФИО руководителя111:</label>
+                                                            <label class="control-label col-md-4">ФИО руководителя:</label>
                                                             <div class="col-md-8">
                                                                 <p class="form-control-static">
                                                                     {$work->name}
@@ -2227,7 +2227,8 @@
 
                                                     <div class="col-md-4">
                                                         <div class="form-group mb-0 {if in_array('empty_chief_name', (array)$work_error)}has-danger{/if}">
-                                                            <label class="control-label">ФИО руководителя222</label>
+                                                            <label class="control-label">ФИО руководителя
+                                                            </label>
                                                             <input type="text" class="form-control" name="chief_name"
                                                                    value="{$work->name}" placeholder=""
                                                                    required="true"/>
