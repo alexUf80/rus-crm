@@ -2052,9 +2052,21 @@
                                                             </div>
                                                         </div>
                                                     {/if}
+                                                    {*}
+                                                    <div class="col-md-12">
+                                                        <div class="form-group mb-0 row">
+                                                            <label class="control-label col-md-4">Рабочий телефон:</label>
+                                                            <div class="col-md-8">
+                                                                <p class="form-control-static">
+                                                                    {$order->workphone}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    {*}
                                                     <div class="col-md-12">
                                                         <div class="form-group  mb-0 row">
-                                                            <label class="control-label col-md-4">Руководитель:</label>
+                                                            <label class="control-label col-md-4">ФИО руководителя111:</label>
                                                             <div class="col-md-8">
                                                                 <p class="form-control-static">
                                                                     {$work->name}
@@ -2129,13 +2141,13 @@
                                                                     <li>Укажите расход!</li>
                                                                 {/if}
                                                                 {if in_array('empty_chief_name', (array)$work_error)}
-                                                                    <li>Укажите ФИО начальника!</li>
+                                                                    <li>Укажите ФИО руководителя!</li>
                                                                 {/if}
                                                                 {if in_array('empty_chief_position', (array)$work_error)}
-                                                                    <li>Укажите Должность начальника!</li>
+                                                                    <li>Укажите Должность руководителя!</li>
                                                                 {/if}
                                                                 {if in_array('empty_chief_phone', (array)$work_error)}
-                                                                    <li>Укажите Телефон начальника!</li>
+                                                                    <li>Укажите Телефон руководителя!</li>
                                                                 {/if}
 
                                                             </ul>
@@ -2215,39 +2227,41 @@
 
                                                     <div class="col-md-4">
                                                         <div class="form-group mb-0 {if in_array('empty_chief_name', (array)$work_error)}has-danger{/if}">
-                                                            <label class="control-label">ФИО начальника</label>
+                                                            <label class="control-label">ФИО руководителя222</label>
                                                             <input type="text" class="form-control" name="chief_name"
-                                                                   value="{$order->chief_name|escape}" placeholder=""
+                                                                   value="{$work->name}" placeholder=""
                                                                    required="true"/>
                                                             {if in_array('empty_chief_name', (array)$work_error)}
                                                                 <small class="form-control-feedback">Укажите ФИО
-                                                                    начальника!
+                                                                    руководителя!
                                                                 </small>
                                                             {/if}
                                                         </div>
                                                     </div>
+                                                    {*}
                                                     <div class="col-md-4">
                                                         <div class="form-group mb-0 {if in_array('empty_chief_position', (array)$work_error)}has-danger{/if}">
-                                                            <label class="control-label">Должность начальника</label>
+                                                            <label class="control-label">Должность руководителя</label>
                                                             <input type="text" class="form-control"
                                                                    name="chief_position"
                                                                    value="{$order->chief_position|escape}"
                                                                    placeholder="" required="true"/>
                                                             {if in_array('empty_chief_position', (array)$work_error)}
                                                                 <small class="form-control-feedback">Укажите Должность
-                                                                    начальника!
+                                                                    руководителя!
                                                                 </small>
                                                             {/if}
                                                         </div>
                                                     </div>
+                                                    {*}
                                                     <div class="col-md-4">
                                                         <div class="form-group mb-0 {if in_array('empty_chief_phone', (array)$work_error)}has-danger{/if}">
-                                                            <label class="control-label">Телефон начальника</label>
+                                                            <label class="control-label">Телефон руководителя</label>
                                                             <input type="text" class="form-control" name="chief_phone"
-                                                                   value="{$order->chief_phone|escape}" placeholder=""/>
+                                                                   value="{$work->director_phone}" placeholder=""/>
                                                             {if in_array('empty_chief_phone', (array)$work_error)}
                                                                 <small class="form-control-feedback">Укажите Телефон
-                                                                    начальника!
+                                                                    руководителя!
                                                                 </small>
                                                             {/if}
                                                         </div>

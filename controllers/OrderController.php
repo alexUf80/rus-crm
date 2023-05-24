@@ -1804,9 +1804,12 @@ class OrderController extends Controller
         $order->income = trim($this->request->post('income'));
         $order->expenses = trim($this->request->post('expenses'));
         $order->chief_name = trim($this->request->post('chief_name'));
-        $order->chief_position = trim($this->request->post('chief_position'));
+        // $order->chief_position = trim($this->request->post('chief_position'));
         $order->chief_phone = trim($this->request->post('chief_phone'));
-
+        
+        $work->name = trim($this->request->post('chief_name'));
+        $work->director_phone = trim($this->request->post('chief_phone'));
+        
         $work_error = array();
 
         if (empty($order->workplace))
@@ -1836,9 +1839,14 @@ class OrderController extends Controller
                 'workphone' => $order->workphone,
                 'income' => $order->income,
                 'expenses' => $order->expenses,
-                'chief_name' => $order->chief_name,
-                'chief_position' => $order->chief_position,
-                'chief_phone' => $order->chief_phone,
+                // 'chief_name' => $order->chief_name,
+                // 'chief_position' => $order->chief_position,
+                // 'chief_phone' => $order->chief_phone,
+            );
+            $update_work = array(
+                'name' => $order->chief_name,
+                // 'chief_position' => $order->chief_position,
+                'director_phone' => $order->chief_phone,
             );
 
             $old_user = $this->users->get_user($user_id);
@@ -1864,6 +1872,8 @@ class OrderController extends Controller
 
             $this->users->update_user($user_id, $update);
 
+            $work = $this->works->get_work_by_user_id($user_id);
+            $this->works->update_work($work->id, $update_work);
         }
 
         $this->design->assign('work_error', $work_error);
@@ -1879,6 +1889,8 @@ class OrderController extends Controller
 //        $this->soap1c->update_fields($update, '', $isset_order->id_1c);
 
         $this->design->assign('order', $order);
+        $work = $this->works->get_work_by_user_id($user_id);
+        $this->design->assign('work', $work);
 
     }
 
