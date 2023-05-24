@@ -414,11 +414,11 @@ class Orders extends Core
                 break;
                                 
                 case 'region_asc':
-                    $sort = 'u.Regregion ASC';
+                    $sort = 'a.region ASC';
                 break;
                 
                 case 'region_desc':
-                    $sort = 'u.Regregion DESC';
+                    $sort = 'a.region DESC';
                 break;
                                 
                 case 'status_asc':
@@ -515,10 +515,13 @@ class Orders extends Core
                 u.contact_status,
                 u.loan_history,
                 u.faktaddress_id,
-                u.lead_partner_id
+                u.lead_partner_id,
+                a.region
             FROM __orders AS o
             LEFT JOIN __users AS u
             ON u.id = o.user_id
+            LEFT JOIN __addresses AS a
+            ON a.id = u.faktaddress_id
             WHERE 1
                 $id_filter
                 $offline_filter
