@@ -107,6 +107,28 @@ class ApiLead extends Core
             exit;
         }
 
+        // 0 - остальные поля
+        // 'phone_mobile','first_loan_amount','first_loan_period',
+        // 'social','enabled','stage_files','stage_card','lead_partner_id'
+
+        // 1 - contact_persons
+        // contact_person_name','contact_person_relation','contact_person_phone'
+        
+        // 2 - personal
+        // 'lastname','firstname','patronymic',email','birth','birth_place','stage_personal'
+        
+        // 3 - passport
+        // 'passport_serial','passport_date', 'passport_issued','stage_passport'
+        
+        // 4 - address
+        // 'regaddress', 'faktaddress','stage_address'
+        
+        // 5 - work
+        // 'workplace','workaddress','profession','workphone',
+        // 'income','expenses','average_pay','amount_pay',
+        // 'stage_work',
+        // 'work_name','work_director_phone'
+
 
         $user_fields = ['email','lastname','firstname','patronymic',
         'birth','birth_place','phone_mobile','passport_serial','passport_date',
@@ -139,6 +161,7 @@ class ApiLead extends Core
         // Добавляем пользователя  
         $rand_code = mt_rand(1000, 9999);    
         $user['enabled'] = 1;
+        $user['stage_contact'] = 0;
         $user['stage_personal'] = 1;
         $user['stage_passport'] = 1;
         $user['stage_address'] = 1;
@@ -147,6 +170,12 @@ class ApiLead extends Core
         $user['stage_card'] = 0;
         $user['lead_partner_id'] = $tokens->ID;
         $user['sms'] = $rand_code;
+
+        if(!$user['birth'] || !$user['birth_place'])
+            $user['stage_personal'] = 0;
+        if(!$user['passport_serial'] || !$user['passport_date'] || !$user['passport_issued'])
+            $user['stage_passport'] = 0;
+        
         
         $user_id = $this->users->add_user($user);
 
@@ -160,14 +189,16 @@ class ApiLead extends Core
         }
 
         // Добавляем контактное лицо
-        $contact_person['user_id'] = $user_id;
-        if($json_array['contact_person_name'] != ""){
-        //     $this->users->update_user($user_id, array('stage_contact' => 0));
-        // }
-        // else{
-            $contactperson_id = $this->Contactpersons->add_contactperson($contact_person);
-            if($contactperson_id != 0){
-                $this->users->update_user($user_id, array('stage_contact' => 1));
+        if($user['contact_person_name'] && $user['contact_person_relation'] && $user['contact_person_phone']){
+            $contact_person['user_id'] = $user_id;
+            if($json_array['contact_person_name'] != ""){
+            //     $this->users->update_user($user_id, array('stage_contact' => 0));
+            // }
+            // else{
+                $contactperson_id = $this->Contactpersons->add_contactperson($contact_person);
+                if($contactperson_id != 0){
+                    $this->users->update_user($user_id, array('stage_contact' => 1));
+                }
             }
         }
 
