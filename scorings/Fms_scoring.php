@@ -8,11 +8,11 @@ class Fms_scoring extends Core
         $order = $this->orders->get_order((int)$scoring->order_id);
 
         list($passportSerial, $passportNumber) = explode('-', $order->passport_serial);
-
+  
         $params =
             [
-                'UserID' => 'barvil',
-                'Password' => 'KsetM+H5',
+                'UserID' => 'rus-zaym',
+                'Password' => 'y9=AUGlC',
                 'sources' => 'fms',
                 'PersonReq' => [
                     'passport_series' => $passportSerial,
@@ -69,7 +69,7 @@ class Fms_scoring extends Core
         $json = json_encode($html);
         $array = json_decode($json, TRUE);
         curl_close($ch);
-
+echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($html);echo '</pre><hr />';
         return $array;
     }
 }

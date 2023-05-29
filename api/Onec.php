@@ -26,6 +26,8 @@ class Onec implements ApiInterface
         if (empty($contract->inssuance_date))
             return 3;
 
+        $p2pcredit = P2pOperationORM::whereRaw('contract_id = ? and status = "APPROVED"', [$contract->id])->get()->first();
+
         $user->regaddress = AdressesORM::find($user->regaddress_id);
         $user->faktaddress = AdressesORM::find($user->faktaddress_id);
 
@@ -57,13 +59,15 @@ class Onec implements ApiInterface
         $item->ПСК = '365';
         $item->ПДН = $user->pdn * 100;
         $item->УИДСделки = $contract->uid;
-        $item->ИдентификаторФормыВыдачи = 'ТекущийСчетРасчетов';
+        $item->ИдентификаторФормыВыдачи = $p2pcredit->id > 1410 ? 'ПСБ' : 'ТекущийСчетРасчетов'; 
         $item->ИдентификаторФормыОплаты = 'ТретьеЛицо';
         $item->Сумма = $contract->amount;
         $item->Порог = '1.5';
         $item->ИННОрганизации = '9717088848';
         $item->СпособПодачиЗаявления = 'Дистанционный';
         $item->НомерКарты = $cardPan;
+        $item->OrderID = $p2pcredit->register_id;
+        $item->OperationID = $p2pcredit->operation_id;
 
         $item->ГрафикПлатежей = [];
 
