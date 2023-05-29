@@ -30,7 +30,7 @@ class Operations extends Core
     
 	public function get_operations($filter = array())
 	{
-		$id_filter = '';
+		$id_filter = ''; 
         $contract_id_filter = '';
         $order_id_filter = '';
         $user_id_filter = '';
