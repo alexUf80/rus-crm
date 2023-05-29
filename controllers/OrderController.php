@@ -408,6 +408,7 @@ class OrderController extends Controller
 
                     }
 
+                    $receipts= [];
                     if ($contract_operations = $this->operations->get_operations(array('order_id' => $order->order_id))) {
                         foreach ($contract_operations as $contract_operation) {
                             if (!empty($contract_operation->transaction_id))
@@ -419,10 +420,24 @@ class OrderController extends Controller
                                     ->first()
                                     ->toArray();
                             }
+
+                            $transaction = $this->transactions->get_transaction($contract_operation->transaction_id);
+                            $xml = simplexml_load_string($transaction->callback_response);
+                            $ofd_link = (string)$xml->ofd_link;
+                            
+                            if($ofd_link){
+                                $ofd_link = str_replace("%3A", ":", $ofd_link);
+                                $ofd_link = str_replace("%2F", "/", $ofd_link);
+                                $ofd_link = str_replace("%3D", "=", $ofd_link);
+                                $ofd_link = str_replace("%3F", "?", $ofd_link);
+                                $ofd_link = str_replace("%26", "&", $ofd_link);
+                                $receipts[] = (object) array('receipt_url' => $ofd_link, 'created' => $transaction->created);
+                            }
                         }
                     }
 
                     $this->design->assign('contract_operations', $contract_operations);
+                    $this->design->assign('receipts', $receipts);
 
                     if (!empty($contract->insurance_id)) {
                         $contract_insurance = $this->insurances->get_insurance($contract->insurance_id);
