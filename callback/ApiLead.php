@@ -189,16 +189,11 @@ class ApiLead extends Core
         }
 
         // Добавляем контактное лицо
-        if($user['contact_person_name'] && $user['contact_person_relation'] && $user['contact_person_phone']){
-            $contact_person['user_id'] = $user_id;
-            if($json_array['contact_person_name'] != ""){
-            //     $this->users->update_user($user_id, array('stage_contact' => 0));
-            // }
-            // else{
-                $contactperson_id = $this->Contactpersons->add_contactperson($contact_person);
-                if($contactperson_id != 0){
-                    $this->users->update_user($user_id, array('stage_contact' => 1));
-                }
+        if($json_array['contact_person_name'] && $json_array['contact_person_relation'] && $json_array['contact_person_phone']){
+            $contact_person['user_id'] = $user_id;                
+            $contactperson_id = $this->Contactpersons->add_contactperson($contact_person);
+            if($contactperson_id != 0){
+                $this->users->update_user($user_id, array('stage_contact' => 1));
             }
         }
 
