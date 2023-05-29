@@ -30,9 +30,10 @@ class Operations extends Core
     
 	public function get_operations($filter = array())
 	{
-		$id_filter = '';
+		$id_filter = ''; 
         $contract_id_filter = '';
         $order_id_filter = '';
+        $user_id_filter = '';
         $type_filter = '';
         $sent_status_filter = '';
         $date_from_filter = '';
@@ -56,6 +57,10 @@ class Operations extends Core
 		
         if (!empty($filter['order_id']))
             $order_id_filter = $this->db->placehold("AND order_id IN (?@)", array_map('intval', (array)$filter['order_id']));
+
+        var_dump($filter['user_id']);
+        if (!empty($filter['user_id']))
+            $user_id_filter = $this->db->placehold("AND user_id IN (?@)", array_map('intval', (array)$filter['user_id']));
 		
         if (!empty($filter['date_from']))
             $date_from_filter = $this->db->placehold("AND DATE(created) >= ?", $filter['date_from']);
@@ -96,6 +101,7 @@ class Operations extends Core
                 $id_filter
                 $contract_id_filter 
                 $order_id_filter
+                $user_id_filter
   	            $keyword_filter
                 $type_filter
                 $sent_status_filter
@@ -105,6 +111,7 @@ class Operations extends Core
             $sql_limit
         ");
         $this->db->query($query);
+        // echo $query;
         $results = $this->db->results();
         
         return $results;
