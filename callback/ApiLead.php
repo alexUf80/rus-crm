@@ -131,7 +131,7 @@ class ApiLead extends Core
 
 
         $user_fields = ['email','lastname','firstname','patronymic',
-        'birth','birth_place','phone_mobile','passport_serial','passport_date',
+        'birth','birth_place','phone_mobile','gender','passport_serial','passport_date',
         'passport_issued','first_loan_amount','first_loan_period','social',
         'profession','workplace','workaddress','workphone','income','expenses',
         'average_pay','amount_pay','enabled','stage_personal','stage_passport',
