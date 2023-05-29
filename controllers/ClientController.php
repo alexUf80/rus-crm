@@ -102,7 +102,27 @@ class ClientController extends Controller
             
             $client = $this->users->get_user($id);
 
-            $receipts = ReceiptsORM::where('user_id', $id)->get();
+            // $receipts = ReceiptsORM::where('user_id', $id)->get();
+            // $this->design->assign('receipts', $receipts);
+
+            $receipts= [];
+            if ($user_operations = $this->operations->get_operations(array('user_id'=>$id))) {
+                foreach ($user_operations as $user_operation) {
+
+                    $transaction = $this->transactions->get_transaction($user_operation->transaction_id);
+                    $xml = simplexml_load_string($transaction->callback_response);
+                    $ofd_link = (string)$xml->ofd_link;
+                    
+                    if($ofd_link){
+                        $ofd_link = str_replace("%3A", ":", $ofd_link);
+                        $ofd_link = str_replace("%2F", "/", $ofd_link);
+                        $ofd_link = str_replace("%3D", "=", $ofd_link);
+                        $ofd_link = str_replace("%3F", "?", $ofd_link);
+                        $ofd_link = str_replace("%26", "&", $ofd_link);
+                        $receipts[] = (object) array('receipt_url' => $ofd_link, 'created' => $transaction->created);
+                    }
+                }
+            }
             $this->design->assign('receipts', $receipts);
 
             $user_close_orders = $this->orders->get_orders(array(
