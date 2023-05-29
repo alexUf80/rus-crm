@@ -108,7 +108,7 @@ class Nbki_scoring extends Core
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
+            CURLOPT_TIMEOUT => 60,
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'POST',
@@ -119,10 +119,10 @@ class Nbki_scoring extends Core
         ));
 
         $response = curl_exec($curl);
+        $error = curl_error($curl);
         curl_close($curl);
         $result = json_decode($response, true);
-
-
+echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($response, $error);echo '</pre><hr />';
         if (empty($result)) {
             $add_scoring = array(
                 'status' => 'error',
