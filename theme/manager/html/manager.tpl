@@ -248,11 +248,38 @@
                                             <input type="text" name="mango_number" value="{$user->mango_number}" class="form-control form-control-line" />
                                         </div>
                                     </div>
-                                    <div class="form-group">
-                                        <div class="col-sm-12">
-                                            <button class="btn btn-success" type="submit">Сохранить</button>
+                                    {if in_array($user->role, ['collector'])}
+                                        {if in_array($manager->role, ['senior collector','admin','developer'])}
+                                            <div class="form-group">
+                                                <label class="col-md-12">Статусы договоров для коллекторов</label>
+                                                <div class="col-sm-12">
+                                                    <select name="collection_status_id"
+                                                            class="form-control form-control-line">
+                                                        {foreach $periods as $period}
+                                                            <option value="{$period->id}"
+                                                                    {if $user->collection_status_id == $period->id}selected{/if}>{$period->name}</option>
+                                                        {/foreach}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        {else}
+                                            <div class="form-group">
+                                                <label class="col-md-12">Статусы договоров для коллекторов</label>
+                                                <div class="col-sm-12">
+                                                    <p>{$collection_statuses[$user->collection_status_id]}</p>
+                                                    <input type="hidden" name="collection_status_id"
+                                                           value="{$user->collection_status_id}"/>
+                                                </div>
+                                            </div>
+                                        {/if}
+                                    {/if}
+                                    {if in_array($manager->role, ['developer', 'admin'])}
+                                        <div class="form-group">
+                                            <div class="col-sm-12">
+                                                <button class="btn btn-success" type="submit">Сохранить</button>
+                                            </div>
                                         </div>
-                                    </div>
+                                    {/if}
                             </div>
                         </div>
                     </div>
