@@ -749,11 +749,12 @@
                                         <td style="width: 140px;" class="jsgrid-cell">
                                         </td>
                                     </tr>
-
+                            {*}
                                 </table>
                             </div>
                             <div class="jsgrid-grid-body">
                                 <table class="jsgrid-table table table-striped table-hover">
+                            {*}
                                     <tbody>
                                     {foreach $contracts as $contract}
                                         {if !empty($user_risk_op)}
