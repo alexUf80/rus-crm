@@ -378,6 +378,7 @@
                                                 &#8986; {$client_time}
                                             </h5>
                                         </div>
+                                        {*}
                                         {if $need_to_select_local_zone}
                                             <div class="form-control-static float-left  text-center pr-2 pl-2">
                                                 <select class="form-control" data-user="{$order->user_id}"
@@ -422,6 +423,7 @@
                                                 </select>
                                             </div>
                                         {/if}
+                                        {*}
                                         <div class="edit-block hide">
                                             <div class="form-group mb-1">
                                                 <input type="text" name="lastname" value="{$order->lastname}"
