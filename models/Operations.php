@@ -58,7 +58,6 @@ class Operations extends Core
         if (!empty($filter['order_id']))
             $order_id_filter = $this->db->placehold("AND order_id IN (?@)", array_map('intval', (array)$filter['order_id']));
 
-        var_dump($filter['user_id']);
         if (!empty($filter['user_id']))
             $user_id_filter = $this->db->placehold("AND user_id IN (?@)", array_map('intval', (array)$filter['user_id']));
 		
