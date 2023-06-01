@@ -455,8 +455,9 @@
 
                                         <div class="row view-block ">
                                             <div class="col-4 text-center">
-                                                <h5>Сумма</h5>
-                                                <h3 class="text-primary">{$order->amount} руб</h3>
+                                                <h5>Сумма займа</h5>
+                                                <h3 class="text-primary">{$contract->amount} руб</h3>
+                                                <h6>Заявка: {$order->amount} руб</h6>
                                             </div>
                                             <div class="col-4 text-center">
                                                 <h5>Срок</h5>

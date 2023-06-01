@@ -451,8 +451,14 @@
                                                 {$order->date|date}
                                                 {$order->date|time}
                                             </td>
-                                            <td style="width: 70px;" class="jsgrid-cell">
+                                            <td style="width: 70px;" class="jsgrid-cell text-center">
+                                                {if in_array($order->contract->status, [2, 3, 4])}
+                                                <strong class="text-primary">{$order->contract->amount*1}</strong>
+                                                <br />
+                                                <small>Заявка: {$order->amount*1}</small>
+                                                {else}
                                                 {$order->amount}
+                                                {/if}
                                             </td>
                                             <td style="width: 60px;" class="jsgrid-cell">
                                                 {if $order->period}

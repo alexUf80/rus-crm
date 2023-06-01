@@ -768,8 +768,14 @@
                                         {/if}
                                         <div class="row view-block ">
                                             <div class="col-6 text-center">
+                                                {if in_array($contract->status, [2, 3, 4])}
+                                                <h5>Сумма займа</h5>
+                                                <h3 class="text-primary">{$contract->amount} руб</h3>
+                                                <h6>Заявка: {$order->amount} руб</h6>
+                                                {else}
                                                 <h5>Сумма</h5>
                                                 <h3 class="text-primary">{$order->amount} руб</h3>
+                                                {/if}
                                             </div>
                                             <div class="col-6 text-center">
                                                 <h5>Срок</h5>
