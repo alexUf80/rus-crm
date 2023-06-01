@@ -37,10 +37,11 @@ class Nbki_scoring extends Core
             $user->passport_serial,
             $user->passport_date,
             $user->passport_issued,
+            $user->subdivision_code,
             $user->gender,
             $user->client_status,
             $user->inn,
-            $iser->snils
+            $user->snils
         );
 
 
@@ -57,6 +58,7 @@ class Nbki_scoring extends Core
         $passport_serial,
         $passport_date,
         $passport_issued,
+        $division_code,
         $gender,
         $client_status,
         $inn,
@@ -75,7 +77,8 @@ class Nbki_scoring extends Core
             "number": "' . substr($passport_serial, 5) . '",
             "issued_date": "' . date('Y-m-d', strtotime($passport_date)) . '",
             "issued_by": "' . addslashes($passport_issued) . '",
-            "issued_city": "' . addslashes($Regcity) . '"
+            "issued_city": "' . addslashes($Regcity) . '",
+            "division_code": "' . addslashes($division_code) . '"
         },
         "person": {
             "last_name": "' . addslashes($lastname) . '",
