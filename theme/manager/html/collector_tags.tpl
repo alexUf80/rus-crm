@@ -101,8 +101,8 @@
                                             </td>
                                             <td>
                                                 <div class="js-visible-view js-text-color">
-                                                    <div class="color-badge" style="background:{$st->color}"></div>
                                                     {$st->color|escape}
+                                                    <div class="color-badge" style="background:{$st->color}"></div>
                                                 </div>
                                                 <div class="js-visible-edit" style="display:none">
                                                     <input type="text" class="colorpicker form-control form-control" name="color" value="{$st->color}" />
