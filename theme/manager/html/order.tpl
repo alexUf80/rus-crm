@@ -750,6 +750,7 @@
 
                                     </form>
                                     
+                                    {*}
                                     {if $order->status == 5}
                                             <br>
                                             <div class="mt-3 card card-danger mb-2 text-center">
@@ -772,6 +773,7 @@
                                             </div>
                                             <br>
                                         {/if}
+                                    {*}
                                 </div>
                                 <div class="col-12 col-md-8 col-lg-6">
                                     <form action="{url}" class="mb-3 p-2 border js-order-item-form js-check-amount"
