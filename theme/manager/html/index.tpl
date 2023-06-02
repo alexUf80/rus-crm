@@ -249,6 +249,10 @@
                                         <li {if in_array($module, ['RemindersEventsController'])}class="active"{/if}>
                                             <a href="reminders_events">События для ремайндеров</a></li>
                                     {/if}
+                                    {if in_array('tags', $manager->permissions)}
+                                        <li {if in_array($module, ['CollectorTagsController'])}class="active"{/if}><a
+                                                    href="collector_tags">Теги для коллекторов</a></li>
+                                    {/if}
                                     {*if in_array('ticket_handbooks', $manager->permissions)}
                                     <li {if in_array($module, ['TicketStatusesController'])}class="active"{/if}><a href="ticket_statuses">Статусы тикетов</a></li>
                                     <li {if in_array($module, ['TicketReasonsController'])}class="active"{/if}><a href="ticket_reasons">Причины закрытия тикетов</a></li>

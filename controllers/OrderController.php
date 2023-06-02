@@ -400,6 +400,10 @@ class OrderController extends Controller
                         $contract = $this->contracts->get_contract((int)$order->contract_id);
                         $this->design->assign('contract', $contract);
 
+                        $code = $this->helpers->c2o_encode($contract->id);
+                        $short_link = $this->config->main_domain . '/p/' . $code;
+                        $this->design->assign('short_link', $short_link);
+
                         $date1 = new DateTime(date('Y-m-d', strtotime($contract->return_date)));
                         $date2 = new DateTime(date('Y-m-d'));
 
