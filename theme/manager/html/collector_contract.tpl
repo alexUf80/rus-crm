@@ -129,6 +129,101 @@
                     }
                 })
             });
+
+            $('.show_edit_buttons').on('click', function () {
+
+                $('.contact_edit_buttons').toggle();
+            });
+            $('.add_contact').on('click', function (e) {
+                e.preventDefault();
+                $('#contacts_form')[0].reset();
+
+                $('#contacts_modal').modal();
+                $('.contacts_modal_title').text('Добавить контакт');
+                $('#contacts_actions').addClass('save_contact');
+                $('#contacts_form').find('input[name="action"]').attr('value', 'add_contact');
+
+                $('.close_contacts_modal').on('click', function () {
+                    $('#contacts_modal').modal('hide');
+                });
+            });
+            $('.edit_contact').on('click', function (e) {
+                e.preventDefault();
+                $('#contacts_form')[0].reset();
+
+                let id = $(this).attr('data-id');
+
+                $.ajax({
+                    method: 'POST',
+                    dataType: 'JSON',
+                    data: {
+                        action: 'get_contact',
+                        id: id
+                    },
+                    success: function (contact) {
+
+                        let relation = contact['relation'];
+
+                        $('#contacts_form').find('input[name="fio"]').val(contact['name']);
+                        $('#contacts_form').find('input[name="phone"]').val(contact['phone']);
+                        $('#contacts_form').find('textarea[name="comment"]').val(contact['comment']);
+
+                        if (relation === null) {
+                            $('#contacts_form').find('select option[value="none"]').prop('selected', true);
+                        } else {
+                            $('#contacts_form').find('select option[value="' + relation + '"]').prop('selected', true);
+                        }
+                    }
+                });
+
+                $('#contacts_modal').modal();
+                $('.contacts_modal_title').text('Редактировать контакт');
+                $('#contacts_actions').addClass('confirm_edit_contact');
+                $('#contacts_form').find('input[name="action"]').attr('value', 'edit_contact');
+
+                $('.close_contacts_modal').on('click', function () {
+                    $('#contacts_modal').modal('hide');
+                });
+
+                $(document).on('click', '.confirm_edit_contact', function (e) {
+                    let form = $('#contacts_form').serialize() + '&id=' + id;
+
+                    $.ajax({
+                        method: 'POST',
+                        data: form,
+                        success: function () {
+                            location.reload();
+                        }
+                    })
+                })
+            });
+            $(document).on('click', '.save_contact', function () {
+
+                let form = $('#contacts_form').serialize();
+
+                $.ajax({
+                    method: 'POST',
+                    data: form,
+                    success: function (resp) {
+                        location.reload();
+                    }
+                })
+            });
+            $('.delete_contact').on('click', function () {
+                let id = $(this).attr('data-id');
+
+                $.ajax({
+                    method: 'POST',
+                    data: {
+                        action: 'delete_contact',
+                        id: id
+                    },
+                    success: function () {
+                        location.reload();
+                    }
+                })
+            });
+
         })
     </script>
     <script type="text/javascript" src="theme/{$settings->theme|escape}/js/apps/collector_contract.app.js"></script>
@@ -859,12 +954,14 @@
 
                                                 <h5 class="card-header">
                                                     <span class="text-white ">Контакты</span>
+                                                    {*}
                                                     {if $order->status == 1 && ($manager->id == $order->manager_id)}
                                                         <a href="javascript:void(0);"
                                                            class="float-right text-white js-edit-form"><i
                                                                     class=" fas fa-edit"></i></a>
                                                         </h3>
                                                     {/if}
+                                                    {*}
                                                 </h5>
 
                                                 <div class="row pt-2 view-block {if $contactdata_error}hide{/if}">
@@ -1071,234 +1168,60 @@
                                             </form>
                                             <!-- / Контакты-->
 
-                                            <!-- /Контактные лица -->
-                                            <form action="{url}" class="js-order-item-form mb-3 border"
+                                           <form action="{url}" class="js-order-item-form mb-3 border"
                                                   id="contact_persons_form">
-
-                                                <input type="hidden" name="action" value="contacts"/>
-                                                <input type="hidden" name="order_id" value="{$order->order_id}"/>
-                                                <input type="hidden" name="user_id" value="{$order->user_id}"/>
-
                                                 <h5 class="card-header">
                                                     <span class="text-white">Контактные лица</span>
-                                                    {if $order->status == 1 && ($manager->id == $order->manager_id)}
-                                                        <a href="javascript:void(0);"
-                                                           class="text-white float-right js-edit-form"><i
-                                                                    class=" fas fa-edit"></i></a>
-                                                        </h3>
-                                                    {/if}
+                                                    <a href="javascript:void(0);"
+                                                       class="float-right text-white show_edit_buttons"><i
+                                                                class=" fas fa-edit"></i></a>
                                                 </h5>
 
                                                 <div class="row view-block m-0 {if $contacts_error}hide{/if}">
                                                     <table class="table table-hover mb-0">
+                                                        <thead>
                                                         <tr>
-                                                            <td>{$order->contact_person_name}</td>
-                                                            <td>{$order->contact_person_relation}</td>
-                                                            <td class="text-right">{$order->contact_person_phone}</td>
-                                                            <td>
-                                                                {*if $contract->collection_status != 8}
-                                                                <button class="js-mango-call mango-call {if $contract->sold}js-yuk{/if}" data-phone="{$order->contact_person_phone}" title="Выполнить звонок">
-                                                                    <i class="fas fa-mobile-alt"></i>
-                                                                </button>
-                                                                {/if*}
-                                                                <button class="js-contactperson mango-call js-open-comment-form"
-                                                                        title="Добавить комментарий"
-                                                                        data-contactperson="{$order->contactperson2_id}">
-                                                                    <i class="fas fa-comment-dots"></i>
-                                                                </button>
-                                                            </td>
+                                                            <th>ФИО</th>
+                                                            <th>Контактный телефон</th>
+                                                            <th>Комментарий</th>
+                                                            <th>Пренадлежность</th>
+                                                            <th>
+                                                                <div data-id="{$client->id}" style="display: none"
+                                                                     class="btn btn-outline-success add_contact contact_edit_buttons">
+                                                                    +
+                                                                </div>
+                                                            </th>
                                                         </tr>
-                                                        <tr>
-                                                            <td>{$order->contact_person2_name}</td>
-                                                            <td>{$order->contact_person2_relation}</td>
-                                                            <td class="text-right">{$order->contact_person2_phone}</td>
-                                                            <td>
-                                                                {*if $contract->collection_status != 8}
-                                                                <button class="js-mango-call mango-call {if $contract->sold}js-yuk{/if}" data-phone="{$order->contact_person2_phone}" title="Выполнить звонок">
-                                                                    <i class="fas fa-mobile-alt"></i>
-                                                                </button>
-                                                                {/if*}
-                                                                <button class="js-contactperson mango-call  js-open-comment-form"
-                                                                        title="Добавить комментарий"
-                                                                        data-contactperson="{$order->contact_person2_id}">
-                                                                    <i class="fas fa-comment-dots"></i>
-                                                                </button>
-                                                            </td>
-                                                        </tr>
+                                                        </thead>
+                                                        {foreach $contacts as $contact}
+                                                            <tr>
+                                                                <td>{$contact->name|upper}</td>
+                                                                <td>{$contact->phone}
+                                                                    <button class="js-pbxmaker-call mango-call js-event-add-click"
+                                                                            data-event="63"
+                                                                            data-manager="{$manager->id}"
+                                                                            data-order="{$order->order_id}"
+                                                                            data-user="{$order->user_id}"
+                                                                            data-phone="{$order->chief_phone|escape}"
+                                                                            title="Выполнить звонок">
+                                                                        <i class="fas fa-mobile-alt"></i>
+                                                                    </button>
+                                                                </td>
+                                                                <td>{$contact->comment}</td>
+                                                                <td>{$contact->relation}</td>
+                                                                <td>
+                                                                    <div class="btn btn-outline-warning edit_contact contact_edit_buttons"
+                                                                         style="display: none"
+                                                                         data-id="{$contact->id}"><i
+                                                                                class=" fas fa-edit"></i></div>
+                                                                    <div class="btn btn-outline-danger delete_contact contact_edit_buttons"
+                                                                         style="display: none"
+                                                                         data-id="{$contact->id}"><i
+                                                                                class=" fas fa-trash"></i></div>
+                                                                </td>
+                                                            </tr>
+                                                        {/foreach}
                                                     </table>
-                                                </div>
-
-                                                <div class="row m-0 pt-2 pb-2 edit-block {if !$contacts_error}hide{/if}">
-                                                    {if $contacts_error}
-                                                        <div class="col-md-12">
-                                                            <ul class="alert alert-danger">
-                                                                {if in_array('empty_contact_person_name', (array)$contacts_error)}
-                                                                    <li>Укажите ФИО контакного лица!</li>
-                                                                {/if}
-                                                                {if in_array('empty_contact_person_phone', (array)$contacts_error)}
-                                                                    <li>Укажите тел. контакного лица!</li>
-                                                                {/if}
-                                                                {if in_array('empty_contact_person2_name', (array)$contacts_error)}
-                                                                    <li>Укажите ФИО контакного лица 2!</li>
-                                                                {/if}
-                                                                {if in_array('empty_contact_person2_phone', (array)$contacts_error)}
-                                                                    <li>Укажите тел. контакного лица 2!</li>
-                                                                {/if}
-                                                            </ul>
-                                                        </div>
-                                                    {/if}
-                                                    <div class="col-md-4">
-                                                        <div class="form-group {if in_array('empty_contact_person_name', (array)$contacts_error)}has-danger{/if}">
-                                                            <label class="control-label">ФИО контакного лица</label>
-                                                            <input type="text" class="form-control"
-                                                                   name="contact_person_name"
-                                                                   value="{$order->contact_person_name}" placeholder=""
-                                                                   required="true"/>
-                                                            {if in_array('empty_contact_person_name', (array)$contacts_error)}
-                                                                <small class="form-control-feedback">Укажите ФИО
-                                                                    контакного лица!
-                                                                </small>
-                                                            {/if}
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-4">
-                                                        <div class="form-group {if in_array('empty_contact_person_relation', (array)$contacts_error)}has-danger{/if}">
-                                                            <label class="control-label">Кем приходится</label>
-                                                            <select class="form-control custom-select"
-                                                                    name="contact_person_relation">
-                                                                <option value=""
-                                                                        {if $order->contact_person_relation == ''}selected=""{/if}>
-                                                                    Выберите значение
-                                                                </option>
-                                                                <option value="мать/отец"
-                                                                        {if $order->contact_person_relation == 'мать/отец'}selected=""{/if}>
-                                                                    мать/отец
-                                                                </option>
-                                                                <option value="муж/жена"
-                                                                        {if $order->contact_person_relation == 'муж/жена'}selected=""{/if}>
-                                                                    муж/жена
-                                                                </option>
-                                                                <option value="сын/дочь"
-                                                                        {if $order->contact_person_relation == 'сын/дочь'}selected=""{/if}>
-                                                                    сын/дочь
-                                                                </option>
-                                                                <option value="коллега"
-                                                                        {if $order->contact_person_relation == 'коллега'}selected=""{/if}>
-                                                                    коллега
-                                                                </option>
-                                                                <option value="друг/сосед"
-                                                                        {if $order->contact_person_relation == 'друг/сосед'}selected=""{/if}>
-                                                                    друг/сосед
-                                                                </option>
-                                                                <option value="иной родственник"
-                                                                        {if $order->contact_person_relation == 'иной родственник'}selected=""{/if}>
-                                                                    иной родственник
-                                                                </option>
-                                                            </select>
-                                                            {if in_array('empty_contact_person_relation', (array)$contacts_error)}
-                                                                <small class="form-control-feedback">Укажите кем
-                                                                    приходится контакное лицо!
-                                                                </small>
-                                                            {/if}
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-4">
-                                                        <div class="form-group {if in_array('empty_contact_person_phone', (array)$contacts_error)}has-danger{/if}">
-                                                            <label class="control-label">Тел. контакного лица</label>
-                                                            <input type="text" class="form-control"
-                                                                   name="contact_person_phone"
-                                                                   value="{$order->contact_person_phone}" placeholder=""
-                                                                   required="true"/>
-                                                            {if in_array('empty_contact_person_phone', (array)$contacts_error)}
-                                                                <small class="form-control-feedback">Укажите тел.
-                                                                    контакного лица!
-                                                                </small>
-                                                            {/if}
-                                                        </div>
-                                                    </div>
-
-
-                                                    <div class="col-md-4">
-                                                        <div class="form-group {if in_array('empty_contact_person2_name', (array)$contacts_error)}has-danger{/if}">
-                                                            <label class="control-label">ФИО контакного лица 2</label>
-                                                            <input type="text" class="form-control"
-                                                                   name="contact_person2_name"
-                                                                   value="{$order->contact_person2_name}" placeholder=""
-                                                                   required="true"/>
-                                                            {if in_array('empty_contact_person2_name', (array)$contacts_error)}
-                                                                <small class="form-control-feedback">Укажите ФИО
-                                                                    контакного лица!
-                                                                </small>
-                                                            {/if}
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-4">
-                                                        <div class="form-group {if in_array('empty_contact_person_relation', (array)$contacts_error)}has-danger{/if}">
-                                                            <label class="control-label">Кем приходится</label>
-                                                            <select class="form-control custom-select"
-                                                                    name="contact_person2_relation">
-                                                                <option value=""
-                                                                        {if $order->contact_person2_relation == ''}selected=""{/if}>
-                                                                    Выберите значение
-                                                                </option>
-                                                                <option value="мать/отец"
-                                                                        {if $order->contact_person2_relation == 'мать/отец'}selected=""{/if}>
-                                                                    мать/отец
-                                                                </option>
-                                                                <option value="муж/жена"
-                                                                        {if $order->contact_person2_relation == 'муж/жена'}selected=""{/if}>
-                                                                    муж/жена
-                                                                </option>
-                                                                <option value="сын/дочь"
-                                                                        {if $order->contact_person2_relation == 'сын/дочь'}selected=""{/if}>
-                                                                    сын/дочь
-                                                                </option>
-                                                                <option value="коллега"
-                                                                        {if $order->contact_person2_relation == 'коллега'}selected=""{/if}>
-                                                                    коллега
-                                                                </option>
-                                                                <option value="друг/сосед"
-                                                                        {if $order->contact_person2_relation == 'друг/сосед'}selected=""{/if}>
-                                                                    друг/сосед
-                                                                </option>
-                                                                <option value="иной родственник"
-                                                                        {if $order->contact_person2_relation == 'иной родственник'}selected=""{/if}>
-                                                                    иной родственник
-                                                                </option>
-                                                            </select>
-                                                            {if in_array('empty_contact_person_relation', (array)$contacts_error)}
-                                                                <small class="form-control-feedback">Укажите кем
-                                                                    приходится контакное лицо!
-                                                                </small>
-                                                            {/if}
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-4">
-                                                        <div class="form-group {if in_array('empty_contact_person2_phone', (array)$contacts_error)}has-danger{/if}">
-                                                            <label class="control-label">Тел. контакного лица 2</label>
-                                                            <input type="text" class="form-control"
-                                                                   name="contact_person2_phone"
-                                                                   value="{$order->contact_person2_phone}"
-                                                                   placeholder=""/>
-                                                            {if in_array('empty_contact_person2_phone', (array)$contacts_error)}
-                                                                <small class="form-control-feedback">Укажите тел.
-                                                                    контакного лица!
-                                                                </small>
-                                                            {/if}
-                                                        </div>
-                                                    </div>
-
-
-                                                    <div class="col-md-12">
-                                                        <div class="form-actions">
-                                                            <button type="submit" class="btn btn-success"><i
-                                                                        class="fa fa-check"></i> Сохранить
-                                                            </button>
-                                                            <button type="button"
-                                                                    class="btn btn-inverse js-cancel-edit">Отмена
-                                                            </button>
-                                                        </div>
-                                                    </div>
                                                 </div>
                                             </form>
 
@@ -1311,12 +1234,14 @@
 
                                                 <h5 class="card-header">
                                                     <span class="text-white">Адрес</span>
+                                                    {*}
                                                     {if $order->status == 1 && ($manager->id == $order->manager_id)}
                                                         <a href="javascript:void(0);"
                                                            class="text-white float-right js-edit-form"><i
                                                                     class=" fas fa-edit"></i></a>
                                                         </h3>
                                                     {/if}
+                                                    {*}
                                                 </h5>
 
                                                 <div class="row view-block {if $addresses_error}hide{/if}">
@@ -1324,30 +1249,11 @@
                                                         <table class="table table-hover mb-0">
                                                             <tr>
                                                                 <td>Адрес прописки</td>
-                                                                <td>
-                                                                    {$order->Regindex}
-                                                                    {$order->Regregion} {$order->Regregion_shorttype},
-                                                                    {if $order->Regcity}{$order->Regcity} {$order->Regcity_sorttype},{/if}
-                                                                    {if $order->Regdistrict}{$order->Regdistrict} {$order->Regdistrict_sorttype},{/if}
-                                                                    {$order->Regstreet} {$order->Regstreet_shorttype},
-                                                                    {if $order->Reglocality}{$order->Reglocality} {$order->Reglocality_sorttype},{/if}
-                                                                    д.{$order->Reghousing},
-                                                                    {if $order->Regbuilding}стр. {$order->Regbuilding},{/if}
-                                                                    {if $order->Regroom}кв.{$order->Regroom}{/if}
-                                                                </td>
+                                                                <td>{$regaddress->adressfull}</td>
                                                             </tr>
                                                             <tr>
                                                                 <td>Адрес проживания</td>
-                                                                <td>
-                                                                    {$order->Faktindex}
-                                                                    {$order->Faktregion} {$order->Faktregion_shorttype},
-                                                                    {if $order->Faktcity}{$order->Faktcity} {$order->Faktcity_shorttype},{/if}
-                                                                    {if $order->Faktdistrict}{$order->Faktdistrict} {$order->Faktdistrict_sorttype},{/if}
-                                                                    {if $order->Faktstreet}{$order->Faktstreet} {$order->Faktstreet_shorttype},{/if}
-                                                                    {if $order->Faktlocality}{$order->Faktlocality} {$order->Faktlocality_sorttype},{/if}
-                                                                    д.{$order->Fakthousing},
-                                                                    {if $order->Faktbuilding}стр. {$order->Faktbuilding},{/if}
-                                                                    {if $order->Faktroom}кв.{$order->Faktroom}{/if}
+                                                                <td>{$faktaddress->adressfull}</td>
                                                                 </td>
                                                             </tr>
                                                         </table>
@@ -1608,12 +1514,14 @@
 
                                                 <h5 class="card-header">
                                                     <span class="text-white">Данные о работе</span>
+                                                    {*}
                                                     {if $order->status == 1 && ($manager->id == $order->manager_id)}
                                                         <a href="javascript:void(0);"
                                                            class="text-white float-right js-edit-form"><i
                                                                     class=" fas fa-edit"></i></a>
                                                         </h3>
                                                     {/if}
+                                                    {*}
                                                 </h5>
 
                                                 <div class="row m-0 pt-2 view-block {if $work_error}hide{/if}">
@@ -2806,6 +2714,51 @@
 
 </div>
 
+<div class="modal fade" id="contacts_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-x">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title contacts_modal_title"></h5>
+            </div>
+            <div class="modal-body">
+                <form id="contacts_form">
+                    <input type="hidden" name="action" value="">
+                    <input type="hidden" name="user_id" value="{$order->user_id}">
+                    <div style="display: flex; flex-direction: column">
+                        <div class="form-group">
+                            <label class="custom-label">ФИО</label>
+                            <input type="text" class="form-control" name="fio">
+                        </div>
+                        <div class="form-group">
+                            <label class="custom-label">Номер телефона</label>
+                            <input type="text" class="form-control" placeholder="Например 79966225511" name="phone">
+                        </div>
+                        <div class="form-group">
+                            <label class="custom-label">Кем приходится</label>
+                            <select class="form-control" name="relation">
+                                <option value="none" selected>Выберите из списка</option>
+                                <option value="мать/отец">мать/отец</option>
+                                <option value="муж/жена">муж/жена</option>
+                                <option value="сын/дочь">сын/дочь</option>
+                                <option value="коллега">коллега</option>
+                                <option value="друг/сосед">друг/сосед</option>
+                                <option value="иной родственник">иной родственник</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="custom-label">Комментарий</label>
+                            <textarea class="form-control" name="comment"></textarea>
+                        </div>
+                        <div style="display: flex; justify-content: space-between">
+                            <div id="contacts_actions" class="btn btn-success">Сохранить</div>
+                            <div class="btn btn-danger close_contacts_modal">Отменить</div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div id="modal_reject_reason" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog"
      aria-labelledby="mySmallModalLabel" aria-hidden="true">

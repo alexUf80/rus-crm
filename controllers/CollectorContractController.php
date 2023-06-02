@@ -23,6 +23,26 @@ class CollectorContractController extends Controller
                 case 'blacklist':
                     $this->blacklist_action();
                     break;
+                
+                case 'add_contact':
+                    $this->action_add_contact();
+                    break;
+
+                case 'delete_contact':
+                    $this->action_delete_contact();
+                    break;
+
+                case 'edit_contact':
+                    $this->action_edit_contact();
+                    break;
+
+                case 'get_contact':
+                    $this->action_get_contact();
+                    break;
+
+                case 'contacts':
+                    $this->contacts_action();
+                    break;
 
             endswitch;
         }
@@ -49,8 +69,8 @@ class CollectorContractController extends Controller
 
                 $regaddress = $this->Addresses->get_address($user->regaddress_id);
                 $faktaddress = $this->Addresses->get_address($user->faktaddress_id);
-                $this->design->assign('regaddress', $regaddress->adressfull);
-                $this->design->assign('faktaddress', $faktaddress->adressfull);
+                $this->design->assign('regaddress', $regaddress);
+                $this->design->assign('faktaddress', $faktaddress);
 
 
                 $fetch_api = $this->dadata->fetch_clean_api('address', [$user->Regregion]);
@@ -131,8 +151,8 @@ class CollectorContractController extends Controller
                 $diff = $date2->diff($date1);
                 $contract->delay = $diff->days;
 
-                $contactpersons = $this->contactpersons->get_contactpersons(array('user_id' => $order->user_id));
-                $this->design->assign('contactpersons', $contactpersons);
+                $contacts = $this->contactpersons->get_contactpersons(array('user_id' => $order->user_id));
+                $this->design->assign('contacts', $contacts);
 
 
                 $need_update_scorings = 0;
@@ -441,4 +461,138 @@ class CollectorContractController extends Controller
         }
     }
 
+    private function contacts_action()
+    {
+        $order_id = $this->request->post('order_id', 'integer');
+        $user_id = $this->request->post('user_id', 'integer');
+
+        $order = new StdClass();
+        $order->contact_person_name = trim($this->request->post('contact_person_name'));
+        $order->contact_person_phone = trim($this->request->post('contact_person_phone'));
+        $order->contact_person_relation = trim($this->request->post('contact_person_relation'));
+        $order->contact_person2_name = trim($this->request->post('contact_person2_name'));
+        $order->contact_person2_phone = trim($this->request->post('contact_person2_phone'));
+        $order->contact_person2_relation = trim($this->request->post('contact_person2_relation'));
+
+        $contacts_error = array();
+
+        if (empty($order->contact_person_name))
+            $contacts_error[] = 'empty_contact_person_name';
+        if (empty($order->contact_person_phone))
+            $contacts_error[] = 'empty_contact_person_phone';
+        if (empty($order->contact_person2_name))
+            $contacts_error[] = 'empty_contact_person2_name';
+        if (empty($order->contact_person2_phone))
+            $contacts_error[] = 'empty_contact_person2_phone';
+
+        if (empty($contacts_error)) {
+            $update = array(
+                'contact_person_name' => $order->contact_person_name,
+                'contact_person_phone' => $order->contact_person_phone,
+                'contact_person_relation' => $order->contact_person_relation,
+                'contact_person2_name' => $order->contact_person2_name,
+                'contact_person2_phone' => $order->contact_person2_phone,
+                'contact_person2_relation' => $order->contact_person2_relation,
+            );
+
+            $old_user = $this->users->get_user($user_id);
+            $old_values = array();
+            foreach ($update as $key => $val)
+                if ($old_user->$key != $update[$key])
+                    $old_values[$key] = $old_user->$key;
+
+            $log_update = array();
+            foreach ($update as $k => $u)
+                if (isset($old_values[$k]))
+                    $log_update[$k] = $u;
+
+            $this->changelogs->add_changelog(array(
+                'manager_id' => $this->manager->id,
+                'created' => date('Y-m-d H:i:s'),
+                'type' => 'contacts',
+                'old_values' => serialize($old_values),
+                'new_values' => serialize($log_update),
+                'order_id' => $order_id,
+                'user_id' => $user_id,
+            ));
+            
+            $this->users->update_user($user_id, $update);
+        }
+
+        $this->design->assign('contacts_error', $contacts_error);
+
+        $order->order_id = $order_id;
+        $order->user_id = $user_id;
+
+        $isset_order = $this->orders->get_order((int)$order_id);
+
+        $order->status = $isset_order->status;
+        $order->manager_id = $isset_order->manager_id;
+
+        $this->design->assign('order', $order);
+    }
+
+    private function action_add_contact()
+    {
+        $user_id = $this->request->post('user_id');
+        $fio = strtoupper($this->request->post('fio'));
+        $phone = trim($this->request->post('phone'));
+        $relation = $this->request->post('relation');
+        $comment = $this->request->post('comment');
+
+        $contact =
+            [
+                'user_id' => $user_id,
+                'name' => $fio,
+                'phone' => $phone,
+                'relation' => $relation,
+                'comment' => $comment
+            ];
+
+            $file = 'c:\OSPanel\people.txt';
+        file_put_contents($file,$this->request->post('user_id'));
+
+        $this->Contactpersons->add_contactperson($contact);
+        exit;
+    }
+
+    private function action_delete_contact()
+    {
+        $id = $this->request->post('id');
+
+        $this->Contactpersons->delete_contactperson($id);
+
+        exit;
+    }
+
+    private function action_edit_contact()
+    {
+        $id = $this->request->post('id');
+
+        $fio = strtoupper($this->request->post('fio'));
+        $phone = trim($this->request->post('phone'));
+        $relation = $this->request->post('relation');
+        $comment = $this->request->post('comment');
+
+        $contact =
+            [
+                'name' => $fio,
+                'phone' => $phone,
+                'relation' => $relation,
+                'comment' => $comment
+            ];
+
+        $this->Contactpersons->update_contactperson($id, $contact);
+        exit;
+    }
+
+    private function action_get_contact()
+    {
+        $id = $this->request->post('id');
+
+        $contact = $this->Contactpersons->get_contactperson($id);
+
+        echo json_encode($contact);
+        exit;
+    }
 }
