@@ -91,6 +91,10 @@ class StatisticsController extends Controller
                 return $this->action_leadgens();
                 break;
 
+            case 'reconciliation':
+                return $this->action_reconciliation();
+                break;
+                
             default:
                 return false;
 
@@ -3515,6 +3519,139 @@ class StatisticsController extends Controller
         $this->design->assign('integrations', $integrations);
 
         return $this->design->fetch('statistics/leadgens.tpl');
+    }
+
+    private function action_reconciliation()
+    {
+        if ($daterange = $this->request->get('daterange')) {
+            list($from, $to) = explode('-', $daterange);
+
+            $date_from = date('Y-m-d', strtotime($from));
+            $date_to = date('Y-m-d', strtotime($to));
+
+            $this->design->assign('date_from', $date_from);
+            $this->design->assign('date_to', $date_to);
+            $this->design->assign('from', $from);
+            $this->design->assign('to', $to);
+
+            $query = $this->db->placehold("
+                SELECT
+                    c.id AS contract_id,
+                    c.order_id AS order_id,
+                    c.number,
+                    c.inssuance_date AS date,
+                    c.amount,
+                    c.user_id,
+                    c.status,
+                    c.return_date,
+                    c.loan_body_summ,
+                    c.loan_percents_summ,
+                    o.client_status,
+                    o.date AS order_date,
+                    u.lastname,
+                    u.firstname,
+                    u.patronymic,
+                    u.UID AS uid
+                FROM __contracts AS c
+                LEFT JOIN __users AS u
+                ON u.id = c.user_id
+                LEFT JOIN __orders AS o
+                ON o.id = c.order_id
+                WHERE c.status IN (2, 3, 4, 7)
+                AND c.type = 'base'
+                AND DATE(c.inssuance_date) >= ?
+                AND DATE(c.inssuance_date) <= ?
+                ORDER BY inssuance_date
+            ", $date_from, $date_to);
+            $this->db->query($query);
+
+            $contacts_query = $this->db->results();
+            $contracts = array();
+            foreach ($contacts_query as $c){
+                $contracts[$c->contract_id] = $c;
+
+                $query = $this->db->placehold("
+                    SELECT * 
+                    FROM __operations
+                    WHERE contract_id = $c->id
+                    AND type='PAY'
+                    ORDER BY id DESC
+                    LIMIT 1
+                ");
+                var_dump($query);
+                $this->db->query($query);
+                $operation = $this->db->result();
+
+                $contracts[$c->contract_id]->operation_amount = $operation->amount;
+                $contracts[$c->contract_id]->operation_date = $operation->created;
+
+            }
+            die;
+
+            if ($this->request->get('download') == 'excel') {
+                $managers = array();
+                foreach ($this->managers->get_managers() as $m)
+                    $managers[$m->id] = $m;
+
+                $filename = 'files/reports/Отчет по сверке.xls';
+                require $this->config->root_dir . 'PHPExcel/Classes/PHPExcel.php';
+
+                $excel = new PHPExcel();
+
+                $excel->setActiveSheetIndex(0);
+                $active_sheet = $excel->getActiveSheet();
+
+                $active_sheet->setTitle("Выдачи " . $from . "-" . $to);
+
+                $excel->getDefaultStyle()->getFont()->setName('Calibri')->setSize(12);
+                $excel->getDefaultStyle()->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
+
+                $active_sheet->getColumnDimension('A')->setWidth(15);
+                $active_sheet->getColumnDimension('B')->setWidth(15);
+                $active_sheet->getColumnDimension('C')->setWidth(20);
+                $active_sheet->getColumnDimension('D')->setWidth(20);                $active_sheet->getColumnDimension('H')->setWidth(30);
+                $active_sheet->getColumnDimension('E')->setWidth(20);                $active_sheet->getColumnDimension('H')->setWidth(30);
+                $active_sheet->getColumnDimension('F')->setWidth(20);                $active_sheet->getColumnDimension('H')->setWidth(30);
+                $active_sheet->getColumnDimension('G')->setWidth(20);                $active_sheet->getColumnDimension('H')->setWidth(30);
+                $active_sheet->getColumnDimension('H')->setWidth(20);                $active_sheet->getColumnDimension('H')->setWidth(30);
+
+                $active_sheet->setCellValue('A1', 'Договор');
+                $active_sheet->setCellValue('B1', 'Дата');
+                $active_sheet->setCellValue('C1', 'Клиент');
+                $active_sheet->setCellValue('D1', 'Остаток ОД');
+                $active_sheet->setCellValue('E1', 'Остаток процентов');
+                $active_sheet->setCellValue('F1', 'Остаток ответственности');
+                $active_sheet->setCellValue('G1', 'Сумма последний оплаты');
+                $active_sheet->setCellValue('H1', 'Дата последней оплаты');
+
+                $i = 2;
+                foreach ($contracts as $contract) {
+                    
+
+                    $active_sheet->setCellValue('A' . $i, $contract->number);
+                    $active_sheet->setCellValue('B' . $i, date('d.m.Y', strtotime($contract->date)));
+                    $active_sheet->setCellValue('C' . $i, $contract->lastname . ' ' . $contract->firstname . ' ' . $contract->patronymic . ' ' . $contract->birth);
+                    $active_sheet->setCellValue('D' . $i, $contract->loan_body_summ);
+                    $active_sheet->setCellValue('E' . $i, $contract->loan_percents_summ);
+                    $active_sheet->setCellValue('F' . $i, $contract->loan_body_summ + $contract->loan_percents_summ);
+                    $active_sheet->setCellValue('G' . $i, $contract->lastname);
+                    $active_sheet->setCellValue('H' . $i, $contract->lastname);
+
+                    $i++;
+                }
+
+                $objWriter = PHPExcel_IOFactory::createWriter($excel, 'Excel5');
+
+                $objWriter->save($this->config->root_dir . $filename);
+
+                header('Location:' . $this->config->root_url . '/' . $filename);
+                exit;
+            }
+
+            $this->design->assign('contracts', $contracts);
+        }
+
+        return $this->design->fetch('statistics/reconciliation.tpl');
     }
 
 }

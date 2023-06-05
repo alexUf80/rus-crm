@@ -189,6 +189,16 @@
                 </div>
             </div>
 
+            {*}
+            <div class="col-md-6 col-lg-3 col-xlg-3">
+                    <div class="card card-inverse card-success">
+                        <a href="statistics/reconciliation" class="box text-center">
+                            <h1 class="font-light text-white">Сверка</h1>
+                            <h6 class="text-white">Отчет по сверке</h6>
+                        </a>
+                    </div>
+                </div>
+            {*}
         </div>
 
     </div>
