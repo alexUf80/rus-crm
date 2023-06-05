@@ -1881,7 +1881,7 @@ class StatisticsController extends Controller
                 $service->regAddr = $service->regAddr->adressfull;
             }
 
-            $op_type = ['INSURANCE' => 'Страхование от НС', 'BUD_V_KURSE' => 'Будь в курсе', 'REJECT_REASON' => 'Узнай причину отказа', 'INSURANCE_CLOSED' => 'Страхование БК'];
+            $op_type = ['INSURANCE' => 'Страхование от НС', 'INSURANCE_BC' => 'Страхование от БК', 'BUD_V_KURSE' => 'Будь в курсе', 'REJECT_REASON' => 'Узнай причину отказа', 'INSURANCE_CLOSED' => 'Страхование БК'];
             $gender = ['male' => 'Мужской', 'female' => 'Женский'];
 
             $this->design->assign('ad_services', $ad_services);
