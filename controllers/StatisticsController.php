@@ -3573,12 +3573,11 @@ class StatisticsController extends Controller
                 $query = $this->db->placehold("
                     SELECT * 
                     FROM __operations
-                    WHERE contract_id = $c->id
+                    WHERE contract_id = ?
                     AND type='PAY'
                     ORDER BY id DESC
                     LIMIT 1
-                ");
-                var_dump($query);
+                ", $c->contract_id);
                 $this->db->query($query);
                 $operation = $this->db->result();
 
@@ -3586,7 +3585,6 @@ class StatisticsController extends Controller
                 $contracts[$c->contract_id]->operation_date = $operation->created;
 
             }
-            die;
 
             if ($this->request->get('download') == 'excel') {
                 $managers = array();
@@ -3634,8 +3632,11 @@ class StatisticsController extends Controller
                     $active_sheet->setCellValue('D' . $i, $contract->loan_body_summ);
                     $active_sheet->setCellValue('E' . $i, $contract->loan_percents_summ);
                     $active_sheet->setCellValue('F' . $i, $contract->loan_body_summ + $contract->loan_percents_summ);
-                    $active_sheet->setCellValue('G' . $i, $contract->lastname);
-                    $active_sheet->setCellValue('H' . $i, $contract->lastname);
+                    $active_sheet->setCellValue('G' . $i, $contract->operation_amount);
+                    if($contract->operation_date)
+                        $active_sheet->setCellValue('H' . $i, date('d.m.Y', strtotime($contract->operation_date)));
+                    else
+                        $active_sheet->setCellValue('H' . $i, '');
 
                     $i++;
                 }
