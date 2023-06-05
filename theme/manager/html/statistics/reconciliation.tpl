@@ -126,7 +126,7 @@
                                 <td>{$contract->loan_percents_summ}</td>
                                 <td>{$contract->loan_body_summ + $contract->loan_percents_summ}</td>
                                 <td>{$contract->operation_amount}</td>
-                                <td>{$contract->operation_date}</td>
+                                <td>{$contract->operation_date|date}</td>
                             </tr>
                             {/foreach}
 
