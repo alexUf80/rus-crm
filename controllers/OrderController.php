@@ -1139,7 +1139,7 @@ class OrderController extends Controller
             $this->sms->send($order->phone_mobile, $msg);
         }
 
-        // $this->Leadsend->guruleads_send($order_id);
+        $this->Leadsend->guruleads_send($order_id);
 
         return array('success' => 1, 'status' => $status);
     }
