@@ -35,7 +35,6 @@ class ExchangeOnecCron extends Core
             $i--;
         }
         while ($i > 0 && !empty($run_result));
-        
     }
     
     private function send_contracts()

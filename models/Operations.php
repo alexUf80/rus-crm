@@ -333,7 +333,7 @@ class Operations extends Core
         join s_users as us on op.user_id = us.id
         left join s_insurances as ins on ins.operation_id = op.id
         where 1
-        and op.type in ('INSURANCE', 'BUD_V_KURSE', 'REJECT_REASON')
+        and op.type in ('INSURANCE', 'INSURANCE_BC', 'BUD_V_KURSE', 'REJECT_REASON')
         $date_from_filter
         $date_to_filter
         order by id
