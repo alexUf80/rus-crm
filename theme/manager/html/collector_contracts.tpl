@@ -961,7 +961,7 @@
                                                         </select>
                                                     </form>
                                                 </div>
-                                            </td> 
+                                            </td>
 
                                             <td style="line-height:1;" class="jsgrid-cell">
                                                 <div style="max-height:120px; overflow: auto;">
