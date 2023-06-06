@@ -749,7 +749,6 @@
                                         </div>
 
                                     </form>
-                                    
                                     {*}
                                     {if $order->status == 5}
                                             <br>

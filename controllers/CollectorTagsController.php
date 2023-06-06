@@ -14,7 +14,7 @@ class CollectorTagsController extends Controller
                     $color = trim($this->request->post('color'));
                     
                     if (empty($name))
-                    {
+                    { 
                         $this->json_output(array('error' => 'Укажите название тега'));
                     }
                     elseif (empty($color))

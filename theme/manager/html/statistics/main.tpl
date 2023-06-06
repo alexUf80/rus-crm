@@ -189,7 +189,6 @@
                 </div>
             </div>
 
-            {*}
             <div class="col-md-6 col-lg-3 col-xlg-3">
                     <div class="card card-inverse card-success">
                         <a href="statistics/reconciliation" class="box text-center">
@@ -198,7 +197,6 @@
                         </a>
                     </div>
                 </div>
-            {*}
         </div>
 
     </div>
