@@ -606,10 +606,10 @@
                             <div class="jsgrid-grid-header jsgrid-header-scrollbar">
                                 <table class="jsgrid-table table table-striped table-hover">
                                     <tr class="jsgrid-header-row">
-                                        <th style="width:20px;" class="jsgrid-header-cell">#</th>
+                                        <th class="jsgrid-header-cell">#</th>
 
                                         {if in_array($manager->role, ['developer', 'admin', 'chief_collector', 'team_collector'])}
-                                            <th style="width:80px"
+                                            <th
                                                 class="jsgrid-header-cell jsgrid-header-sortable {if $sort == 'manager_id_desc'}jsgrid-header-sort jsgrid-header-sort-desc{elseif $sort == 'manager_id_asc'}jsgrid-header-sort jsgrid-header-sort-asc{/if}">
                                                 {if $sort == 'manager_id_asc'}<a
                                                     href="{url page=null sort='manager_id_desc'}">Пользователь</a>
@@ -618,60 +618,60 @@
                                             </th>
                                         {/if}
 
-                                        <th style="width: 60px;"
+                                        <th
                                             class="jsgrid-header-cell jsgrid-align-right jsgrid-header-sortable {if $sort == 'order_id_desc'}jsgrid-header-sort jsgrid-header-sort-desc{elseif $sort == 'order_id_asc'}jsgrid-header-sort jsgrid-header-sort-asc{/if}">
                                             {if $sort == 'order_id_asc'}<a href="{url page=null sort='order_id_desc'}">
                                                     ID</a>
                                             {else}<a href="{url page=null sort='order_id_asc'}">ID</a>{/if}
                                         </th>
 
-                                        <th style="width: 120px;"
+                                        <th
                                             class="jsgrid-header-cell jsgrid-header-sortable {if $sort == 'fio_asc'}jsgrid-header-sort jsgrid-header-sort-asc{elseif $sort == 'fio_desc'}jsgrid-header-sort jsgrid-header-sort-desc{/if}">
                                             {if $sort == 'fio_asc'}<a href="{url page=null sort='fio_desc'}">ФИО</a>
                                             {else}<a href="{url page=null sort='fio_asc'}">ФИО</a>{/if}
                                         </th>
-                                        <th style="width: 70px;"
+                                        <th
                                             class="jsgrid-header-cell jsgrid-header-sortable {if $sort == 'body_asc'}jsgrid-header-sort jsgrid-header-sort-asc{elseif $sort == 'body_desc'}jsgrid-header-sort jsgrid-header-sort-desc{/if}">
                                             {if $sort == 'body_asc'}<a href="{url page=null sort='body_desc'}">ОД,
                                                 руб</a>
                                             {else}<a href="{url page=null sort='body_asc'}">ОД, руб</a>{/if}
                                         </th>
-                                        <th style="width: 70px;"
+                                        <th
                                             class="jsgrid-header-cell jsgrid-header-sortable {if $sort == 'percents_asc'}jsgrid-header-sort jsgrid-header-sort-asc{elseif $sort == 'percents_desc'}jsgrid-header-sort jsgrid-header-sort-desc{/if}">
                                             {if $sort == 'percents_asc'}<a href="{url page=null sort='percents_desc'}">
                                                     %, руб</a>
                                             {else}<a href="{url page=null sort='percents_asc'}">%, руб</a>{/if}
                                         </th>
-                                        <th style="width: 70px;"
+                                        <th
                                             class="jsgrid-header-cell jsgrid-header-sortable {if $sort == 'total_asc'}jsgrid-header-sort jsgrid-header-sort-asc{elseif $sort == 'total_desc'}jsgrid-header-sort jsgrid-header-sort-desc{/if}">
                                             {if $sort == 'total_asc'}<a href="{url page=null sort='total_desc'}">Итог,
                                                 руб</a>
                                             {else}<a href="{url page=null sort='total_asc'}">Итог, руб</a>{/if}
                                         </th>
-                                        <th style="width: 80px;"
+                                        <th
                                             class="jsgrid-header-cell jsgrid-header-sortable {if $sort == 'phone_asc'}jsgrid-header-sort jsgrid-header-sort-asc{elseif $sort == 'phone_desc'}jsgrid-header-sort jsgrid-header-sort-desc{/if}">
                                             {if $sort == 'phone_asc'}<a href="{url page=null sort='phone_desc'}">
                                                     Телефон</a>
                                             {else}<a href="{url page=null sort='phone_asc'}">Телефон</a>{/if}
                                         </th>
-                                        <th style="width: 80px;"
+                                        <th
                                             class="jsgrid-header-cell jsgrid-header-sortable {if $sort == 'return_asc'}jsgrid-header-sort jsgrid-header-sort-desc{elseif $sort == 'return_desc'}jsgrid-header-sort jsgrid-header-sort-asc{/if}">
                                             {if $sort == 'return_asc'}<a href="{url page=null sort='return_desc'}">
                                                     Просрочен</a>
                                             {else}<a href="{url page=null sort='return_asc'}">Просрочен</a>{/if}
                                         </th>
-                                        <th style="width: 80px;"
+                                        <th
                                             class="jsgrid-header-cell jsgrid-header-sortable {if $sort == 'return_asc'}jsgrid-header-sort jsgrid-header-sort-desc{elseif $sort == 'return_desc'}jsgrid-header-sort jsgrid-header-sort-asc{/if}">
                                             {if $sort == 'return_asc'}<a href="{url page=null sort='return_desc'}">Дата
                                                 платежа</a>
                                             {else}<a href="{url page=null sort='return_asc'}">Дата платежа</a>{/if}
                                         </th>
-                                        <th style="width: 80px;"
+                                        <th
                                             class="jsgrid-header-cell jsgrid-header-sortable {if $sort == 'tag_asc'}jsgrid-header-sort jsgrid-header-sort-asc{elseif $sort == 'tag_desc'}jsgrid-header-sort jsgrid-header-sort-desc{/if}">
                                             {if $sort == 'tag_asc'}<a href="{url page=null sort='tag_desc'}">Тег</a>
                                             {else}<a href="{url page=null sort='tag_asc'}">Тег</a>{/if}
                                         </th>
-                                        <th style="width: 140px;"
+                                        <th
                                             class="jsgrid-header-cell jsgrid-header-sortable {if $sort == 'birth_asc'}jsgrid-header-sort jsgrid-header-sort-asc{elseif $sort == 'birth_desc'}jsgrid-header-sort jsgrid-header-sort-desc{/if}">
                                             Комментарий
                                         </th>
@@ -749,12 +749,10 @@
                                         <td style="width: 140px;" class="jsgrid-cell">
                                         </td>
                                     </tr>
-                            {*}
                                 </table>
                             </div>
                             <div class="jsgrid-grid-body">
                                 <table class="jsgrid-table table table-striped table-hover">
-                            {*}
                                     <tbody>
                                     {foreach $contracts as $contract}
                                         {if !empty($user_risk_op)}
@@ -786,7 +784,7 @@
                                         {/foreach}
                                         <tr class="jsgrid-row js-contract-row {if $contract->collection_workout}workout-row{/if} contract-row-{$contract->order->user_id}"
                                             data-contract="{$contract->id}">
-                                            <td style="width:20px" class="jsgrid-cell text-center">
+                                            <td class="jsgrid-cell text-center">
                                                 <div class="custom-checkbox custom-control">
                                                     <input type="checkbox"
                                                            class="custom-control-input js-contract-check"
@@ -799,7 +797,7 @@
 
 
                                             {if in_array($manager->role, ['developer', 'admin', 'chief_collector', 'team_collector'])}
-                                                <td style="width:80px" class="jsgrid-cell">
+                                                <td class="jsgrid-cell">
                                                     <div class="js-open-hide js-dopinfo-{$contract->id} js-collection-manager-block {if $have_contactperson_search}open{/if}">
                                                         <small>{$managers[$contract->collection_manager_id]->name|escape}</small>
                                                     </div>
@@ -828,7 +826,7 @@
                                                 </td>
                                             {/if}
 
-                                            <td style="width: 60px;" class="jsgrid-cell jsgrid-align-right">
+                                            <td class="jsgrid-cell jsgrid-align-right">
                                                 {*}
                                                 <div class="button-toggle-wrapper">
                                                     <button class="js-open-contract button-toggle" data-id="{$contract->id}" type="button" title="Подробнее"></button>
@@ -847,7 +845,7 @@
                                                 {*}
                                             </td>
 
-                                            <td style="width: 120px;" class="jsgrid-cell">
+                                            <td class="jsgrid-cell">
 
                                                 <div class="button-toggle-wrapper" style="margin-right:20px;">
                                                     <button class="js-open-contract button-toggle"
@@ -884,18 +882,18 @@
 
                                                 </div>
                                             </td>
-                                            <td style="width: 70px;" class="jsgrid-cell">
+                                            <td class="jsgrid-cell">
                                                 {$contract->loan_body_summ*1}
                                             </td>
-                                            <td style="width: 70px;" class="jsgrid-cell">
+                                            <td class="jsgrid-cell">
                                                 {($contract->loan_percents_summ + $contract->loan_charge_summ + $contract->loan_peni_summ) * 1}
                                             </td>
-                                            <td style="width: 70px;" class="jsgrid-cell">
+                                            <td class="jsgrid-cell">
                                                 <strong>
                                                     {($contract->loan_body_summ + $contract->loan_percents_summ + $contract->loan_charge_summ + $contract->loan_peni_summ) * 1}
                                                 </strong>
                                             </td>
-                                            <td style="width: 80px;" class="jsgrid-cell">
+                                            <td class="jsgrid-cell">
                                                 <div>
                                                     <span class="label {if $contract->client_time_warning}label-danger{else}label-success{/if} "><i
                                                                 class="far fa-clock"></i> {$contract_dates[$key]['date']}</span>
@@ -919,13 +917,13 @@
                                                     <i class=" far fa-share-square"></i>
                                                 </button>
                                             </td>
-                                            <td style="width: 80px;" class="jsgrid-cell">
+                                            <td class="jsgrid-cell">
                                                 {$contract->delay} {$contract->delay|plural:'день':'дней':'дня'}
                                             </td>
-                                            <td style="width: 80px;" class="jsgrid-cell">
+                                            <td class="jsgrid-cell">
                                                 {$contract->return_date|date}
                                             </td>
-                                            <td style="width: 100px;" class="jsgrid-cell">
+                                            <td class="jsgrid-cell">
                                                 <div class="js-open-hide js-dopinfo-{$contract->id} js-contact-status-block">
                                                     {if !$contract->order->contact_status}
                                                         <span class="label label-warning">Нет данных</span>
@@ -965,7 +963,7 @@
                                                 </div>
                                             </td>
 
-                                            <td style="width: 140px;line-height:1;" class="jsgrid-cell">
+                                            <td style="line-height:1;" class="jsgrid-cell">
                                                 <div style="max-height:120px; overflow: auto;">
                                                     {$comm = $contract->order->comments|first}
 
