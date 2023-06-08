@@ -26,7 +26,7 @@ class TelegramCron extends Core
 
         $getQuery = array(
             "chat_id" 	=> -962979995,
-            "text"  	=> "остаток на счете: " . $xml->amount,
+            "text"  	=> "Остаток на счете: " . number_format(json_decode($xml->amount), 2, ',', ' ').' ₽',
             "parse_mode" => "html",
         );
         $ch = curl_init("https://api.telegram.org/bot". $token ."/sendMessage?" . http_build_query($getQuery));
