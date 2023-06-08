@@ -859,6 +859,70 @@ class Best2pay extends Core
         $this->db->query($query);
     }
 
+    public function CreditBalance()
+    {
+        $sector = $this->sectors['PAY_CREDIT'];
+        $password = $this->passwords[$sector];
+        $notice = date('YmdHis');
+        
+        $filename = $this->log_dir = $this->config->root_dir.'logs/CB.txt';
+        $current = file_get_contents($filename);
+        $current = json_decode($current) + 1;
+        file_put_contents($filename, $current);
+        $notice = $current;
+
+        $signature =
+            [
+                'sector' => $sector,
+                'nonce'  => $notice,
+                'password' => $password
+            ];
+
+        $params =
+            [
+                'sector' => $sector,
+                'nonce' => $notice,
+                'signature' => $this->get_signature($signature)
+            ];
+
+        $b2p_order = $this->send_curl('P2PCreditBalance', $params);
+
+        return $b2p_order;
+    }
+
+    private function send_curl($method, $data, $type = 'webapi')
+    {
+        $string_data = http_build_query($data);
+        $context = stream_context_create(array(
+            'http' => array(
+                'header' => "Content-Type: application/x-www-form-urlencoded\r\n"
+                    . "Content-Length: " . strlen($string_data) . "\r\n",
+                'method' => 'POST',
+                'content' => $string_data
+            )
+        ));
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_HEADER, false);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+        curl_setopt($ch, CURLOPT_URL, $this->url . $type . '/' . $method);
+        
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
+        $b2p = curl_exec($ch);
+        curl_close($ch);
+    
+        // $b2p = file_get_contents($this->url . $type . '/' . $method, false, $context);
+
+        $this->soap1c->logging($type, $method, $data, $b2p, 'b2p.txt');
+
+        return $b2p;
+    }
+
+
     public function pay_contract_with_register($contract_id, $insurance = false, $sms = false)
     {
         echo 'START ' . __METHOD__ . '<br />';
