@@ -22,22 +22,30 @@ class TelegramCron extends Core
         $xml = simplexml_load_string($CreditBalance);
 
         // Отправка в Телеграм
+        // $token = "5736054941:AAE9UXmiUv6WwyoDJPwOTRpGXxFOAUcz3Ww";
+
+        // $getQuery = array(
+        //     "chat_id" 	=> -962979995,
+        //     "text"  	=> "Остаток на счете: " . number_format(json_decode($xml->amount)/100, 2, ',', ' ').' ₽',
+        //     "parse_mode" => "html",
+        // );
+        // $ch = curl_init("https://api.telegram.org/bot". $token ."/sendMessage?" . http_build_query($getQuery));
+        // curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        // curl_setopt($ch, CURLOPT_HEADER, false);
+
+        // $resultQuery = curl_exec($ch);
+        // curl_close($ch);
+
+        // echo $resultQuery;
+
+
+
         $token = "5736054941:AAE9UXmiUv6WwyoDJPwOTRpGXxFOAUcz3Ww";
+        $chat_id = -962979995;
+        $text .= "Остаток на счете: " . number_format(json_decode($xml->amount)/100, 2, ',', ' ').' ₽';
 
-        $getQuery = array(
-            "chat_id" 	=> -962979995,
-            "text"  	=> "Остаток на счете: " . number_format(json_decode($xml->amount)/100, 2, ',', ' ').' ₽',
-            "parse_mode" => "html",
-        );
-        $ch = curl_init("https://api.telegram.org/bot". $token ."/sendMessage?" . http_build_query($getQuery));
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_HEADER, false);
-
-        $resultQuery = curl_exec($ch);
-        curl_close($ch);
-
-        echo $resultQuery;
+        $this->Telegram->send_message($token, $chat_id, $text);
 
         exit;
     }
