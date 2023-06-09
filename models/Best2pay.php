@@ -838,6 +838,9 @@ class Best2pay extends Core
     {
         $p2pcredit = (array)$p2pcredit;
 
+        if (isset($p2pcredit['response']))
+            $xml = simplexml_load_string($p2pcredit['response']);
+
         if (isset($p2pcredit['body']))
             $p2pcredit['body'] = serialize($p2pcredit['body']);
         if (isset($p2pcredit['response']))
@@ -847,6 +850,55 @@ class Best2pay extends Core
             UPDATE __p2pcredits SET ?% WHERE id = ?
         ", $p2pcredit, (int)$id);
         $this->db->query($query);
+
+
+        if ($xml->state == 'REJECTED' || !isset($xml->state)) {
+
+            $p2pcredit = $this->get_p2pcredit($id);
+            $contract = $this->contracts->get_contract($p2pcredit->contract_id);
+
+            $errors_array = 
+            array(
+                0 => 'Операция отклонена по другим причинам. Требуется уточнение у ПЦ.',
+                1 => 'Удачное выполнение операции',
+                2 => 'Неверный срок действия Банковской карты',
+                3 => 'Неверный статус Банковской карты на стороне Эмитента',
+                4 => 'Операция отклонена Эмитентом',
+                5 => 'Операция недопустима для Эмитента',
+                6 => 'Недостаточно средств на счёте Банковской карты',
+                7 => 'Превышен установленный для ТСП лимит на сумму операций (дневной, недельный, месячный) или сумма операции выходит за пределы установленных границ',
+                8 => 'Операция отклонена по причине срабатывания системы предотвращения мошенничества',
+                9 => 'Заказ уже находится в процессе оплаты. Операция, возможно, задублировалась',
+                10 => 'Системная ошибка',
+                11 => 'Недостаточно',
+                12 => 'Ошибка 3DS аутентификации',
+                13 => 'Указано неверное значение секретного кода карты',
+                14 => 'Операция отклонена по причине недоступности Эмитента и/или Банкаэквайрера.',
+                15 => 'BIN платёжной карты присутствует в черных списках',
+                16 => 'BIN 2 платёжной карты присутствует в черных списках',
+                17 => 'Заказ просрочен',
+                18 => 'Неверно задан параметр "month"/"reference"',
+                19 => 'Операция оспаривается плательщиком',
+            );
+
+            $text = '_';
+            if ($xml->state == 'REJECTED') {
+                $text = $errors_array[json_decode($xml->reason_code)];
+            }
+    
+            $text = $xml->state;
+            if (!isset($xml->state)) {
+                $text = "Invalid PAN";
+            }
+            
+            $text .= PHP_EOL;
+            $text .= $this->config->back_url.'/order/'.$contract->order_id;
+
+            $token = "6129784867:AAGFKImrc8-0UNAfkR9qMCPgLxVmXOkftvg";
+            $chat_id = -955292205;
+
+            $this->Telegram->send_message($token, $chat_id, $text);
+        }
 
         return $id;
     }
