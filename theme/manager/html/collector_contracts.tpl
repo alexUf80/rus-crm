@@ -847,12 +847,12 @@
 
                                             <td class="jsgrid-cell">
 
-                                                <div class="button-toggle-wrapper" style="margin-right:20px;">
+                                                <div class="button-toggle-wrapper" style="margin-right:20px; margin-left:-10px;">
                                                     <button class="js-open-contract button-toggle"
                                                             data-id="{$contract->id}" type="button"
                                                             title="Подробнее"></button>
                                                 </div>
-                                                <div style="padding-left:20px;">
+                                                <div style="padding-left:10px;">
                                                     <span class="label label-primary">{$collection_statuses[$contract->collection_status]}</span>
                                                     {if $contract->sold}
                                                         <span class="label label-warning ">ЮК</span>
@@ -882,7 +882,7 @@
 
                                                 </div>
                                             </td>
-                                            <td class="jsgrid-cell">
+                                            <td class="jsgrid-cell" style='text-align: end'>
                                                 {$contract->loan_body_summ*1}
                                             </td>
                                             <td class="jsgrid-cell">
