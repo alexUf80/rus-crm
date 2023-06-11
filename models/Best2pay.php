@@ -886,7 +886,6 @@ class Best2pay extends Core
                 $text = $errors_array[json_decode($xml->reason_code)];
             }
     
-            $text = $xml->state;
             if (!isset($xml->state)) {
                 $text = "Invalid PAN";
             }
