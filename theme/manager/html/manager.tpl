@@ -206,7 +206,8 @@
                                             <select name="role" class="form-control form-control-line" required="true">
                                                 <option value=""></option>
                                                 {foreach $roles as $role}
-                                                    <option value="{$role->id}">{$role->translate}</option>
+                                                    <option value="{$role->id}"
+                                                            {if $user->role == $role->name}selected{/if}>{$role->translate}</option>
                                                 {/foreach}
                                             </select>
                                             {if in_array('empty_role', (array)$errors)}<small class="form-control-feedback">Выберите роль!</small>{/if}
