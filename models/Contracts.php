@@ -639,7 +639,11 @@ echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($query);echo '</pre><hr />';
         if (!empty($filter['search']))
         {
             if (!empty($filter['search']['order_id']))
-                $search_filter .= $this->db->placehold(' AND c.id IN (SELECT contract_id FROM __orders WHERE id = ?)', (int)$filter['search']['order_id']);
+                if(is_array($filter['search']['order_id'])){
+                    $search_filter .= $this->db->placehold(' AND c.id IN (SELECT contract_id FROM __orders WHERE id = ?)', (int)$filter['search']['order_id'][0]);
+                }
+                else
+                    $search_filter .= $this->db->placehold(' AND c.id IN (SELECT contract_id FROM __orders WHERE id = ?)', (int)$filter['search']['order_id']);
             if (!empty($filter['search']['fio']))
             {
                 $users_join = 'RIGHT JOIN __users AS u ON c.user_id = u.id';                    
