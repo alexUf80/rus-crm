@@ -335,6 +335,19 @@
 
             });
 
+            $(document).on('click', '#check_all', function () {
+
+                if ($(this).is(':checked')) {
+                    $('.js-contract-check').each(function () {
+                        $(this).prop('checked', true);
+                    });
+                } else {
+                    $('.js-contract-check').each(function () {
+                        $(this).prop('checked', false);
+                    });
+                }
+            });
+
             /*
                     $(document).on('change', '#check_all', function(){
                         var lch = $('.js-contract-check:not(checked)').length
@@ -606,7 +619,14 @@
                             <div class="jsgrid-grid-header jsgrid-header-scrollbar">
                                 <table class="jsgrid-table table table-striped table-hover">
                                     <tr class="jsgrid-header-row">
-                                        <th class="jsgrid-header-cell">#</th>
+                                        <th class="jsgrid-header-cell">
+                                            <div class="custom-checkbox custom-control">
+                                                <input type="checkbox" class="custom-control-input" id="check_all"
+                                                       value=""/>
+                                                <label for="check_all" title="Отметить все"
+                                                       class="custom-control-label"> </label>
+                                            </div>
+                                        </th>
 
                                         {if in_array($manager->role, ['developer', 'admin', 'chief_collector', 'team_collector'])}
                                             <th
@@ -679,12 +699,6 @@
 
                                     <tr class="jsgrid-filter-row" id="search_form">
                                         <td style="width:20px;" class="jsgrid-cell">
-                                            <div class="custom-checkbox custom-control">
-                                                <input type="checkbox" class="custom-control-input" id="check_all"
-                                                       value=""/>
-                                                <label for="check_all" title="Отметить все"
-                                                       class="custom-control-label"> </label>
-                                            </div>
                                         </td>
 
                                         {if in_array($manager->role, ['developer', 'admin', 'chief_collector', 'team_collector'])}
