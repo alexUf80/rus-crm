@@ -17,8 +17,8 @@ class TelegramCron extends Core
     public function run()
     {
 
-        $date = date('Y-m-d H:i:s', strtotime('-1 second'));
-        $hour = date('h', strtotime('-1 second'));
+        $date = date('Y-m-d H:i:s', strtotime('-2 seconds'));
+        $hour = date('h', strtotime('-2 seconds'));
  
         // Баланс с б2п
         $CreditBalance = $this->Best2pay->CreditBalance();
@@ -87,6 +87,8 @@ class TelegramCron extends Core
         $text .= "Всего выдано сегодня: " . $issuance_count_day;
         $text .= PHP_EOL;
         $text .= "Сумма всех выдач за сегодня: " . number_format(json_decode($issuance_sum_day)/100, 2, ',', ' ').' ₽';
+        // $text .= PHP_EOL;
+        // $text .= $date;
         
         $this->Telegram->send_message($token, $chat_id, $text);
 
