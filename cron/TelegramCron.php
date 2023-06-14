@@ -18,7 +18,7 @@ class TelegramCron extends Core
     {
 
         $date = date('Y-m-d H:i:s', strtotime('-2 seconds'));
-        $hour = date('h', strtotime('-2 seconds'));
+        $hour = date('H', strtotime('-2 seconds'));
  
         // Баланс с б2п
         $CreditBalance = $this->Best2pay->CreditBalance();
