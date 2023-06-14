@@ -16,6 +16,9 @@ class TelegramCron extends Core
     
     public function run()
     {
+
+        $date = date('Y-m-d H:i:s', strtotime('-1 second'));
+        $hour = date('h', strtotime('-1 second'));
  
         // Баланс с б2п
         $CreditBalance = $this->Best2pay->CreditBalance();
@@ -29,14 +32,11 @@ class TelegramCron extends Core
 
 
         // Финансовые показатели
-        $hour = date('h');
-        $hour = $hour < 10 ? '0' . $hour : $hour;
+        $date_from = date('Y-m-d '.'00:00:00',strtotime($date));
+        $date_to = date('Y-m-d '.'23:59:59', strtotime($date));
 
-        $date_from = date('Y-m-d '.'00:00:00');
-        $date_to = date('Y-m-d '.'23:59:59');
-
-        $hour_from = date('Y-m-d '.$hour.':00:00');
-        $hour_to = date('Y-m-d '.$hour.':59:59');
+        $hour_from = date('Y-m-d '.$hour.':00:00',strtotime($date));
+        $hour_to = date('Y-m-d '.$hour.':59:59',strtotime($date));
 
         $query = $this->db->placehold("
             SELECT * 
