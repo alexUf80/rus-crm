@@ -29,7 +29,7 @@ class TelegramCron extends Core
 
 
         // Финансовые показатели
-        $hour = date('h')- 1;
+        $hour = date('h');
         $hour = $hour < 10 ? '0' . $hour : $hour;
 
         $date_from = date('Y-m-d '.'00:00:00');
