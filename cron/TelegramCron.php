@@ -26,7 +26,7 @@ class TelegramCron extends Core
 
         $token = "5736054941:AAE9UXmiUv6WwyoDJPwOTRpGXxFOAUcz3Ww";
         $chat_id = -962979995;
-        $text .= "Остаток на счете: " . number_format(json_decode($xml->amount)/100, 2, ',', ' ').' ₽';
+        $text = "Остаток на счете: " . number_format(json_decode($xml->amount)/100, 2, ',', ' ').' ₽';
 
         $this->Telegram->send_message($token, $chat_id, $text);
 
@@ -38,6 +38,7 @@ class TelegramCron extends Core
         $hour_from = date('Y-m-d '.$hour.':00:00',strtotime($date));
         $hour_to = date('Y-m-d '.$hour.':59:59',strtotime($date));
 
+        // выдачи
         $query = $this->db->placehold("
             SELECT * 
             FROM __p2pcredits
@@ -64,12 +65,42 @@ class TelegramCron extends Core
                 }
             }
         }
+
+        // оплаты
+        $query = $this->db->placehold("
+            SELECT o.*, t.callback_response FROM s_operations as o
+            LEFT JOIN s_transactions as t
+            ON o.transaction_id = t.id
+            WHERE o.type='PAY' 
+            AND o.created >= ?
+            AND o.created <= ?
+        ", $date_from, $date_to);
+        $this->db->query($query);
+        $results = $this->db->results();
+        
+        $payments_count_day = 0;
+        $payments_sum_day = 0;
+        $payments_count_hour = 0;
+        $payments_sum_hour = 0;
+
+        foreach ($results as $result) {
+            if(simplexml_load_string($result->callback_response)->state == 'APPROVED'){
+                // $xml_result = simplexml_load_string(unserialize($result->response));
+                $payments_count_day++;
+                $payments_sum_day += $result->amount;
+
+                if($result->created >= $hour_from && $result->created <= $hour_to){
+                    $payments_count_hour++;
+                    $payments_sum_hour += $result->amount;
+                }
+            }
+        }
         
 
         $token = "5994196675:AAHM8bs6Slw150-RP4_2EOqsyTh0mGvmrmU";
         $chat_id = -921625222;
 
-        $text = "Остаток на счете: " . number_format(json_decode($xml->amount)/100, 2, ',', ' ').' ₽';
+        $text = "<b><u>Остаток на счете:</u></b> " . number_format(json_decode($xml->amount)/100, 2, ',', ' ').' ₽';
         $text .= PHP_EOL;
         $text .= PHP_EOL;
         $text .= "<b><u>Данные за прошедший час</u></b>";
@@ -77,6 +108,12 @@ class TelegramCron extends Core
         $text .= "Количество выдач: " . $issuance_count_hour;
         $text .= PHP_EOL;
         $text .= "Сумма выдач: " . number_format(json_decode($issuance_sum_hour)/100, 2, ',', ' ').' ₽';
+        $text .= PHP_EOL;
+        $text .= "-----";
+        $text .= PHP_EOL;
+        $text .= "Количество оплат: " . $payments_count_hour;
+        $text .= PHP_EOL;
+        $text .= "Сумма оплат: " . number_format(json_decode($payments_sum_hour), 2, ',', ' ').' ₽';
         $text .= PHP_EOL;
         $text .= PHP_EOL;
         // $text .= "Сумма выданная за период: (период требуется уточнить)" ;
@@ -87,6 +124,12 @@ class TelegramCron extends Core
         $text .= "Всего выдано сегодня: " . $issuance_count_day;
         $text .= PHP_EOL;
         $text .= "Сумма всех выдач за сегодня: " . number_format(json_decode($issuance_sum_day)/100, 2, ',', ' ').' ₽';
+        $text .= PHP_EOL;
+        $text .= "-----";
+        $text .= PHP_EOL;
+        $text .= "Всего оплат сегодня: " . $payments_count_day;
+        $text .= PHP_EOL;
+        $text .= "Сумма всех оплат за сегодня: " . number_format(json_decode($payments_sum_day), 2, ',', ' ').' ₽';
         // $text .= PHP_EOL;
         // $text .= $date;
         
