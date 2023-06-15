@@ -130,8 +130,8 @@ class TelegramCron extends Core
         $text .= "Всего оплат сегодня: " . $payments_count_day;
         $text .= PHP_EOL;
         $text .= "Сумма всех оплат за сегодня: " . number_format(json_decode($payments_sum_day), 2, ',', ' ').' ₽';
-        $text .= PHP_EOL;
-        $text .= $date;
+        // $text .= PHP_EOL;
+        // $text .= $date;
         
         $this->Telegram->send_message($token, $chat_id, $text);
 
