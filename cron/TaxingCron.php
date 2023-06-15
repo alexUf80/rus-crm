@@ -40,6 +40,10 @@ class TaxingCron extends Core
 
             foreach ($contracts as $contract) {
 
+                if ($contract->id != 3673) {
+                    continue;
+                }
+
                 $this->db->query("
                 select sum(amount) as sum_taxing
                 from s_operations
@@ -56,54 +60,60 @@ class TaxingCron extends Core
                 //Начисление процентов
                 $percents_summ = round($contract->loan_body_summ / 100 * $contract->base_percent, 2);
 
-                if ($percents_summ > ($taxing_limit - $sum_taxing)) {
-                    $percents_summ = $taxing_limit - $sum_taxing;
+                if ($percents_summ > ($taxing_limit - $sum_taxing->sum_taxing)) {
+                    $percents_summ = $taxing_limit - $sum_taxing->sum_taxing;
                     $stop_taxing = 1;
                 }
 
-                $this->operations->add_operation(array(
-                    'contract_id' => $contract->id,
-                    'user_id' => $contract->user_id,
-                    'order_id' => $contract->order_id,
-                    'type' => 'PERCENTS',
-                    'amount' => $percents_summ,
-                    'created' => date('Y-m-d H:i:s'),
-                    'loan_body_summ' => $contract->loan_body_summ,
-                    'loan_percents_summ' => $contract->loan_percents_summ + $percents_summ,
-                    'loan_charge_summ' => $contract->loan_charge_summ,
-                    'loan_peni_summ' => $contract->loan_peni_summ,
-                ));
-
-                //Начисление пени, если просрочен займ
-                if ($contract->status == 4 && $stop_taxing == 0) {
-                    $peni_summ = round(($contract->loan_body_summ + $contract->loan_percents_summ + $percents_summ) * 0.2 / 365, 2);
-
-                    if ($peni_summ > ($taxing_limit - $sum_taxing)) {
-                        $peni_summ = $taxing_limit - $sum_taxing;
-                        $stop_taxing = 1;
-                    }
-
-                    $this->contracts->update_contract($contract->id, array(
-                        'loan_peni_summ' => $contract->loan_peni_summ + $peni_summ
-                    ));
-
-
+                if ($stop_taxing == 0) {
                     $this->operations->add_operation(array(
                         'contract_id' => $contract->id,
                         'user_id' => $contract->user_id,
                         'order_id' => $contract->order_id,
-                        'type' => 'PENI',
-                        'amount' => $peni_summ,
+                        'type' => 'PERCENTS',
+                        'amount' => $percents_summ,
                         'created' => date('Y-m-d H:i:s'),
                         'loan_body_summ' => $contract->loan_body_summ,
-                        'loan_percents_summ' => $contract->loan_percents_summ,
+                        'loan_percents_summ' => $contract->loan_percents_summ + $percents_summ,
                         'loan_charge_summ' => $contract->loan_charge_summ,
-                        'loan_peni_summ' => $contract->loan_peni_summ + $peni_summ,
+                        'loan_peni_summ' => $contract->loan_peni_summ,
+                    ));
+    
+                    //Начисление пени, если просрочен займ
+                    if ($contract->status == 4 && $stop_taxing == 0) {
+                        $peni_summ = round(($contract->loan_body_summ + $contract->loan_percents_summ + $percents_summ) * 0.2 / 365, 2);
+    
+                        if ($peni_summ > ($taxing_limit - $sum_taxing->sum_taxing)) {
+                            $peni_summ = $taxing_limit - $sum_taxing->sum_taxing;
+                            $stop_taxing = 1;
+                        }
+    
+                        $this->contracts->update_contract($contract->id, array(
+                            'loan_peni_summ' => $contract->loan_peni_summ + $peni_summ
+                        ));
+    
+    
+                        $this->operations->add_operation(array(
+                            'contract_id' => $contract->id,
+                            'user_id' => $contract->user_id,
+                            'order_id' => $contract->order_id,
+                            'type' => 'PENI',
+                            'amount' => $peni_summ,
+                            'created' => date('Y-m-d H:i:s'),
+                            'loan_body_summ' => $contract->loan_body_summ,
+                            'loan_percents_summ' => $contract->loan_percents_summ,
+                            'loan_charge_summ' => $contract->loan_charge_summ,
+                            'loan_peni_summ' => $contract->loan_peni_summ + $peni_summ,
+                        ));
+                    }
+    
+                    $this->contracts->update_contract($contract->id, array(
+                        'loan_percents_summ' => $contract->loan_percents_summ + $percents_summ,
+                        'stop_profit' => $stop_taxing
                     ));
                 }
 
                 $this->contracts->update_contract($contract->id, array(
-                    'loan_percents_summ' => $contract->loan_percents_summ + $percents_summ,
                     'stop_profit' => $stop_taxing
                 ));
             }
