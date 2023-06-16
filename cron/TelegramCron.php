@@ -44,7 +44,7 @@ class TelegramCron extends Core
             FROM __p2pcredits
             WHERE complete_date >= ?
             AND  complete_date <= ?
-        ", $date_from, $date_to);
+        ", $date_from, $hour_to);
         $this->db->query($query);
         $results = $this->db->results();
         
@@ -74,7 +74,7 @@ class TelegramCron extends Core
             WHERE o.type='PAY' 
             AND o.created >= ?
             AND o.created <= ?
-        ", $date_from, $date_to);
+        ", $date_from, $hour_to);
         $this->db->query($query);
         $results = $this->db->results();
         
