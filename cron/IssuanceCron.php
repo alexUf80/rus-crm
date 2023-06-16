@@ -427,6 +427,7 @@ class IssuanceCron extends Core
         $params['order'] = $this->orders->get_order($contract->order_id);
         $params['contract'] = $contract;
 
+        $params['pan'] = $this->cards->get_card($contract->card_id)->pan;
 
         $this->documents->create_document(array(
             'user_id' => $contract->user_id,
