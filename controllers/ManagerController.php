@@ -16,6 +16,13 @@ class ManagerController extends Controller
             $user->login = $this->request->post('login');
             $user->mango_number = $this->request->post('mango_number');
             $user->collection_status_id = $this->request->post('collection_status_id');
+            
+            $team_id = (array)$this->request->post('team_id');
+
+            if (!empty($team_id))
+            {
+                $user->team_id = implode(',', $team_id);
+            }
 
             try {
                 if (!empty($user->collection_status_id)) {
@@ -132,8 +139,22 @@ class ManagerController extends Controller
         
         $roles = $this->ManagersRoles->gets();
         $this->design->assign('roles', $roles);
+
+        $collection_statuses = CollectorPeriodsORM::get();
+        $this->design->assign('collection_statuses', $collection_statuses);
         
-        $this->design->assign('meta_title', $meta_title);
+        // $collection_manager_statuses = array();
+        // $managers = array();
+        // foreach ($this->managers->get_managers() as $m)
+        // {
+        //     $managers[$m->id] = $m;
+        //     $collection_manager_statuses[] = $m->collection_status_id;
+        // }
+        // $this->design->assign('managers', $managers);
+        // $collection_manager_statuses = array_filter(array_unique($collection_manager_statuses));
+        // $this->design->assign('collection_manager_statuses', $collection_manager_statuses);
+        
+        // $this->design->assign('meta_title', $meta_title);
 
         $periods = CollectorPeriodsORM::get();
         $this->design->assign('periods', $periods);
