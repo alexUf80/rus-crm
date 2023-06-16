@@ -6,56 +6,16 @@
 
 {capture name='page_scripts'}
     
+    <style type="text/css">
+        .btn-outline-success.focus,.btn-outline-success:focus,.btn-outline-success:hover {
+        background: #ffffff;
+        border-color: #55ce63;
+        color: #55ce63
+    }
+    </style>
+
     <script>
-        
-        $(function(){
-            $('.js-block-button').click(function(e){
-                e.preventDefault();
-                
-                if ($(this).hasClass('loading'))
-                    return false;
-                
-                var manager_id = $(this).data('manager')
-                
-                $.ajax({
-                    data: {
-                        action: 'blocked',
-                        manager_id: manager_id,
-                        block: 1
-                    },
-                    beforeSend: function(){
-                        $('.js-block-button').addClass('loading');
-                    },
-                    success: function(resp){
-                        $('.js-block-button').removeClass('loading').hide();                        
-                        $('.js-unblock-button').show();                    
-                    }
-                })
-            });
-            $('.js-unblock-button').click(function(e){
-                e.preventDefault();
-                
-                if ($(this).hasClass('loading'))
-                    return false;
-                
-                var manager_id = $(this).data('manager')
-                
-                $.ajax({
-                    data: {
-                        action: 'blocked',
-                        manager_id: manager_id,
-                        block: 0
-                    },
-                    beforeSend: function(){
-                        $('.js-unblock-button').addClass('loading');
-                    },
-                    success: function(resp){
-                        $('.js-unblock-button').removeClass('loading').hide();                        
-                        $('.js-block-button').show();                    
-                    }
-                })
-            });
-        })
+
         
         $('.js-filter-status').click(function(e){
             e.preventDefault();
@@ -283,6 +243,75 @@
                                     {/if}
                             </div>
                         </div>
+
+                        <div class="tab-pane" id="team" role="tabpanel">
+                            <div class="card-body">
+                                <div class="form-group pl-3 pr-3">
+                                    <div class="clearfix pb-3">
+                                        <div class="float-left">
+                                            <h5>Команда коллектора</h5>
+                                        </div>
+                                        <div class="float-right">
+                                            {foreach $collection_statuses as $cs_id => $cs}
+                                                {*}
+                                                {if in_array($cs_id, (array)$collection_manager_statuses)}
+                                                {*}
+                                                    <a data-status="{$cs_id+1}" class="js-filter-status btn btn-sm btn-outline-success" href="javascript:void();">{$cs->name}</a>
+                                                {*}
+                                                {/if}
+                                                {*}
+                                            {/foreach}
+                                        </div>
+                                    </div>
+                                    
+                                    <table class="table">
+                                    {foreach $managers as $m}
+                                        {if $m->role == 'collector'}
+                                        <tr class="js-status-item js-status-{$m->collection_status_id}">
+                                            <td>
+                                                <div class="custom-control custom-checkbox">
+                                                    <input {if !in_array($manager->role, ['chief_collector','admin','developer'])}disabled="true"{/if} class="custom-control-input" type="checkbox" name="team_id[]" id="team_id_{$m->id}" value="{$m->id}" {if in_array($m->id, (array)$user->team_id)}checked="true"{/if} />
+                                                    <label class="custom-control-label" for="team_id_{$m->id}"></label>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <a class="{if $m->blocked}text-danger{/if}" target="_blank" href="manager/{$m->id}">
+                                                    <strong>{$m->name|escape}</strong>
+                                                </a>                                        
+                                                {if $m->blocked}<span class="label label-danger">Заблокирован</span>{/if}
+                                            </td>
+                                            <td>
+                                                <label class="label label-primary">
+                                                    {foreach $collection_statuses as $cs_id => $cs}
+                                                        {if $cs_id+1 == $m->collection_status_id}
+                                                            {$cs->name}
+                                                        {/if}    
+                                                    {/foreach}
+                                                </label>
+                                            </td>
+                                            <td>
+                                                {foreach $managers as $man}
+                                                    {if $man->role=='team_collector' && in_array($m->id, (array)$man->team_id)}
+                                                    <small>{$man->name|escape}</small>
+                                                    <br />
+                                                    {/if}
+                                                {/foreach}
+                                                
+                                            </td>
+                                        </tr>
+                                        {/if}
+                                    {/foreach}    
+                                    </table>
+
+                                    <div class="form-group">
+                                        <div class="col-sm-12">
+                                            <button class="btn btn-success" type="submit">Сохранить</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                     </form>
                 </div>
