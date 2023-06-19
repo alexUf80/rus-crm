@@ -410,7 +410,7 @@
                                                     class="form-control js-collection-manager-select">
                                                 <option value="">Не выбран</option>
                                                 {foreach $managers as $m}
-                                                    {if $m->role == 'collector'}
+                                                    {if $m->role == 'collector' || $m->role == 'team_collector'}
                                                         <option value="{$m->id}"
                                                                 {if $m->id == $contract->collection_manager_id}selected{/if}>{$m->name|escape}</option>
                                                     {/if}
@@ -2574,7 +2574,7 @@
                                                     {if in_array($operation->type, ['PAY'])}table-success{/if}
                                                     {if in_array($operation->type, ['PERCENTS', 'CHARGE', 'PENI'])}table-danger{/if}
                                                     {if in_array($operation->type, ['P2P'])}table-info{/if}
-                                                    {if in_array($operation->type, ['INSURANCE'])}table-warning{/if}
+                                                    {if in_array($operation->type, ['INSURANCE','INSURANCE_BC'])}table-warning{/if}
                                                 ">
                                                 <td>
                                                     {*}
@@ -2591,6 +2591,7 @@
                                                     {if $operation->type == 'RECURRENT'}Оплата займа{/if}
                                                     {if $operation->type == 'PERCENTS'}Начисление процентов{/if}
                                                     {if $operation->type == 'INSURANCE'}Страховка{/if}
+                                                    {if $operation->type == 'INSURANCE_BC'}Страховка{/if}
                                                     {if $operation->type == 'CHARGE'}Ответственность{/if}
                                                     {if $operation->type == 'PENI'}Пени{/if}
                                                 </td>
