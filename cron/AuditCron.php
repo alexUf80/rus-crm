@@ -141,7 +141,7 @@ class AuditCron extends Core
                                 'type' => 'REJECT_REASON',
                                 'amount' => 39,
                                 'created' => date('Y-m-d H:i:s'),
-                                'transaction_id' => $transactino->id,
+                                'transaction_id' => $transaction->id,
                                 'service_number' => $max_service_value,
                             ));
                         }
