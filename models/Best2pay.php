@@ -896,7 +896,9 @@ class Best2pay extends Core
             $token = "6129784867:AAGFKImrc8-0UNAfkR9qMCPgLxVmXOkftvg";
             $chat_id = -955292205;
 
-            $this->Telegram->send_message($token, $chat_id, $text);
+            if($this->config->back_url == 'https://crm.rus-zaym.ru'){
+                $this->Telegram->send_message($token, $chat_id, $text);
+            }
         }
 
         return $id;
