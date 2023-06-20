@@ -40,10 +40,6 @@ class TaxingCron extends Core
 
             foreach ($contracts as $contract) {
 
-                if ($contract->id != 3673) {
-                    continue;
-                }
-
                 $this->db->query("
                 select sum(amount) as sum_taxing
                 from s_operations
