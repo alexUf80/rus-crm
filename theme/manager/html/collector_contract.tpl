@@ -725,11 +725,27 @@
                                                 <div class="card card-danger mb-2">
                                                     <div class="box text-center">
                                                         <h3 class="text-white">Просрочен</h3>
-                                                        <h6>Договор {$contract->number}
+                                                        <h6 class="text-white">Договор {$contract->number}
                                                             от {$contract->inssuance_date|date}</h6>
                                                         {if $contract->outer_id}<h6>{$contract->outer_id}</h6>{/if}
-                                                        <h5>
+                                                        <h5 class="text-white">
                                                             Просрочен: {$contract->delay} {$contract->delay|plural:'день':'дней':'дня'}</h5>
+                                                        <h6 class="text-center text-white">
+                                                            Погашение: {$contract->loan_body_summ+$contract->loan_percents_summ+$contract->loan_charge_summ+$contract->loan_peni_summ}
+                                                            руб
+                                                        </h6>
+                                                        <h6 class="text-center text-white">
+                                                            Продление:
+                                                            {if $contract->stop_profit}
+                                                                достигнут порог
+                                                            {else}
+                                                                {if $contract->prolongation > 0 && !$contract->sold}
+                                                                    {$settings->prolongation_amount+$contract->loan_percents_summ+$contract->loan_charge_summ} руб
+                                                                {else}
+                                                                    {$contract->loan_percents_summ+$contract->loan_charge_summ} руб
+                                                                {/if}
+                                                            {/if}
+                                                        </h6>
                                                     </div>
                                                 </div>
                                             {elseif $contract->status == 7}
