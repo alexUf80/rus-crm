@@ -423,7 +423,7 @@
                                 </div>
                             </div>
                             <div class="row pt-2">
-                                <div class="col-12 col-md-4 col-lg-3">
+                                <div class="col-12 col-md-4 col-lg-3" style="display: grid">
                                     <form action="{url}" class="js-order-item-form" id="fio_form">
 
                                         <input type="hidden" name="action" value="fio"/>
