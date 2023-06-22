@@ -985,6 +985,7 @@ class StatisticsController extends Controller
             $this->db->query($query);
 
             $operations = array();
+            $INSURANCE_BC = 0;
             foreach ($this->db->results() as $op) {
 
                 if(is_null($op->callback_response))
@@ -994,6 +995,17 @@ class StatisticsController extends Controller
                 if($callback->order_state != 'COMPLETED')
                     continue;
 
+                if($op->type == 'PAY'){
+                    $op->amount += $INSURANCE_BC;
+                }
+
+                if($op->type == 'INSURANCE_BC'){
+                    $INSURANCE_BC = $op->amount;
+                    continue;
+                }
+                else{
+                    $INSURANCE_BC = 0;
+                }
 
                 $operations[$op->id] = $op;
 
