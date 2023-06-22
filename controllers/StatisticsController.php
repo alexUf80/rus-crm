@@ -268,6 +268,11 @@ class StatisticsController extends Controller
             $active_sheet->getColumnDimension('AD')->setWidth(15);
             $active_sheet->getColumnDimension('AE')->setWidth(15);
             $active_sheet->getColumnDimension('AG')->setWidth(15);
+            $active_sheet->getColumnDimension('AH')->setWidth(15);
+            $active_sheet->getColumnDimension('AI')->setWidth(15);
+            $active_sheet->getColumnDimension('AJ')->setWidth(15);
+            $active_sheet->getColumnDimension('AK')->setWidth(15);
+            $active_sheet->getColumnDimension('AL')->setWidth(15);
 
             $active_sheet->setCellValue('A1', 'Отказ от взаимодействия');
             $active_sheet->setCellValue('B1', 'ID договора');
@@ -305,6 +310,10 @@ class StatisticsController extends Controller
             $active_sheet->setCellValue('AF1', 'Номер заявки');//---
             $active_sheet->setCellValue('AG1', 'Указанный клиентом доход');//---
             $active_sheet->setCellValue('AH1', 'ИНН');//---
+            $active_sheet->setCellValue('AI1', 'Серия паспорта');//---
+            $active_sheet->setCellValue('AJ1', 'Номер паспорта');//---
+            $active_sheet->setCellValue('AK1', 'Кем выдан');//---
+            $active_sheet->setCellValue('AL1', 'Дата выдачи');//---
 
             $i = 2;
             foreach ($contracts as $contract) {
@@ -357,6 +366,11 @@ class StatisticsController extends Controller
                     $contract->user->inn = '';
 
                 $active_sheet->setCellValueExplicit('AH' . $i, $contract->user->inn, PHPExcel_Cell_DataType::TYPE_STRING);
+                $passport_array = $pieces = explode("-", $contract->user->passport_serial);
+                $active_sheet->setCellValueExplicit('AI' . $i, $passport_array[0], PHPExcel_Cell_DataType::TYPE_STRING);
+                $active_sheet->setCellValueExplicit('AJ' . $i, $passport_array[1], PHPExcel_Cell_DataType::TYPE_STRING);
+                $active_sheet->setCellValueExplicit('AK' . $i, $contract->user->passport_issued, PHPExcel_Cell_DataType::TYPE_STRING);
+                $active_sheet->setCellValueExplicit('AL' . $i, $contract->user->passport_date, PHPExcel_Cell_DataType::TYPE_STRING);
 
 
                 $i++;
@@ -1765,7 +1779,7 @@ class StatisticsController extends Controller
                 $active_sheet->getColumnDimension('B')->setWidth(15);
                 $active_sheet->getColumnDimension('C')->setWidth(15);
                 $active_sheet->getColumnDimension('D')->setWidth(15);
-                $active_sheet->getColumnDimension('E')->setWidth(15);
+                $active_sheet->getColumnDimension('E')->setWidth(0);
                 $active_sheet->getColumnDimension('F')->setWidth(15);
                 $active_sheet->getColumnDimension('G')->setWidth(15);
                 $active_sheet->getColumnDimension('H')->setWidth(15);
