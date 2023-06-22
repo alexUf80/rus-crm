@@ -61,7 +61,16 @@ class SendPaymentLinkAjax extends Core
         // SmsMessagesORM::insert($insert);
         $this->sms->add_message($insert);
 
-        $this->response = 'Успешно отправлено';
+        $url_lin = $_SERVER['HTTP_REFERER'];
+
+        $this->response = '<html>
+        <head>
+        <meta http-equiv="refresh" content="5;URL='.$url_lin.'"/>
+        </head>
+        <body>
+        Успешно отправлено<br>
+        <a href="javascript:history.back()" title="Вернуться на предыдущую страницу" > Вернуться на предыдущую страницу </a>
+        </body>';
     }
 
 
