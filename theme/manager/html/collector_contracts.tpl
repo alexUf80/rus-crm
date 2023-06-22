@@ -550,7 +550,7 @@
                 <div class="row">
 
                     <div class="col-6 ">
-                        {if in_array($manager->role, ['developer', 'admin', 'chief_collector', 'team_collector'])}
+                        {if in_array($manager->role, ['developer', 'admin', 'chief_collector', 'team_collector','senior collector'])}
                             <button class="btn btn-primary js-distribute-open float-right" type="button"><i
                                         class="mdi mdi-account-convert"></i> Распределить
                             </button>
@@ -628,7 +628,7 @@
                                             </div>
                                         </th>
 
-                                        {if in_array($manager->role, ['developer', 'admin', 'chief_collector', 'team_collector'])}
+                                        {if in_array($manager->role, ['developer', 'admin', 'chief_collector', 'team_collector','senior collector'])}
                                             <th
                                                 class="jsgrid-header-cell jsgrid-header-sortable {if $sort == 'manager_id_desc'}jsgrid-header-sort jsgrid-header-sort-desc{elseif $sort == 'manager_id_asc'}jsgrid-header-sort jsgrid-header-sort-asc{/if}">
                                                 {if $sort == 'manager_id_asc'}<a
@@ -701,12 +701,12 @@
                                         <td style="width:20px;" class="jsgrid-cell">
                                         </td>
 
-                                        {if in_array($manager->role, ['developer', 'admin', 'chief_collector', 'team_collector'])}
+                                        {if in_array($manager->role, ['developer', 'admin', 'chief_collector', 'team_collector','senior collector'])}
                                             <td style="width: 80px;" class="jsgrid-cell">
                                                 <select class="form-control" name="manager_id">
                                                     <option value="0"></option>
                                                     {foreach $managers as $m}
-                                                        {if (in_array($manager->role, ['developer', 'admin', 'chief_collector', 'team_collector']) && ($m->role=='collector'|| $m->role=='team_collector')) || ($manager->role == 'team_collector' && in_array($m->id, (array)$manager->team_id))}
+                                                        {if (in_array($manager->role, ['developer', 'admin', 'chief_collector', 'team_collector','senior collector']) && ($m->role=='collector'|| $m->role=='team_collector')) || ($manager->role == 'team_collector' && in_array($m->id, (array)$manager->team_id))}
                                                             <option value="{$m->id}">{$m->name|escape}
                                                                 ({$collection_statuses[$m->collection_status_id]})
                                                             </option>
@@ -810,7 +810,7 @@
                                             </td>
 
 
-                                            {if in_array($manager->role, ['developer', 'admin', 'chief_collector', 'team_collector'])}
+                                            {if in_array($manager->role, ['developer', 'admin', 'chief_collector', 'team_collector','senior collector'])}
                                                 <td class="jsgrid-cell">
                                                     <div class="js-open-hide js-dopinfo-{$contract->id} js-collection-manager-block {if $have_contactperson_search}open{/if}">
                                                         <small>{$managers[$contract->collection_manager_id]->name|escape}</small>
@@ -1319,7 +1319,7 @@
                         <label for="name" class="control-label"><strong>Менеджеры для распределения:</strong></label>
                         <ul class="list-unstyled" style="max-height:250px;overflow:hidden auto;">
                             {foreach $managers as $m}
-                                {if ($m->role == 'collector' || $m->role == 'senior collector' || $m->role == 'team_collector') && !$m->blocked}
+                                {if ($m->role == 'collector' || $m->role == 'senior collector' || $m->role == 'team_collector' || $m->role == 'team_collector' ) && !$m->blocked}
                                     <li>
                                         <div class="">
                                             <input class="" name="managers[]" id="distribute_{$m->id}" value="{$m->id}"
