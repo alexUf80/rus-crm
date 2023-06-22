@@ -706,7 +706,7 @@
                                                 <select class="form-control" name="manager_id">
                                                     <option value="0"></option>
                                                     {foreach $managers as $m}
-                                                        {if (in_array($manager->role, ['developer', 'admin', 'chief_collector']) && ($m->role=='collector'|| $m->role=='team_collector')) || ($manager->role == 'team_collector' && in_array($m->id, (array)$manager->team_id))}
+                                                        {if (in_array($manager->role, ['developer', 'admin', 'chief_collector', 'team_collector']) && ($m->role=='collector'|| $m->role=='team_collector')) || ($manager->role == 'team_collector' && in_array($m->id, (array)$manager->team_id))}
                                                             <option value="{$m->id}">{$m->name|escape}
                                                                 ({$collection_statuses[$m->collection_status_id]})
                                                             </option>

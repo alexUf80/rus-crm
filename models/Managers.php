@@ -191,7 +191,7 @@ class Managers extends Core
             'my_contracts' => array('developer', 'admin', 'collector', 'senior collector', 'team_collector'),
             'collection_report' => array('developer', 'admin', 'senior collector', 'team_collector', 'collector'),
             'zvonobot' => array('developer', 'admin', 'chief_collector'),
-            'orders' => array('developer', 'admin', 'manager', 'contact_center', 'quality_control', 'team_collector'),
+            'orders' => array('developer', 'admin', 'manager', 'contact_center', 'quality_control'),
             'missings' => array('developer', 'admin', 'user', 'big_user', 'contact_center', 'quality_control', 'quality_control_plus', 'chief_collector'),
             'clients' => array('developer', 'admin', 'manager', 'contact_center', 'cs_pc'),
             'settings' => array('developer', 'admin', ),
