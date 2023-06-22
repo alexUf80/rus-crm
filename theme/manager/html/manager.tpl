@@ -209,7 +209,7 @@
                                             <input type="text" name="mango_number" value="{$user->mango_number}" class="form-control form-control-line" />
                                         </div>
                                     </div>
-                                    {if in_array($user->role, ['collector', 'senior collector','team_collector'])}
+                                    {if in_array($user->role, ['collector', 'team_collector'])}
                                         {if in_array($manager->role, ['senior collector','admin','developer'])}
                                             <div class="form-group">
                                                 <label class="col-md-12">Статусы договоров для коллекторов</label>
