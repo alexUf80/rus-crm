@@ -727,6 +727,27 @@ class CollectorContractsController extends Controller
                             'collection_handchange' => 1
                         ));
 
+                        $contract = $this->contracts->get_contract($contract_id);
+                        $manager = $this->managers->get_manager($managers[$i]);
+
+                        $this->collections->add_moving(array(
+                            'initiator_id' => (int)$this->manager->id,
+                            'manager_id' => $managers[$i],
+                            'contract_id' => $contract->id,
+                            'from_date' => date('Y-m-d H:i:s'),
+                            'summ_body' => $contract->loan_body_summ,
+                            'summ_percents' => $contract->loan_percents_summ + $contract->loan_peni_summ + $contract->loan_charge_summ,
+                            'collection_status' => $manager->collection_status_id
+                        ));
+
+                        $this->UserContactStatuses->add_record(array(
+                            'created' => date('Y-m-d H:i:s'),
+                            'contract_id' => $contract_id,
+                            'user_id' => $contract->user_id,
+                            'collector_tag_id' => 0,
+                            'manager_id' => $managers[$i]
+                        ));
+
                         $i++;
                         if ($i == $count_managers)
                             $i = 0;
@@ -834,13 +855,26 @@ class CollectorContractsController extends Controller
                         ));
 
                         $this->users->update_user($contract->user_id, array('contact_status' => 0));
+                        $contract = $this->contracts->get_contract($contract_id);
+                        $manager = $this->managers->get_manager($managers[$i]);
 
                         $this->collections->add_moving(array(
+                            'initiator_id' => (int)$this->manager->id,
                             'manager_id' => $managers[$i],
                             'contract_id' => $contract->id,
                             'from_date' => date('Y-m-d H:i:s'),
+                            'summ_body' => $contract->loan_body_summ,
+                            'summ_percents' => $contract->loan_percents_summ + $contract->loan_peni_summ + $contract->loan_charge_summ,
+                            'collection_status' => $manager->collection_status_id
                         ));
 
+                        $this->UserContactStatuses->add_record(array(
+                            'created' => date('Y-m-d H:i:s'),
+                            'contract_id' => $contract_id,
+                            'user_id' => $contract->user_id,
+                            'collector_tag_id' => 0,
+                            'manager_id' => $managers[$i]
+                        ));
 
                         $i++;
                         if ($i == $count_managers)

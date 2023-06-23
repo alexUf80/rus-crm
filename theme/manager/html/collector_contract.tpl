@@ -9,6 +9,25 @@
     <script src="theme/manager/assets/plugins/timepicker/bootstrap-timepicker.min.js"></script>
     <script src="theme/manager/assets/plugins/daterangepicker/daterangepicker.js"></script>
     <script>
+        $("#send_short_link").submit(function(event) {
+            event.preventDefault();
+
+            var $form = $(this),
+                url = $form.attr('action');
+
+            var posting = $.post(url, {
+                short_link: $('#short_link').val(),
+                phone: $('#phone_short_link').val()
+            });
+
+            posting.done(function(data) {
+                $('#result').text(data.data);
+            });
+            posting.fail(function() {
+                $('#result').text('Ошибка. Не отправили');
+            });
+        });
+        
         $(function () {
             $('.singledate').daterangepicker({
                 singleDatePicker: true,
@@ -975,6 +994,18 @@
                                     <span class="hidden-xs-down">Коммуникации</span>
                                 </a>
                             </li>
+                            <li class="nav-item"> 
+                                <a class="nav-link js-event-add-click" data-toggle="tab" href="#collection_movings" role="tab" aria-selected="true" data-event="26" data-user="{$order->user_id}" data-order="{$order->order_id}" data-manager="{$manager->id}" >
+                                    <span class="hidden-sm-up"><i class="ti-"></i></span> 
+                                    <span class="hidden-xs-down">Распределения</span>
+                                </a> 
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link js-event-add-click" data-toggle="tab" href="#collection_tags" role="tab" aria-selected="true" data-event="26" data-user="{$order->user_id}" data-order="{$order->order_id}" data-manager="{$manager->id}" >
+                                    <span class="hidden-sm-up"><i class="ti-"></i></span>
+                                    <span class="hidden-xs-down">История тегов</span>
+                                </a>
+                            </li>
                         </ul>
                         <!-- Tab panes -->
                         <div class="tab-content tabcontent-border" id="order_tabs_content">
@@ -1850,6 +1881,7 @@
                                                 <form action="order/{$order->order_id}">
 
                                                     <select class="form-control js-contact-status"
+                                                            data-manager="{$manager->id}"
                                                             data-user="{$order->user_id}"
                                                             data-contract="{$contract->id}" name="contact_status">
                                                         <option value="0" {if !$order->contact_status}selected{/if}>Нет
@@ -2738,6 +2770,87 @@
                                 {/if}
                             </div>
 
+                            <div class="tab-pane p-3" id="collection_movings" role="tabpanel">
+                                    
+                                <h3>Распределения договора между сотрудниками</h3>
+                                {if $collection_movings}
+                                    <table class="table table-hover table-bordered">
+                                        <tbody>
+                                            <tr class="table-grey">
+                                                <th>Дата</th>
+                                                <th>Пользователь</th>
+                                                <th>Статус</th>
+                                                <th>Ответственный</th>
+                                            </tr>
+                                            {foreach $collection_movings as $move}
+                                            <tr class="">
+                                                <td > 
+                                                    <small>{$move->from_date|date}</small>
+                                                    <small>{$move->from_date|time}</small>
+                                                </td>
+                                                <td >
+                                                    {if $managers[$move->manager_id]->name}
+                                                        {$managers[$move->manager_id]->name|escape}
+                                                        ({$collection_statuses[$managers[$move->manager_id]->collection_status_id]})
+                                                        {else}
+                                                        -
+                                                    {/if}
+                                                </td>
+                                                <td>
+                                                    {$collection_statuses[$move->collection_status]}
+                                                </td>
+                                                <td >
+                                                    {if $managers[$move->initiator_id]->name}
+                                                        {$managers[$move->initiator_id]->name|escape}
+                                                        {else}
+                                                        нет данных
+                                                    {/if}
+                                                </td>
+                                            </tr>
+                                            {/foreach}
+                                        </tbody>
+                                    </table>
+                                {else}
+                                    <h4>Нет распределений</h4>
+                                {/if}    
+                            </div>
+
+
+                            <div class="tab-pane p-3" id="collection_tags" role="tabpanel">
+
+                                <h3>История тегов</h3>
+                                {if $collection_tags}
+                                    <table class="table table-hover table-bordered">
+                                        <tbody>
+                                        <tr class="table-grey">
+                                            <th>Дата</th>
+                                            <th>Пользователь</th>
+                                            <th>Заданный тег</th>
+                                        </tr>
+                                        {foreach $collection_tags as $tags}
+                                            <tr class="">
+                                                <td >
+                                                    <small>{$tags->created|date}</small>
+                                                    <small>{$tags->created|time}</small>
+                                                </td>
+                                                <td >
+                                                    {$managers[$tags->manager_id]->name|escape}
+                                                </td>
+                                                <td >
+                                                    {if !$tags->collector_tag_id}
+                                                    Нет данных
+                                                    {else}
+                                                        {$collector_tags[$tags->collector_tag_id]->name|escape}
+                                                    {/if}
+                                                </td>
+                                            </tr>
+                                        {/foreach}
+                                        </tbody>
+                                    </table>
+                                {else}
+                                    <h4>Нет тегов</h4>
+                                {/if}
+                            </div>
                         </div>
 
 

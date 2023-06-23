@@ -662,12 +662,49 @@ class OrderController extends Controller
 
     private function action_contact_status()
     {
+        // $contact_status = $this->request->post('contact_status', 'integer');
+        // $user_id = $this->request->post('user_id', 'integer');
+
+        // $this->users->update_user($user_id, array('contact_status' => $contact_status));
+
+        // return array('success' => 1, 'contact_status' => $contact_status);
+
         $contact_status = $this->request->post('contact_status', 'integer');
         $user_id = $this->request->post('user_id', 'integer');
+        $contract_id = $this->request->post('contract_id', 'integer');
+        $manager_id = $this->request->post('manager_id', 'integer');
+        $order_id = $this->request->post('order_id', 'integer');
+
+        $old_status = $this->users->get_user($user_id);
 
         $this->users->update_user($user_id, array('contact_status' => $contact_status));
 
-        return array('success' => 1, 'contact_status' => $contact_status);
+        $this->UserContactStatuses->add_record(array(
+            'created' => date('Y-m-d H:i:s'),
+            'contract_id' => $contract_id,
+            'user_id' => $user_id,
+            'collector_tag_id' => $contact_status,
+            'manager_id' => $manager_id
+        ));
+
+        $old_valeus = array(
+            'status' => $old_status->contact_status,
+            'manager_id' => $manager_id
+        );
+        $new_values = array(
+            'status' => $contact_status,
+            'manager_id' => $manager_id
+        );
+
+        $this->changelogs->add_changelog(array(
+            'manager_id' => $manager_id,
+            'created' => date('Y-m-d H:i:s'),
+            'type' => 'contact_status',
+            'old_values' => serialize($old_valeus),
+            'new_values' => serialize($new_values),
+            'order_id' => $order_id,
+            'user_id' => $user_id,
+        ));
     }
 
     private function action_contactperson_status()
