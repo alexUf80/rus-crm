@@ -277,6 +277,13 @@ class CollectorContractController extends Controller
             } else {
                 return false;
             }
+
+            $collection_movings = $this->collections->get_movings(array('contract_id' => $contract->id));
+            $this->design->assign('collection_movings', $collection_movings);
+
+            $collection_tags = $this->UserContactStatuses->get_records($contract->id);
+            $this->design->assign('collection_tags', $collection_tags);
+            
         } else {
             return false;
         }

@@ -867,7 +867,10 @@ console.log(resp);
         $(document).on('change', '.js-contact-status', function(){
             var contact_status = $(this).val();
             var user_id = $(this).data('user');
+            var contract_id = $(this).data('contract');
             var $form = $(this).closest('form');
+            var manager_id = $(this).data('manager');
+            var order_id = $(this).data('order');
             
             $.ajax({
                 url: $form.attr('action'),
@@ -875,7 +878,10 @@ console.log(resp);
                 data: {
                     action: 'contact_status',
                     user_id: user_id,
-                    contact_status: contact_status
+                    contact_status: contact_status,
+                    contract_id: contract_id,
+                    manager_id: manager_id,
+                    order_id: order_id
                 }
             })
         })
