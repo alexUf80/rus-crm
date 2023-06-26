@@ -18,6 +18,7 @@ class ManagerController extends Controller
             $user->collection_status_id = $this->request->post('collection_status_id');
             
             $team_id = (array)$this->request->post('team_id');
+            $team_id[] = $user_id;
 
             if (!empty($team_id))
             {
