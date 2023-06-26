@@ -448,6 +448,7 @@
                                                                     {$item->user->lastname|escape}
                                                                     {$item->user->firstname|escape}
                                                                     {$item->user->patronymic|escape}
+                                                                    {$item->contract->number}
                                                                 </small>
                                                             </strong>
                                                         </a>
