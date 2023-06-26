@@ -56,7 +56,17 @@ class CollectionReportController extends Controller
         $total->total_contracts = 0;
         $total->total_debt = 0;
 
-        foreach ($this->managers->get_managers(array('role' => 'collector')) as $m) {
+        $query = $this->db->placehold("
+            SELECT * 
+            FROM __managers
+            WHERE role in ('collector', 'team_collector')
+            ORDER BY id ASC 
+        ");
+        $this->db->query($query);
+        $ms = $this->db->results();
+
+        // foreach ($this->managers->get_managers(array('role' => 'collector')) as $m) {
+        foreach ($ms as $m) {
             $m->items = array();
             $m->closed = 0;
             $m->prolongation = 0;
