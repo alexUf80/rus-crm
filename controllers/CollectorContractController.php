@@ -88,7 +88,7 @@ class CollectorContractController extends Controller
                 }
 
                 //Локальное время клиента
-                $shift = $order->time_zone;
+                $shift = str_replace("UTC+", "", $order->time_zone);
 
                 if ($shift == 0) {
                     $time = 0;
