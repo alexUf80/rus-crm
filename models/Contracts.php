@@ -634,6 +634,12 @@ echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($query);echo '</pre><hr />';
         
         if (!empty($filter['search']))
         {
+            if (!empty($filter['search']['number']))
+                if(is_array($filter['search']['number'])){
+                    $search_filter .= $this->db->placehold(' AND c.number = ?', $filter['search']['number'][0]);
+                }
+                else
+                    $search_filter .= $this->db->placehold(' AND c.number = ?', $filter['search']['number']);
             if (!empty($filter['search']['order_id']))
                 if(is_array($filter['search']['order_id'])){
                     $search_filter .= $this->db->placehold(' AND c.id IN (SELECT contract_id FROM __orders WHERE id = ?)', (int)$filter['search']['order_id'][0]);
@@ -720,6 +726,10 @@ echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($query);echo '</pre><hr />';
             ORDER BY $sort_workout $sort 
             $sql_limit
         ");
+        $file = 'c:\OSPanel\people.txt';
+        // $current .= $filter['search']['number'];
+        $current .= $query;
+        file_put_contents($file, $current);
         $this->db->query($query);
         $results = $this->db->results();
 //echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($query);echo '</pre><hr />';

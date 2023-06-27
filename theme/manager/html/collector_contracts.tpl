@@ -639,10 +639,10 @@
                                         {/if}
 
                                         <th
-                                            class="jsgrid-header-cell jsgrid-align-right jsgrid-header-sortable {if $sort == 'order_id_desc'}jsgrid-header-sort jsgrid-header-sort-desc{elseif $sort == 'order_id_asc'}jsgrid-header-sort jsgrid-header-sort-asc{/if}">
-                                            {if $sort == 'order_id_asc'}<a href="{url page=null sort='order_id_desc'}">
+                                            class="jsgrid-header-cell jsgrid-align-right jsgrid-header-sortable {if $sort == 'number_desc'}jsgrid-header-sort jsgrid-header-sort-desc{elseif $sort == 'number_asc'}jsgrid-header-sort jsgrid-header-sort-asc{/if}">
+                                            {if $sort == 'number_asc'}<a href="{url page=null sort='number_desc'}">
                                                     ID</a>
-                                            {else}<a href="{url page=null sort='order_id_asc'}">ID</a>{/if}
+                                            {else}<a href="{url page=null sort='number_asc'}">ID</a>{/if}
                                         </th>
 
                                         <th
@@ -718,7 +718,7 @@
 
                                         <td style="width: 60px;" class="jsgrid-cell jsgrid-align-right">
                                             <input type="hidden" name="sort" value="{$sort}"/>
-                                            <input type="text" name="order_id" value="{$search['order_id']}"
+                                            <input type="text" name="number" value="{$search['number']}"
                                                    class="form-control input-sm">
                                         </td>
 
@@ -850,7 +850,7 @@
                                                     {$contract->order->order_id}
                                                 </a>
                                                 {*}
-                                                {$contract->order->order_id}
+                                                {$contract->number}
                                                 {*}
                                                 <span class="label label-primary">{$collection_statuses[$contract->collection_status]}</span>
                                                 {if $contract->sud}

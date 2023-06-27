@@ -448,10 +448,12 @@
                                                                     {$item->user->lastname|escape}
                                                                     {$item->user->firstname|escape}
                                                                     {$item->user->patronymic|escape}
-                                                                    <br>
-                                                                    {$item->contract->number}
                                                                 </small>
                                                             </strong>
+                                                        </a>
+                                                        <br />
+                                                        <a target="_blank" href="collector_contract/{$item->contract_id}">
+                                                        {$item->contract->number}
                                                         </a>
                                                     </td>
                                                     <td style="width: 70px;" class="jsgrid-cell">

@@ -343,6 +343,10 @@ class CollectorContractsController extends Controller
             $key = 0;
             foreach ($contracts as $contract) {
                 $this->contract_dates[$key]['date'] = (new DateTime($contract->client_time))->format('H:i:s');
+                $user = $this->users->get_user($contract->user_id);
+                $shift = str_replace("UTC+", "", $user->time_zone);
+                $client_time = date('H:i:s', time() + $shift * 3600);
+                $this->contract_dates[$key]['date'] = $client_time;
                 $key++;
             }
 
