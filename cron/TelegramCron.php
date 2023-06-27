@@ -86,7 +86,9 @@ class TelegramCron extends Core
         foreach ($results as $result) {
             if(simplexml_load_string($result->callback_response)->state == 'APPROVED'){
                 // $xml_result = simplexml_load_string(unserialize($result->response));
-                $payments_count_day++;
+                if ($result->type == 'PAY') {
+                    $payments_count_day++;
+                }
                 $payments_sum_day += $result->amount;
 
                 if($result->created >= $hour_from && $result->created <= $hour_to){
