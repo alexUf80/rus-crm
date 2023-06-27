@@ -71,7 +71,7 @@ class TelegramCron extends Core
             SELECT o.*, t.callback_response FROM s_operations as o
             LEFT JOIN s_transactions as t
             ON o.transaction_id = t.id
-            WHERE o.type='PAY' 
+            WHERE (o.type='PAY' or o.type='INSURANCE_BC') 
             AND o.created >= ?
             AND o.created <= ?
         ", $date_from, $hour_to);
