@@ -2538,7 +2538,7 @@ class StatisticsController extends Controller
                 AND DATE(accept_date) >= ?
                 AND DATE(accept_date) <= ?
                 AND (status = 2 OR status = 3 OR status = 4))
-            ", $date, $date_from, $date_to);
+            ", $date, $period_start_date, $date_to);
 
             $this->db->query($query);
 
@@ -2618,7 +2618,7 @@ class StatisticsController extends Controller
                 o.type = 'REJECT_REASON')
                 AND DATE(o.created) >= ?
                 AND DATE(o.created) <= ?
-            ", $date_from, $date_to);
+            ", $period_start_date, $date_to);
 
             $this->db->query($query);
 
