@@ -272,6 +272,7 @@
                                         {/if}
                                     {/foreach}
                                 </tr>
+                                {*}
                                 <tr>
                                     <td>Продлено</td>
                                     {foreach $final_array as $date => $operations}
@@ -283,7 +284,6 @@
                                         {/if}
                                     {/foreach}
                                 </tr>
-                                {*}
                                 <tr>
                                     <td>Получено ОД</td>
                                     {foreach $final_array as $date => $operations}
