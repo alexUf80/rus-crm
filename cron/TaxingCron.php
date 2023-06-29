@@ -50,7 +50,7 @@ class TaxingCron extends Core
                 $sum_taxing = $this->db->result();
 
                 $max_loan_value = 1.3;
-                $diff_to_new_max  = intval((strtotime(date('Y-m-d', strtotime($contract->inssuance_date))) - strtotime(date('Y-m-d', strtotime('2023-07-01')))) / 86400);
+                $diff_to_new_max  = intval((strtotime(date('Y-m-d', strtotime($contract->inssuance_date))) - strtotime(date('Y-m-d', strtotime('2023-06-01')))) / 86400);
                 if ($diff_to_new_max < 0) {
                     $max_loan_value = 1.5;
                 }

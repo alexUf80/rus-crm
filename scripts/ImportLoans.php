@@ -128,7 +128,7 @@ exit;
                 $contract->period = $item->term;
                 $contract->create_date = date('Y-m-d H:i:s', strtotime($item->createdAt));
                 $contract->type = 'base';
-                $contract->base_percent = 1;
+                $contract->base_percent = 0.8;
                 $contract->charge_percent = 0;
                 $contract->peni_percent = 0;
                 $contract->status = 2;
