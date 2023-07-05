@@ -294,8 +294,6 @@ class Helpers extends Core
 
         $chars = str_split($code);
 
-        $file = 'c:\OSPanel\people.txt';
-        file_put_contents($file, $chars);
         for ($i = 0; $i < count($chars); $i++)
             $id .= array_search($chars[$i], $this->c2o_codes[$i]);
 
