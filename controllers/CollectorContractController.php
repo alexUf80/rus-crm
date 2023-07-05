@@ -560,9 +560,6 @@ class CollectorContractController extends Controller
                 'comment' => $comment
             ];
 
-            $file = 'c:\OSPanel\people.txt';
-        file_put_contents($file,$this->request->post('user_id'));
-
         $this->Contactpersons->add_contactperson($contact);
         exit;
     }

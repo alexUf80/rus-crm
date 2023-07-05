@@ -726,10 +726,6 @@ echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($query);echo '</pre><hr />';
             ORDER BY $sort_workout $sort 
             $sql_limit
         ");
-        $file = 'c:\OSPanel\people.txt';
-        // $current .= $filter['search']['number'];
-        $current .= $query;
-        file_put_contents($file, $current);
         $this->db->query($query);
         $results = $this->db->results();
 //echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($query);echo '</pre><hr />';
