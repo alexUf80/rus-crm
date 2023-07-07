@@ -170,6 +170,7 @@ class ApiLead extends Core
         $user['stage_card'] = 0;
         $user['lead_partner_id'] = $tokens->ID;
         $user['sms'] = $rand_code;
+        $user['utm_source'] = 'Rbl API';
 
         if(!$user['birth'] || !$user['birth_place'])
             $user['stage_personal'] = 0;
@@ -305,7 +306,8 @@ class ApiLead extends Core
             'date' => date('Y-m-d H:i:s'),
             'accept_sms' => $rand_code,
             'client_status' => 'nk',
-            'webmaster_id' => $tokens->ID
+            'webmaster_id' => $tokens->ID,
+            'utm_source' => 'Rbl API',
         );
 
         $order_id = $this->orders->add_order($order);
