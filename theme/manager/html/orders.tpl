@@ -485,7 +485,7 @@
                                                         {if $order->lead_partner_id == 0}
                                                             <span class="label label-info" title="Новый клиент">Новая</span>
                                                         {else}
-                                                            <span class="label label-success" title="API">API</span>
+                                                            <span class="label label-success" title="API">{$order->partner} API</span>
                                                         {/if}
                                                     {/if}
                                                 {else}

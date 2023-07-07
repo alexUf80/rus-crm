@@ -114,6 +114,11 @@ class OrdersController extends Controller
 
             if (!empty($order->contract_id))
                 $order->contract = $this->contracts->get_contract((int)$order->contract_id);
+                
+            if($order->lead_partner_id > 0){
+                $partner = $this->partners->get_partner($order->lead_partner_id);
+                $order->partner = $partner->name;
+            }
 
             $orders[$order->order_id] = $order;
         }
