@@ -2749,6 +2749,7 @@ class StatisticsController extends Controller
                 foreach ($integrations as $integration) {
                     $filter['integrations'][] = $integration->utm_source;
                 }
+                $filter['integrations'][] = 'Rbl API';
 
                 $utm_source_filter = $this->request->get('utm_source_filter');
                 $utm_medium_filter = $this->request->get('utm_medium_filter');
@@ -2813,6 +2814,8 @@ class StatisticsController extends Controller
                 $this->design->assign('date_group_by', $filter['date_group_by']);
 
                 $orders = $this->orders->get_orders_by_utm($filter);
+                // var_dump('$orders');
+                // die;
 
                 $visits = $this->Visits->search_visits($filter);
 
