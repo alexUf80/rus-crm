@@ -49,6 +49,7 @@ class CheckPaymentsCron extends Core
             FROM __transactions
             WHERE callback_response is null
             AND `sector` not in (9748, 8079)
+            AND operation IS NOT null
             ORDER BY id DESC
         ");
         $this->db->query($query);
