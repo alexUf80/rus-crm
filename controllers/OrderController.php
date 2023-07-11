@@ -893,7 +893,7 @@ class OrderController extends Controller
         $new_contract = array(
             'order_id' => $order_id,
             'user_id' => $order->user_id,
-            // 'card_id' => $order->card_id,
+            'card_id' => $order->card_id,
             'type' => 'base',
             'amount' => $order->amount,
             'period' => $order->period,
