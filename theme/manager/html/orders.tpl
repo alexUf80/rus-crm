@@ -381,7 +381,8 @@
                                             </select>
                                         </td>
                                         <td style="width: 60px;">
-
+                                            <input type="text" name="utm" value="{$search['utm']}"
+                                                   class="form-control input-sm">
                                         </td>
                                         {if $manager->role == 'quality_control'}
                                             <td style="width: 80px;" class="jsgrid-cell">
