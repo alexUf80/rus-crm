@@ -325,6 +325,8 @@ class Orders extends Core
                 $search_filter .= $this->db->placehold(" AND u.Regregion LIKE '%".$this->db->escape($filter['search']['region'])."%'");
             if (!empty($filter['search']['status']))
                 $search_filter .= $this->db->placehold(" AND o.1c_status LIKE '%".$this->db->escape($filter['search']['status'])."%'");
+            if (!empty($filter['search']['utm']))
+                $search_filter .= $this->db->placehold(" AND o.utm_source LIKE '%".$this->db->escape(str_replace(array(' ', '-', '(', ')', '+'), '', $filter['search']['utm']))."%'");
             
             if (!empty($filter['search']['manager_id']))
             {
