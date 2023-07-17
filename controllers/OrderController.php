@@ -1080,7 +1080,7 @@ class OrderController extends Controller
                 'service_number' => $max_service_value,
             ));
 
-            // //Отправляем чек по отказу
+            // //Отправляем чек по отказу 
             // // $resp = $this->Cloudkassir->send_reject_reason($order->order_id);
 
 
