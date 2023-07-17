@@ -52,13 +52,8 @@ class Best2pay extends Core
         $xml = $this->recurring_by_token($order->card_id, $summ, $description);
         $b2p_status = (string)$xml->state;
 
-        // $file = 'c:\OSPanel\people.txt';
-        // $current = $summ.', '.$attempt;
-        // file_put_contents($file, $current);
-        
-        // var_dump($b2p_status);
-        if ($b2p_status == 'APPROVED') 
-        {
+        // if ($b2p_status == 'APPROVED') 
+        // {
             $transaction = $this->transactions->get_operation_transaction($xml->order_id, $xml->id);
 
             $max_service_value = $this->operations->max_service_number();
@@ -103,9 +98,9 @@ class Best2pay extends Core
 
             return true;
 
-        } else {
-            return false;
-        }
+        // } else {
+        //     return false;
+        // }
     }
 
     public function reject_reason($order)
