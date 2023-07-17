@@ -77,18 +77,18 @@ class Best2pay extends Core
                 'type' => 'RECURRENT',
                 'amount' => ($summ/100),
                 'created' => date('Y-m-d H:i:s'),
-                'transaction_id' => $transaction->id,
+                // 'transaction_id' => $transaction->id,
                 'service_number' => $max_service_value,
             ));
 
             $operation = $this->operations->get_operation($operation_id);
 
-            $operation->transaction = $this->transactions->get_transaction($transaction->id);
+            // $operation->transaction = $this->transactions->get_transaction($transaction->id);
 
-            $this->operations->update_operation($operation->id, array(
-                'sent_status' => 2,
-                'sent_date' => date('Y-m-d H:i:s')
-            ));
+            // $this->operations->update_operation($operation->id, array(
+            //     'sent_status' => 2,
+            //     'sent_date' => date('Y-m-d H:i:s')
+            // ));
 
             $contract = $this->contracts->get_contract($order->contract_id);
 
