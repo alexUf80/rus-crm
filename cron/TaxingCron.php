@@ -44,7 +44,8 @@ class TaxingCron extends Core
                 select sum(amount) as sum_taxing
                 from s_operations
                 where contract_id = ?
-                and `type` = 'PERCENTS'
+                and (`type` = 'PERCENTS'
+                or `type` = 'PENI')
                 ", $contract->id);
 
                 $sum_taxing = $this->db->result();
