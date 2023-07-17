@@ -211,10 +211,6 @@ class OrderController extends Controller
                     return $this->action_restruct();
                     break;
 
-                case 'reccurent':
-                    return $this->action_reccurent();
-                    break;
-
                 case 'confirm_asp':
                     return $this->action_confirm_asp();
                     break;
@@ -3502,34 +3498,6 @@ class OrderController extends Controller
             ];
 
         ContractsORM::where('id', $contractId)->update($update);
-        exit;
-    }
-
-    private function action_reccurent()
-    {
-
-        $orderId = $this->request->post('orderId');
-        $userId = $this->request->post('userId');
-        $contractId = $this->request->post('contractId');
-        $percent = $this->request->post('percent');
-
-        $contract = $this->contracts->get_contract($contractId);
-        $order = $this->orders->get_order($orderId);
-
-        $summ = $contract->loan_percents_summ * $percent / 100 * 100;
-        // $file = 'c:\OSPanel\people.txt';
-        // $current = $summ;
-        // file_put_contents($file, $current);
-        if ($summ > $contract->loan_percents_summ * 100) {
-            $summ = $contract->loan_percents_summ * 100;
-        } 
-
-        
-
-        $reccurent_pay = $this->best2pay->reccurent_pay($order, $summ, 0);
-
-        
-
         exit;
     }
 }
