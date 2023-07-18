@@ -103,7 +103,9 @@ class Nbki_scoring extends Core
         "password": "934kjnG@"
     }
 }';
-echo $json;
+        echo 'nbki';
+        echo 'br';
+        echo $json;
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
@@ -124,6 +126,10 @@ echo $json;
         $response = curl_exec($curl);
         curl_close($curl);
         $result = json_decode($response, true);
+
+        echo '<br>';
+        echo $response;
+        echo '<hr>';
 
 
         if (empty($result)) {
