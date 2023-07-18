@@ -104,7 +104,7 @@ class Nbki_scoring extends Core
     }
 }';
         echo 'nbki';
-        echo 'br';
+        echo '<br>';
         echo $json;
         $curl = curl_init();
 
@@ -113,7 +113,7 @@ class Nbki_scoring extends Core
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
+            CURLOPT_TIMEOUT => 0,
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'POST',
