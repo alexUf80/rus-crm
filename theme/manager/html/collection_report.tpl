@@ -366,7 +366,9 @@
                                     <tbody>
                                     {foreach $collectors as $collector}
                                         {if $collector->name == 'Нет ответственного'}
+                                            {*}
                                             {continue}
+                                            {*}
                                         {/if}
                                         {if $collector->total_netto > 0}
                                             <tr class="jsgrid-row js-contract-row">
