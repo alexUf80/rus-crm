@@ -173,12 +173,32 @@ class Collections extends Core
 	public function get_movings($filter = array())
 	{
 		$id_filter = '';
+		$contract_id_filter = '';
+		$manager_id_filter = '';
+        $status_filter = '';
+        $from_date_filter = '';
+        $to_date_filter = '';
         $keyword_filter = '';
         $limit = 1000;
 		$page = 1;
         
         if (!empty($filter['id']))
             $id_filter = $this->db->placehold("AND id IN (?@)", array_map('intval', (array)$filter['id']));
+        
+        if (!empty($filter['manager_id']))
+            $manager_id_filter = $this->db->placehold("AND manager_id IN (?@)", array_map('intval', (array)$filter['manager_id']));
+		
+        if (!empty($filter['contract_id']))
+            $contract_id_filter = $this->db->placehold("AND contract_id IN (?@)", array_map('intval', (array)$filter['contract_id']));
+		
+        if (!empty($filter['status']))
+            $status_filter = $this->db->placehold("AND collection_status IN (?@)", array_map('intval', (array)$filter['status']));
+		
+        if (!empty($filter['from_date']))
+            $from_date_filter = $this->db->placehold("AND DATE(from_date) >= ?", $filter['from_date']);
+
+        if (!empty($filter['to_date']))
+            $to_date_filter = $this->db->placehold("AND DATE(from_date) <= ?", $filter['to_date']);
         
 		if(isset($filter['keyword']))
 		{
@@ -200,7 +220,12 @@ class Collections extends Core
             FROM __collector_movings
             WHERE 1
                 $id_filter
-				$keyword_filter
+                $manager_id_filter
+                $contract_id_filter
+				$status_filter
+                $from_date_filter
+                $to_date_filter
+                $keyword_filter
             ORDER BY id DESC 
             $sql_limit
         ");
