@@ -354,6 +354,28 @@
                 });
             });
 
+            $(document).on('submit', '#reccurent_form', function (e) {
+                e.preventDefault();
+            });
+
+            $('.reccurent').on('click', function () {
+                $('#reccurent_modal').modal();
+
+                 $('.saveReccurent').on('click', function () {
+                     $('.saveReccurent').prop( "disabled", true );
+                     let form = $('#reccurent_form').serialize();
+                     console.log(form);
+
+                     $.ajax({
+                         method: 'POST',
+                         data: form,
+                         success: function () {
+                             location.reload();
+                         }
+                     });
+                 });
+            });
+
             $('.editLoanProfit').on('click', function () {
                 $('#editLoanProfitModal').modal();
             });
@@ -1040,6 +1062,13 @@
                                                     Реструктуризировать
                                                 </div>
                                             {/if}
+                                            {*}
+                                            {if in_array($contract->status, [4])}
+                                                <div class="btn btn-block btn-warning reccurent">
+                                                    Реккурентное списание
+                                                </div>
+                                            {/if}
+                                            {*}
                                             {if $contract->status == 10}
                                                 <div data-order="{$order->order_id}"
                                                      class="btn btn-block btn-success confirm_restruct">
@@ -3813,6 +3842,47 @@
                     </div>
                     <input type="button" class="btn btn-danger" data-dismiss="modal" value="Отмена">
                     <input type="button" class="btn btn-success saveRestruct" value="Сохранить">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="reccurent_modal" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+     aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Реккурентное списание</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="alert" style="display:none"></div>
+                <form method="POST" id="reccurent_form">
+                    <input type="hidden" name="action" value="reccurent">
+                    <input type="hidden" name="userId" value="{$order->user_id}">
+                    <input type="hidden" name="orderId" value="{$order->order_id}">
+                    <input type="hidden" name="contractId" value="{$contract->id}">
+                    <div class="form-group">
+                        <label class="control-label">Укажите % списания:</label>
+                    </div>
+                    <div id="payments_schedules">
+                        <div class="form-group" style="display: flex">
+                            <input placeholder="Процент начислений" style="margin-left: 5px" class="form-control"
+                                   name="percent" type="number" min="0" max="100">
+                            {*}
+                            <input placeholder="ОД" style="margin-left: 5px" class="form-control" name="payOd[][payOd]">
+                            <input placeholder="Процент" style="margin-left: 5px" class="form-control"
+                                   name="payPrc[][payPrc]">
+                            <input placeholder="Пени" style="margin-left: 5px" class="form-control"
+                                   name="payPeni[][payPeni]">
+                            <div style="margin-left: 5px" class="btn btn-success addPeriod">
+                                +
+                            </div>
+                            {*}
+                        </div>
+                    </div>
+                    <input type="button" class="btn btn-danger" data-dismiss="modal" value="Отмена">
+                    <input type="button" class="btn btn-success saveReccurent" value="Списать">
                 </form>
             </div>
         </div>
