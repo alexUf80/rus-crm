@@ -183,6 +183,51 @@ class Best2pay extends Core
         }
     }
 
+    public function reccurent_pay($order, $summ, $setting)
+    {
+
+        $description = 'Реккурентное списание ' . $setting->id;
+
+        $xml = $this->recurring_by_token($order->card_id, $summ, $description);
+        $b2p_status = (string)$xml->state;
+
+
+        if ($b2p_status == 'APPROVED')
+        {
+            $transaction = $this->transactions->get_operation_transaction($xml->order_id, $xml->id);
+
+            $max_service_value = $this->operations->max_service_number();
+
+            $contract = $this->contracts->get_contract($order->contract_id);
+
+            $operation_id = $this->operations->add_operation(array(
+                'contract_id' => $contract->id,
+                'user_id' => $order->user_id,
+                'order_id' => $order->order_id,
+                'type' => 'RECURRENT',
+                'amount' => ($summ/100),
+                'created' => date('Y-m-d H:i:s'),
+                'transaction_id' => $transaction->id,
+                'service_number' => $max_service_value,
+            ));
+
+            $operation = $this->operations->get_operation($operation_id);
+
+            $operation->transaction = $this->transactions->get_transaction($transaction->id);
+
+            $this->operations->update_operation($operation->id, array(
+                'sent_status' => 2,
+                'sent_date' => date('Y-m-d H:i:s')
+            ));
+
+            $contract = $this->contracts->get_contract($order->contract_id);
+
+            return true;
+
+        } else {
+            return false;
+        }
+    }
 
     //Возврат страховки по договору (скопировано с нал+)
     public function return_insurance($transaction, $contract)

@@ -30,7 +30,7 @@ class NbkiReportCron extends Core
     {
         $date_from = date('Y-m-d', time() - 2 * 86400);
         $date_to = date('Y-m-d', time() - 1 * 86400);
-        
+
         $this->db->query("
             SELECT * FROM __operations 
             WHERE type IN ('P2P', 'PAY')

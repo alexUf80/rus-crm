@@ -16,6 +16,52 @@
 
     <script>
 
+        $('.js-block-button').click(function (e) {
+            e.preventDefault();
+
+            if ($(this).hasClass('loading'))
+                return false;
+
+            var manager_id = $(this).data('manager')
+
+            $.ajax({
+                data: {
+                    action: 'blocked',
+                    manager_id: manager_id,
+                    block: 1
+                },
+                beforeSend: function () {
+                    $('.js-block-button').addClass('loading');
+                },
+                success: function (resp) {
+                    $('.js-block-button').removeClass('loading').hide();
+                    $('.js-unblock-button').show();
+                }
+            })
+        });
+        $('.js-unblock-button').click(function (e) {
+            e.preventDefault();
+
+            if ($(this).hasClass('loading'))
+                return false;
+
+            var manager_id = $(this).data('manager')
+
+            $.ajax({
+                data: {
+                    action: 'blocked',
+                    manager_id: manager_id,
+                    block: 0
+                },
+                beforeSend: function () {
+                    $('.js-unblock-button').addClass('loading');
+                },
+                success: function (resp) {
+                    $('.js-unblock-button').removeClass('loading').hide();
+                    $('.js-block-button').show();
+                }
+            })
+        });
         
         $('.js-filter-status').click(function(e){
             e.preventDefault();
