@@ -211,9 +211,9 @@ class OrderController extends Controller
                     return $this->action_restruct();
                     break;
 
-                case 'reccurent':
-                    return $this->action_reccurent();
-                    break;
+                // case 'reccurent':
+                //     return $this->action_reccurent();
+                //     break;
 
                 case 'confirm_asp':
                     return $this->action_confirm_asp();

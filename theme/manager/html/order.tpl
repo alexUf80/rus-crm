@@ -1062,11 +1062,13 @@
                                                     Реструктуризировать
                                                 </div>
                                             {/if}
+                                            {*}
                                             {if in_array($contract->status, [4])}
                                                 <div class="btn btn-block btn-warning reccurent">
                                                     Реккурентное списание
                                                 </div>
                                             {/if}
+                                            {*}
                                             {if $contract->status == 10}
                                                 <div data-order="{$order->order_id}"
                                                      class="btn btn-block btn-success confirm_restruct">
