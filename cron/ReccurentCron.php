@@ -23,9 +23,9 @@ class ReccurentCron extends Core
 
             foreach ($contracts as $contract) {
                 
-                if ($contract->order_id != 34111) {
-                    continue;
-                }
+                // if ($contract->order_id != 34111) {
+                //     continue;
+                // }
 
                 $date1 = new DateTime(date('Y-m-d', strtotime($contract->return_date)));
                 $date2 = new DateTime(date('Y-m-d'));
@@ -33,7 +33,7 @@ class ReccurentCron extends Core
 
 
                 var_dump($attempt, $contract->reccurent_status, $diff->days);
-                if (($diff->days == 18) && (($attempt - 1) == $contract->reccurent_status)) {
+                if (($diff->days == 30) && (($attempt - 1) == $contract->reccurent_status)) {
                     var_dump($contract->id, $diff->days, ($contract->loan_percents_summ + $contract->loan_peni_summ));
 
                     switch ($attempt) {
