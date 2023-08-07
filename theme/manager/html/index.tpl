@@ -220,6 +220,8 @@
                                                         href="rfmlist/">RFMlist</a></li>
                                             <li {if in_array($module, ['SettingsController'])}class="active"{/if}><a
                                                         href="msg_zvonobot">IVR (-3,-2,-1)</a></li>
+                                            <li {if in_array($module, ['RecurrentsController'])}class="active"{/if}><a
+                                                        href="recurrents">Рекурентные платежи</a></li>
                                         {/if}
                                 </ul>
                             </li>
