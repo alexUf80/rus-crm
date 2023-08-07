@@ -157,7 +157,7 @@ class Collections extends Core
         return $result;
     }
     
-	public function get_moving($id)
+	public function get_moving($id) 
 	{
 		$query = $this->db->placehold("
             SELECT * 
