@@ -367,7 +367,7 @@
                                     {foreach $collectors as $collector}
                                         {if $collector->name == 'Нет ответственного'}
                                             {*}
-                                            {continue}
+                                            {continue} 
                                             {*}
                                         {/if}
                                         {if $collector->total_netto > 0}
