@@ -44,66 +44,6 @@ class Best2pay extends Core
         return isset($this->sectors[$type]) ? $this->sectors[$type] : null;
     }
 
-    public function reccurent_pay($order, $summ, $attempt)
-    {
-
-        $description = 'Реккурентное списание ' . $attempt;
-
-        $xml = $this->recurring_by_token($order->card_id, $summ, $description);
-        $b2p_status = (string)$xml->state;
-
-
-        if ($b2p_status == 'APPROVED') 
-        {
-            $transaction = $this->transactions->get_operation_transaction($xml->order_id, $xml->id);
-
-            $max_service_value = $this->operations->max_service_number();
-
-            $contract = $this->contracts->get_contract($order->contract_id);
-            $contract_loan_percents_summ =  $contract->loan_percents_summ - $summ / 100;
-            if($contract->loan_percents_summ < ($summ / 100)){
-                $contract_loan_percents_summ = 0;
-                $summ = $contract->loan_percents_summ * 100;
-            }
-
-            var_dump('---', $contract_loan_percents_summ,'---', $summ,'---');
-            $this->contracts->update_contract($contract->id, array(
-                'loan_percents_summ' => $contract_loan_percents_summ,
-            ));
-
-            $operation_id = $this->operations->add_operation(array(
-                'contract_id' => $contract->id,
-                'user_id' => $order->user_id,
-                'order_id' => $order->order_id,
-                'type' => 'RECURRENT',
-                'amount' => ($summ/100),
-                'created' => date('Y-m-d H:i:s'),
-                'transaction_id' => $transaction->id,
-                'service_number' => $max_service_value,
-            ));
-
-            $operation = $this->operations->get_operation($operation_id);
-
-            $operation->transaction = $this->transactions->get_transaction($transaction->id);
-
-            $this->operations->update_operation($operation->id, array(
-                'sent_status' => 2,
-                'sent_date' => date('Y-m-d H:i:s')
-            ));
-
-            $contract = $this->contracts->get_contract($order->contract_id);
-
-            $this->contracts->update_contract($contract->id, array(
-                'reccurent_status' => $attempt,
-            ));
-
-            return true;
-
-        } else {
-            return false;
-        }
-    }
-
     public function reject_reason($order)
     {
 
@@ -175,52 +115,6 @@ class Best2pay extends Core
             //     ));
             // }
             // $this->operations->update_operation($operation->id, array('sent_receipt' => 1));
-
-            return true;
-
-        } else {
-            return false;
-        }
-    }
-
-    public function reccurent_pay($order, $summ, $setting)
-    {
-
-        $description = 'Реккурентное списание ' . $setting->id;
-
-        $xml = $this->recurring_by_token($order->card_id, $summ, $description);
-        $b2p_status = (string)$xml->state;
-
-
-        if ($b2p_status == 'APPROVED')
-        {
-            $transaction = $this->transactions->get_operation_transaction($xml->order_id, $xml->id);
-
-            $max_service_value = $this->operations->max_service_number();
-
-            $contract = $this->contracts->get_contract($order->contract_id);
-
-            $operation_id = $this->operations->add_operation(array(
-                'contract_id' => $contract->id,
-                'user_id' => $order->user_id,
-                'order_id' => $order->order_id,
-                'type' => 'RECURRENT',
-                'amount' => ($summ/100),
-                'created' => date('Y-m-d H:i:s'),
-                'transaction_id' => $transaction->id,
-                'service_number' => $max_service_value,
-            ));
-
-            $operation = $this->operations->get_operation($operation_id);
-
-            $operation->transaction = $this->transactions->get_transaction($transaction->id);
-
-            $this->operations->update_operation($operation->id, array(
-                'sent_status' => 2,
-                'sent_date' => date('Y-m-d H:i:s')
-            ));
-
-            $contract = $this->contracts->get_contract($order->contract_id);
 
             return true;
 
@@ -1249,16 +1143,43 @@ class Best2pay extends Core
         return $xml;
     }
 
+    public function reccurent_pay($order, $summ, $setting)
+    {
+        $description = 'Реккурентное списание ' . $setting;
+        $xml = $this->recurring_by_token($order->card_id, $summ, $description);
+        $b2p_status = (string)$xml->state;
+        if ($b2p_status == 'APPROVED')
+        {
+            $transaction = $this->transactions->get_operation_transaction($xml->order_id, $xml->id);
+            $max_service_value = $this->operations->max_service_number();
+            $contract = $this->contracts->get_contract($order->contract_id);
+            $operation_id = $this->operations->add_operation(array(
+                'contract_id' => $contract->id,
+                'user_id' => $order->user_id,
+                'order_id' => $order->order_id,
+                'type' => 'RECURRENT',
+                'amount' => ($summ/100),
+                'created' => date('Y-m-d H:i:s'),
+                'transaction_id' => $transaction->id,
+                'service_number' => $max_service_value,
+            ));
+            $operation = $this->operations->get_operation($operation_id);
+            $operation->transaction = $this->transactions->get_transaction($transaction->id);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public function recurring_by_token($card_id, $amount, $description)
     {
+        $amount = round($amount, 0);
         $sector = $this->sectors['RECURRENT'];
         $password = $this->passwords[$sector];
-
         if (!($card = $this->cards->get_card($card_id)))
             return false;
         if (!($user = $this->users->get_user((int)$card->user_id)))
             return false;
-
 
         // регистрируем оплату
         $data = array(
@@ -1274,7 +1195,6 @@ class Best2pay extends Core
             'patronymic' => $user->patronymic,
         );
         $data['signature'] = $this->get_signature(array($data['sector'], $data['amount'], $data['currency'], $password));
-
         $b2p_order = $this->send('Register', $data);
         $xml = simplexml_load_string($b2p_order);
         $b2p_order_id = (string)$xml->id;
