@@ -32,11 +32,12 @@ class ReccurentCron extends Core
                 $date2 = new DateTime(date('Y-m-d'));
                 $diff = $date2->diff($date1);
 
+                echo "Count attempts ".count($attempts)."\r\n";
                 //Если кол-во дней совпадает и нет попыток
                 if (($diff->days >= $setting->days) && ($contract->reccurent_attempt < count($attempts))) {
 
                     // получаем текущую попытку для контракта
-                    $attempt = $attempts[$contract->reccurent_attempt];
+                    $attempt = $attempts[$contract->reccurent_attempt] ?? $attempts[0];
                     // получаем общую сумму для списания
                     // основной долг + проценты + пени
                     $contract_total_summ = $contract->loan_body_summ + $contract->loan_percents_summ + $contract->loan_peni_summ;
@@ -58,41 +59,62 @@ class ReccurentCron extends Core
                     $amount = $amount * 100;
 
                     $order = $this->orders->get_order($contract->order_id);
-
-                    $reccurent_pay = $this->best2pay->reccurent_pay($order, $amount, $setting);
+                    echo "Start reccurent\r\n";
+                    $reccurent_pay = $this->best2pay->reccurent_pay($order, $amount, $setting->id);
                     if (!$reccurent_pay) {
                         $this->contracts->update_contract($contract->id, array(
                             'reccurent_status' => 0,
                         ));
                     } else {
                         $amount = $amount / 100;
+                        $save_amount = $amount;
 
                         $loan_peni_summ = $contract->loan_peni_summ;
                         $loan_percents_summ = $contract->loan_percents_summ;
                         $loan_body_summ = $contract->loan_body_summ;
-
-                        $amount -= $loan_peni_summ;
-                        if ($amount >= 0) {
+                        echo "Amount = $amount calc peni\r\n";
+                        if ($amount >= $loan_peni_summ) {
+                            $amount -= $loan_peni_summ;
                             $loan_peni_summ = 0;
+
+                            echo "Amount = $amount calc percents\r\n";
+                            if ($amount >= $loan_percents_summ) {
+                                $amount -= $loan_percents_summ;
+                                $loan_percents_summ = 0;
+
+                                echo "Amount = $amount calc body\r\n";
+                                if ($amount >= $loan_body_summ) {
+                                    $loan_body_summ = 0;
+                                } else {
+                                    $loan_body_summ -= $amount;
+                                }
+
+                            } else {
+                                $loan_percents_summ -= $amount;
+                            }
+
+                        } else {
+                            $loan_peni_summ -= $amount;
                         }
 
-                        $amount -= $loan_percents_summ;
-                        if ($amount >= 0) {
-                            $loan_percents_summ = 0;
-                        }
-
-                        if ($amount > 0) {
-                            $loan_body_summ -= $amount;
-                        }
-
-                        $this->contracts->update_contract($contract->id, array(
+                        $save = [
                             'loan_body_summ' => $loan_body_summ,
                             'loan_percents_summ' => $loan_percents_summ,
                             'loan_peni_summ' => $loan_peni_summ,
-                            'reccurent_status' => 1,
-                            'reccurent_summ' => $amount / 100,
                             'reccurent_attempt' => $contract->reccurent_attempt + 1,
-                        ));
+                            'reccurent_summ' => $contract->reccurent_summ + $save_amount,
+                            'reccurent_status' => 1,
+                        ];
+
+                        if ($loan_body_summ <= 0) {
+                            $save['status'] = 3;
+                            $save['close_date'] = date('Y-m-d H:i:s');
+                            $save['collection_status'] = 0;
+                            $save['collection_manager_id'] = 0;
+                            $this->orders->update_order($contract->order_id, ['status' => 7]);
+
+                        }
+                        $this->contracts->update_contract($contract->id, $save);
                     }
                 }
 
