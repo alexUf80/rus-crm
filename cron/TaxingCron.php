@@ -37,9 +37,7 @@ class TaxingCron extends Core
 
         //Начисления
         if ($contracts = $this->contracts->get_contracts(array('status' => [2, 4], 'type' => 'base', 'stop_profit' => 0, 'is_restructed' => 0))) {
-
             foreach ($contracts as $contract) {
-
                 $this->db->query("
                 select sum(amount) as sum_taxing
                 from s_operations
@@ -84,8 +82,12 @@ class TaxingCron extends Core
     
                     //Начисление пени, если просрочен займ
                     if ($contract->status == 4 && $stop_taxing == 0) {
-                        $peni_summ = round(($contract->loan_body_summ + $contract->loan_percents_summ + $percents_summ) * 0.2 / 365, 2);
-    
+                        $diff_days = date_diff(
+                            new DateTime(date('Y-m-d', strtotime($contract->inssuance_date))),
+                            new DateTime(date('Y-m-d', strtotime($contract->return_date)))
+                        );
+                        $cals_percents_summ = round($percents_summ * $diff_days->days, 2);
+                        $peni_summ = round(($contract->loan_body_summ + $cals_percents_summ) * 0.2 / 365, 2);
                         if ($peni_summ > ($taxing_limit - $sum_taxing->sum_taxing)) {
                             $peni_summ = $taxing_limit - $sum_taxing->sum_taxing;
                             $stop_taxing = 1;
@@ -109,7 +111,6 @@ class TaxingCron extends Core
                             'loan_peni_summ' => $contract->loan_peni_summ + $peni_summ,
                         ));
                     }
-    
                     $this->contracts->update_contract($contract->id, array(
                         'loan_percents_summ' => $contract->loan_percents_summ + $percents_summ,
                         'stop_profit' => $stop_taxing

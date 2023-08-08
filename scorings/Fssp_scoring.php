@@ -21,7 +21,6 @@ class Fssp_scoring extends Core
             ];
 
         $request = $this->send_request($params);
-
         if (empty($request) || isset($request['Source']['Error'])) {
             $update = [
                 'status' => 'error',
@@ -85,7 +84,7 @@ class Fssp_scoring extends Core
             }
         } else {
             $update['success'] = 1;
-            $update['string_result'] .= 'Долгов нет';
+            $update['string_result'] = 'Долгов нет';
         }
 
 
