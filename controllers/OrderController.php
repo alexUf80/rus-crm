@@ -3507,28 +3507,68 @@ class OrderController extends Controller
 
     private function action_reccurent()
     {
-
         $orderId = $this->request->post('orderId');
         $userId = $this->request->post('userId');
         $contractId = $this->request->post('contractId');
         $percent = $this->request->post('percent');
-
         $contract = $this->contracts->get_contract($contractId);
         $order = $this->orders->get_order($orderId);
+        $contract_total_summ = $contract->loan_body_summ + $contract->loan_percents_summ + $contract->loan_peni_summ;
+        $summ = round(($contract_total_summ * ($percent / 100)), 2) * 100;
+        if ($summ > ($contract_total_summ * 100)) {
+            $summ = round($contract_total_summ, 2) * 100;
+        }
+        $reccurent_pay = $this->best2pay->reccurent_pay($order, $summ, 'Карточка заявки');
 
-        $summ = $contract->loan_percents_summ * $percent / 100 * 100;
-        // $file = 'c:\OSPanel\people.txt';
-        // $current = $summ;
-        // file_put_contents($file, $current);
-        if ($summ > $contract->loan_percents_summ * 100) {
-            $summ = $contract->loan_percents_summ * 100;
-        } 
+        if ($reccurent_pay) {
+            $summ = $summ / 100;
+            $save_amount = $summ;
+            $loan_peni_summ = $contract->loan_peni_summ;
+            $loan_percents_summ = $contract->loan_percents_summ;
+            $loan_body_summ = $contract->loan_body_summ;
+            echo "Amount = $summ calc peni\r\n";
+            if ($summ >= $loan_peni_summ) {
+                $summ -= $loan_peni_summ;
+                $loan_peni_summ = 0;
 
-        
+                echo "Amount = $summ calc percents\r\n";
+                if ($summ >= $loan_percents_summ) {
+                    $summ -= $loan_percents_summ;
+                    $loan_percents_summ = 0;
 
-        $reccurent_pay = $this->best2pay->reccurent_pay($order, $summ, 0);
+                    echo "Amount = $summ calc body\r\n";
+                    if ($summ >= $loan_body_summ) {
+                        $loan_body_summ = 0;
+                    } else {
+                        $loan_body_summ -= $summ;
+                    }
 
-        
+                } else {
+                    $loan_percents_summ -= $summ;
+                }
+
+            } else {
+                $loan_peni_summ -= $summ;
+            }
+
+            $save = [
+                'loan_body_summ' => $loan_body_summ,
+                'loan_percents_summ' => $loan_percents_summ,
+                'loan_peni_summ' => $loan_peni_summ,
+                'reccurent_attempt' => $contract->reccurent_attempt + 1,
+                'reccurent_summ' => $contract->reccurent_summ + $save_amount,
+                'reccurent_status' => 1,
+            ];
+
+            if ($loan_body_summ <= 0) {
+                $save['status'] = 3;
+                $save['close_date'] = date('Y-m-d H:i:s');
+                $save['collection_status'] = 0;
+                $save['collection_manager_id'] = 0;
+                $this->orders->update_order($contract->order_id, ['status' => 7]);
+            }
+            $this->contracts->update_contract($contract->id, $save);
+        }
 
         exit;
     }

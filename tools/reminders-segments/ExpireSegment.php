@@ -86,7 +86,7 @@ class ExpireSegment extends SegmentsAbstract
                 $reminder->msgSms = str_replace("%НомерДоговора%", $contract->number, $reminder->msgSms);
                 $reminder->msgSms = str_replace("%ОстатокЗадолженностиПолн%", ($contract->loan_body_summ + $contract->loan_percents_summ + $contract->loan_peni_summ), $reminder->msgSms);
                 $reminder->msgSms = str_replace("%ОрганизацияПоВыдачеСокр%", "ООО МКК «Русзаймсервис»", $reminder->msgSms);
-                $reminder->msgSms = str_replace("%ТелефонЦОК%", "8-800-000-00-00", $reminder->msgSms);
+                $reminder->msgSms = str_replace("%ТелефонЦОК%", "89190303610", $reminder->msgSms);
                 
                 $short_link = self::short_link($contract);
                 $reminder->msgSms = str_replace("%СсылкаНаОплату_ОстатокЗадолженностиПолн%", $short_link, $reminder->msgSms);
