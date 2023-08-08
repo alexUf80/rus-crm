@@ -16,8 +16,8 @@ class RemindersCron extends Core
     private function run()
     {
         RegSegment::processing(1);
-        ActiveSegment::processing(1);
         PendingSegment::processing(1);
+        ActiveSegment::processing(1);
         RepSegment::processing(1);
         ExpireSegment::processing(1);
     }
