@@ -6,12 +6,12 @@ class ExpireSegment extends SegmentsAbstract
     public static function processing($reminder)
     {
         $reminders = RemindersORM::where('segmentId', 5)->where('is_on', 1)->get();
-
+        
         foreach ($reminders as $reminder) {
             self::expiredDaysReminder($reminder);
         }
     }
-
+    
     private static function expiredDaysReminder($reminder)
     {
         $thisDayFrom = date('Y-m-d 00:00:00');
@@ -80,6 +80,16 @@ class ExpireSegment extends SegmentsAbstract
                     ];
 
                 RemindersCronORM::insert($reminderLog);
+
+                $reminder->msgSms = str_replace("%Имя%", $user->firstname, $reminder->msgSms);
+                $reminder->msgSms = str_replace("%Отчество%", $user->patronymic, $reminder->msgSms);
+                $reminder->msgSms = str_replace("%НомерДоговора%", $contract->number, $reminder->msgSms);
+                $reminder->msgSms = str_replace("%ОстатокЗадолженностиПолн%", ($contract->loan_body_summ + $contract->loan_percents_summ + $contract->loan_peni_summ), $reminder->msgSms);
+                $reminder->msgSms = str_replace("%ОрганизацияПоВыдачеСокр%", "ООО МКК «Русзаймсервис»", $reminder->msgSms);
+                $reminder->msgSms = str_replace("%ТелефонЦОК%", "8-800-000-00-00", $reminder->msgSms);
+                
+                $short_link = self::short_link($contract);
+                $reminder->msgSms = str_replace("%СсылкаНаОплату_ОстатокЗадолженностиПолн%", $short_link, $reminder->msgSms);
 
                 $send =
                     [

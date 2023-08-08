@@ -16,5 +16,7 @@ function core_autoload($classname)
         require dirname(__FILE__).'/vendor/autoload.php';
     if (file_exists(dirname(__FILE__).'/tools/'.$classname.'.php'))
         require dirname(__FILE__).'/tools/'.$classname.'.php';
+    if (file_exists(dirname(__FILE__).'/tools/reminders-segments/'.$classname.'.php'))
+        require dirname(__FILE__).'/tools/reminders-segments/'.$classname.'.php';
 }
 spl_autoload_register('core_autoload');

@@ -7,7 +7,7 @@ RewriteEngine on
 SetEnvIf X-Forwarded-Proto https SERVER_PORT=443
 SetEnvIf X-Forwarded-Proto https HTTPS=on
 RewriteCond %{HTTP:HTTPS} !=on [NC]
-RewriteRule ^(.*)$ https://%{SERVER_NAME}%{REQUEST_URI} [R=301,L]
+#RewriteRule ^(.*)$ https://%{SERVER_NAME}%{REQUEST_URI} [R=301,L]
 
 RewriteRule ^login/?$                   index.php?module=LoginController  [L,QSA]
 RewriteRule ^logout/?$                  index.php?module=LoginController&action=logout  [L,QSA]
@@ -70,6 +70,7 @@ RewriteRule ^settings/?$                index.php?module=SettingsController  [L,
 RewriteRule ^settings_communications/?$ index.php?module=SettingsCommunicationsController  [L,QSA]
 RewriteRule ^apikeys/?$                 index.php?module=ApikeysController  [L,QSA]
 RewriteRule ^reasons/?$                 index.php?module=ReasonsController  [L,QSA]
+RewriteRule ^recurrents/?$              index.php?module=RecurrentsController  [L,QSA]
 RewriteRule ^whitelist/?$               index.php?module=WhitelistController  [L,QSA]
 RewriteRule ^blacklist/?$               index.php?module=BlacklistController  [L,QSA]
 RewriteRule ^msg_zvonobot/?$            index.php?module=SettingsMsgZvonobotController  [L,QSA]
