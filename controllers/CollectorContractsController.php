@@ -711,7 +711,7 @@ class CollectorContractsController extends Controller
 
         if (empty($managers)) {
             $this->json_output(array('error' => 'Нет пользователей для распределения'));
-        } elseif ($type != 'null') {
+        } elseif ($type == 'null') {
             $this->json_output(array('error' => 'Выберите вид распределения'));
         } elseif (empty($contracts) && $type != 'optional') {
             $this->json_output(array('error' => 'Нет договоров для распределения'));
