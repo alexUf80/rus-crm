@@ -363,7 +363,7 @@
                 //    $('#form_distribute').append('<input type="hidden" name="contracts[]" class="js-distribute-contract" value="' + $(this).data('contract') + '" />');
                 //});
 
-                $('.js-select-type').val('checked');
+                $('.js-select-type').val('null');
 
                 $('#modal_distribute').modal();
             });
@@ -1305,7 +1305,8 @@
 
                     <div class="form-group">
                         <select class="form-control js-select-type" name="type">
-                            <option value="checked" selected>Все отмеченные</option>
+                            <option value="null" selected></option>
+                            <option value="checked">Все отмеченные</option>
                             <option value="all">Все видимые</option>
                             <option value="optional">Выбрать количество</option>
                         </select>

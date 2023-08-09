@@ -711,6 +711,8 @@ class CollectorContractsController extends Controller
 
         if (empty($managers)) {
             $this->json_output(array('error' => 'Нет пользователей для распределения'));
+        } elseif ($type != 'null') {
+            $this->json_output(array('error' => 'Выберите вид распределения'));
         } elseif (empty($contracts) && $type != 'optional') {
             $this->json_output(array('error' => 'Нет договоров для распределения'));
         } else {
@@ -721,6 +723,9 @@ class CollectorContractsController extends Controller
                     $distribute = array();
                     $i = 0;
                     $count_managers = count($managers);
+
+                    $timestamp_group_movings = date('Y-m-d H:i:s');
+
                     foreach ($contracts as $contract_id) {
                         $distribute[$contract_id] = $managers[$i];
 
@@ -741,7 +746,8 @@ class CollectorContractsController extends Controller
                             'from_date' => date('Y-m-d H:i:s'),
                             'summ_body' => $contract->loan_body_summ,
                             'summ_percents' => $contract->loan_percents_summ + $contract->loan_peni_summ + $contract->loan_charge_summ,
-                            'collection_status' => $manager->collection_status_id
+                            'collection_status' => $manager->collection_status_id,
+                            'timestamp_group_movings' => $timestamp_group_movings,
                         ));
 
                         $this->UserContactStatuses->add_record(array(
@@ -869,7 +875,8 @@ class CollectorContractsController extends Controller
                             'from_date' => date('Y-m-d H:i:s'),
                             'summ_body' => $contract->loan_body_summ,
                             'summ_percents' => $contract->loan_percents_summ + $contract->loan_peni_summ + $contract->loan_charge_summ,
-                            'collection_status' => $manager->collection_status_id
+                            'collection_status' => $manager->collection_status_id,
+                            'timestamp_group_movings' => $timestamp_group_movings,
                         ));
 
                         $this->UserContactStatuses->add_record(array(
