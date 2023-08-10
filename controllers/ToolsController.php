@@ -24,6 +24,10 @@ class ToolsController extends Controller
                     return $this->action_reminders();
                     break;
 
+                case 'distributior_collectors':
+                    return $this->action_distributior_collectors();
+                    break;
+
             endswitch;
         }
     }
@@ -356,5 +360,15 @@ class ToolsController extends Controller
         $id = $this->request->post('id');
         RemindersORM::destroy($id);
         exit;
+    }
+
+    private function action_distributior_collectors()
+    {
+        $movings_groups = $this->collections->get_movings_groups();
+
+        $pages = $this->shortlink->get_links();
+        $this->design->assign('movings_groups', $movings_groups);
+
+        return $this->design->fetch('tools/distributior_collectors.tpl');
     }
 }
