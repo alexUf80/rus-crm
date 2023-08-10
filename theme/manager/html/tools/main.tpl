@@ -65,6 +65,16 @@
                     </a>
                 </div>
             </div>
+            {*}
+            <div class="col-md-6 col-lg-3 col-xlg-3">
+                <div class="card card-inverse card-info">
+                    <a href="tools/distributior_collectors" class="box text-center">
+                        <h1 class="font-light text-white">Распределение</h1>
+                        <h6 class="text-white">Распределение по коллекторам</h6>
+                    </a>
+                </div>
+            </div>
+            {*}
         </div>
 
     </div>

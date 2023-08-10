@@ -234,6 +234,21 @@ class Collections extends Core
         
         return $results;
 	}
+
+    public function get_movings_groups()
+	{
+		
+        $query = $this->db->placehold("
+            SELECT initiator_id, timestamp_group_movings 
+            FROM __collector_movings
+            WHERE 1
+            GROUP BY timestamp_group_movings, initiator_id
+        ");
+        $this->db->query($query);
+        $results = $this->db->results();
+        
+        return $results;
+	}
     
 	public function count_movings($filter = array())
 	{

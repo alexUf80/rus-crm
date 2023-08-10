@@ -66,12 +66,20 @@ class DistributiorCollectorsCron extends Core
             }
 
             $collectorsMoveId = json_decode($collectorsMove->collectors_id, true);
+            
+            $collectorsMoveId_worked = [];
+            foreach ($collectorsMoveId as $collector_id) {
+                $manager = ManagerORM::where('id', '=', $collector_id)->first();
+                if($manager->blocked == 0){
+                    $collectorsMoveId_worked[] = $collector_id;
+                }
+            }
 
-            $lastCollectorId = array_shift($collectorsMoveId);
+            $lastCollectorId = array_shift($collectorsMoveId_worked);
             array_push($collectorsMoveId, $lastCollectorId);
 
             ContractsORM::where('id', $contract->id)->update(['collection_status' => $thisPeriod->id, 'collection_manager_id' => $lastCollectorId]);
-            CollectorsMoveGroupORM::where('id', $collectorsMove->id)->update(['collectors_id' => json_encode((object)$collectorsMoveId)]);
+            // CollectorsMoveGroupORM::where('id', $collectorsMove->id)->update(['collectors_id' => json_encode((object)$collectorsMoveId)]);
         }
     }
 }

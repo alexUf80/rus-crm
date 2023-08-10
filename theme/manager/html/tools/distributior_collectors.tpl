@@ -107,7 +107,43 @@
                         sas
                         <br>
 
-                        <br>
+                        <table class="table">
+                            <tr>
+                                <td>
+                                    №
+                                </td>
+                                <td>
+                                    Кто распредилил
+                                </td>
+                                <td>
+                                   Когда распределил
+                                </td>
+                                <td>
+                                   Когда распределил
+                                </td>
+                            </tr>
+
+                            {$i = 1}
+                            {foreach $movings_groups as $movings_group}
+                            <tr>
+                                <td>
+                                    {$i++}
+                                </td>
+                                <td>
+                                    {$movings_group->initiator_id}
+                                </td>
+                                <td>
+                                   {$movings_group->timestamp_group_movings}
+                                </td>
+                                <td>
+                                   {$movings_group->cou}
+                                </td>
+                            </tr>
+                            {/foreach}
+                        </table>
+
+
+                        <br> 
                         asa
 
                         {*}
