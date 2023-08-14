@@ -729,6 +729,9 @@ class CollectorContractsController extends Controller
                     foreach ($contracts as $contract_id) {
                         $distribute[$contract_id] = $managers[$i];
 
+                        $contract = $this->contracts->get_contract($contract_id);
+                        $from_manager = $contract->collection_manager_id;
+
                         $this->contracts->update_contract($contract_id, array(
                             'collection_manager_id' => $managers[$i],
                             'collection_workout' => 0,
@@ -736,11 +739,15 @@ class CollectorContractsController extends Controller
                             'collection_handchange' => 1
                         ));
 
-                        $contract = $this->contracts->get_contract($contract_id);
                         $manager = $this->managers->get_manager($managers[$i]);
+
+                        $date1 = new DateTime(date('Y-m-d', strtotime($contract->return_date)));
+                        $date2 = new DateTime(date('Y-m-d'));
+                        $diff = $date2->diff($date1)->days;
 
                         $this->collections->add_moving(array(
                             'initiator_id' => (int)$this->manager->id,
+                            'from_manager_id' => $from_manager,
                             'manager_id' => $managers[$i],
                             'contract_id' => $contract->id,
                             'from_date' => date('Y-m-d H:i:s'),
@@ -748,6 +755,7 @@ class CollectorContractsController extends Controller
                             'summ_percents' => $contract->loan_percents_summ + $contract->loan_peni_summ + $contract->loan_charge_summ,
                             'collection_status' => $manager->collection_status_id,
                             'timestamp_group_movings' => $timestamp_group_movings,
+                            'expired_days' => $diff,
                         ));
 
                         $this->UserContactStatuses->add_record(array(
@@ -857,6 +865,9 @@ class CollectorContractsController extends Controller
                     foreach ($prepare_contracts as $contract) {
                         $distribute[$contract->id] = $managers[$i];
 
+                        $contract = $this->contracts->get_contract($contract_id);
+                        $from_manager = $contract->collection_manager_id;
+
                         $this->contracts->update_contract($contract->id, array(
                             'collection_manager_id' => $managers[$i],
                             'collection_workout' => 0,
@@ -865,18 +876,23 @@ class CollectorContractsController extends Controller
                         ));
 
                         $this->users->update_user($contract->user_id, array('contact_status' => 0));
-                        $contract = $this->contracts->get_contract($contract_id);
                         $manager = $this->managers->get_manager($managers[$i]);
+
+                        $date1 = new DateTime(date('Y-m-d', strtotime($contract->return_date)));
+                        $date2 = new DateTime(date('Y-m-d'));
+                        $diff = $date2->diff($date1)->days;
 
                         $this->collections->add_moving(array(
                             'initiator_id' => (int)$this->manager->id,
                             'manager_id' => $managers[$i],
+                            'from_manager_id' => $from_manager,
                             'contract_id' => $contract->id,
                             'from_date' => date('Y-m-d H:i:s'),
                             'summ_body' => $contract->loan_body_summ,
                             'summ_percents' => $contract->loan_percents_summ + $contract->loan_peni_summ + $contract->loan_charge_summ,
                             'collection_status' => $manager->collection_status_id,
                             'timestamp_group_movings' => $timestamp_group_movings,
+                            'expired_days' => $diff,
                         ));
 
                         $this->UserContactStatuses->add_record(array(

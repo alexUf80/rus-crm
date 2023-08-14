@@ -36,6 +36,9 @@ class ExpireSegment extends SegmentsAbstract
             if(date_diff($now, $returnDate)->days != $reminder->countTime)
                 continue;
 
+            if($now < $returnDate)
+                continue;
+
             $limitDays = 0;
             $limitWeek = 0;
             $limitMonth = 0;
@@ -43,6 +46,10 @@ class ExpireSegment extends SegmentsAbstract
             $canSend = 1;
 
             $communications = RemindersCronORM::where('userId', $contract->user_id)->get();
+
+            // var_dump($contract->user_id);
+            // // var_dump($contract->id);
+            // var_dump($communications);
 
             if (!empty($communications)) {
                 foreach ($communications as $communication) {

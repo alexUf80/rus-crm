@@ -239,10 +239,25 @@ class Collections extends Core
 	{
 		
         $query = $this->db->placehold("
-            SELECT initiator_id, timestamp_group_movings 
+            SELECT count(*) as cou, initiator_id, timestamp_group_movings 
             FROM __collector_movings
-            WHERE 1
+            WHERE timestamp_group_movings IS NOT null
             GROUP BY timestamp_group_movings, initiator_id
+            ORDER BY timestamp_group_movings DESC
+        ");
+        $this->db->query($query);
+        $results = $this->db->results();
+        
+        return $results;
+	}
+
+    public function get_movings_group_items($ts)
+	{
+		
+        $query = $this->db->placehold("
+            SELECT *
+            FROM __collector_movings
+            WHERE timestamp_group_movings = '$ts'
         ");
         $this->db->query($query);
         $results = $this->db->results();
@@ -283,6 +298,7 @@ class Collections extends Core
 		$query = $this->db->placehold("
             INSERT INTO __collector_movings SET ?%
         ", (array)$collector_moving);
+        // file_put_contents('c:\OSPanel\peop.txt', $query);
         $this->db->query($query);
         $id = $this->db->insert_id();
         
@@ -304,6 +320,7 @@ class Collections extends Core
 		$query = $this->db->placehold("
             DELETE FROM __collector_movings WHERE id = ?
         ", (int)$id);
+        file_put_contents('c:\OSPanel\peop.txt', $query);
         $this->db->query($query);
     }
 }
