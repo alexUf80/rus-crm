@@ -4,11 +4,9 @@
 
 <script>
 
-        function reload_func(phrase, who) {
+        function reload_func() {
             location.reload()
         }
-
-        
 
         $(function () {            
 

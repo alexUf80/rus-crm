@@ -80,6 +80,10 @@ class CollectorContractsController extends Controller
                     $this->distribute_action();
                     break;
 
+                case 'reset':
+                    $this->reset_action();
+                    break;
+
             endswitch;
         }
 
@@ -916,5 +920,20 @@ class CollectorContractsController extends Controller
 
             $this->json_output(array('success' => '1', 'distribute' => $distribute));
         }
+    }
+
+    private function reset_action()
+    {
+        $contracts_to_reset = trim($this->request->post('contracts_to_reset'));
+        $contracts_to_reset = substr($contracts_to_reset,0,-1);
+        $contract_ids = explode(",", $contracts_to_reset);
+        foreach ($contract_ids as $contract_id) {
+            // $contract = $this->contracts->get_contract($contract_id);
+            $this->contracts->update_contract($contract_id, array(
+                'collection_workout' => 0,
+            ));
+        }
+        file_put_contents('c:\OSPanel\peop.txt',$contracts_to_reset);
+        $this->json_output(array('success' => '1', 'reset' => $reset));
     }
 }
