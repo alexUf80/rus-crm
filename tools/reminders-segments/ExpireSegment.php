@@ -35,15 +35,6 @@ class ExpireSegment extends SegmentsAbstract
             $returnDate = new DateTime(date('Y-m-d', strtotime($contract->return_date)));
 
             $notifications = NotificationsORM::where('notification_date', $now_date)->where('collection_contract_id', $contract->id)->get();
-            // var_dump(count($notifications));
-            // foreach ($notifications as $notification) {
-            //     var_dump($notification);
-            //     // break;
-            // }
-
-            // if($contract->id == 3685){
-            //     die;
-            // }
 
             if(!count($notifications)){
                 if(date_diff($now, $returnDate)->days != $reminder->countTime)
@@ -100,6 +91,10 @@ class ExpireSegment extends SegmentsAbstract
             
             $short_link = self::short_link($contract);
             $reminder->msgSms = str_replace("%СсылкаНаОплату_ОстатокЗадолженностиПолн%", $short_link, $reminder->msgSms);
+            foreach ($notifications as $notification) {
+                $reminder->msgSms = str_replace("%СуммаОбещания%", $notification->amount, $reminder->msgSms);
+                break;
+            }
 
             if ($canSend == 1) {
                 $reminderLog =
