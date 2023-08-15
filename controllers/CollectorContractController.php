@@ -581,13 +581,20 @@ class CollectorContractController extends Controller
         $phone = trim($this->request->post('phone'));
         $relation = $this->request->post('relation');
         $comment = $this->request->post('comment');
+        if($this->request->post('contact_hide') == 1){
+            $contact_hide = 1;
+        }
+        else{
+            $contact_hide = 0;
+        }
 
         $contact =
             [
                 'name' => $fio,
                 'phone' => $phone,
                 'relation' => $relation,
-                'comment' => $comment
+                'comment' => $comment,
+                'contact_hide' => $contact_hide,
             ];
 
         $this->Contactpersons->update_contactperson($id, $contact);

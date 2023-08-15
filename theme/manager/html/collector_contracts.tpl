@@ -603,14 +603,12 @@
                                 {/if}
                             </div>
                             {*}
-                            {*}
                             <div class="col-6 " style="background: orange; border-radius: 5px; padding: 5px; text-align: center;">
                                 {if in_array($manager->role, ['developer', 'admin', 'chief_collector', 'team_collector','senior collector'])}
                                     <a href="/tools/distributior_collectors" style="color: white"> Смотреть распределение
                                     </a>
                                 {/if}
                             </div>
-                            {*}
                             {*}
                         </div>
                     </div>
