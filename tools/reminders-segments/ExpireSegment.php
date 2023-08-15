@@ -31,13 +31,32 @@ class ExpireSegment extends SegmentsAbstract
         foreach ($contracts as $contract) {
 
             $now = new DateTime();
+            $now_date = date('Y-m-d');
             $returnDate = new DateTime(date('Y-m-d', strtotime($contract->return_date)));
 
-            if(date_diff($now, $returnDate)->days != $reminder->countTime)
-                continue;
+            $notifications = NotificationsORM::where('notification_date', $now_date)->where('collection_contract_id', $contract->id)->get();
+            // var_dump(count($notifications));
+            // foreach ($notifications as $notification) {
+            //     var_dump($notification);
+            //     // break;
+            // }
 
-            if($now < $returnDate)
-                continue;
+            // if($contract->id == 3685){
+            //     die;
+            // }
+
+            if(!count($notifications)){
+                if(date_diff($now, $returnDate)->days != $reminder->countTime)
+                    continue;
+    
+                if($now < $returnDate)
+                    continue;
+            }
+            else{
+                if($reminder->countTime != 1000)
+                    continue;
+            }
+
 
             $limitDays = 0;
             $limitWeek = 0;
@@ -46,10 +65,6 @@ class ExpireSegment extends SegmentsAbstract
             $canSend = 1;
 
             $communications = RemindersCronORM::where('userId', $contract->user_id)->get();
-
-            // var_dump($contract->user_id);
-            // // var_dump($contract->id);
-            // var_dump($communications);
 
             if (!empty($communications)) {
                 foreach ($communications as $communication) {
@@ -76,6 +91,16 @@ class ExpireSegment extends SegmentsAbstract
 
             $user = UsersORM::where('id', $contract->user_id)->first();
 
+            $reminder->msgSms = str_replace("%Имя%", $user->firstname, $reminder->msgSms);
+            $reminder->msgSms = str_replace("%Отчество%", $user->patronymic, $reminder->msgSms);
+            $reminder->msgSms = str_replace("%НомерДоговора%", $contract->number, $reminder->msgSms);
+            $reminder->msgSms = str_replace("%ОстатокЗадолженностиПолн%", ($contract->loan_body_summ + $contract->loan_percents_summ + $contract->loan_peni_summ), $reminder->msgSms);
+            $reminder->msgSms = str_replace("%ОрганизацияПоВыдачеСокр%", "ООО МКК «Русзаймсервис»", $reminder->msgSms);
+            $reminder->msgSms = str_replace("%ТелефонЦОК%", "89190303610", $reminder->msgSms);
+            
+            $short_link = self::short_link($contract);
+            $reminder->msgSms = str_replace("%СсылкаНаОплату_ОстатокЗадолженностиПолн%", $short_link, $reminder->msgSms);
+
             if ($canSend == 1) {
                 $reminderLog =
                     [
@@ -87,16 +112,6 @@ class ExpireSegment extends SegmentsAbstract
                     ];
 
                 RemindersCronORM::insert($reminderLog);
-
-                $reminder->msgSms = str_replace("%Имя%", $user->firstname, $reminder->msgSms);
-                $reminder->msgSms = str_replace("%Отчество%", $user->patronymic, $reminder->msgSms);
-                $reminder->msgSms = str_replace("%НомерДоговора%", $contract->number, $reminder->msgSms);
-                $reminder->msgSms = str_replace("%ОстатокЗадолженностиПолн%", ($contract->loan_body_summ + $contract->loan_percents_summ + $contract->loan_peni_summ), $reminder->msgSms);
-                $reminder->msgSms = str_replace("%ОрганизацияПоВыдачеСокр%", "ООО МКК «Русзаймсервис»", $reminder->msgSms);
-                $reminder->msgSms = str_replace("%ТелефонЦОК%", "89190303610", $reminder->msgSms);
-                
-                $short_link = self::short_link($contract);
-                $reminder->msgSms = str_replace("%СсылкаНаОплату_ОстатокЗадолженностиПолн%", $short_link, $reminder->msgSms);
 
                 $send =
                     [

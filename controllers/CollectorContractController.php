@@ -350,7 +350,8 @@ class CollectorContractController extends Controller
             'created' => date('Y-m-d H:i:s'),
             'notification_date' => date('Y-m-d H:i', strtotime($this->request->post('notification_date'))),
             'comment' => $this->request->post('comment'),
-            'event_id' => $this->request->post('event_id', 'integer')
+            'event_id' => $this->request->post('event_id', 'integer'),
+            'amount' => $this->request->post('amount'),
         );
 
         if (empty($notification['event_id'])) {

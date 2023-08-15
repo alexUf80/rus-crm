@@ -2031,6 +2031,10 @@
                                                         <textarea placeholder="Комментарий" class="form-control"
                                                                   name="comment" style="resize:vertical"></textarea>
                                                     </div>
+                                                    <div class="form-group mb-1">
+                                                        <input type="number" placeholder="Сумма" class="form-control"
+                                                                  name="amount" style="resize:vertical"></input>
+                                                    </div>
                                                     <div class="form-action">
                                                         <button type="submit"
                                                                 class="btn float-right btn-success waves-effect waves-light">
@@ -2046,11 +2050,16 @@
                                                                 <div class="mail-content">
                                                                     <h5>
                                                                         <strong>{$managers[$notification->manager_id]->name|escape}</strong>
-                                                                        <span class="badge badge-info float-right">{$notification->notiification_date|date}</span>
+                                                                        <span class="badge badge-info float-right">{$notification->notification_date|date}</span>
                                                                     </h5>
+                                                                    {*}
                                                                     <h6>{$notification->event->action}</h6>
+                                                                    {*}
                                                                     <span class="mail-desc">
                                                                         {$notification->comment|nl2br}
+                                                                    </span>
+                                                                    <span class="mail-desc">
+                                                                        <strong>Сумма: {$notification->amount}</strong>
                                                                     </span>
                                                                     <span class="time">{$notification->created|date} {$notification->created|time}</span>
                                                                 </div>
