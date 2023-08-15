@@ -455,10 +455,9 @@
 
                             Swal.fire({
                                 timer: 5000,
-                                title: 'Договора распределены.',
+                                title: 'Договоры распределены',
                                 type: 'success',
                             });
-//                        location.reload();
                         } else {
                             Swal.fire({
                                 text: resp.error,
@@ -466,6 +465,7 @@
                             });
 
                         }
+                        setTimeout(reload_func, 2500);
                         $form.removeClass('loading');
                     }
                 })

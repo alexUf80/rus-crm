@@ -93,7 +93,7 @@
                                     {$movings_groups_item->user->patronymic}
                                 </td>
                                 <td>
-                                    {$movings_groups_item->contract->number}
+                                    <a href="/collector_contract/{$movings_groups_item->contract->id}">{$movings_groups_item->contract->number}</a>
                                 </td>
                                 <td>
                                     {$movings_groups_item->expired_days}
