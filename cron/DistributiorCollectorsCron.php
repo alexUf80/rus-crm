@@ -17,6 +17,8 @@ class DistributiorCollectorsCron extends Core
     private function run()
     {
 
+        $timestamp_group_movings = date('Y-m-d H:i:s');
+
         $backContracts = ContractsORM::selectRaw('id, (loan_body_summ + loan_percents_summ + loan_charge_summ + loan_peni_summ) as debt,
             order_id,
             collection_status,
@@ -78,8 +80,27 @@ class DistributiorCollectorsCron extends Core
             $lastCollectorId = array_shift($collectorsMoveId_worked);
             array_push($collectorsMoveId, $lastCollectorId);
 
+            $from_manager = $contract->collection_manager_id;
+
             ContractsORM::where('id', $contract->id)->update(['collection_status' => $thisPeriod->id, 'collection_manager_id' => $lastCollectorId]);
             // CollectorsMoveGroupORM::where('id', $collectorsMove->id)->update(['collectors_id' => json_encode((object)$collectorsMoveId)]);
+
+            $date1 = new DateTime(date('Y-m-d', strtotime($contract->return_date)));
+            $date2 = new DateTime(date('Y-m-d'));
+            $diff = $date2->diff($date1)->days;
+
+            $this->collections->add_moving(array(
+                'initiator_id' => 0,
+                'manager_id' => $lastCollectorId,
+                'from_manager_id' => $from_manager,
+                'contract_id' => $contract->id,
+                'from_date' => date('Y-m-d H:i:s'),
+                'summ_body' => $contract->loan_body_summ,
+                'summ_percents' => $contract->loan_percents_summ + $contract->loan_peni_summ + $contract->loan_charge_summ,
+                'collection_status' => $manager->collection_status_id,
+                'timestamp_group_movings' => $timestamp_group_movings,
+                'expired_days' => $diff,
+            ));
         }
     }
 }

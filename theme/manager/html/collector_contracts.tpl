@@ -9,8 +9,18 @@
     <script src="theme/manager/assets/plugins/daterangepicker/daterangepicker.js"></script>
     <script type="text/javascript" src="theme/{$settings->theme|escape}/js/apps/orders.js?v=1.04"></script>
     <script type="text/javascript" src="theme/{$settings->theme|escape}/js/apps/order.js?v=1.16"></script>
+    
     <script>
         $(function () {
+
+            let workout_checked = '';
+            $('.js-workout-input').each(function () {
+                if ($(this).is(':checked')) {
+                    workout_checked += $(this).val()+',';
+                }
+            })
+            $('.js_contracts_to_reset').val(workout_checked);
+
             $('.js-open-show').hide();
 
             $('#casual_sms').on('click', function (e) {
@@ -388,6 +398,40 @@
 
             });
 
+            function reload_func() {
+                location.reload()
+            }
+
+            $(document).on('click', '#form_reset', function (e) {
+                e.preventDefault();
+
+                var $form = $(this);
+
+                $.ajax({
+                    url: '/my_contracts',
+                    data: $form.serialize(),
+                    type: 'POST',
+                    success: function (resp) {
+                        if (resp.success) {
+                            $('#modal_distribute').modal('hide');
+
+                            Swal.fire({
+                                timer: 5000,
+                                title: 'Сброшен признак отработанных договоров.',
+                                type: 'success',
+                            });
+                        setTimeout(reload_func, 2500);
+                        } else {
+                            Swal.fire({
+                                text: resp.error,
+                                type: 'error',
+                            });
+
+                        }
+                    }
+                })
+            })
+
             $(document).on('submit', '#form_distribute', function (e) {
                 e.preventDefault();
 
@@ -549,15 +593,27 @@
             <div class="col-md-6 col-4 ">
                 <div class="row">
 
-                    <div class="col-6 ">
-                        {if in_array($manager->role, ['developer', 'admin', 'chief_collector', 'team_collector','senior collector'])}
-                            <button class="btn btn-primary js-distribute-open float-right" type="button"><i
-                                        class="mdi mdi-account-convert"></i> Распределить
-                            </button>
-                        {/if}
+                    <div class="col-8 ">
+                        <div class="row">
+                            <div class="col-6 ">
+                                {if in_array($manager->role, ['developer', 'admin', 'chief_collector', 'team_collector','senior collector'])}
+                                    <button class="btn btn-primary js-distribute-open float-right" type="button"><i
+                                                class="mdi mdi-account-convert"></i> Распределить
+                                    </button>
+                                {/if}
+                            </div>
+                            {*}
+                            <div class="col-6 " style="background: orange; border-radius: 5px; padding: 5px; text-align: center;">
+                                {if in_array($manager->role, ['developer', 'admin', 'chief_collector', 'team_collector','senior collector'])}
+                                    <a href="/tools/distributior_collectors" style="color: white"> Смотреть распределение
+                                    </a>
+                                {/if}
+                            </div>
+                            {*}
+                        </div>
                     </div>
 
-                    <div class="col-6 dropdown text-right hidden-sm-down js-period-filter">
+                    <div class="col-4 dropdown text-right hidden-sm-down js-period-filter">
                         <input type="hidden" value="{$period}" id="filter_period"/>
                         <button class="btn btn-secondary dropdown-toggle float-right" type="button"
                                 id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"
@@ -759,6 +815,12 @@
                                                     <option value="{$t->id}">{$t->name|escape}</option>
                                                 {/foreach}
                                             </select>
+                                            <form method="POST" id="form_reset" action="" class="">
+                                                <input type="hidden" name="action" value="reset"/>
+                                                <input type="hidden" name="contracts_to_reset" class="js_contracts_to_reset"/>
+
+                                                <button class="btn btn-info" type="button" style="padding: 2px; margin-top: 5px"> Сброс отработано</button>
+                                            </form>
                                         </td>
                                         <td style="width: 140px;" class="jsgrid-cell">
                                         </td>

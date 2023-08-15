@@ -28,6 +28,10 @@ class ToolsController extends Controller
                     return $this->action_distributior_collectors();
                     break;
 
+                case 'distributior_collectors_doc':
+                    return $this->action_distributior_collectors_doc();
+                    break;
+
             endswitch;
         }
     }
@@ -364,11 +368,88 @@ class ToolsController extends Controller
 
     private function action_distributior_collectors()
     {
+
+        
+        if ($this->request->method('post')) {
+            switch ($this->request->post('action', 'string')):
+                
+                case 'cancel_distributions':
+                    $this->action_cancel_distributions();
+                    break;
+
+            endswitch;
+        }
+
         $movings_groups = $this->collections->get_movings_groups();
 
-        $pages = $this->shortlink->get_links();
+        foreach ($movings_groups as $movings_group) {
+            $movings_group->initiator_name = 'АвтоРаспределение';
+            if($movings_group->initiator_id > 0 ){
+                $manager = $this->managers->get_manager($movings_group->initiator_id);
+                $movings_group->initiator_name = $manager->name;
+            }
+        }
+
         $this->design->assign('movings_groups', $movings_groups);
+             
+
 
         return $this->design->fetch('tools/distributior_collectors.tpl');
+    }
+
+    private function action_distributior_collectors_doc()
+    {
+
+
+        $timestamp = $this->request->get('ts');
+        $timestamp = str_replace("_", " ", $timestamp);
+        $this->design->assign('timestamp', $timestamp);
+
+        $movings_groups_items = $this->collections->get_movings_group_items($timestamp);
+        foreach ($movings_groups_items as $movings_group) {
+            $movings_group->initiator_name = 'АвтоРаспределение';
+            if($movings_group->initiator_id > 0 ){
+                $initiator = $this->managers->get_manager($movings_group->initiator_id);
+                $movings_group->initiator_name = $initiator->name;
+            }
+
+            $manager = $this->managers->get_manager($movings_group->manager_id);
+            $movings_group->manager_name = $manager->name;
+            $movings_group->manager_collection_status_id = $manager->collection_status_id;
+
+            $from_manager = $this->managers->get_manager($movings_group->from_manager_id);
+            $movings_group->from_manager_name = 'Первое распределение';
+            if ($from_manager != null) {
+                $movings_group->from_manager_name = $from_manager->name;
+                $movings_group->from_manager_collection_status_id = $from_manager->collection_status_id;
+            }
+
+            $movings_group->contract = $this->contracts->get_contract($movings_group->contract_id);
+            $movings_group->user = $this->users->get_user($movings_group->contract->user_id);
+        }
+
+        $this->design->assign('movings_groups_items', $movings_groups_items);
+
+        $collection_statuses = $this->contracts->get_collection_statuses();
+        $this->design->assign('collection_statuses', $collection_statuses);
+
+        return $this->design->fetch('tools/distributior_collectors_doc.tpl');
+    }
+
+    private function action_cancel_distributions()
+    {
+
+        $timestamp = $this->request->post('ts');
+
+        $movings_groups_items = $this->collections->get_movings_group_items($timestamp);
+        foreach ($movings_groups_items as $movings_groups_item) {
+
+            $this->contracts->update_contract($movings_groups_item->contract_id, array(
+                'collection_manager_id' => $movings_groups_item->from_manager_id,
+            ));
+            $this->collections->delete_moving($movings_groups_item->id);
+        }
+
+        exit;
     }
 }

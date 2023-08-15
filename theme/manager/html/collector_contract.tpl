@@ -166,6 +166,19 @@
                     $('#contacts_modal').modal('hide');
                 });
             });
+
+            $('#contacts_form').find('[name="contact_hide"]').on('change', function (e) {
+
+                if ($('#contacts_form').find('[name="contact_hide"]').is(':checked')){
+                    $('#contacts_form').find('[name="contact_hide"]').prop('checked', true);
+                    $('#contacts_form').find('[name="contact_hide"]').val("1");
+                }
+                else{
+                    $('#contacts_form').find('[name="contact_hide"]').prop('checked', false);
+                    $('#contacts_form').find('[name="contact_hide"]').val("0");
+                }
+            });
+
             $('.edit_contact').on('click', function (e) {
                 e.preventDefault();
                 $('#contacts_form')[0].reset();
@@ -186,6 +199,10 @@
                         $('#contacts_form').find('input[name="fio"]').val(contact['name']);
                         $('#contacts_form').find('input[name="phone"]').val(contact['phone']);
                         $('#contacts_form').find('textarea[name="comment"]').val(contact['comment']);
+                        $('#contacts_form').find('[name="contact_hide"]').val(contact['contact_hide']);
+                        if(contact['contact_hide'] != "0"){
+                            $('#contacts_form').find('[name="contact_hide"]').prop('checked', true);
+                        }
 
                         if (relation === null) {
                             $('#contacts_form').find('select option[value="none"]').prop('selected', true);
@@ -258,6 +275,13 @@
     <link href="theme/manager/assets/plugins/timepicker/bootstrap-timepicker.min.css" rel="stylesheet">
     <link href="theme/manager/assets/plugins/daterangepicker/daterangepicker.css" rel="stylesheet">
     <style>
+        .custom-control-label-popup{    
+            padding-left: 25px;
+        }
+        .custom-control-label-popup::before{
+            left: 5px;
+        }
+
         .collapsed-icon:before {
             width: 20px;
             height: 20px;
@@ -1267,7 +1291,18 @@
                                                         {foreach $contacts as $contact}
                                                             <tr>
                                                                 <td>{$contact->name|upper}</td>
-                                                                <td>{$contact->phone}
+                                                                <td>
+                                                                    {if in_array($manager->role, ['chief_collector', 'team_collector', 'developer', 'admin'])}
+                                                                        {if $contact->contact_hide}<s>{/if}
+                                                                        {$contact->phone}
+                                                                        {if $contact->contact_hide}</s>{/if}
+                                                                    {else}
+                                                                        {if $contact->contact_hide}
+                                                                            +X(XXX) XXX-XXXX
+                                                                        {else}
+                                                                            {$contact->phone}
+                                                                        {/if}
+                                                                    {/if}
                                                                     <button class="js-pbxmaker-call mango-call js-event-add-click"
                                                                             data-event="63"
                                                                             data-manager="{$manager->id}"
@@ -1281,6 +1316,7 @@
                                                                 <td>{$contact->comment}</td>
                                                                 <td>{$contact->relation}</td>
                                                                 <td>
+                                                                    
                                                                     <div class="btn btn-outline-warning edit_contact contact_edit_buttons"
                                                                          style="display: none"
                                                                          data-id="{$contact->id}"><i
@@ -2903,6 +2939,11 @@
                             <label class="custom-label">Комментарий</label>
                             <textarea class="form-control" name="comment"></textarea>
                         </div>
+                        <div class="form-group">
+                            <input type="checkbox" class="custom-control-input" id="contact_hide" name="contact_hide" placeholder="">
+                            <label for="contact_hide" class="custom-control-label custom-control-label-popup">Скрыть телефон</label>
+                        </div>
+
                         <div style="display: flex; justify-content: space-between">
                             <div id="contacts_actions" class="btn btn-success">Сохранить</div>
                             <div class="btn btn-danger close_contacts_modal">Отменить</div>

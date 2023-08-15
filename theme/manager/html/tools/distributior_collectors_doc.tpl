@@ -3,35 +3,7 @@
 {capture name='page_scripts'}
 
 <script>
-
-        function reload_func() {
-            location.reload()
-        }
-
-        $(function () {            
-
-            $('.cancel_distributions').on('click', function (e) {
-                e.preventDefault();
-
-                let ts = $('.cancel_distributions').data("cancel");
-
-                $.ajax({
-                    method: 'POST',
-                    data: {
-                        action: 'cancel_distributions',
-                        ts: ts
-                    },
-                    success: function (ok) {
-
-
-                        Swal.fire({
-                            text: 'Распределения успешно отменены',
-                            type: 'success'
-                        });
-                        setTimeout(reload_func, 2500);
-                    }
-                });
-            });
+        $(function () {
 
         })
     </script>
@@ -56,7 +28,8 @@
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="/">Главная</a></li>
                     <li class="breadcrumb-item"><a href="/tools">Инструменты</a></li>
-                    <li class="breadcrumb-item active">Распределение по коллекторам</li>
+                    <li class="breadcrumb-item"><a href="/tools/distributior_collectors">Распределение по коллекторам</a></li>
+                    <li class="breadcrumb-item active">Список распределения</li>
                 </ol>
             </div>
         </div>
@@ -72,7 +45,8 @@
                 <div class="card">
                     <div class="card-body">
 
-                        <table class="table">
+                        <b>{$timestamp}</b>
+                        <table class="table" style="margin-top: 20px;">
                             <tr>
                                 <td>
                                     <b>№</b>
@@ -81,41 +55,48 @@
                                     <b>Кто распредилил</b>
                                 </td>
                                 <td>
-                                   <b>Когда распределил</b>
+                                   <b>Отправитель</b>
                                 </td>
                                 <td>
-                                   <b>Количество распределенных</b>
+                                   <b>Получатель</b>
                                 </td>
                                 <td>
-                                   <b>Отмена</b>
+                                   <b>Клиент</b>
                                 </td>
                                 <td>
-                                   <b>Отчет</b>
+                                   <b>№ договора</b>
+                                </td>
+                                <td>
+                                   <b>Дней просрочки</b>
                                 </td>
                             </tr>
 
                             {$i = 1}
-                            {foreach $movings_groups as $movings_group}
+                            {foreach $movings_groups_items as $movings_groups_item}
                             <tr>
                                 <td>
                                     {$i++}
                                 </td>
                                 <td>
-                                    {$movings_group->initiator_name}
+                                    {$movings_groups_item->initiator_name}
                                 </td>
                                 <td>
-                                   {$movings_group->timestamp_group_movings}
+                                   {$movings_groups_item->from_manager_name} - 
+                                   ({$collection_statuses[$movings_groups_item->from_manager_collection_status_id]})
                                 </td>
                                 <td>
-                                   {$movings_group->cou}
+                                   {$movings_groups_item->manager_name} -
+                                   ({$collection_statuses[$movings_groups_item->manager_collection_status_id]})
                                 </td>
                                 <td>
-                                    {if $i == 2}
-                                        <span class="cancel_distributions" data-cancel="{str_replace(" ", "_", $movings_group->timestamp_group_movings)}" style="color: red; cursor:pointer;">Отменить</span>
-                                    {/if}
+                                    {$movings_groups_item->user->lastname} {$movings_groups_item->user->firstname} 
+                                    {$movings_groups_item->user->patronymic}
                                 </td>
                                 <td>
-                                    <a href="tools/distributior_collectors_doc/?ts={str_replace(" ", "_", $movings_group->timestamp_group_movings)}" style="cursor:pointer; background: #7460ee; border-radius: 5px; padding: 7px; color: white;">Показать отчет</a>
+                                    {$movings_groups_item->contract->number}
+                                </td>
+                                <td>
+                                    {$movings_groups_item->expired_days}
                                 </td>
                             </tr>
                             {/foreach}
