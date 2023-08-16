@@ -1127,7 +1127,7 @@ console.log(resp);
 
     var _init_risk_operation = function ()
         {
-            let user_id = $('.js-risk-op-check').children('ul').attr('data-user');
+            let user_id = $('.js-risk-op-check').children('form').children('ul').attr('data-user');
 
             $.ajax({
                 url: '/order',
@@ -1166,6 +1166,42 @@ console.log(resp);
                     }
                 });
             });
+
+            $(document).on('submit', '#form_add_risk', function(e){
+                e.preventDefault();
+                
+                var $form = $(this);
+
+                console.log($form.serialize());
+                
+                $.ajax({
+                    url: '/order',
+                    data: $form.serialize(),
+                    type: 'POST',
+                    success: function(resp){
+                        if (resp.success)
+                        {
+                            // $form.find('[name=comment]').val('')
+                
+                            app.update_page();
+                            
+                            Swal.fire({
+                                timer: 5000,
+                                title: 'Риск добавлен.',
+                                type: 'success',
+                            });
+                        }
+                        else
+                        {
+                            Swal.fire({
+                                text: resp.error,
+                                type: 'error',
+                            });
+                            
+                        }
+                    }
+                })
+            })
         }
     
     

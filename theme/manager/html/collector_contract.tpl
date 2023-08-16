@@ -882,78 +882,92 @@
                                         Рисковые операции
                                     </button>
                                     <div class="js-risk-op-check dropdown-menu" id="dropdown_managers">
-                                        <ul class="list-unstyled m-2" data-user="{$order->user_id}">
-                                            <li>
-                                                <div class="custom-checkbox">
-                                                    <input type="checkbox" class="js-risk-op input-custom"
-                                                           value="complaint"/>
-                                                    <label>Жалоба</label>
-                                                </div>
-                                            </li>
-                                            <li>
-                                                <div class="custom-checkbox">
-                                                    <input type="checkbox" class="js-risk-op input-custom"
-                                                           value="bankrupt"/>
-                                                    <label>Банкрот</label>
-                                                </div>
-                                            </li>
-                                            <li>
-                                                <div class="custom-checkbox">
-                                                    <input type="checkbox" class="js-risk-op input-custom"
-                                                           value="refusal"/>
-                                                    <label>Отказ от взаимодействия</label>
-                                                </div>
-                                            </li>
-                                            <li>
-                                                <div class="custom-checkbox">
-                                                    <input type="checkbox" class="js-risk-op input-custom"
-                                                           value="refusal_thrd"/>
-                                                    <label>Отказ от взаимодействия с 3 лицами</label>
-                                                </div>
-                                            </li>
-                                            <li>
-                                                <div class="custom-checkbox">
-                                                    <input type="checkbox" class="js-risk-op input-custom"
-                                                           value="death"/>
-                                                    <label>Смерть</label>
-                                                </div>
-                                            </li>
-                                            <li>
-                                                <div class="custom-checkbox">
-                                                    <input type="checkbox" class="js-risk-op input-custom"
-                                                           value="anticollectors"/>
-                                                    <label>Антиколлекторы</label>
-                                                </div>
-                                            </li>
-                                            <li>
-                                                <div class="custom-checkbox">
-                                                    <input type="checkbox" class="js-risk-op input-custom"
-                                                           value="mls"/>
-                                                    <label>Находится в МЛС</label>
-                                                </div>
-                                            </li>
-                                            <li>
-                                                <div class="custom-checkbox">
-                                                    <input type="checkbox" class="js-risk-op input-custom"
-                                                           value="bankrupt_init"/>
-                                                    <label>Инициировано банкротство</label>
-                                                </div>
-                                            </li>
-                                            <li>
-                                                <div class="custom-checkbox">
-                                                    <input type="checkbox" class="js-risk-op input-custom"
-                                                           value="fraud"/>
-                                                    <label>Мошенничество</label>
-                                                </div>
-                                            </li>
-                                            <li>
-                                                <div class="custom-checkbox">
-                                                    <input type="checkbox" class="js-risk-op input-custom"
-                                                           value="canicule"/>
-                                                    <label>Кредитные каникулы</label>
-                                                </div>
-                                            </li>
-                                        </ul>
+                                        <form method="POST" id="form_add_risk" class="p-2 border"
+                                            action="/order">
+
+                                            <input type="hidden" name="order_id" value="{$order->order_id}"/>
+                                            <input type="hidden" name="user_id" value="{$order->user_id}"/>
+                                            <input type="hidden" name="action" value="add_risk"/>
+                                            <ul class="list-unstyled m-2" data-user="{$order->user_id}">
+                                                <li>
+                                                    <div class="custom-checkbox">
+                                                        <input type="checkbox" class="js-risk-op input-custom"
+                                                            name="complaint" value="complaint"/>
+                                                        <label>Жалоба</label>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="custom-checkbox">
+                                                        <input type="checkbox" class="js-risk-op input-custom"
+                                                            value="bankrupt"/>
+                                                        <label>Банкрот</label>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="custom-checkbox">
+                                                        <input type="checkbox" class="js-risk-op input-custom"
+                                                            value="refusal"/>
+                                                        <label>Отказ от взаимодействия</label>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="custom-checkbox">
+                                                        <input type="checkbox" class="js-risk-op input-custom"
+                                                            value="refusal_thrd"/>
+                                                        <label>Отказ от взаимодействия с 3 лицами</label>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="custom-checkbox">
+                                                        <input type="checkbox" class="js-risk-op input-custom"
+                                                            value="death"/>
+                                                        <label>Смерть</label>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="custom-checkbox">
+                                                        <input type="checkbox" class="js-risk-op input-custom"
+                                                            value="anticollectors"/>
+                                                        <label>Антиколлекторы</label>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="custom-checkbox">
+                                                        <input type="checkbox" class="js-risk-op input-custom"
+                                                            value="mls"/>
+                                                        <label>Находится в МЛС</label>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="custom-checkbox">
+                                                        <input type="checkbox" class="js-risk-op input-custom"
+                                                            value="bankrupt_init"/>
+                                                        <label>Инициировано банкротство</label>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="custom-checkbox">
+                                                        <input type="checkbox" class="js-risk-op input-custom"
+                                                            value="fraud"/>
+                                                        <label>Мошенничество</label>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="custom-checkbox">
+                                                        <input type="checkbox" class="js-risk-op input-custom"
+                                                            value="canicule"/>
+                                                        <label>Кредитные каникулы</label>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                            <div class="form-group mb-1">
+                                                <textarea class="form-control" name="text" style="resize:vertical"></textarea>
+                                            </div>
+                                            <button type="submit"
+                                                    class="btn float-right btn-success waves-effect waves-light">
+                                                Сохранить
+                                            </button>
+                                        </form>
                                     </div>
                                 </div>
                             </div>
@@ -1028,6 +1042,12 @@
                                 <a class="nav-link js-event-add-click" data-toggle="tab" href="#collection_tags" role="tab" aria-selected="true" data-event="26" data-user="{$order->user_id}" data-order="{$order->order_id}" data-manager="{$manager->id}" >
                                     <span class="hidden-sm-up"><i class="ti-"></i></span>
                                     <span class="hidden-xs-down">История тегов</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link js-event-add-click" data-toggle="tab" href="#collection_risk" role="tab" aria-selected="true" data-event="26" data-user="{$order->user_id}" data-order="{$order->order_id}" data-manager="{$manager->id}" >
+                                    <span class="hidden-sm-up"><i class="ti-"></i></span>
+                                    <span class="hidden-xs-down">История рисков</span>
                                 </a>
                             </li>
                         </ul>
@@ -2894,6 +2914,67 @@
                                     </table>
                                 {else}
                                     <h4>Нет тегов</h4>
+                                {/if}
+                            </div>
+
+                            <div class="tab-pane p-3" id="collection_risk" role="tabpanel">
+
+                                <h3>История рисков</h3>
+
+                                {if $user_risk_statuses}
+                                    <table class="table table-hover table-bordered">
+                                        <tbody>
+                                        <tr class="table-grey">
+                                            <th>Дата</th>
+                                            <th>Риски</th>
+                                            <th>Комментарий</th>
+                                        </tr>
+                                        {foreach $user_risk_statuses as $statuses}
+                                            <tr class="">
+                                                <td>
+                                                    <small>{$statuses->created}</small>
+                                                </td>
+                                                <td>
+                                                    {if $statuses->complaint}
+                                                        <small>Жалоба, </small>
+                                                    {/if}
+                                                    {if $statuses->bankrupt}
+                                                        <small>Банкрот, </small>
+                                                    {/if}
+                                                    {if $statuses->refusal}
+                                                        <small>Отказ от взаимодействия, </small>
+                                                    {/if}
+                                                    {if $statuses->refusal_thrd}
+                                                        <small>Отказ от взаимодействия с 3 лицами, </small>
+                                                    {/if}
+                                                    {if $statuses->death}
+                                                        <small>Смерть, </small>
+                                                    {/if}
+                                                    {if $statuses->anticollectors}
+                                                        <small>Антиколлекторы, </small>
+                                                    {/if}
+                                                    {if $statuses->mls}
+                                                        <small>Находится в МЛС, </small>
+                                                    {/if}
+                                                    {if $statuses->bankrupt_init}
+                                                        <small>Инициировано банкротство, </small>
+                                                    {/if}
+                                                    {if $statuses->fraud}
+                                                        <small>Мошенничество, </small>
+                                                    {/if}
+                                                    {if $statuses->canicule}
+                                                        <small>Кредитные каникулы, </small>
+                                                    {/if}
+                                                </td>
+                                                <td>
+                                                    <small>{$statuses->comment}</small>
+                                                </td>
+                                            </tr>
+                                        {/foreach}
+                                        </tbody>
+                                    </table>
+                                {else}
+                                    <h4>Нет истории рисков</h4>
                                 {/if}
                             </div>
                         </div>

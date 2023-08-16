@@ -337,7 +337,9 @@ class CollectorContractController extends Controller
 
             $this->users->update_user($user_id, $time);
         }
-
+        
+        $user_risk_statuses = $this->userriskstatuses->get_records($contract->user_id);
+        $this->design->assign('user_risk_statuses', $user_risk_statuses);
 
         return $this->design->fetch('collector_contract.tpl');
     }
