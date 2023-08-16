@@ -782,9 +782,9 @@
                                                                 достигнут порог
                                                             {else}
                                                                 {if $contract->prolongation > 0 && !$contract->sold}
-                                                                    {$settings->prolongation_amount+$contract->loan_percents_summ+$contract->loan_charge_summ} руб
+                                                                    {$settings->prolongation_amount+$contract->loan_percents_summ+$contract->loan_charge_summ+$contract->loan_peni_summ} руб
                                                                 {else}
-                                                                    {$contract->loan_percents_summ+$contract->loan_charge_summ} руб
+                                                                    {$contract->loan_percents_summ+$contract->loan_charge_summ+$contract->loan_peni_summ} руб
                                                                 {/if}
                                                             {/if}
                                                         </h6>
