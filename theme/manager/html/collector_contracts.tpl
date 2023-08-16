@@ -1372,7 +1372,9 @@
                             <option value="null" selected></option>
                             <option value="checked">Все отмеченные</option>
                             <option value="all">Все видимые</option>
+                            {*}
                             <option value="optional">Выбрать количество</option>
+                            {*}
                         </select>
                         <div class="pt-2">
                             <input class="form-control js-input-quantity" name="quantity" value="" style="display:none"
