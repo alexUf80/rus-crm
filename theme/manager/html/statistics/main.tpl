@@ -116,80 +116,79 @@
                         </a>
                     </div>
                 </div>
-            {/if}
-            <!-- Column -->
-            <div class="col-md-6 col-lg-3 col-xlg-3">
-                <div class="card card-info card-warning">
-                    <a href="statistics/prolongation_contracts" class="box text-center">
-                        <h1 class="font-light text-white">К оплате</h1>
-                        <h6 class="text-white">К оплате в ближайшие 5 дней</h6>
-                    </a>
+                <!-- Column -->
+                <div class="col-md-6 col-lg-3 col-xlg-3">
+                    <div class="card card-info card-warning">
+                        <a href="statistics/prolongation_contracts" class="box text-center">
+                            <h1 class="font-light text-white">К оплате</h1>
+                            <h6 class="text-white">К оплате в ближайшие 5 дней</h6>
+                        </a>
+                    </div>
                 </div>
-            </div>
-            <!-- Column -->
-            <div class="col-md-6 col-lg-3 col-xlg-3">
-                <div class="card card-info card-warning">
-                    <a href="statistics/expired" class="box text-center">
-                        <h1 class="font-light text-white">Просроченные</h1>
-                        <h6 class="text-white">Просроченные займы</h6>
-                    </a>
+                <!-- Column -->
+                <div class="col-md-6 col-lg-3 col-xlg-3">
+                    <div class="card card-info card-warning">
+                        <a href="statistics/expired" class="box text-center">
+                            <h1 class="font-light text-white">Просроченные</h1>
+                            <h6 class="text-white">Просроченные займы</h6>
+                        </a>
+                    </div>
                 </div>
-            </div>
 
-            <div class="col-md-6 col-lg-3 col-xlg-3">
-                <div class="card card-info card-warning">
-                    <a href="statistics/dailyreports" class="box text-center">
-                        <h1 class="font-light text-white">Отчет по дням</h1>
-                        <h6 class="text-white">Отчеты по датам</h6>
-                    </a>
+                <div class="col-md-6 col-lg-3 col-xlg-3">
+                    <div class="card card-info card-warning">
+                        <a href="statistics/dailyreports" class="box text-center">
+                            <h1 class="font-light text-white">Отчет по дням</h1>
+                            <h6 class="text-white">Отчеты по датам</h6>
+                        </a>
+                    </div>
                 </div>
-            </div>
 
-            <div class="col-md-6 col-lg-3 col-xlg-3">
-                <div class="card card-info card-danger">
-                    <a href="statistics/adservices" class="box text-center">
-                        <h1 class="font-light text-white">Доп услуги</h1>
-                        <h6 class="text-white">Отчеты по дополнительным услугам</h6>
-                    </a>
+                <div class="col-md-6 col-lg-3 col-xlg-3">
+                    <div class="card card-info card-danger">
+                        <a href="statistics/adservices" class="box text-center">
+                            <h1 class="font-light text-white">Доп услуги</h1>
+                            <h6 class="text-white">Отчеты по дополнительным услугам</h6>
+                        </a>
+                    </div>
                 </div>
-            </div>
 
-            <div class="col-md-6 col-lg-3 col-xlg-3">
-                <div class="card card-warning card-warning">
-                    <a href="statistics/orders" class="box text-center">
-                        <h1 class="font-light text-white">Заявки</h1>
-                        <h6 class="text-white">Отчет по заявкам (Риски)</h6>
-                    </a>
+                <div class="col-md-6 col-lg-3 col-xlg-3">
+                    <div class="card card-warning card-warning">
+                        <a href="statistics/orders" class="box text-center">
+                            <h1 class="font-light text-white">Заявки</h1>
+                            <h6 class="text-white">Отчет по заявкам (Риски)</h6>
+                        </a>
+                    </div>
                 </div>
-            </div>
-            <div class="col-md-6 col-lg-3 col-xlg-3">
-                <div class="card card-inverse card-danger">
-                    <a href="statistics/leadgens" class="box text-center">
-                        <h1 class="font-light text-white">Лидген</h1>
-                        <h6 class="text-white">Маркетинг</h6>
-                    </a>
+                <div class="col-md-6 col-lg-3 col-xlg-3">
+                    <div class="card card-inverse card-danger">
+                        <a href="statistics/leadgens" class="box text-center">
+                            <h1 class="font-light text-white">Лидген</h1>
+                            <h6 class="text-white">Маркетинг</h6>
+                        </a>
+                    </div>
                 </div>
-            </div>
 
-            <div class="col-md-6 col-lg-3 col-xlg-3">
-                <div class="card card-info card-danger">
-                    <a href="statistics/adservices_osv" class="box text-center">
-                        <h1 class="font-light text-white">Услуги ОСВ</h1>
-                        <h6 class="text-white">Отчет по услугам в виде ОСВ</h6>
-                    </a>
+                <div class="col-md-6 col-lg-3 col-xlg-3">
+                    <div class="card card-info card-danger">
+                        <a href="statistics/adservices_osv" class="box text-center">
+                            <h1 class="font-light text-white">Услуги ОСВ</h1>
+                            <h6 class="text-white">Отчет по услугам в виде ОСВ</h6>
+                        </a>
+                    </div>
                 </div>
-            </div>
 
-            <div class="col-md-6 col-lg-3 col-xlg-3">
-                <div class="card card-info card-danger">
-                    <a href="statistics/loan_portfolio" class="box text-center">
-                        <h1 class="font-light text-white">Портфель</h1>
-                        <h6 class="text-white">Отчет по портфелю займов</h6>
-                    </a>
+                <div class="col-md-6 col-lg-3 col-xlg-3">
+                    <div class="card card-info card-danger">
+                        <a href="statistics/loan_portfolio" class="box text-center">
+                            <h1 class="font-light text-white">Портфель</h1>
+                            <h6 class="text-white">Отчет по портфелю займов</h6>
+                        </a>
+                    </div>
                 </div>
-            </div>
 
-            <div class="col-md-6 col-lg-3 col-xlg-3">
+                <div class="col-md-6 col-lg-3 col-xlg-3">
                     <div class="card card-inverse card-success">
                         <a href="statistics/reconciliation" class="box text-center">
                             <h1 class="font-light text-white">Сверка</h1>
@@ -197,6 +196,19 @@
                         </a>
                     </div>
                 </div>
+            {/if}
+
+                <div class="col-md-6 col-lg-3 col-xlg-3">
+                        <div class="card card-info card-success">
+                            <a href="statistics/collectors_expired" class="box text-center">
+                                <h1 class="font-light text-white">Просрочка</h1>
+                                <h6 class="text-white">Просроченные займы для коллекторов</h6>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
     </div>
