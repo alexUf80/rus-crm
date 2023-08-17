@@ -20,8 +20,7 @@ class UserRiskStatuses extends Core
             FROM __user_risk_statuses
             WHERE user_id = ?
         ", (int)$id);
-        file_put_contents('c:\OSPanel\peop.txt',$query);
-        $this->db->query($query);
+        
 
         $result = $this->db->results();
 
