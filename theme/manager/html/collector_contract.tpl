@@ -3029,9 +3029,10 @@
                             <label class="custom-label">Комментарий</label>
                             <textarea class="form-control" name="comment"></textarea>
                         </div>
-                        <div class="form-group">
-                            <input type="checkbox" class="custom-control-input" id="contact_hide" name="contact_hide" placeholder="">
-                            <label for="contact_hide" class="custom-control-label custom-control-label-popup">Скрыть телефон</label>
+                        <div class="custom-control custom-checkbox mr-sm-2 mb-3">
+                            <input type="checkbox" class="custom-control-input" id="contact_hide" name="contact_hide" value="1"
+                                placeholder="">
+                            <label for="contact_hide" class="custom-control-label">Скрыть телефон</label>
                         </div>
 
                         <div style="display: flex; justify-content: space-between">
