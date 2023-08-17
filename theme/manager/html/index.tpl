@@ -272,7 +272,7 @@
                                             class="hide-menu">Инструменты</span></a>
                             </li>
                         {/if}
-                        {if in_array('collection_statistics', $manager->permissions)}
+                        {if in_array('collection_statistics', $manager->permissions) || in_array('analitics', $manager->permissions) || in_array('penalty_statistics', $manager->permissions)}
                             <li {if in_array($module, ['StatisticsController'])}class="active"{/if}>
                                 <a class="" href="statistics" aria-expanded="false"><i class="mdi mdi-file-chart"></i><span
                                             class="hide-menu">Статистика</span></a>
