@@ -3581,14 +3581,14 @@ class OrderController extends Controller
         $user_id = $this->request->post('user_id', 'integer');
         $text = $this->request->post('text');
 
-        $user_risk_statuses_obj = $this->usersrisksoperations->get_record($user_id);
+        $user_risk_statuses_obj = $this->UsersRisksOperations->get_record($user_id);
         $user_risk_statuses = (array) $user_risk_statuses_obj;
 
         unset($user_risk_statuses['id']);
         $user_risk_statuses['created'] = date('Y-m-d H:i:s');
         $user_risk_statuses['comment'] = $text;
 
-        $this->userriskstatuses->add_record($user_risk_statuses);
+        $this->UserRiskStatuses->add_record($user_risk_statuses);
 
         $this->json_output(array('success' => 'success'));
     }
