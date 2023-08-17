@@ -125,6 +125,7 @@ class Nbki_report extends Core
         if (!empty($items['PAY'])) {
             foreach ($items['PAY'] as $operation_date => $orders) {
                 foreach ($orders as $order)
+                    var_dump($order->id);
                     $wrapper->MANY_EVENTS[] = $this->get_pay_item($order);
             }
         }
@@ -514,9 +515,9 @@ class Nbki_report extends Core
         $C56_OBLIGPARTTAKE->loan_indindicator = '0';
 
         $data->C56_OBLIGPARTTAKE = $C56_OBLIGPARTTAKE;
-        echo __FILE__ . ' ' . __LINE__ . '<br /><pre>';
-        var_dump($data);
-        echo '</pre><hr />';
+        // echo __FILE__ . ' ' . __LINE__ . '<br /><pre>';
+        // var_dump($data);
+        // echo '</pre><hr />';
         return $data;
     }
 
