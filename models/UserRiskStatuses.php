@@ -20,8 +20,8 @@ class UserRiskStatuses extends Core
             FROM __user_risk_statuses
             WHERE user_id = ?
         ", (int)$id);
+        $this->db->query($query);
         
-
         $result = $this->db->results();
 
         return $result;
