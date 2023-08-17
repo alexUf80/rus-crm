@@ -264,7 +264,7 @@
                         {/if}
                     {/if}
 
-                    {if in_array('analitics', $manager->permissions) || in_array('penalty_statistics', $manager->permissions) || in_array('my_contracts', $manager->permissions)}
+                    {if in_array('analitics', $manager->permissions) || in_array('penalty_statistics', $manager->permissions) || in_array('collection_statistics', $manager->permissions)}
                         <li class="nav-small-cap">Аналитика</li>
                         {if in_array('analitics', $manager->permissions)}
                             <li {if in_array($module, ['ToolsController'])}class="active"{/if}>
@@ -272,10 +272,12 @@
                                             class="hide-menu">Инструменты</span></a>
                             </li>
                         {/if}
-                        <li {if in_array($module, ['StatisticsController'])}class="active"{/if}>
-                            <a class="" href="statistics" aria-expanded="false"><i class="mdi mdi-file-chart"></i><span
-                                        class="hide-menu">Статистика</span></a>
-                        </li>
+                        {if in_array('collection_statistics', $manager->permissions)}
+                            <li {if in_array($module, ['StatisticsController'])}class="active"{/if}>
+                                <a class="" href="statistics" aria-expanded="false"><i class="mdi mdi-file-chart"></i><span
+                                            class="hide-menu">Статистика</span></a>
+                            </li>
+                        {/if}
                     {/if}
                 </ul>
             </nav>

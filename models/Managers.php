@@ -220,6 +220,7 @@ class Managers extends Core
             'neworder' => array('developer', 'admin', 'senior manager', 'manager'),
             'offline' => array('developer', 'admin', 'cs_pc', 'city_manager'),
             'offline_settings' => array('developer', 'admin', 'city_manager'),
+            'collection_statistics' => array('developer', 'admin', 'chief_collector', 'team_collector', 'senior collector'),
         );
 
         $access_permissions = array();
