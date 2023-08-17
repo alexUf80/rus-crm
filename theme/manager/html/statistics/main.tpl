@@ -116,6 +116,9 @@
                         </a>
                     </div>
                 </div>
+            {/if}
+            {if in_array('analitics', $manager->permissions) || in_array('penalty_statistics', $manager->permissions)}
+
                 <!-- Column -->
                 <div class="col-md-6 col-lg-3 col-xlg-3">
                     <div class="card card-info card-warning">
