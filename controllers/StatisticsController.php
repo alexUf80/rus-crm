@@ -3698,7 +3698,8 @@ class StatisticsController extends Controller
                 SELECT c.*,
                 u.lastname,
                 u.firstname,
-                u.patronymic
+                u.patronymic,
+                u.id as user_id
                 FROM __contracts AS c
                 LEFT JOIN __users AS u
                 ON c.user_id = u.id
@@ -3707,6 +3708,12 @@ class StatisticsController extends Controller
 
                 ORDER BY c.return_date DESC
             ", $date);
+
+            $risk_op = ['complaint' => 'Жалоба', 'bankrupt' => 'Банкрот', 'refusal' => 'Отказ от взаимодействия',
+            'refusal_thrd' => 'Отказ от взаимодействия с 3 лицами', 'death' => 'Смерть', 'anticollectors' => 'Антиколлекторы', 'mls' => 'Находится в МЛС',
+            'bankrupt_init' => 'Инициировано банкротство', 'fraud' => 'Мошенничество', 'canicule' => 'о кредитных каникулах'];
+
+            $this->design->assign('risk_op', $risk_op);
 
             $contracts = $this->db->results();
             foreach ($contracts as $key => $contract) {
@@ -3718,6 +3725,10 @@ class StatisticsController extends Controller
                 $diff = $date2->diff($date1);
 
                 $contracts[$key]->expired_days = $diff->days;
+
+                $user_risk_op = $this->UsersRisksOperations->get_record($contract->user_id);
+
+                $contracts[$key]->risk = $user_risk_op;
             }
             $this->design->assign('contracts', $contracts);
             
@@ -3753,6 +3764,7 @@ class StatisticsController extends Controller
                 $active_sheet->setCellValue('E1', 'Дней просрочки');
                 $active_sheet->setCellValue('F1', 'Ответственный колл');
                 $active_sheet->setCellValue('G1', 'Тег');
+                $active_sheet->setCellValue('H1', 'Риск-статус');
 
                 $i = 2;
                 foreach ($contracts as $contract) {
@@ -3771,6 +3783,18 @@ class StatisticsController extends Controller
                     }
                     $active_sheet->setCellValue('F' . $i, $mn);
                     $active_sheet->setCellValue('G' . $i, $collection_statuses[$contract->collection_status]);
+
+                    $val_all = '';
+                    if (!empty($contract->risk)){
+                        foreach ($contract->risk as $operation => $value){
+                            foreach ($risk_op as $risk => $val){
+                                if ($operation == $risk && $value == 1){
+                                    $val_all .= $val.', '; 
+                                }
+                            }
+                        }
+                    }
+                    $active_sheet->setCellValue('H' . $i, $val_all);
 
                     $i++;
                 }

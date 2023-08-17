@@ -1,4 +1,4 @@
-{$meta_title='Отчет по портфелю займов' scope=parent}
+{$meta_title='Отчет по просрочке' scope=parent}
 
 {capture name='page_scripts'}
 
@@ -166,12 +166,12 @@
             <div class="col-md-6 col-8 align-self-center">
                 <h3 class="text-themecolor mb-0 mt-0">
                     <i class="mdi mdi-file-chart"></i>
-                    <span>Отчет по портфелю займов</span>
+                    <span>Отчет по просрочке</span>
                 </h3>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="/">Главная</a></li>
                     <li class="breadcrumb-item"><a href="statistics">Статистика</a></li>
-                    <li class="breadcrumb-item active">Отчет по портфелю займов</li>
+                    <li class="breadcrumb-item active">Отчет по просрочке</li>
                 </ol>
             </div>
         </div>
@@ -186,7 +186,7 @@
                 <!-- Column -->
                 <div class="card">
                     <div class="card-body">
-                        <h4 class="card-title">Отчет по портфелю займов за период {if $date_from}{$date_from|date} - {$date_to|date}{/if}</h4>
+                        <h4 class="card-title">Отчет по просрочке</h4>
                         <form>
                             <div class="row">
                                 <div class="col-2 col-md-2">
@@ -221,6 +221,7 @@
                                         <th>Дней просрочки</th>
                                         <th>Ответственный колл</th>
                                         <th>Тег</th>
+                                        <th>Риск-статус</th>
                                     </tr>
                                 </thead>
                                 <tbody id="table_content">
@@ -229,7 +230,7 @@
                                         {$i = $i +1} 
                                         <tr>
                                             <td>{$i}</td>
-                                            <td>{$contract->number}</td>
+                                            <td><a href="collector_contract/{$contract->id}">{$contract->number}</a></td>
                                             <td>{$contract->lastname} {$contract->firstname} {$contract->patronymic}</td>
                                             <td>{$contract->loan_body_summ+$contract->loan_percents_summ+$contract->loan_peni_summ}</td>
                                             <td>{$contract->expired_days}</td>
@@ -243,6 +244,19 @@
                                             <td>{$mn}</td>
                                             <td>{$collection_statuses[$contract->collection_status]}</td>
                                             
+                                            <td style="display: flex; flex-direction: column; align-items: flex-start">
+                                            {if !empty($contract->risk)}
+                                                {foreach $contract->risk as $operation => $value}
+                                                    {foreach $risk_op as $risk => $val}
+                                                        {if $operation == $risk && $value == 1}
+                                                            <span class="label label-danger" style="margin:2px">{$val}</span>
+                                                        {/if}
+                                                    {/foreach}
+                                                {/foreach}
+                                            {/if}
+                                            </td>
+
+
                                         </tr>
                                     {/foreach}    
                                 </tbody>

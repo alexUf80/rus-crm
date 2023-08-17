@@ -2935,35 +2935,14 @@
                                                     <small>{$statuses->created}</small>
                                                 </td>
                                                 <td>
-                                                    {if $statuses->complaint}
-                                                        <small>Жалоба, </small>
-                                                    {/if}
-                                                    {if $statuses->bankrupt}
-                                                        <small>Банкрот, </small>
-                                                    {/if}
-                                                    {if $statuses->refusal}
-                                                        <small>Отказ от взаимодействия, </small>
-                                                    {/if}
-                                                    {if $statuses->refusal_thrd}
-                                                        <small>Отказ от взаимодействия с 3 лицами, </small>
-                                                    {/if}
-                                                    {if $statuses->death}
-                                                        <small>Смерть, </small>
-                                                    {/if}
-                                                    {if $statuses->anticollectors}
-                                                        <small>Антиколлекторы, </small>
-                                                    {/if}
-                                                    {if $statuses->mls}
-                                                        <small>Находится в МЛС, </small>
-                                                    {/if}
-                                                    {if $statuses->bankrupt_init}
-                                                        <small>Инициировано банкротство, </small>
-                                                    {/if}
-                                                    {if $statuses->fraud}
-                                                        <small>Мошенничество, </small>
-                                                    {/if}
-                                                    {if $statuses->canicule}
-                                                        <small>Кредитные каникулы, </small>
+                                                    {if !empty($statuses)}
+                                                        {foreach $statuses as $operation => $value}
+                                                            {foreach $risk_op as $risk => $val}
+                                                                {if $operation == $risk && $value == 1}
+                                                                    <span class="label label-danger" style="margin:2px">{$val}</span>
+                                                                {/if}
+                                                            {/foreach}
+                                                        {/foreach}
                                                     {/if}
                                                 </td>
                                                 <td>
