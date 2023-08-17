@@ -16,7 +16,10 @@ class ReccurentCron extends Core
 
     public function run()
     {
-
+        /*$transaction = TransactionsORM::query()->where('id', '=', 161379)->first();
+        $result = $this->best2pay->return_money_tr($transaction);
+        print_r($result);
+        die();*/
         if ($contracts = $this->contracts->get_contracts(array('status' => [4]))) {
 
             //Получаем настройки рекурентов
@@ -25,8 +28,9 @@ class ReccurentCron extends Core
                 return;
             }
             $attempts = unserialize($setting->attempts);
+            $i = 1;
             foreach ($contracts as $contract) {
-
+                //if (!in_array($contract->order_id, [37669])) {continue;}
                 //Получаем дату просрочки
                 $date1 = new DateTime(date('Y-m-d', strtotime($contract->return_date)));
                 $date2 = new DateTime(date('Y-m-d'));
@@ -35,7 +39,7 @@ class ReccurentCron extends Core
                 echo "Count attempts ".count($attempts)."\r\n";
                 //Если кол-во дней совпадает и нет попыток
                 if (($diff->days >= $setting->days) && ($contract->reccurent_attempt < count($attempts))) {
-
+                    echo "Start calc by contract {$contract->id} \r\n";
                     // получаем текущую попытку для контракта
                     $attempt = $attempts[$contract->reccurent_attempt] ?? $attempts[0];
                     // получаем общую сумму для списания
@@ -59,7 +63,6 @@ class ReccurentCron extends Core
                     $amount = $amount * 100;
 
                     $order = $this->orders->get_order($contract->order_id);
-                    echo "Start reccurent\r\n";
                     $reccurent_pay = $this->best2pay->reccurent_pay($order, $amount, $setting->id);
                     if (!$reccurent_pay) {
                         $this->contracts->update_contract($contract->id, array(

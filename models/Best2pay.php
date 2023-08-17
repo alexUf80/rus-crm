@@ -123,6 +123,30 @@ class Best2pay extends Core
         }
     }
 
+    public function return_money_tr($transaction) {
+        $sector = $transaction->sector;
+        $password = $this->passwords[$sector];
+
+        $data = array(
+            'sector' => $sector,
+            'id' => $transaction->register_id,
+            'amount' => $transaction->amount,
+            'currency' => $this->currency_code,
+        );
+        $data['signature'] = $this->get_signature(array(
+            $data['sector'],
+            $data['id'],
+            $data['amount'],
+            $data['currency'],
+            $password
+        ));
+
+        $b2p_order = $this->send('Reverse', $data);
+
+        $xml = simplexml_load_string($b2p_order);
+        return $xml;
+    }
+
     //Возврат страховки по договору (скопировано с нал+)
     public function return_insurance($transaction, $contract)
     {
@@ -1148,6 +1172,8 @@ class Best2pay extends Core
         $description = 'Реккурентное списание ' . $setting;
         $xml = $this->recurring_by_token($order->card_id, $summ, $description);
         $b2p_status = (string)$xml->state;
+        echo $b2p_status.PHP_EOL;
+        print_r($xml->message.PHP_EOL);
         if ($b2p_status == 'APPROVED')
         {
             $transaction = $this->transactions->get_operation_transaction($xml->order_id, $xml->id);
