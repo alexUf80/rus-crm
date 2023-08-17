@@ -337,7 +337,9 @@ class CollectorContractController extends Controller
 
             $this->users->update_user($user_id, $time);
         }
-
+        
+        $user_risk_statuses = $this->UserRiskStatuses->get_records($contract->user_id);
+        $this->design->assign('user_risk_statuses', $user_risk_statuses);
 
         return $this->design->fetch('collector_contract.tpl');
     }
@@ -350,7 +352,8 @@ class CollectorContractController extends Controller
             'created' => date('Y-m-d H:i:s'),
             'notification_date' => date('Y-m-d H:i', strtotime($this->request->post('notification_date'))),
             'comment' => $this->request->post('comment'),
-            'event_id' => $this->request->post('event_id', 'integer')
+            'event_id' => $this->request->post('event_id', 'integer'),
+            'amount' => $this->request->post('amount'),
         );
 
         if (empty($notification['event_id'])) {

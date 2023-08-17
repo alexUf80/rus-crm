@@ -94,6 +94,11 @@ class StatisticsController extends Controller
             case 'reconciliation':
                 return $this->action_reconciliation();
                 break;
+            
+            case 'collectors_expired':
+                return $this->action_collectors_expired();
+                break;
+    
                 
             default:
                 return false;
@@ -170,8 +175,7 @@ class StatisticsController extends Controller
                 $contract_payments[$op->contract_id][] = $op;
             }
         }
-//echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($contract_payments);echo '</pre><hr />';
-//exit;
+
 
         foreach ($contracts as $contract) {
             if (isset($users[$contract->user_id])) {
@@ -3682,6 +3686,137 @@ class StatisticsController extends Controller
         }
 
         return $this->design->fetch('statistics/reconciliation.tpl');
+    }
+
+    private function action_collectors_expired()
+    {
+        if ($date = $this->request->get('date')) {
+            
+            $this->design->assign('date', $date);
+
+            $this->db->query("
+                SELECT c.*,
+                u.lastname,
+                u.firstname,
+                u.patronymic
+                FROM __contracts AS c
+                LEFT JOIN __users AS u
+                ON c.user_id = u.id
+                WHERE c.status IN (2, 4)
+                AND DATE(c.return_date) < ?
+
+                ORDER BY c.return_date DESC
+            ", $date);
+
+            $contracts = $this->db->results();
+            foreach ($contracts as $key => $contract) {
+                $order = $this->orders->get_order($contract->order_id);
+
+                $date1 = new DateTime(date('Y-m-d', strtotime($contract->return_date)));
+                $date2 = new DateTime(date('Y-m-d'));
+
+                $diff = $date2->diff($date1);
+
+                $contracts[$key]->expired_days = $diff->days;
+            }
+            $this->design->assign('contracts', $contracts);
+            
+            $managers = $this->managers->get_managers();
+            $this->design->assign('managers', $managers);
+            
+            $collection_statuses = $this->contracts->get_collection_statuses();
+            $this->design->assign('collection_statuses', $collection_statuses);
+            
+            if ($this->request->get('download') == 'excel') {
+
+                $filename = 'files/reports/Просрочка для коллекторов.xls';
+                require $this->config->root_dir . 'PHPExcel/Classes/PHPExcel.php';
+
+                $excel = new PHPExcel();
+
+                $excel->setActiveSheetIndex(0);
+                $active_sheet = $excel->getActiveSheet();
+
+                $active_sheet->setTitle("Просрочка для коллекторов");
+
+                $excel->getDefaultStyle()->getFont()->setName('Calibri')->setSize(12);
+                $excel->getDefaultStyle()->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
+
+                // $active_sheet->getColumnDimension('A')->setWidth(30);
+                // $active_sheet->getColumnDimension('B')->setWidth(15);
+                // $active_sheet->getColumnDimension('C')->setWidth(15);
+
+                $active_sheet->setCellValue('A1', '№ пп');
+                $active_sheet->setCellValue('B1', '№ контракта');
+                $active_sheet->setCellValue('C1', 'ФИО');
+                $active_sheet->setCellValue('D1', 'Cумма долга');
+                $active_sheet->setCellValue('E1', 'Дней просрочки');
+                $active_sheet->setCellValue('F1', 'Ответственный колл');
+                $active_sheet->setCellValue('G1', 'Тег');
+
+                $i = 2;
+                foreach ($contracts as $contract) {
+                    
+                    $active_sheet->setCellValue('A' . $i, $i-1);
+                    $active_sheet->setCellValue('B' . $i, $contract->number);
+                    $active_sheet->setCellValue('C' . $i, $contract->lastname . ' ' . $contract->firstname . ' ' . $contract->patronymic . ' ' . $contract->birth);
+                    $active_sheet->setCellValue('D' . $i, $contract->loan_body_summ+$contract->loan_percents_summ+$contract->loan_peni_summ);
+                    $active_sheet->setCellValue('E' . $i, $contract->expired_days);
+
+                    foreach ($managers as $m){
+                        $mn = '';
+                        if ($m->id == $contract->collection_manager_id){
+                            $mn = $m->name;
+                        }
+                    }
+                    $active_sheet->setCellValue('F' . $i, $mn);
+                    $active_sheet->setCellValue('G' . $i, $collection_statuses[$contract->collection_status]);
+
+                    $i++;
+                }
+
+ 
+
+                $objWriter = PHPExcel_IOFactory::createWriter($excel, 'Excel5');
+
+                $objWriter->save($this->config->root_dir . $filename);
+
+                header('Location:' . $this->config->root_url . '/' . $filename);
+                exit;
+            }
+
+        }
+
+
+        return $this->design->fetch('statistics/collectors_expired.tpl');
+    }
+
+    private function action_collectors_expired1()
+    {
+        if ($daterange = $this->request->get('daterange')) {
+            list($from, $to) = explode('-', $daterange);
+
+            $date_from = date('Y-m-d', strtotime($from));
+            $date_to = date('Y-m-d', strtotime($to));
+
+            $this->design->assign('date_from', $date_from);
+            $this->design->assign('date_to', $date_to);
+            $this->design->assign('from', $from);
+            $this->design->assign('to', $to);
+            
+            $date = date('Y-m-d', strtotime($this->request->get('date')));
+            if($date < $date_from){
+                $date = $date_to;
+            }
+            $this->design->assign('date', $date);
+            $period = $this->request->get('period');
+            
+            $this->design->assign('period', $period);
+
+        }
+
+
+        return $this->design->fetch('statistics/collectors_expired1.tpl');
     }
 
 }

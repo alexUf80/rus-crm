@@ -455,10 +455,9 @@
 
                             Swal.fire({
                                 timer: 5000,
-                                title: 'Договора распределены.',
+                                title: 'Договоры распределены',
                                 type: 'success',
                             });
-//                        location.reload();
                         } else {
                             Swal.fire({
                                 text: resp.error,
@@ -466,6 +465,7 @@
                             });
 
                         }
+                        setTimeout(reload_func, 2500);
                         $form.removeClass('loading');
                     }
                 })
@@ -603,12 +603,14 @@
                                 {/if}
                             </div>
                             {*}
+                            {*}
                             <div class="col-6 " style="background: orange; border-radius: 5px; padding: 5px; text-align: center;">
                                 {if in_array($manager->role, ['developer', 'admin', 'chief_collector', 'team_collector','senior collector'])}
                                     <a href="/tools/distributior_collectors" style="color: white"> Смотреть распределение
                                     </a>
                                 {/if}
                             </div>
+                            {*}
                             {*}
                         </div>
                     </div>
@@ -1370,7 +1372,9 @@
                             <option value="null" selected></option>
                             <option value="checked">Все отмеченные</option>
                             <option value="all">Все видимые</option>
+                            {*}
                             <option value="optional">Выбрать количество</option>
+                            {*}
                         </select>
                         <div class="pt-2">
                             <input class="form-control js-input-quantity" name="quantity" value="" style="display:none"
