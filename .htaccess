@@ -46,6 +46,7 @@ RewriteRule ^sudblock_statuses/?$       index.php?module=SudblockStatusesControl
 RewriteRule ^sudblock_documents/?$      index.php?module=SudblockDocumentsController  [L,QSA]
 RewriteRule ^sudblock_notifications/?$  index.php?module=NotificationsController&mode=sudblock  [L,QSA]
 
+RewriteRule ^notifications_list/?$      index.php?module=NotificationsController  [L,QSA]
 RewriteRule ^collection_report/?$       index.php?module=CollectionReportController  [L,QSA]
 RewriteRule ^my_contracts/?$            index.php?module=CollectorContractsController  [L,QSA]
 RewriteRule ^my_contract/([^/]*)/?$     index.php?module=CollectorContractController&id=$1  [L,QSA]
