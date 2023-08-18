@@ -179,6 +179,13 @@
                                             class="hide-menu">Мои договоры</span></a>
                             </li>
                         {/if}
+                        {if in_array('my_contracts', $manager->permissions)}
+                            <li {if in_array($module, ['CollectorContractsController'])}class="active"{/if}>
+                                <a class="" href="notifications_list/" aria-expanded="false"><i
+                                            class="mdi mdi-book-multiple"></i><span
+                                            class="hide-menu">Листинг напоминаний</span></a>
+                            </li>
+                        {/if}
                         {if in_array('collection_report', $manager->permissions)}
                             <li {if in_array($module, ['CollectionReportController'])}class="active"{/if}>
                                 <a class="" href="collection_report/" aria-expanded="false"><i

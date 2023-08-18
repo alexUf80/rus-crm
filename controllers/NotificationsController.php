@@ -89,10 +89,10 @@ class NotificationsController extends Controller
         $collection_statuses = $this->contracts->get_collection_statuses();
         $this->design->assign('collection_statuses', $collection_statuses);
         
-        if ($mode == 'collection')
+        // if ($mode == 'collection')
             return $this->design->fetch('collector_notifications.tpl');
-        else
-            return $this->design->fetch('notifications.tpl');
+        // else
+            // return $this->design->fetch('notifications.tpl');
     }
     
     private function done_action()

@@ -86,33 +86,35 @@
                             <div class="jsgrid-grid-header jsgrid-header-scrollbar">
                                 <table class="jsgrid-table table table-striped table-hover">
                                     <tr class="jsgrid-header-row">
+                                        {*}
                                         <th style="width: 40px;" class="jsgrid-header-cell jsgrid-header-sortable {if $sort == 'id_asc'}jsgrid-header-sort jsgrid-header-sort-asc{elseif $sort == 'id_desc'}jsgrid-header-sort jsgrid-header-sort-desc{/if}">
                                             {if $sort == 'id_asc'}<a href="{url page=null sort='id_desc'}">ID</a>
                                             {else}<a href="{url page=null sort='id_asc'}">ID</a>{/if}
                                         </th>
+                                        {*}
+                                        <th style="width: 40px;" class="jsgrid-header-cell jsgrid-header-sortable {if $sort == 'id_asc'}jsgrid-header-sort jsgrid-header-sort-asc{elseif $sort == 'id_desc'}jsgrid-header-sort jsgrid-header-sort-desc{/if}">
+                                            ID
+                                        </th>
                                         <th style="width: 60px;" class="jsgrid-header-cell jsgrid-header-sortable {if $sort == 'email_asc'}jsgrid-header-sort jsgrid-header-sort-asc{elseif $sort == 'email_desc'}jsgrid-header-sort jsgrid-header-sort-desc{/if}">
-                                            {if $sort == 'email_asc'}<a href="{url page=null sort='email_desc'}">Договор</a>
-                                            {else}<a href="{url page=null sort='email_asc'}">Договор</a>{/if}
+                                            Договор
                                         </th>
                                         <th style="width: 100px;" class="jsgrid-header-cell jsgrid-header-sortable {if $sort == 'fio_asc'}jsgrid-header-sort jsgrid-header-sort-asc{elseif $sort == 'fio_desc'}jsgrid-header-sort jsgrid-header-sort-desc{/if}">
-                                            {if $sort == 'fio_asc'}<a href="{url page=null sort='fio_desc'}">Событие</a>
-                                            {else}<a href="{url page=null sort='fio_asc'}">Событие</a>{/if}
+                                            Событие
                                         </th>
                                         <th style="width: 60px;" class="jsgrid-header-cell jsgrid-header-sortable {if $sort == 'date_asc'}jsgrid-header-sort jsgrid-header-sort-asc{elseif $sort == 'date_desc'}jsgrid-header-sort jsgrid-header-sort-desc{/if}">
-                                            {if $sort == 'date_asc'}<a href="{url page=null sort='date_desc'}">Дата события</a>
-                                            {else}<a href="{url page=null sort='date_asc'}">Дата события</a>{/if}
+                                            Дата события
                                         </th>
                                         <th style="width: 80px;" class="jsgrid-header-cell jsgrid-header-sortable {if $sort == 'birth_asc'}jsgrid-header-sort jsgrid-header-sort-asc{elseif $sort == 'birth_desc'}jsgrid-header-sort jsgrid-header-sort-desc{/if}">
-                                            {if $sort == 'birth_asc'}<a href="{url page=null sort='birth_desc'}">Пользователь</a>
-                                            {else}<a href="{url page=null sort='birth_asc'}">Пользователь</a>{/if}
+                                            Пользователь
                                         </th>
                                         <th style="width: 60px;" class="jsgrid-header-cell jsgrid-header-sortable {if $sort == 'date_asc'}jsgrid-header-sort jsgrid-header-sort-asc{elseif $sort == 'date_desc'}jsgrid-header-sort jsgrid-header-sort-desc{/if}">
-                                            {if $sort == 'date_asc'}<a href="{url page=null sort='date_desc'}">Дата создания</a>
-                                            {else}<a href="{url page=null sort='date_asc'}">Дата создания</a>{/if}
+                                            Дата создания
                                         </th>
                                         <th style="width: 120px;" class="jsgrid-header-cell jsgrid-header-sortable {if $sort == 'phone_asc'}jsgrid-header-sort jsgrid-header-sort-asc{elseif $sort == 'phone_desc'}jsgrid-header-sort jsgrid-header-sort-desc{/if}">
-                                            {if $sort == 'phone_asc'}<a href="{url page=null sort='phone_desc'}">Комментарий</a>
-                                            {else}<a href="{url page=null sort='phone_asc'}">Комментарий</a>{/if}
+                                            Комментарий
+                                        </th>
+                                        <th style="width: 120px;" class="jsgrid-header-cell jsgrid-header-sortable {if $sort == 'phone_asc'}jsgrid-header-sort jsgrid-header-sort-asc{elseif $sort == 'phone_desc'}jsgrid-header-sort jsgrid-header-sort-desc{/if}">
+                                            Сумма
                                         </th>
                                         <th style="width: 60px;" class="jsgrid-header-cell jsgrid-header-sortable {if $sort == 'date_asc'}jsgrid-header-sort jsgrid-header-sort-asc{elseif $sort == 'date_desc'}jsgrid-header-sort jsgrid-header-sort-desc{/if}">
                                         </th>
@@ -174,6 +176,9 @@
                                             </td>
                                             <td style="width: 120px;" class="jsgrid-cell">
                                                 <small>{$note->comment}</small>
+                                            </td>
+                                            <td style="width: 120px;" class="jsgrid-cell">
+                                                <small>{$note->amount}</small>
                                             </td>
                                             <td style="width: 60px;" class="jsgrid-cell">
                                                 {if $note->done}
