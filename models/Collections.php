@@ -298,7 +298,6 @@ class Collections extends Core
 		$query = $this->db->placehold("
             INSERT INTO __collector_movings SET ?%
         ", (array)$collector_moving);
-        // file_put_contents('c:\OSPanel\peop.txt', $query);
         $this->db->query($query);
         $id = $this->db->insert_id();
         
@@ -320,7 +319,6 @@ class Collections extends Core
 		$query = $this->db->placehold("
             DELETE FROM __collector_movings WHERE id = ?
         ", (int)$id);
-        file_put_contents('c:\OSPanel\peop.txt', $query);
         $this->db->query($query);
     }
 }
