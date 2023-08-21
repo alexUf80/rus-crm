@@ -94,7 +94,7 @@ echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($min_date);echo '</pre><hr />'
             ON t.id = o.transaction_id
             LEFT JOIN s_contracts AS c
             ON c.id = o.contract_id
-            WHERE o.type IN ('PAY')
+            WHERE o.type IN ('PAY', 'RECURRENT')
             AND o.sent_status = 0
             AND o.amount > 0
             AND c.id IS NOT NULL
