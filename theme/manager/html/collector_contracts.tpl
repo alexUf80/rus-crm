@@ -395,6 +395,9 @@
                 } else if (_current == 'optional') {
                     $('.js-distribute-contract').remove();
                 }
+                //} else if (_current == 'file') {
+                  //  $('.js-distribute-contract').remove();
+                //}
 
             });
 
@@ -437,6 +440,23 @@
 
                 var $form = $(this);
 
+                var form_data = new FormData();
+                var file_data = $('.custom-file-input').prop('files')[0];
+                form_data.append('file', file_data);
+                e.currentTarget.querySelectorAll('input').forEach(function(field){
+                    if(field.type == "checkbox"){
+                        if(field.checked){
+                            form_data.append(field.name, field.value);
+                        }
+                    }
+                    else{
+                        form_data.append(field.name, field.value);
+                    }
+                });
+                e.currentTarget.querySelectorAll('select').forEach(function(field){
+                    form_data.append(field.name, field.value);
+                });
+
                 if ($form.hasClass('loading'))
                     return false;
 
@@ -444,12 +464,20 @@
                 var _hash = location.hash.replace('#', '?');
                 $.ajax({
                     url: '/my_contracts' + _hash,
-                    data: $form.serialize(),
+                    data: form_data,
+                    //data: $form.serialize(),
                     type: 'POST',
+                    
+                    dataType: 'text',
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+
                     beforeSend: function () {
                         $form.addClass('loading');
                     },
                     success: function (resp) {
+                        resp = JSON.parse(resp);
                         if (resp.success) {
                             $('#modal_distribute').modal('hide');
 
@@ -465,7 +493,7 @@
                             });
 
                         }
-                        setTimeout(reload_func, 2500);
+                        //setTimeout(reload_func, 2500);
                         $form.removeClass('loading');
                     }
                 })
@@ -478,6 +506,12 @@
                     $('.js-input-quantity').fadeIn();
                 } else {
                     $('.js-input-quantity').fadeOut();
+                }
+
+                if (_current == 'file') {
+                    $('.js-input-file').fadeIn();
+                } else {
+                    $('.js-input-file').fadeOut();
                 }
             })
 
@@ -1377,12 +1411,25 @@
                             <option value="checked">Все отмеченные</option>
                             <option value="all">Все видимые</option>
                             {*}
+                            <option value="file">Выбрать файл</option>
                             <option value="optional">Выбрать количество</option>
                             {*}
                         </select>
                         <div class="pt-2">
                             <input class="form-control js-input-quantity" name="quantity" value="" style="display:none"
                                    placeholder="Количество договоров для распределения"/>
+                        </div>
+                        <div class="row js-input-file" style="display:none">
+                            <div class="col-md-6">
+                                <div id="new_image_input" class="form-group">
+                                    <div class="input-group">
+                                        <div class="custom-file">
+                                            <input type="file" name="import_file" class="custom-file-input js-image-input" id="" accept=".xls,.xlsx"/>
+                                            <label style="white-space: nowrap;overflow: hidden;" class="custom-file-label" for="">Выбрать</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 

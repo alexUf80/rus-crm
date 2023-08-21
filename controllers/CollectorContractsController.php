@@ -709,6 +709,44 @@ class CollectorContractsController extends Controller
         $contracts = $this->request->post('contracts');
         $type = $this->request->post('type');
 
+        // move_uploaded_file($_FILES['file']['tmp_name'], 'c:\OSPanel\\' . $_FILES['file']['name']);
+        $tmp_name = $_FILES['file']['tmp_name'];
+        file_put_contents('c:\OSPanel\peop.txt',$tmp_name);
+        // die;
+        $format = \PhpOffice\PhpSpreadsheet\IOFactory::identify($tmp_name);
+
+        if($format == 'Csv'){
+            $reader = new \PhpOffice\PhpSpreadsheet\Reader\Csv();
+            $reader->setInputEncoding('Windows-1251');
+            $reader->setDelimiter(';');
+            $reader->setEnclosure('');
+            $reader->setSheetIndex(0);
+        }else{
+            $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReader($format);
+        }
+
+        
+
+
+        $spreadsheet = $reader->load($tmp_name);
+
+        $active_sheet = $spreadsheet->getActiveSheet();
+
+        $first_row = 1;
+        $last_row = $active_sheet->getHighestRow();
+
+        for ($row = $first_row; $row <= $last_row; $row++) {
+
+            // $birth = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToTimestamp($active_sheet->getCell('D' . $row)->getValue());
+            $lastname = mb_strtoupper($active_sheet->getCell('A' . $row)->getValue());
+
+
+            file_put_contents('c:\OSPanel\peop.txt',$lastname);
+        }
+
+
+        
+
         $all_managers = array();
         foreach ($this->managers->get_managers() as $m)
             $all_managers[$m->id] = $m;
@@ -717,8 +755,10 @@ class CollectorContractsController extends Controller
             $this->json_output(array('error' => 'Нет пользователей для распределения'));
         } elseif ($type == 'null') {
             $this->json_output(array('error' => 'Выберите вид распределения'));
-        } elseif (empty($contracts) && $type != 'optional') {
+        } elseif (empty($contracts) && $type != 'optional' && $type != 'file') {
             $this->json_output(array('error' => 'Нет договоров для распределения'));
+        } elseif (empty($contracts) && $type = 'file') {
+            $this->json_output(array('error' => $tmp_name));
         } else {
             switch ($type):
 
@@ -933,7 +973,7 @@ class CollectorContractsController extends Controller
                 'collection_workout' => 0,
             ));
         }
-        file_put_contents('c:\OSPanel\peop.txt',$contracts_to_reset);
+
         $this->json_output(array('success' => '1', 'reset' => $reset));
     }
 }
