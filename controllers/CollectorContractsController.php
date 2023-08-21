@@ -709,43 +709,7 @@ class CollectorContractsController extends Controller
         $contracts = $this->request->post('contracts');
         $type = $this->request->post('type');
 
-        // move_uploaded_file($_FILES['file']['tmp_name'], 'c:\OSPanel\\' . $_FILES['file']['name']);
         $tmp_name = $_FILES['file']['tmp_name'];
-        file_put_contents('c:\OSPanel\peop.txt',$tmp_name);
-        // die;
-        $format = \PhpOffice\PhpSpreadsheet\IOFactory::identify($tmp_name);
-
-        if($format == 'Csv'){
-            $reader = new \PhpOffice\PhpSpreadsheet\Reader\Csv();
-            $reader->setInputEncoding('Windows-1251');
-            $reader->setDelimiter(';');
-            $reader->setEnclosure('');
-            $reader->setSheetIndex(0);
-        }else{
-            $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReader($format);
-        }
-
-        
-
-
-        $spreadsheet = $reader->load($tmp_name);
-
-        $active_sheet = $spreadsheet->getActiveSheet();
-
-        $first_row = 1;
-        $last_row = $active_sheet->getHighestRow();
-
-        for ($row = $first_row; $row <= $last_row; $row++) {
-
-            // $birth = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToTimestamp($active_sheet->getCell('D' . $row)->getValue());
-            $lastname = mb_strtoupper($active_sheet->getCell('A' . $row)->getValue());
-
-
-            file_put_contents('c:\OSPanel\peop.txt',$lastname);
-        }
-
-
-        
 
         $all_managers = array();
         foreach ($this->managers->get_managers() as $m)
@@ -757,11 +721,46 @@ class CollectorContractsController extends Controller
             $this->json_output(array('error' => 'Выберите вид распределения'));
         } elseif (empty($contracts) && $type != 'optional' && $type != 'file') {
             $this->json_output(array('error' => 'Нет договоров для распределения'));
-        } elseif (empty($contracts) && $type = 'file') {
-            $this->json_output(array('error' => $tmp_name));
+        } elseif (empty($tmp_name) && $type == 'file') {
+            $this->json_output(array('error' => 'Не выбран файл для распределения'));
         } else {
             switch ($type):
 
+                case 'file':
+                    
+                    $format = \PhpOffice\PhpSpreadsheet\IOFactory::identify($tmp_name);
+            
+                    if($format == 'Csv'){
+                        $reader = new \PhpOffice\PhpSpreadsheet\Reader\Csv();
+                        $reader->setInputEncoding('Windows-1251');
+                        $reader->setDelimiter(';');
+                        $reader->setEnclosure('');
+                        $reader->setSheetIndex(0);
+                    }else{
+                        $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReader($format);
+                    }
+            
+                    $spreadsheet = $reader->load($tmp_name);
+            
+                    $active_sheet = $spreadsheet->getActiveSheet();
+            
+                    $first_row = 1;
+                    $last_row = $active_sheet->getHighestRow();
+            
+                    $contracts = [];
+                    for ($row = $first_row; $row <= $last_row; $row++) {
+                        
+                        $query = $this->db->placehold("
+                            SELECT * 
+                            FROM __contracts
+                            WHERE number = ?
+                            ORDER BY id DESC
+                        ", mb_strtoupper($active_sheet->getCell('A' . $row)->getValue()));
+                        $this->db->query($query);
+                        $result = $this->db->result();
+                        $contracts[] = $result->id;
+                    }
+                    
                 case 'checked':
                 case 'all':
                     $distribute = array();
@@ -771,9 +770,13 @@ class CollectorContractsController extends Controller
                     $timestamp_group_movings = date('Y-m-d H:i:s');
 
                     foreach ($contracts as $contract_id) {
-                        $distribute[$contract_id] = $managers[$i];
 
+                        
                         $contract = $this->contracts->get_contract($contract_id);
+                        if($contract != ''){
+                            $distribute[$contract_id] = $managers[$i];
+                            // file_put_contents('c:\OSPanel\peop.txt',$contract);
+                        }
                         $from_manager = $contract->collection_manager_id;
 
                         $this->contracts->update_contract($contract_id, array(
@@ -813,6 +816,10 @@ class CollectorContractsController extends Controller
                         $i++;
                         if ($i == $count_managers)
                             $i = 0;
+                    }
+
+                    if (count($distribute) == 0) {
+                        $this->json_output(array('error' => 'В выбраном для распределения файле нет номеров договоров'));
                     }
 
                     break;

@@ -3608,6 +3608,5 @@ class OrderController extends Controller
             $contact_hide = 1;
         }
         $this->contactpersons->update_contactperson($contact_id, array('contact_hide' => $contact_hide));
-        file_put_contents('c:\OSPanel\peop.txt',1);
     }
 }
