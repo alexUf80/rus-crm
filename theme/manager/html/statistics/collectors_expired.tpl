@@ -214,22 +214,18 @@
                             overflow-x: auto;white-space: nowrap;-webkit-overflow-scrolling: touch;">
                                 <thead>
                                     <tr>
-                                        <th>№ пп</th>
                                         <th>№ контракта</th>
                                         <th>ФИО</th>
                                         <th>Cумма долга</th>
                                         <th>Дней просрочки</th>
-                                        <th>Ответственный колл</th>
+                                        <th>Коллектор</th>
                                         <th>Тег</th>
                                         <th>Риск-статус</th>
                                     </tr>
                                 </thead>
                                 <tbody id="table_content">
-                                    {$i = 0} 
                                     {foreach $contracts as $contract}
-                                        {$i = $i +1} 
                                         <tr>
-                                            <td>{$i}</td>
                                             <td><a href="collector_contract/{$contract->id}">{$contract->number}</a></td>
                                             <td>{$contract->lastname} {$contract->firstname} {$contract->patronymic}</td>
                                             <td>{$contract->loan_body_summ+$contract->loan_percents_summ+$contract->loan_peni_summ}</td>

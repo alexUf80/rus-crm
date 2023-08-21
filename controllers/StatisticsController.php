@@ -3757,23 +3757,21 @@ class StatisticsController extends Controller
                 // $active_sheet->getColumnDimension('B')->setWidth(15);
                 // $active_sheet->getColumnDimension('C')->setWidth(15);
 
-                $active_sheet->setCellValue('A1', '№ пп');
-                $active_sheet->setCellValue('B1', '№ контракта');
-                $active_sheet->setCellValue('C1', 'ФИО');
-                $active_sheet->setCellValue('D1', 'Cумма долга');
-                $active_sheet->setCellValue('E1', 'Дней просрочки');
-                $active_sheet->setCellValue('F1', 'Ответственный колл');
-                $active_sheet->setCellValue('G1', 'Тег');
-                $active_sheet->setCellValue('H1', 'Риск-статус');
+                $active_sheet->setCellValue('A1', '№ контракта');
+                $active_sheet->setCellValue('B1', 'ФИО');
+                $active_sheet->setCellValue('C1', 'Cумма долга');
+                $active_sheet->setCellValue('D1', 'Дней просрочки');
+                $active_sheet->setCellValue('E1', 'Коллектор');
+                $active_sheet->setCellValue('F1', 'Тег');
+                $active_sheet->setCellValue('G1', 'Риск-статус');
 
                 $i = 2;
                 foreach ($contracts as $contract) {
                     
-                    $active_sheet->setCellValue('A' . $i, $i-1);
-                    $active_sheet->setCellValue('B' . $i, $contract->number);
-                    $active_sheet->setCellValue('C' . $i, $contract->lastname . ' ' . $contract->firstname . ' ' . $contract->patronymic . ' ' . $contract->birth);
-                    $active_sheet->setCellValue('D' . $i, $contract->loan_body_summ+$contract->loan_percents_summ+$contract->loan_peni_summ);
-                    $active_sheet->setCellValue('E' . $i, $contract->expired_days);
+                    $active_sheet->setCellValue('A' . $i, $contract->number);
+                    $active_sheet->setCellValue('B' . $i, $contract->lastname . ' ' . $contract->firstname . ' ' . $contract->patronymic . ' ' . $contract->birth);
+                    $active_sheet->setCellValue('C' . $i, $contract->loan_body_summ+$contract->loan_percents_summ+$contract->loan_peni_summ);
+                    $active_sheet->setCellValue('D' . $i, $contract->expired_days);
 
                     foreach ($managers as $m){
                         $mn = '';
@@ -3781,8 +3779,8 @@ class StatisticsController extends Controller
                             $mn = $m->name;
                         }
                     }
-                    $active_sheet->setCellValue('F' . $i, $mn);
-                    $active_sheet->setCellValue('G' . $i, $collection_statuses[$contract->collection_status]);
+                    $active_sheet->setCellValue('E' . $i, $mn);
+                    $active_sheet->setCellValue('F' . $i, $collection_statuses[$contract->collection_status]);
 
                     $val_all = '';
                     if (!empty($contract->risk)){
@@ -3794,7 +3792,7 @@ class StatisticsController extends Controller
                             }
                         }
                     }
-                    $active_sheet->setCellValue('H' . $i, $val_all);
+                    $active_sheet->setCellValue('G' . $i, $val_all);
 
                     $i++;
                 }

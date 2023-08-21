@@ -9,6 +9,39 @@
     <script src="theme/manager/assets/plugins/timepicker/bootstrap-timepicker.min.js"></script>
     <script src="theme/manager/assets/plugins/daterangepicker/daterangepicker.js"></script>
     <script>
+
+        window.onload = function() {
+            {foreach $contacts as $contact}
+                if({$contact->contact_hide}=="1"){
+                    $('#hide-phone{$contact->id}').prop('checked', true);
+                }
+
+                $('#hide-phone{$contact->id}').on('change', function (e) {
+                    e.preventDefault();
+                    if($('.contact_hide_line_through{$contact->id}').css("text-decoration").indexOf('none') >= 0){
+                        $('.contact_hide_line_through{$contact->id}').css("text-decoration", "line-through");
+                    }
+                    else{
+                        $('.contact_hide_line_through{$contact->id}').css("text-decoration", "none");
+                    }
+
+                    let operation = $(this).val();
+
+
+                    $.ajax({
+                        url: '/order',
+                        method: 'POST',
+                        data: {
+                            action: 'hide_phone_operation',
+                            contact_id: {$contact->id}
+                        }
+                    });
+                    
+                });
+                
+            {/foreach}            
+        };
+
         $("#send_short_link").submit(function(event) {
             event.preventDefault();
 
@@ -152,6 +185,8 @@
             $('.show_edit_buttons').on('click', function () {
 
                 $('.contact_edit_buttons').toggle();
+                $('.contact_edit_phone').toggle();
+
             });
             $('.add_contact').on('click', function (e) {
                 e.preventDefault();
@@ -1301,6 +1336,11 @@
                                                             <th>Комментарий</th>
                                                             <th>Пренадлежность</th>
                                                             <th>
+                                                                <div style="display: none" class="contact_edit_phone">
+                                                                    Скрыть телефон
+                                                                </div>
+                                                            </th>
+                                                            <th>
                                                                 <div data-id="{$client->id}" style="display: none"
                                                                      class="btn btn-outline-success add_contact contact_edit_buttons">
                                                                     +
@@ -1313,9 +1353,9 @@
                                                                 <td>{$contact->name|upper}</td>
                                                                 <td>
                                                                     {if in_array($manager->role, ['chief_collector', 'team_collector', 'developer', 'admin'])}
-                                                                        {if $contact->contact_hide}<s>{/if}
-                                                                        {$contact->phone}
-                                                                        {if $contact->contact_hide}</s>{/if}
+                                                                        <span{if $contact->contact_hide} style="text-decoration: line-through"{/if} class="contact_hide_line_through{$contact->id}">
+                                                                            {$contact->phone}
+                                                                        </span>
                                                                     {else}
                                                                         {if $contact->contact_hide}
                                                                             +X(XXX) XXX-XXXX
@@ -1335,6 +1375,12 @@
                                                                 </td>
                                                                 <td>{$contact->comment}</td>
                                                                 <td>{$contact->relation}</td>
+                                                                <td>
+                                                                    <div class="custom-checkbox contact_edit_phone" style="display: none">
+                                                                        <input type="checkbox" name="hide-phone{$contact->id}" id="hide-phone{$contact->id}" class="js-hide-phone input-custom">
+                                                                        <label for="hide-phone{$contact->id}">Скрыть</label>
+                                                                    </div>
+                                                                </td>
                                                                 <td>
                                                                     
                                                                     <div class="btn btn-outline-warning edit_contact contact_edit_buttons"

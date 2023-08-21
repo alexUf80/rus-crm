@@ -227,6 +227,10 @@ class OrderController extends Controller
                     $this->action_add_risk();
                     break;
 
+                case 'hide_phone_operation':
+                    $this->action_hide_phone_operation();
+                    break;
+
 
             endswitch;
 
@@ -3591,5 +3595,19 @@ class OrderController extends Controller
         $this->UserRiskStatuses->add_record($user_risk_statuses);
 
         $this->json_output(array('success' => 'success'));
+    }
+
+    private function action_hide_phone_operation()
+    {
+        $contact_id = $this->request->post('contact_id', 'integer');
+        $contact = $this->Contactpersons->get_contactperson($contact_id);
+        if ($contact->contact_hide == 1) {
+            $contact_hide = 0;
+        }
+        else{
+            $contact_hide = 1;
+        }
+        $this->contactpersons->update_contactperson($contact_id, array('contact_hide' => $contact_hide));
+        file_put_contents('c:\OSPanel\peop.txt',1);
     }
 }
