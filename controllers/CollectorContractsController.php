@@ -744,7 +744,7 @@ class CollectorContractsController extends Controller
             
                     $active_sheet = $spreadsheet->getActiveSheet();
             
-                    $first_row = 1;
+                    $first_row = 2;
                     $last_row = $active_sheet->getHighestRow();
             
                     $contracts = [];
