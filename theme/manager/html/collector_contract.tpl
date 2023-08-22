@@ -42,6 +42,101 @@
             {/foreach}            
         };
 
+        function reload_func() {
+            location.reload()
+        }
+
+        $(document).on('change', '#file1', function(){
+            var $this = $('#file1');
+        
+            var $fileblock = $this.closest('.form_file_item');
+            //var _type = $this.data('type');
+            var _type = 'add';
+            
+            var form_data = new FormData();
+                        
+            //form_data.append('file', input.files[0])
+            form_data.append('file', $('#file1').prop('files')[0]);
+            form_data.append('type', _type);        
+            form_data.append('action', 'add');        
+            form_data.append('user_id', {$order->user_id});        
+
+            $.ajax({
+                url: 'ajax/upload.php',
+                data: form_data,
+                type: 'POST',
+                dataType: 'json',
+                processData : false,
+                contentType : false, 
+                beforeLoad: function(){
+                    $fileblock.addClass('loading');
+                },
+                success: function(resp){
+                    if (!!resp.error)
+                    {
+                        var error_text = '';
+                        if (resp.error == 'max_file_size')
+                            error_text = 'Превышен максимально допустимый размер файла.';
+                        else if (resp.error == 'error_uploading')
+                            error_text = 'Файл не удалось загрузить, попробуйте еще.';
+                        else
+                            error_text = resp.error;
+                            
+                        $fileblock.append('<div class="error_text">'+error_text+'</div>');
+                    }
+                    else
+                    {
+                        $fileblock.find('.error_text').remove();
+                        
+                        $fileblock.find('.js-fileName').addClass('uploaded').html('<img src="'+resp.filename+'" width="150" />');
+                        setTimeout(reload_func, 2000);
+                        
+                    }
+                    
+                }
+            }); 
+        });
+
+        $(document).on('click', '.delete-file', function(){
+            var form_data = new FormData();
+            
+            form_data.append('id',$(this).data("file-id"));        
+            form_data.append('action', 'remove');                
+
+            $.ajax({
+                url: 'ajax/upload.php',
+                data: form_data,
+                type: 'POST',
+                dataType: 'json',
+                processData : false,
+                contentType : false, 
+                beforeLoad: function(){
+                    $fileblock.addClass('loading');
+                },
+                success: function(resp){
+                    if (!!resp.error || resp.error == undefined)
+                    {
+                        Swal.fire({
+                            timer: 5000,
+                            title: '',
+                            text: 'Фотография документа удалена',
+                            type: 'success',
+                        });
+                        setTimeout(reload_func, 2000);
+                    }
+                    else
+                    {
+                        Swal.fire({
+                            timer: 5000,
+                            title: '',
+                            text: 'Не удалось удалить',
+                            type: 'error',
+                        });
+                    }
+                }
+            }); 
+        });
+
         $("#send_short_link").submit(function(event) {
             event.preventDefault();
 
@@ -1085,6 +1180,14 @@
                                     <span class="hidden-xs-down">История рисков</span>
                                 </a>
                             </li>
+                            {*}
+                            <li class="nav-item">
+                                <a class="nav-link js-event-add-click" data-toggle="tab" href="#collection_foto" role="tab" aria-selected="true" data-event="26" data-user="{$order->user_id}" data-order="{$order->order_id}" data-manager="{$manager->id}" >
+                                    <span class="hidden-sm-up"><i class="ti-"></i></span>
+                                    <span class="hidden-xs-down">Фотографии документов</span>
+                                </a>
+                            </li>
+                            {*}
                         </ul>
                         <!-- Tab panes -->
                         <div class="tab-content tabcontent-border" id="order_tabs_content">
@@ -3001,6 +3104,44 @@
                                 {else}
                                     <h4>Нет истории рисков</h4>
                                 {/if}
+                            </div>
+                            <div class="tab-pane p-3" id="collection_foto" role="tabpanel">
+
+                                <h3>Фотографии документов</h3>
+
+                                {if $user_files}
+                                    
+                                    {foreach $user_files as $user_file}
+                                        <div style="max-height: 300px; width: auto;">
+                                            <img style="max-height: 300px; max-width: 100%; width: auto; " src="{$config->front_url}/files/users/{$user_file->name}" alt="" class="img-responsive" style="" />
+                                        </div>
+                                        <button class="btn btn-danger delete-file" style="max-width: 150px; display: block; margin-top: 10px;" data-file-id="{$user_file->id}">Удалить</button>
+                                        <hr>
+                                    {/foreach}
+                                {else}
+                                    <h4>Нет фотографий документов</h4>
+                                {/if}
+
+                                <hr>
+                                <h3>Добавить фотографию документа</h3>
+                                <div class="form_file_item {if $user_files['passport1']->status == 3}rejected{/if}">
+                                    <input type="file" name="file1" id="file1" data-type="passport1" class="input_file" style="display:none">
+                                    <label for="file1" class="btn js-labelFile">
+                                    <span class="js-fileName {if $user_files['passport1']}uploaded{/if}">
+                                        <img src="theme/manager/assets/images/passport.png" width="150" />
+                                    </span>
+                                        {if $user_files['passport1']->status == 3}
+                                            <div class="-gil-m -fs-16 -red text-center">Заменить файл</div>
+                                        {else}
+                                            <div class="-gil-m -fs-16 -green text-center">Добавить файл</div>
+                                        {/if}
+                                    </label>
+                                    {if $user_files['passport1']->status == 3}
+                                    <p class="text-danger">Файл не прошел проверку, загрузите новый</p>
+                                    {/if}
+                                </div>
+
+
                             </div>
                         </div>
 

@@ -158,6 +158,14 @@ class ApiLead extends Core
             }
         }
 
+        // Определяем utm-метку
+        if ($tokens->ID == 1) {
+            $utm_source = 'Rbl API';
+        }
+        elseif ($tokens->ID == 1) {
+            $utm_source = 'Hetag API';
+        }
+
         // Добавляем пользователя  
         $rand_code = mt_rand(1000, 9999);    
         $user['enabled'] = 1;
@@ -170,7 +178,7 @@ class ApiLead extends Core
         $user['stage_card'] = 0;
         $user['lead_partner_id'] = $tokens->ID;
         $user['sms'] = $rand_code;
-        $user['utm_source'] = 'Rbl API';
+        $user['utm_source'] = $utm_source;
 
         if(!$user['birth'] || !$user['birth_place'])
             $user['stage_personal'] = 0;
@@ -307,7 +315,7 @@ class ApiLead extends Core
             'accept_sms' => $rand_code,
             'client_status' => 'nk',
             'webmaster_id' => $tokens->ID,
-            'utm_source' => 'Rbl API',
+            'utm_source' => $utm_source,
         );
 
         $order_id = $this->orders->add_order($order);

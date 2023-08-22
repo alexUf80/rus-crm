@@ -442,9 +442,7 @@
 
                 var form_data = new FormData();
                 var file_data = $('.custom-file-input').prop('files')[0];
-                if($('.js-select-type').val() == 'file' && file_data != undefined){
-                    form_data.append('file', file_data);
-                }
+                form_data.append('file', file_data);
                 e.currentTarget.querySelectorAll('input').forEach(function(field){
                     if(field.type == "checkbox"){
                         if(field.checked){
@@ -462,7 +460,7 @@
                 if ($form.hasClass('loading'))
                     return false;
 
-                //console.log(location.hash)
+                console.log(location.hash)
                 var _hash = location.hash.replace('#', '?');
                 $.ajax({
                     url: '/my_contracts' + _hash,
@@ -480,7 +478,6 @@
                     },
                     success: function (resp) {
                         resp = JSON.parse(resp);
-                        console.log(resp);
                         if (resp.success) {
                             $('#modal_distribute').modal('hide');
 

@@ -2754,6 +2754,7 @@ class StatisticsController extends Controller
                     $filter['integrations'][] = $integration->utm_source;
                 }
                 $filter['integrations'][] = 'Rbl API';
+                $filter['integrations'][] = 'Hetag API';
 
                 $utm_source_filter = $this->request->get('utm_source_filter');
                 $utm_medium_filter = $this->request->get('utm_medium_filter');

@@ -744,7 +744,7 @@ class CollectorContractsController extends Controller
             
                     $active_sheet = $spreadsheet->getActiveSheet();
             
-                    $first_row = 1;
+                    $first_row = 2;
                     $last_row = $active_sheet->getHighestRow();
             
                     $contracts = [];
@@ -775,7 +775,6 @@ class CollectorContractsController extends Controller
                         $contract = $this->contracts->get_contract($contract_id);
                         if($contract != ''){
                             $distribute[$contract_id] = $managers[$i];
-                            // file_put_contents('c:\OSPanel\peop.txt',$contract);
                         }
                         $from_manager = $contract->collection_manager_id;
 
