@@ -162,7 +162,7 @@ class ApiLead extends Core
         if ($tokens->ID == 1) {
             $utm_source = 'Rbl API';
         }
-        elseif ($tokens->ID == 1) {
+        elseif ($tokens->ID == 2) {
             $utm_source = 'Hetag API';
         }
 

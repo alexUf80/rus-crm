@@ -1410,8 +1410,8 @@
                             <option value="null" selected></option>
                             <option value="checked">Все отмеченные</option>
                             <option value="all">Все видимые</option>
-                            <option value="file">Выбрать файл</option>
                             {*}
+                            <option value="file">Выбрать файл</option>
                             <option value="optional">Выбрать количество</option>
                             {*}
                         </select>
