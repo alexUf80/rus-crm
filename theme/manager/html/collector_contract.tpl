@@ -3073,8 +3073,8 @@
                                         <div style="max-height: 300px; width: auto;">
                                             <img style="max-height: 300px; max-width: 100%; width: auto;" src="{$config->front_url}/files/users/{$user_file->name}" alt="" class="img-responsive" style="" />
                                         </div>
+                                        <br>
                                     {/foreach}
-                                    <br>
                                 {else}
                                     <h4>Нет фотографий документов</h4>
                                 {/if}
