@@ -3110,12 +3110,11 @@
                                 {if $user_files}
                                     
                                     {foreach $user_files as $user_file}
-                                        <div style="max-height: 300px; width: auto; display:flex; flex-direction:column;">
-                                            <img style="max-height: 300px; max-width: 100%; width: auto; width:50px; height:50px" src="{$config->front_url}/files/users/{$user_file->name}" alt="" class="img-responsive" style="" />
-                                            <small>{$user_file->name}</small>
-                                            <button class="btn btn-danger delete-file" style="max-width: 150px" data-file-id="{$user_file->id}">Удалить</button>
+                                        <div style="max-height: 300px; width: auto;">
+                                            <img style="max-height: 300px; max-width: 100%; width: auto; " src="{$config->front_url}/files/users/{$user_file->name}" alt="" class="img-responsive" style="" />
                                         </div>
-                                        <br>
+                                        <button class="btn btn-danger delete-file" style="max-width: 150px; display: block; margin-top: 10px;" data-file-id="{$user_file->id}">Удалить</button>
+                                        <hr>
                                     {/foreach}
                                 {else}
                                     <h4>Нет фотографий документов</h4>
