@@ -340,6 +340,14 @@ class CollectorContractController extends Controller
         
         $user_risk_statuses = $this->UserRiskStatuses->get_records($contract->user_id);
         $this->design->assign('user_risk_statuses', $user_risk_statuses);
+        
+        $get_files = array(
+            'user_id' => $order->user_id,
+            'type' => 'add',
+        );
+        
+        $user_files = $this->users->get_files($get_files);
+        $this->design->assign('user_files', $user_files);
 
         return $this->design->fetch('collector_contract.tpl');
     }

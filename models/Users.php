@@ -333,6 +333,7 @@ class Users extends Core
         $id_filter = '';
         $user_id_filter = '';
         $status_filter = '';
+        $type_filter = '';
         $sent_filter = '';
 
         if (!empty($filter['id']))
@@ -341,6 +342,9 @@ class Users extends Core
         if (!empty($filter['user_id']))
             $user_id_filter = $this->db->placehold("AND user_id = ?", (int)$filter['user_id']);
 
+        if (isset($filter['type']))
+            $type_filter = $this->db->placehold("AND type = ?", $filter['type']);
+        
         if (isset($filter['status']))
             $status_filter = $this->db->placehold("AND status = ?", (int)$filter['status']);
 
@@ -354,6 +358,7 @@ class Users extends Core
                 $id_filter
                 $user_id_filter
                 $status_filter
+                $type_filter
                 $sent_filter
             ORDER BY id ASC 
         ");
