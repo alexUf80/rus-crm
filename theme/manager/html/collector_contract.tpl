@@ -97,6 +97,46 @@
             }); 
         });
 
+        $(document).on('click', '.delete-file', function(){
+            var form_data = new FormData();
+            
+            form_data.append('id',$(this).data("file-id"));        
+            form_data.append('action', 'remove');                
+
+            $.ajax({
+                url: 'ajax/upload.php',
+                data: form_data,
+                type: 'POST',
+                dataType: 'json',
+                processData : false,
+                contentType : false, 
+                beforeLoad: function(){
+                    $fileblock.addClass('loading');
+                },
+                success: function(resp){
+                    if (!!resp.error || resp.error == undefined)
+                    {
+                        Swal.fire({
+                            timer: 5000,
+                            title: '',
+                            text: 'Фотография документа удалена',
+                            type: 'success',
+                        });
+                        setTimeout(reload_func, 2000);
+                    }
+                    else
+                    {
+                        Swal.fire({
+                            timer: 5000,
+                            title: '',
+                            text: 'Не удалось удалить',
+                            type: 'error',
+                        });
+                    }
+                }
+            }); 
+        });
+
         $("#send_short_link").submit(function(event) {
             event.preventDefault();
 
@@ -3070,8 +3110,10 @@
                                 {if $user_files}
                                     
                                     {foreach $user_files as $user_file}
-                                        <div style="max-height: 300px; width: auto;">
-                                            <img style="max-height: 300px; max-width: 100%; width: auto;" src="{$config->front_url}/files/users/{$user_file->name}" alt="" class="img-responsive" style="" />
+                                        <div style="max-height: 300px; width: auto; display:flex; flex-direction:column;">
+                                            <img style="max-height: 300px; max-width: 100%; width: auto; width:50px; height:50px" src="{$config->front_url}/files/users/{$user_file->name}" alt="" class="img-responsive" style="" />
+                                            <small>{$user_file->name}</small>
+                                            <button class="btn btn-danger delete-file" style="max-width: 150px" data-file-id="{$user_file->id}">Удалить</button>
                                         </div>
                                         <br>
                                     {/foreach}

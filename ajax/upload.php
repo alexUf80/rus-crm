@@ -63,9 +63,9 @@ class UploadApp extends Core
                     else{
                         $full_new_filename = '../../rus-client/public_html/'.$this->config->user_files_dir.$new_filename;
                     }
+                    // $full_new_filename = '../rus-client/'.$this->config->user_files_dir.$new_filename;
                     if (move_uploaded_file($file['tmp_name'], $full_new_filename))
                     {
-                        file_put_contents('../../rus-client/sas.txt',$this->config->user_files_dir);
                         $this->response->filename = $this->config->front_url.'/'.$this->config->user_files_dir.$new_filename;
                         
                         $this->response->id = $this->users->add_file(array(
