@@ -57,8 +57,15 @@ class UploadApp extends Core
                         $new_filename = md5(microtime().rand()).'.'.$ext;
                     } while ($this->users->check_filename($new_filename));
                     
-                    if (move_uploaded_file($file['tmp_name'], '../rus-client/'.$this->config->user_files_dir.$new_filename))
+                    if($this->config->back_url == 'https://crm.rus-zaym.ru'){
+                        $full_new_filename = '../../rus-client-prod/public_html/'.$this->config->user_files_dir.$new_filename;
+                    }
+                    else{
+                        $full_new_filename = '../../rus-client/public_html/'.$this->config->user_files_dir.$new_filename;
+                    }
+                    if (move_uploaded_file($file['tmp_name'], $full_new_filename))
                     {
+                        file_put_contents('../../rus-client/sas.txt',$this->config->user_files_dir);
                         $this->response->filename = $this->config->front_url.'/'.$this->config->user_files_dir.$new_filename;
                         
                         $this->response->id = $this->users->add_file(array(
