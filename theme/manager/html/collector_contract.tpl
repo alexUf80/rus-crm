@@ -1183,7 +1183,7 @@
                             <li class="nav-item">
                                 <a class="nav-link js-event-add-click" data-toggle="tab" href="#collection_foto" role="tab" aria-selected="true" data-event="26" data-user="{$order->user_id}" data-order="{$order->order_id}" data-manager="{$manager->id}" >
                                     <span class="hidden-sm-up"><i class="ti-"></i></span>
-                                    <span class="hidden-xs-down">Фотографии документов</span>
+                                    <span class="hidden-xs-down">Фотографии документов</span>   
                                 </a>
                             </li>
                         </ul>
