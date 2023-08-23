@@ -44,6 +44,19 @@ class DistributiorCollectorsCron extends Core
             ->orderByRaw('debt', 'desc')
             ->get();
 
+        $query = $this->db->placehold("
+            SELECT * 
+            FROM __collectors_move_groups");
+        $this->db->query($query);
+        $collectors_move_groups = $this->db->results();
+
+        $groups_current_manager_number = [];
+        foreach ($collectors_move_groups as $collectors_move_group) {
+            if($collectors_move_group->collectors_id != null){
+                $groups_current_manager_number[$collectors_move_group->id] = 1;
+            }
+        }
+
         foreach ($expiredContracts as $contract) {
 
             $returnDate = new DateTime(date('Y-m-d', strtotime($contract->return_date)));
@@ -77,8 +90,14 @@ class DistributiorCollectorsCron extends Core
                 }
             }
 
-            $lastCollectorId = array_shift($collectorsMoveId_worked);
-            array_push($collectorsMoveId, $lastCollectorId);
+            // $lastCollectorId = array_shift($collectorsMoveId_worked);
+            // array_push($collectorsMoveId, $lastCollectorId);
+            $current_group_id = $collectorsMove->id;
+            $lastCollectorId = $collectorsMoveId_worked[$groups_current_manager_number[$current_group_id] - 1];
+            $groups_current_manager_number[$collectorsMove->id]++;
+            if($groups_current_manager_number[$collectorsMove->id] > count($collectorsMoveId_worked)){
+                $groups_current_manager_number[$collectorsMove->id] = 1;
+            }
 
             $from_manager = $contract->collection_manager_id;
 
