@@ -2848,7 +2848,16 @@
                                                 </td>
                                                 <td>
                                                     {if $operation->type == 'P2P'}Выдача займа{/if}
+                                                    {*}
                                                     {if $operation->type == 'PAY'}Оплата займа{/if}
+                                                    {*}
+                                                    {if $operation->type == 'PAY'}
+                                                        {if $operation->transaction->prolongation}
+                                                            Пролонгация
+                                                        {else}
+                                                            Оплата займа
+                                                        {/if}
+                                                    {/if}
                                                     {if $operation->type == 'RECURRENT'}Оплата займа{/if}
                                                     {if $operation->type == 'PERCENTS'}Начисление процентов{/if}
                                                     {if $operation->type == 'INSURANCE'}Страховка{/if}
