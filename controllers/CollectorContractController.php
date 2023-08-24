@@ -57,7 +57,7 @@ class CollectorContractController extends Controller
         if ($contract = $this->contracts->get_contract($contract_id)) {
             if ($order = $this->orders->get_order($contract->order_id)) {
                 $this->design->assign('order', $order);
-
+                
                 $user = $this->users->get_user($order->user_id);
                 $fio = "$user->lastname $user->firstname $user->patronymic";
                 $result_search = $this->blacklist->search($fio);
@@ -129,6 +129,12 @@ class CollectorContractController extends Controller
 
 
                 $contract_operations = $this->operations->get_operations(array('contract_id' => $contract->id));
+
+                foreach ($contract_operations as $contract_operation) {
+                    if (!empty($contract_operation->transaction_id))
+                        $contract_operation->transaction = $this->transactions->get_transaction($contract_operation->transaction_id);
+                }
+
 
                 if (!empty($contract_operations)) {
                     usort($contract_operations,

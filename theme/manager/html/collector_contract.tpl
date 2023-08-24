@@ -1180,14 +1180,12 @@
                                     <span class="hidden-xs-down">История рисков</span>
                                 </a>
                             </li>
-                            {*}
                             <li class="nav-item">
                                 <a class="nav-link js-event-add-click" data-toggle="tab" href="#collection_foto" role="tab" aria-selected="true" data-event="26" data-user="{$order->user_id}" data-order="{$order->order_id}" data-manager="{$manager->id}" >
                                     <span class="hidden-sm-up"><i class="ti-"></i></span>
-                                    <span class="hidden-xs-down">Фотографии документов</span>
+                                    <span class="hidden-xs-down">Фотографии документов</span>   
                                 </a>
                             </li>
-                            {*}
                         </ul>
                         <!-- Tab panes -->
                         <div class="tab-content tabcontent-border" id="order_tabs_content">
@@ -2850,7 +2848,16 @@
                                                 </td>
                                                 <td>
                                                     {if $operation->type == 'P2P'}Выдача займа{/if}
+                                                    {*}
                                                     {if $operation->type == 'PAY'}Оплата займа{/if}
+                                                    {*}
+                                                    {if $operation->type == 'PAY'}
+                                                        {if $operation->transaction->prolongation}
+                                                            Пролонгация
+                                                        {else}
+                                                            Оплата займа
+                                                        {/if}
+                                                    {/if}
                                                     {if $operation->type == 'RECURRENT'}Оплата займа{/if}
                                                     {if $operation->type == 'PERCENTS'}Начисление процентов{/if}
                                                     {if $operation->type == 'INSURANCE'}Страховка{/if}
