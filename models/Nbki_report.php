@@ -118,6 +118,7 @@ class Nbki_report extends Core
         if (!empty($items['P2P'])) {
             foreach ($items['P2P'] as $operation_date => $orders) {
                 foreach ($orders as $order)
+                    var_dump($order->id);
                     $wrapper->MANY_EVENTS[] = $this->get_p2p_item($order);
             }
         }
