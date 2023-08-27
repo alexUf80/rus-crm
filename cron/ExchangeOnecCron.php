@@ -11,7 +11,7 @@ class ExchangeOnecCron extends Core
 {
     public function __construct()
     {
-        parent::__construct();
+        parent::__construct(); 
         
         if ($this->request->get('test'))
             $this->send_services();
