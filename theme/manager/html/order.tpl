@@ -3225,7 +3225,7 @@
                                         <tbody>
                                         {foreach $contract_operations as $operation}
                                             <tr class="
-                                                    {if in_array($operation->type, ['PAY'])}table-success{/if}
+                                                    {if in_array($operation->type, ['PAY', 'RECURRENT'])}table-success{/if}
                                                     {if in_array($operation->type, ['PERCENTS', 'CHARGE', 'PENI'])}table-danger{/if}
                                                     {if in_array($operation->type, ['P2P', 'IMPORT'])}table-info{/if}
                                                     {if in_array($operation->type, ['INSURANCE', 'INSURANCE_BC','BUD_V_KURSE', 'REJECT_REASON', 'RETURN_INSURANCE', 'SMS'])}table-warning{/if}
@@ -3249,7 +3249,7 @@
                                                             Оплата займа
                                                         {/if}
                                                     {/if}
-                                                    {if $operation->type == 'RECURRENT'}Оплата займа{/if}
+                                                    {if $operation->type == 'RECURRENT'}Рекурентное списание{/if}
                                                     {if $operation->type == 'RETURN_REJECT_REASON'}Возврат услуги "Причина отказа"{/if}
                                                     {if $operation->type == 'RETURN_INSURANCE'}Возврат страховки{/if}
                                                     {if $operation->type == 'PERCENTS'}Начисление процентов{/if}

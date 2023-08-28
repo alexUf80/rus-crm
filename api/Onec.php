@@ -414,7 +414,7 @@ echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($result);echo '</pre><hr />';
             [
                 [
                     'ИдентификаторВидаНачисления' => 'ОсновнойДолг',
-                    'Сумма' => empty($payment->loan_body_summ) ? 0 : (float)$payment->loan_body_summ
+                    'Сумма' => empty($payment->loan_body_summ) ? 0 : (float)$payment->loan_body_summ ?? $payment->amount
                 ],
                 [
                     'ИдентификаторВидаНачисления' => 'Проценты',
@@ -433,7 +433,7 @@ echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($result);echo '</pre><hr />';
 
         $response = self::send_request('CRM_WebService', 'Payments', $request);
         $result = json_decode($response);
-echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($item, $result);echo '</pre><hr />';
+        echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($item, $result);echo '</pre><hr />';
         if (isset($result->return) && $result->return == 'OK')
         {
             $update = array(

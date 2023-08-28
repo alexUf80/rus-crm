@@ -110,11 +110,33 @@ echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($min_date);echo '</pre><hr />'
                 
             }
         }
-
+        $this->sendOperations();
         return $payments;
 
     }
-    
+
+    private function sendOperations() {
+        $operations = OperationsORM::query()
+            ->where('sent_status', '=', 0)
+            ->where('amount', '>', 0)
+            ->whereIn('type', ['PAY', 'RECURRENT'])
+            ->get();
+        foreach ($operations as $operation) {
+            $transaction = TransactionsORM::query()
+                ->where('created', '=', $operation->created)
+                ->where('user_id', '=', $operation->user_id)
+                ->where('amount', '=', $operation->amount * 100)->first();
+            if ($transaction) {
+                $contract = ContractsORM::query()->where('id', '=', $operation->contract_id)->first();
+                $operation->prolongation = $transaction->prolongation;
+                $operation->register_id = $transaction->register_id;
+                $operation->operation = $transaction->operation;
+                $operation->close_date =  $contract->close_date ?? '';
+                Onec::sendPayment($operation);
+            }
+        }
+    }
+
     /**
      * ExchangeOnecCron::send_services()
      * 
