@@ -13,6 +13,33 @@
 
             init();
 
+            function reload_func() {
+                location.reload()
+            }
+
+            //$('.add_receipt').on('click', function (e) {
+            $('.js-add-pril-1').on('click', function (e) {
+                e.preventDefault();
+
+                let contract_id = {$order->contract_id};
+
+                $.ajax({
+                    method: 'POST',
+                    data: {
+                        action: 'add_pril_1',
+                        contract_id: contract_id,
+                    },
+                    success: function () {
+                        Swal.fire({
+                            title: 'Успешно!',
+                            text: 'Документ Приложение 1 успешно добавлен',
+                        });
+                        setTimeout(reload_func, 2000);
+                    }
+                })
+
+            });
+
             $(document).on('click', '.js-open-sms-modal', function (e) {
                 e.preventDefault();
 
@@ -3057,7 +3084,15 @@
                                 {if $documents}
                                     <table class="table">
                                         <h3>Документы</h3>
+                                        {$add_pril_1=false}
+                                        {$is_pril_1=false}
                                         {foreach $documents as $document}
+                                            {if $document->name|escape == 'Индивидуальные условия'}
+                                                {$add_pril_1=true}
+                                            {/if}
+                                            {if $document->name|escape == 'Приложение 1'}
+                                                {$is_pril_1=true}
+                                            {/if}
                                             {if $document->name|escape == 'Полис страхования' ||  $document->name|escape == 'Полис страхования при пролонгаци' ||  $document->name|escape == 'Дополнительное соглашение о реструктуризации'}
                                                 <tr>
                                                     <td class="text-info">
@@ -3089,6 +3124,15 @@
                                             {/if}
                                         {/foreach}
                                     </table>
+                                    {if $add_pril_1 && !$is_pril_1}
+                                        <button type="button"
+                                                class="pb-0 pt-0 mr-2 btn btn-sm btn-danger waves-effect js-add-pril-1 "
+                                                style="padding: 20px; height: 40px;">
+                                                Добавить Приложение 1
+                                        </button>
+                                    {/if}
+                                    <br>
+                                    <hr>
                                 {else}
                                     <h4>Нет доступных документов</h4>
                                 {/if}
