@@ -786,7 +786,7 @@
                                                     {if $contract->hide_prolongation}
                                                         -
                                                     {else}
-                                                        {$contract->loan_percents_summ + $contract->loan_charge_summ} P
+                                                        {$settings->prolongation_amount + $contract->loan_percents_summ + $contract->loan_peni_summ + $contract->loan_charge_summ} P
                                                     {/if}
                                                 </h5>
                                             </div>
