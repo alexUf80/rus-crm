@@ -3092,6 +3092,9 @@
                                             {/if}
                                             {if $document->name|escape == 'Приложение 1'}
                                                 {$is_pril_1=true}
+                                                {if !in_array($manager->role, ['developer'])}
+                                                    {continue}
+                                                {/if}
                                             {/if}
                                             {if $document->name|escape == 'Полис страхования' ||  $document->name|escape == 'Полис страхования при пролонгаци' ||  $document->name|escape == 'Дополнительное соглашение о реструктуризации'}
                                                 <tr>
@@ -3124,12 +3127,14 @@
                                             {/if}
                                         {/foreach}
                                     </table>
-                                    {if $add_pril_1 && !$is_pril_1}
-                                        <button type="button"
-                                                class="pb-0 pt-0 mr-2 btn btn-sm btn-danger waves-effect js-add-pril-1 "
-                                                style="padding: 20px; height: 40px;">
-                                                Добавить Приложение 1
-                                        </button>
+                                    {if in_array($manager->role, ['developer'])}
+                                        {if $add_pril_1 && !$is_pril_1}
+                                            <button type="button"
+                                                    class="pb-0 pt-0 mr-2 btn btn-sm btn-danger waves-effect js-add-pril-1 "
+                                                    style="padding: 20px; height: 40px;">
+                                                    Добавить Приложение 1
+                                            </button>
+                                        {/if}
                                     {/if}
                                     <br>
                                     <hr>
