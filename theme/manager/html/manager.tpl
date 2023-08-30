@@ -409,14 +409,16 @@
 
                                             <form method="POST" id="form_exceptions" class="p-2 border"
                                                 action="/order">
-
                                                 <input type="hidden" name="manager_id" value="{$user->id}"/>
                                                 <ul class="list-unstyled m-2" data-user="{$order->user_id}">
                                                     {foreach $risk_ops as $key => $risk_op}
                                                         <li>
                                                             <div class="custom-checkbox">
-                                                                <input type="checkbox" class="js-risk-op input-custom"
-                                                                    name="risk_id[]" value="complaint" id="risk_id_{$key}" value="{$key}"/>
+                                                                <input type="checkbox" class="js-risk-op input-custom" 
+                                                                        {if $manager_risk_ops_arr[$key]}
+                                                                            checked
+                                                                        {/if}
+                                                                    name="risk_id[]" value="{$key}" id="risk_id_{$key}" value="{$key}"/>
                                                                 <label for="risk_id_{$key}">{$risk_op}</label>
                                                             </div>
                                                         </li>

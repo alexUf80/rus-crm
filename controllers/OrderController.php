@@ -234,7 +234,10 @@ class OrderController extends Controller
                 case 'add_pril_1':
                     return $this->action_add_pril_1();
                     break;
-
+                    
+                case 'to_onec':
+                    return $this->action_to_onec();
+                    break;
 
             endswitch;
 
@@ -3678,6 +3681,44 @@ class OrderController extends Controller
         ));
 
 
+        exit;
+    }
+    
+    private function action_to_onec()
+    {
+        $user_id = $this->request->post('user_id');
+        $order_id = $this->request->post('order_id');
+        $operation_id = $this->request->post('operation_id');
+
+        $operation = $this->operations->get_operation($operation_id);
+        
+
+        $this->db->query("
+            SELECT 
+                o.id,
+                o.order_id,
+                o.contract_id,
+                o.created,
+                o.amount,
+                t.register_id,
+                t.operation,
+                t.loan_body_summ,
+                t.loan_percents_summ,
+                t.loan_peni_summ,
+                t.prolongation,
+                c.number AS contract_number,
+                c.close_date
+            FROM __operations AS o
+            LEFT JOIN s_transactions AS t
+            ON t.id = o.transaction_id
+            LEFT JOIN s_contracts AS c
+            ON c.id = o.contract_id
+            WHERE o.id = ?
+        ", (int)$operation_id);
+
+        $payment = $this->db->result();
+        $result = Onec::sendPayment($payment);
+        
         exit;
     }
 }

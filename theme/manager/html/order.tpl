@@ -17,6 +17,32 @@
                 location.reload()
             }
 
+            $('.js-to-onec').on('click', function (e) {
+                e.preventDefault();
+
+                var operation_id = $('.js-to-onec').data("operation");
+
+                $.ajax({
+                    method: 'POST',
+                    data: {
+                        action: 'to_onec',
+
+                        user_id: {$order->user_id},
+                        order_id: {$order->order_id},
+                        operation_id: operation_id,
+
+                    },
+                    success: function () {
+                        Swal.fire({
+                            title: 'Успешно!',
+                            text: 'Платеж отправлен в 1С',
+                        });
+                        setTimeout(reload_func, 2000);
+                    }
+                })
+
+            });
+
             $('.js-add-pril-1').on('click', function (e) {
                 e.preventDefault();
 
@@ -3274,10 +3300,11 @@
                                             <td>Дата</td>
                                             <td>Операция</td>
                                             <td>Сумма</td>
-                                            <td>Операция</td>
+                                            <td>Операция Б2П</td>
                                             <td>ОД</td>
                                             <td>Проценты</td>
                                             <td>Пени</td>
+                                            <td>Отправить</td>
                                         </tr>
                                         <tbody>
                                         {foreach $contract_operations as $operation}
@@ -3335,6 +3362,14 @@
                                                 </td>
                                                 <td>
                                                     {$operation->loan_peni_summ}
+                                                </td>
+                                                <td>
+                                                    {if $operation->type == 'PAY'}
+                                                        <button class="btn btn-info btn-block js-to-onec"
+                                                        data-event="15" data-operation="{$operation->id}">
+                                                            Отправить в 1С
+                                                        </button>
+                                                    {/if}
                                                 </td>
                                             </tr>
                                         {/foreach}
