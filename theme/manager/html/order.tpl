@@ -20,7 +20,8 @@
             $('.js-to-onec').on('click', function (e) {
                 e.preventDefault();
 
-                var operation_id = $('.js-to-onec').data("operation");
+                $(this)
+                var operation_id = $(this).data("operation");
 
                 $.ajax({
                     method: 'POST',
@@ -34,10 +35,9 @@
                     },
                     success: function () {
                         Swal.fire({
-                            title: 'Успешно!',
+                            title: 'Отправка',
                             text: 'Платеж отправлен в 1С',
                         });
-                        setTimeout(reload_func, 2000);
                     }
                 })
 
