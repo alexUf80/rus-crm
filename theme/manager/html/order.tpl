@@ -17,7 +17,6 @@
                 location.reload()
             }
 
-            //$('.add_receipt').on('click', function (e) {
             $('.js-add-pril-1').on('click', function (e) {
                 e.preventDefault();
 
@@ -3271,6 +3270,15 @@
                             <div class="tab-pane p-3" id="operations" role="tabpanel">
                                 {if $contract_operations}
                                     <table class="table table-hover ">
+                                        <tr>
+                                            <td>Дата</td>
+                                            <td>Операция</td>
+                                            <td>Сумма</td>
+                                            <td>Операция</td>
+                                            <td>ОД</td>
+                                            <td>Проценты</td>
+                                            <td>Пени</td>
+                                        </tr>
                                         <tbody>
                                         {foreach $contract_operations as $operation}
                                             <tr class="
@@ -3318,6 +3326,15 @@
                                                     {else}
                                                         {$operation->transaction->operation}
                                                     {/if}
+                                                </td>
+                                                <td>
+                                                    {$operation->loan_body_summ}
+                                                </td>
+                                                <td>
+                                                    {$operation->loan_percents_summ}
+                                                </td>
+                                                <td>
+                                                    {$operation->loan_peni_summ}
                                                 </td>
                                             </tr>
                                         {/foreach}

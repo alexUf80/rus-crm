@@ -20,6 +20,25 @@ class ManagerController extends Controller
             $team_id = (array)$this->request->post('team_id');
             $team_id[] = $user_id;
 
+            $risk_id = (array)$this->request->post('risk_id');
+            if (!empty($risk_id))
+            {
+                $manager_id = $this->request->post('manager_id');
+                $manager_risk_statuses_obj = $this->ManagerRiskStatuses->get_record($manager_id);
+                $manager_risk_statuses = (array) $manager_risk_statuses_obj;
+                file_put_contents('c:\OSPanel\sas.txt',count($manager_risk_statuses));
+                $manager_risk_statuses['created'] = date('Y-m-d H:i:s');
+                $manager_risk_statuses['manager_id'] = $manager_id;
+                if (isset($manager_risk_statuses_obj)) {
+                    // file_put_contents('c:\OSPanel\sas.txt','$manager_risk_statuses1');
+                }
+                else{
+                    // file_put_contents('c:\OSPanel\sas.txt','$manager_risk_statuses');
+                    $this->ManagerRiskStatuses->add_record($manager_risk_statuses);
+                }
+                // file_put_contents('c:\OSPanel\sas.txt',$risk_id[0]);
+            }
+
             if (!empty($team_id))
             {
                 $user->team_id = implode(',', $team_id);
@@ -143,6 +162,17 @@ class ManagerController extends Controller
 
         $collection_statuses = CollectorPeriodsORM::get();
         $this->design->assign('collection_statuses', $collection_statuses);
+
+        $risk_ops = ['complaint' => 'Жалоба', 'bankrupt' => 'Банкрот', 'refusal' => 'Отказ от взаимодействия',
+                'refusal_thrd' => 'Отказ от взаимодействия с 3 лицами', 'death' => 'Смерть', 'anticollectors' => 'Антиколлекторы', 'mls' => 'Находится в МЛС',
+                'bankrupt_init' => 'Инициировано банкротство', 'fraud' => 'Мошенничество'];
+
+        // $user_risk_op = $this->UsersRisksOperations->get_record($client->id);
+
+        // if(!empty($user_risk_op)){
+            $this->design->assign('risk_ops', $risk_ops);
+        //     $this->design->assign('user_risk_op', $user_risk_op);
+        // }
         
         // $collection_manager_statuses = array();
         // $managers = array();
