@@ -1478,7 +1478,7 @@ class StatisticsController extends Controller
             foreach ($operations as $operation) {
                 $date = date('Y-m-d', strtotime($operation->created));
 
-                if (array_key_exists($date, $operations_by_date) == false) {
+                if (array_key_exists($date, $operations_by_date) == false) { 
                     $operations_by_date[$date]['count_prolongations'] = 0;
                     $operations_by_date[$date]['loan_body_summ'] = 0;
                     $operations_by_date[$date]['loan_charges_summ'] = 0;

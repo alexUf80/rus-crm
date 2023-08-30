@@ -19,6 +19,7 @@ class Documents extends Core
         'REASON_FOR_REFUSAL' =>  'reason_for_refusal.tpl',
         'INFORMATION_SERVICES_AGREEMENT' => 'information_services_agreement.tpl',
         'FIND_REASON_FOR_REFUSAL' =>  'find_reason_for_refusal.tpl',
+        'PRIL_1' => 'pril_1.tpl',
     );
 
 
@@ -38,6 +39,7 @@ class Documents extends Core
         'REASON_FOR_REFUSAL' =>  'Причина отказа',
         'INFORMATION_SERVICES_AGREEMENT' => 'Договор об оказании информационных услуг',
         'FIND_REASON_FOR_REFUSAL' =>  'Причина отказа',
+        'PRIL_1' => 'Приложение 1',
     );
 
     private $client_visible = array(
@@ -56,6 +58,7 @@ class Documents extends Core
         'REASON_FOR_REFUSAL' =>  1,
         'INFORMATION_SERVICES_AGREEMENT' => 1,
         'FIND_REASON_FOR_REFUSAL' =>  1,
+        'PRIL_1' => 1,
     );
 
     public function get_sudblock_create_documents($block)

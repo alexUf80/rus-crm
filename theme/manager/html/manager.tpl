@@ -16,6 +16,42 @@
 
     <script>
 
+        $(document).on('submit', '#form_exceptions', function(e){
+                e.preventDefault();
+                
+                var $form = $(this);
+
+                console.log($form.serialize());
+                
+                $.ajax({
+                    url: '/order',
+                    data: $form.serialize(),
+                    type: 'POST',
+                    success: function(resp){
+                        if (resp.success)
+                        {
+                            // $form.find('[name=comment]').val('')
+                
+                            app.update_page();
+                            
+                            Swal.fire({
+                                timer: 5000,
+                                title: 'Риск добавлен.',
+                                type: 'success',
+                            });
+                        }
+                        else
+                        {
+                            Swal.fire({
+                                text: resp.error,
+                                type: 'error',
+                            });
+                            
+                        }
+                    }
+                })
+            })
+
         $('.js-block-button').click(function (e) {
             e.preventDefault();
 
@@ -173,6 +209,9 @@
                         <li class="nav-item"> <a class="nav-link active" data-toggle="tab" href="#settings" role="tab">Основные</a> </li>
                         <li class="nav-item" {if $user->role!='team_collector'}style="display:none"{/if}> 
                             <a class="nav-link" data-toggle="tab" href="#team" role="tab">Команда</a> 
+                        </li>
+                        <li class="nav-item" {if $user->role!='collector'}style="display:none"{/if}> 
+                            <a class="nav-link" data-toggle="tab" href="#exceptions" role="tab">Исключения</a> 
                         </li>
                     </ul>
                     <!-- Tab panes -->
@@ -356,6 +395,92 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>
+
+                        <div class="tab-pane" id="exceptions" role="tabpanel">
+                            <div class="card-body">
+                                <div class="form-group pl-3 pr-3">
+                                    <div class="clearfix pb-3">
+                                        <div>
+                                            <h5>Исключения коллектора</h5>
+                                            <hr>
+                                        </div>
+                                        <div>
+
+                                            <form method="POST" id="form_exceptions" class="p-2 border"
+                                                action="/order">
+                                                <input type="hidden" name="manager_id" value="{$user->id}"/>
+                                                <ul class="list-unstyled m-2" data-user="{$order->user_id}">
+                                                    {foreach $risk_ops as $key => $risk_op}
+                                                        <li>
+                                                            <div class="custom-checkbox">
+                                                                <input type="checkbox" class="js-risk-op input-custom" 
+                                                                        {if $manager_risk_ops_arr[$key]}
+                                                                            checked
+                                                                        {/if}
+                                                                    name="risk_id[]" value="{$key}" id="risk_id_{$key}" value="{$key}"/>
+                                                                <label for="risk_id_{$key}">{$risk_op}</label>
+                                                            </div>
+                                                        </li>
+                                                    {/foreach}
+                                                </ul>
+                                                <button type="submit"
+                                                        class="btn btn-success waves-effect waves-light">
+                                                    Сохранить
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+
+                                    {*}
+                                    
+                                    <table class="table">
+                                    {foreach $managers as $m}
+                                        {if $m->role == 'collector'}
+                                        <tr class="js-status-item js-status-{$m->collection_status_id}">
+                                            <td>
+                                                <div class="custom-control custom-checkbox">
+                                                    <input {if !in_array($manager->role, ['chief_collector','admin','developer'])}disabled="true"{/if} class="custom-control-input" type="checkbox" name="risk_id[]" id="risk_id_{$m->id}" value="{$m->id}" {if in_array($m->id, (array)$user->team_id)}checked="true"{/if} />
+                                                    <label class="custom-control-label" for="team_id_{$m->id}"></label>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <a class="{if $m->blocked}text-danger{/if}" target="_blank" href="manager/{$m->id}">
+                                                    <strong>{$m->name|escape}</strong>
+                                                </a>                                        
+                                                {if $m->blocked}<span class="label label-danger">Заблокирован</span>{/if}
+                                            </td>
+                                            <td>
+                                                <label class="label label-primary">
+                                                    {foreach $collection_statuses as $cs_id => $cs}
+                                                        {if $cs_id+1 == $m->collection_status_id}
+                                                            {$cs->name}
+                                                        {/if}    
+                                                    {/foreach}
+                                                </label>
+                                            </td>
+                                            <td>
+                                                {foreach $managers as $man}
+                                                    {if $man->role=='team_collector' && in_array($m->id, (array)$man->team_id)}
+                                                    <small>{$man->name|escape}</small>
+                                                    <br />
+                                                    {/if}
+                                                {/foreach}
+                                                
+                                            </td>
+                                        </tr>
+                                        {/if}
+                                    {/foreach}    
+                                    </table>
+
+                                    <div class="form-group">
+                                        <div class="col-sm-12">
+                                            <button class="btn btn-success" type="submit">Сохранить</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {*}
                         </div>
 
                     </div>

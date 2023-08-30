@@ -4,6 +4,11 @@ class ManagerController extends Controller
 {
     public function fetch()
     {
+
+        $risk_ops = ['complaint' => 'Жалоба', 'bankrupt' => 'Банкрот', 'refusal' => 'Отказ от взаимодействия',
+                'refusal_thrd' => 'Отказ от взаимодействия с 3 лицами', 'death' => 'Смерть', 'anticollectors' => 'Антиколлекторы', 'mls' => 'Находится в МЛС',
+                'bankrupt_init' => 'Инициировано банкротство', 'fraud' => 'Мошенничество', 'canicule' => 'Кредитные каникулы'];
+                
     	if ($this->request->method('post'))
         {
             $user = new StdClass();
@@ -19,6 +24,33 @@ class ManagerController extends Controller
             
             $team_id = (array)$this->request->post('team_id');
             $team_id[] = $user_id;
+
+            $risk_id = (array)$this->request->post('risk_id');
+            
+            if (!empty($risk_id))
+            {
+                $manager_id = $this->request->post('manager_id');
+                // file_put_contents('c:\OSPanel\sas.txt', '$manager_id');
+
+                foreach ($risk_ops as $key => $value) {
+                    $manager_risk_statuses[$key] = 0;
+                }
+                foreach ($risk_id as $value) {
+                    $manager_risk_statuses[$value] = 1;
+                }
+
+                $manager_risk_statuses['created'] = date('Y-m-d H:i:s');
+                $manager_risk_statuses['manager_id'] = $manager_id;
+
+                $added_risk_statuses = $this->ManagerRiskStatuses->get_record($manager_id);
+                if (isset($added_risk_statuses)) {
+                    // file_put_contents('c:\OSPanel\sas.txt', 1);
+                    $this->ManagerRiskStatuses->update_record($manager_id, $manager_risk_statuses);
+                }
+                else{
+                    $this->ManagerRiskStatuses->add_record($manager_risk_statuses);
+                }
+            }
 
             if (!empty($team_id))
             {
@@ -143,6 +175,17 @@ class ManagerController extends Controller
 
         $collection_statuses = CollectorPeriodsORM::get();
         $this->design->assign('collection_statuses', $collection_statuses);
+
+        $manager_risk_ops = $this->ManagerRiskStatuses->get_record($user->id);
+        if($manager_risk_ops){
+            $manager_risk_ops_arr = (array)$manager_risk_ops;
+            $this->design->assign('risk_ops', $risk_ops);
+            $this->design->assign('manager_risk_ops_arr', $manager_risk_ops_arr);
+        }
+        else{
+            $this->design->assign('risk_ops', $risk_ops);
+            $this->design->assign('sas', $risk_ops);
+        }
         
         // $collection_manager_statuses = array();
         // $managers = array();

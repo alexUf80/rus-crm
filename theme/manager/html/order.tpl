@@ -13,6 +13,58 @@
 
             init();
 
+            function reload_func() {
+                location.reload()
+            }
+
+            $('.js-to-onec').on('click', function (e) {
+                e.preventDefault();
+
+                var operation_id = $('.js-to-onec').data("operation");
+
+                $.ajax({
+                    method: 'POST',
+                    data: {
+                        action: 'to_onec',
+
+                        user_id: {$order->user_id},
+                        order_id: {$order->order_id},
+                        operation_id: operation_id,
+
+                    },
+                    success: function () {
+                        Swal.fire({
+                            title: 'Успешно!',
+                            text: 'Платеж отправлен в 1С',
+                        });
+                        setTimeout(reload_func, 2000);
+                    }
+                })
+
+            });
+
+            $('.js-add-pril-1').on('click', function (e) {
+                e.preventDefault();
+
+                let contract_id = {$order->contract_id};
+
+                $.ajax({
+                    method: 'POST',
+                    data: {
+                        action: 'add_pril_1',
+                        contract_id: contract_id,
+                    },
+                    success: function () {
+                        Swal.fire({
+                            title: 'Успешно!',
+                            text: 'Документ Приложение 1 успешно добавлен',
+                        });
+                        setTimeout(reload_func, 2000);
+                    }
+                })
+
+            });
+
             $(document).on('click', '.js-open-sms-modal', function (e) {
                 e.preventDefault();
 
@@ -3057,7 +3109,18 @@
                                 {if $documents}
                                     <table class="table">
                                         <h3>Документы</h3>
+                                        {$add_pril_1=false}
+                                        {$is_pril_1=false}
                                         {foreach $documents as $document}
+                                            {if $document->name|escape == 'Индивидуальные условия'}
+                                                {$add_pril_1=true}
+                                            {/if}
+                                            {if $document->name|escape == 'Приложение 1'}
+                                                {$is_pril_1=true}
+                                                {if !in_array($manager->role, ['developer'])}
+                                                    {continue}
+                                                {/if}
+                                            {/if}
                                             {if $document->name|escape == 'Полис страхования' ||  $document->name|escape == 'Полис страхования при пролонгаци' ||  $document->name|escape == 'Дополнительное соглашение о реструктуризации'}
                                                 <tr>
                                                     <td class="text-info">
@@ -3089,6 +3152,17 @@
                                             {/if}
                                         {/foreach}
                                     </table>
+                                    {if in_array($manager->role, ['developer'])}
+                                        {if $add_pril_1 && !$is_pril_1}
+                                            <button type="button"
+                                                    class="pb-0 pt-0 mr-2 btn btn-sm btn-danger waves-effect js-add-pril-1 "
+                                                    style="padding: 20px; height: 40px;">
+                                                    Добавить Приложение 1
+                                            </button>
+                                        {/if}
+                                    {/if}
+                                    <br>
+                                    <hr>
                                 {else}
                                     <h4>Нет доступных документов</h4>
                                 {/if}
@@ -3222,6 +3296,16 @@
                             <div class="tab-pane p-3" id="operations" role="tabpanel">
                                 {if $contract_operations}
                                     <table class="table table-hover ">
+                                        <tr>
+                                            <td>Дата</td>
+                                            <td>Операция</td>
+                                            <td>Сумма</td>
+                                            <td>Операция Б2П</td>
+                                            <td>ОД</td>
+                                            <td>Проценты</td>
+                                            <td>Пени</td>
+                                            <td>Отправить</td>
+                                        </tr>
                                         <tbody>
                                         {foreach $contract_operations as $operation}
                                             <tr class="
@@ -3268,6 +3352,23 @@
                                                         {$operation->p2pOperation['operation_id']}
                                                     {else}
                                                         {$operation->transaction->operation}
+                                                    {/if}
+                                                </td>
+                                                <td>
+                                                    {$operation->loan_body_summ}
+                                                </td>
+                                                <td>
+                                                    {$operation->loan_percents_summ}
+                                                </td>
+                                                <td>
+                                                    {$operation->loan_peni_summ}
+                                                </td>
+                                                <td>
+                                                    {if $operation->type == 'PAY'}
+                                                        <button class="btn btn-info btn-block js-to-onec"
+                                                        data-event="15" data-operation="{$operation->id}">
+                                                            Отправить в 1С
+                                                        </button>
                                                     {/if}
                                                 </td>
                                             </tr>
