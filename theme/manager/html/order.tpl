@@ -3364,7 +3364,7 @@
                                                     {$operation->loan_peni_summ}
                                                 </td>
                                                 <td>
-                                                    {if $operation->type == 'PAY'}
+                                                    {if $operation->type == 'PAY' || $operation->type == 'RECURRENT'}
                                                         <button class="btn btn-info btn-block js-to-onec"
                                                         data-event="15" data-operation="{$operation->id}">
                                                             Отправить в 1С
