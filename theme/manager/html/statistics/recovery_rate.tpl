@@ -95,16 +95,17 @@
                         <h4 class="card-title">Отчет Recovery rate</h4>
                         <form>
                             <div class="row">
+                                {*}
                                 <div class="col-12 col-md-4">
                                     <button type="submit" class="btn btn-info">Сформировать</button>
                                 </div>
-                                {if 1==1}
-                                    <div class="col-12 col-md-4 text-right">
-                                        <a href="{url download='excel'}" class="btn btn-success ">
-                                            <i class="fas fa-file-excel"></i> Скачать
-                                        </a>
-                                    </div>
-                                {/if}
+
+                                <div class="col-12 col-md-4 text-right">
+                                    <a href="{url download='excel'}" class="btn btn-success ">
+                                        <i class="fas fa-file-excel"></i> Скачать
+                                    </a>
+                                </div>
+                                {*}
                             </div>
 
                         </form>
@@ -122,26 +123,31 @@
                                             {/if}
                                             <th>{$payment_by_date['date_payment']}</th>
                                         {/foreach}
+                                        {break}
                                     {/foreach}
                                 </tr>
        
                                 </thead>
 
                                 <tbody id="table_content">
-                                    <tr>
-                                        {foreach $operations_by_date as $key => $operation_by_date}
-                                            {*}
+                                    {foreach $operations_by_date as $key => $operation_by_date}
+                                        <tr>
+                                            <td>{$operation_by_date[0]['date_contract']}</td>
+                                            {$p2p = 0}
                                             {foreach $operation_by_date as $key_pay => $payment_by_date}
                                                 {if $key_pay == "date_contract"}
                                                     {continue}
                                                 {/if}
-                                            {*}
-                                                <td>{var_dump($operation_by_date)}</td>
-                                            {*}
+
+                                                {$p2p = $p2p + $payment_by_date['P2P']}
+                                                {if $p2p > 0 && $payment_by_date['PAY'] > 0}
+                                                    <td>{($payment_by_date['PAY'] / $p2p * 100)|number_format:2:".":""}%</td>
+                                                {else}
+                                                    <td></td>
+                                                {/if}
                                             {/foreach}
-                                            {*}
-                                        {/foreach}
-                                    </tr>
+                                        </tr>
+                                    {/foreach}
                                 </tbody>
                             </table>
                         </div>
