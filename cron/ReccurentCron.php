@@ -36,125 +36,126 @@ class ReccurentCron extends Core
                 $date2 = new DateTime(date('Y-m-d'));
                 $diff = $date2->diff($date1);
 
-                echo "Count attempts ".count($attempts)."\r\n";
                 //Если кол-во дней совпадает и нет попыток
                 if (($diff->days >= $setting->days) && ($contract->reccurent_attempt < count($attempts))) {
-                    echo "Start calc by contract {$contract->id} \r\n";
-                    // получаем текущую попытку для контракта
-                    $attempt = $attempts[$contract->reccurent_attempt] ?? $attempts[0];
-                    // получаем общую сумму для списания
-                    // основной долг + проценты + пени
-                    $contract_total_summ = $contract->loan_body_summ + $contract->loan_percents_summ + $contract->loan_peni_summ;
+                    foreach ($attempts as $tempAttemp) {
+                        $current_attempt = $contract->reccurent_attempt;
+                        echo "Start calc by contract {$contract->id} \r\n";
+                        // получаем текущую попытку для контракта
+                        $attempt = $attempts[$current_attempt] ?? $attempts[0];
+                        // получаем общую сумму для списания
+                        // основной долг + проценты + пени
+                        $contract_total_summ = $contract->loan_body_summ + $contract->loan_percents_summ + $contract->loan_peni_summ;
 
-                    // если в настройке указаны проценты нужно перевести в деньги
-                    if ($attempt['type'] != 'price') {
-                        $percent = $attempt['summ'];
-                        $amount = $contract_total_summ * ($percent / 100);
-                    } else {
-                        $amount = $attempt['summ'];
-                    }
+                        // если в настройке указаны проценты нужно перевести в деньги
+                        if ($attempt['type'] != 'price') {
+                            $percent = $attempt['summ'];
+                            $amount = $contract_total_summ * ($percent / 100);
+                        } else {
+                            $amount = $attempt['summ'];
+                        }
 
-                    // если общая сумма списания превышает ту что в настройке,
-                    // прир
+                        // если общая сумма списания превышает ту что в настройке,
+                        // прир
 
+                        if ($amount > $contract_total_summ) {
+                            $amount = $contract_total_summ;
+                        }
 
+                        $amount = $amount * 100;
 
-                    if ($amount > $contract_total_summ) {
-                        $amount = $contract_total_summ;
-                    }
+                        $order = $this->orders->get_order($contract->order_id);
+                        $reccurent_pay = $this->best2pay->reccurent_pay($order, $amount, $setting->id);
+                        print_r('reccurent_pay'.PHP_EOL);
+                        var_dump($reccurent_pay);
+                        if (!$reccurent_pay) {
+                            $this->contracts->update_contract($contract->id, array(
+                                'reccurent_status' => 0,
+                            ));
+                            break;
+                        } else {
 
-                    $amount = $amount * 100;
+                            $amount = $amount / 100;
+                            $save_amount = $amount;
 
-                    $order = $this->orders->get_order($contract->order_id);
-                    $reccurent_pay = $this->best2pay->reccurent_pay($order, $amount, $setting->id);
-                    print_r('reccurent_pay'.PHP_EOL);
-                    var_dump($reccurent_pay);
-                    if (!$reccurent_pay) {
-                        $this->contracts->update_contract($contract->id, array(
-                            'reccurent_status' => 0,
-                        ));
-                    } else {
+                            $loan_peni_summ = $contract->loan_peni_summ;
+                            $loan_percents_summ = $contract->loan_percents_summ;
+                            $loan_body_summ = $contract->loan_body_summ;
 
-                        $amount = $amount / 100;
-                        $save_amount = $amount;
+                            $transaction_peni_summ = 0;
+                            $transaction_percent_summ = 0;
+                            $transaction_body_summ = 0;
 
-                        $loan_peni_summ = $contract->loan_peni_summ;
-                        $loan_percents_summ = $contract->loan_percents_summ;
-                        $loan_body_summ = $contract->loan_body_summ;
+                            echo "Amount = $amount calc peni\r\n";
+                            if ($amount >= $loan_peni_summ) {
+                                $amount -= $loan_peni_summ;
+                                $transaction_peni_summ = $loan_peni_summ;
+                                $loan_peni_summ = 0;
 
-                        $transaction_peni_summ = 0;
-                        $transaction_percent_summ = 0;
-                        $transaction_body_summ = 0;
+                                echo "Amount = $amount calc percents\r\n";
+                                if ($amount >= $loan_percents_summ) {
+                                    $amount -= $loan_percents_summ;
+                                    $transaction_percent_summ = $loan_percents_summ;
+                                    $loan_percents_summ = 0;
 
-                        echo "Amount = $amount calc peni\r\n";
-                        if ($amount >= $loan_peni_summ) {
-                            $amount -= $loan_peni_summ;
-                            $transaction_peni_summ = $loan_peni_summ;
-                            $loan_peni_summ = 0;
+                                    echo "Amount = $amount calc body\r\n";
+                                    if ($amount >= $loan_body_summ) {
+                                        $transaction_body_summ = $loan_body_summ;
+                                        $loan_body_summ = 0;
+                                    } else {
+                                        $loan_body_summ -= $amount;
+                                        $transaction_body_summ = $amount;
+                                    }
 
-                            echo "Amount = $amount calc percents\r\n";
-                            if ($amount >= $loan_percents_summ) {
-                                $amount -= $loan_percents_summ;
-                                $transaction_percent_summ = $loan_percents_summ;
-                                $loan_percents_summ = 0;
-
-                                echo "Amount = $amount calc body\r\n";
-                                if ($amount >= $loan_body_summ) {
-                                    $transaction_body_summ = $loan_body_summ;
-                                    $loan_body_summ = 0;
                                 } else {
-                                    $loan_body_summ -= $amount;
-                                    $transaction_body_summ = $amount;
+                                    $loan_percents_summ -= $amount;
+                                    $transaction_percent_summ = $amount;
                                 }
 
                             } else {
-                                $loan_percents_summ -= $amount;
-                                $transaction_percent_summ = $amount;
+                                $loan_peni_summ -= $amount;
+                                $transaction_peni_summ = $amount;
                             }
 
-                        } else {
-                            $loan_peni_summ -= $amount;
-                            $transaction_peni_summ = $amount;
-                        }
+                            $operation = OperationsORM::query()->where('id', '=', $reccurent_pay)->first();
+                            if ($operation) {
+                                echo "Operation exis\r\n";
+                                $operation->update([
+                                    'loan_body_summ' => $transaction_body_summ,
+                                    'loan_percents_summ' => $transaction_percent_summ,
+                                    'loan_peni_summ' => $transaction_peni_summ
+                                ]);
+                            }
+                            $transaction = TransactionsORM::query()->where('id', '=', $operation->transaction_id)->first();
+                            if (!$transaction) {
+                                echo "Transaction exis\r\n";
+                                $transaction->update([
+                                    'loan_body_summ' => $transaction_body_summ,
+                                    'loan_percents_summ' => $transaction_percent_summ,
+                                    'loan_peni_summ' => $transaction_peni_summ
+                                ]);
+                            }
+                            $current_attempt = $contract->reccurent_attempt + 1;
+                            $save = [
+                                'loan_body_summ' => $loan_body_summ,
+                                'loan_percents_summ' => $loan_percents_summ,
+                                'loan_peni_summ' => $loan_peni_summ,
+                                'reccurent_attempt' => $current_attempt,
+                                'reccurent_summ' => $contract->reccurent_summ + $save_amount,
+                                'reccurent_status' => 1,
+                            ];
 
-                        $operation = OperationsORM::query()->where('id', '=', $reccurent_pay)->first();
-                        if ($operation) {
-                            echo "Operation exis\r\n";
-                            $operation->update([
-                                'loan_body_summ' => $transaction_body_summ,
-                                'loan_percents_summ' => $transaction_percent_summ,
-                                'loan_peni_summ' => $transaction_peni_summ
-                            ]);
-                        }
-                        $transaction = TransactionsORM::query()->where('id', '=', $operation->transaction_id)->first();
-                        if (!$transaction) {
-                            echo "Transaction exis\r\n";
-                            $transaction->update([
-                                'loan_body_summ' => $transaction_body_summ,
-                                'loan_percents_summ' => $transaction_percent_summ,
-                                'loan_peni_summ' => $transaction_peni_summ
-                            ]);
-                        }
+                            if ($loan_body_summ <= 0) {
+                                $save['status'] = 3;
+                                $save['close_date'] = date('Y-m-d H:i:s');
+                                $save['collection_status'] = 0;
+                                $save['collection_manager_id'] = 0;
+                                $this->orders->update_order($contract->order_id, ['status' => 7]);
 
-                        $save = [
-                            'loan_body_summ' => $loan_body_summ,
-                            'loan_percents_summ' => $loan_percents_summ,
-                            'loan_peni_summ' => $loan_peni_summ,
-                            'reccurent_attempt' => $contract->reccurent_attempt + 1,
-                            'reccurent_summ' => $contract->reccurent_summ + $save_amount,
-                            'reccurent_status' => 1,
-                        ];
-
-                        if ($loan_body_summ <= 0) {
-                            $save['status'] = 3;
-                            $save['close_date'] = date('Y-m-d H:i:s');
-                            $save['collection_status'] = 0;
-                            $save['collection_manager_id'] = 0;
-                            $this->orders->update_order($contract->order_id, ['status' => 7]);
-
+                            }
+                            $this->contracts->update_contract($contract->id, $save);
+                            print_r(PHP_EOL.$contract->id.PHP_EOL);die();
                         }
-                        $this->contracts->update_contract($contract->id, $save);
-                        print_r(PHP_EOL.$contract->id.PHP_EOL);die();
                     }
                 }
 
