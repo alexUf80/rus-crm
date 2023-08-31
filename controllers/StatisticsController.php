@@ -98,6 +98,10 @@ class StatisticsController extends Controller
             case 'collectors_expired':
                 return $this->action_collectors_expired();
                 break;
+            
+            case 'recovery_rate':
+                return $this->action_recovery_rate();
+                break;
     
                 
             default:
@@ -3840,6 +3844,130 @@ class StatisticsController extends Controller
 
 
         return $this->design->fetch('statistics/collectors_expired1.tpl');
+    }
+
+
+    private function cmp($a, $b)
+    {
+        if (isset($a["date_payment"]) && isset($b["date_payment"])) {
+            return strcmp($a["date_payment"], $b["date_payment"]);
+        }
+    }
+    private function action_recovery_rate()
+    {
+
+        $begin_date = '2023-01';
+        $end_date = date("Y-m");
+        
+        $query = $this->db->placehold("
+            SELECT
+                o.id,
+                o.type,
+                o.amount,
+                o.created,
+                o.transaction_id,
+                c.id AS contract_id,
+                c.inssuance_date,
+                u.id AS uder_id,
+                t.loan_body_summ
+            FROM __operations AS o
+            LEFT JOIN __contracts AS c
+            ON c.id = o.contract_id
+            LEFT JOIN __users AS u
+            ON u.id = o.user_id
+            LEFT JOIN __transactions AS t
+            ON t.id = o.transaction_id
+            WHERE (o.type = 'P2P' OR o.type = 'PAY' OR o.type = 'RECURRENT')
+            #AND ((c.inssuance_date >= '2023-03-01' AND c.inssuance_date < '2023-04-01')
+            #OR (c.inssuance_date >= '2023-01-01' AND c.inssuance_date < '2023-02-01'))
+            AND (c.inssuance_date >= '2023-01-01' AND c.inssuance_date < '2023-02-01')
+            ORDER BY o.created
+        ");
+        $this->db->query($query);
+
+        $results = $this->db->results();
+        
+        $operations_by_date = [];
+        foreach ($results as $op) {
+            if (!array_key_exists(date('Y-m', strtotime($op->inssuance_date)), $operations_by_date)) {
+                $operations_by_date[date('Y-m', strtotime($op->inssuance_date))]['date_contract'] = date('Y-m', strtotime($op->inssuance_date));
+                $current_date = date('Y-m', strtotime($op->inssuance_date));
+            }
+
+            if (!array_key_exists(date('Y-m', strtotime($op->created)), $operations_by_date[date('Y-m', strtotime($op->inssuance_date))])) {
+                $operations_by_date[date('Y-m', strtotime($op->inssuance_date))][date('Y-m', strtotime($op->created))]['date_payment'] = date('Y-m', strtotime($op->created));
+                $operations_by_date[date('Y-m', strtotime($op->inssuance_date))][date('Y-m', strtotime($op->created))]['P2P'] = 0;
+                $operations_by_date[date('Y-m', strtotime($op->inssuance_date))][date('Y-m', strtotime($op->created))]['PAY'] = 0;
+            }
+
+            if ($op->type == 'P2P') {
+                $operations_by_date[date('Y-m', strtotime($op->inssuance_date))][date('Y-m', strtotime($op->created))]['P2P'] += $op->amount;
+            }
+            else if ($op->type == 'PAY' || $op->type == 'RECURRENT') {
+                $transaction = $this->transactions->get_transaction($op->transaction_id);
+                if (isset($transaction)) {
+                    $operations_by_date[date('Y-m', strtotime($op->inssuance_date))][date('Y-m', strtotime($op->created))]['PAY'] += $transaction->loan_body_summ;
+                }
+            }
+
+        }
+        $P2P = 0;
+        $PAY = 0;
+        foreach ($operations_by_date as $key => $operation_by_date) {
+            $current_date = $operation_by_date['date_contract'];
+
+
+            if (date('Y-m', strtotime($key)) < $begin_date) {
+                continue;
+            }
+
+            foreach ($operation_by_date as $key_pay => $payment_by_date) {
+                
+                if ($key_pay == "date_contract") {
+                    continue;
+                }
+
+                if ($current_date != $payment_by_date['date_payment']) {
+                    while ($current_date != $payment_by_date['date_payment']) {
+                        $operations_by_date[$key][$current_date]['date_payment'] = $current_date;
+                        $operations_by_date[$key][$current_date]['P2P'] = 0;
+                        $operations_by_date[$key][$current_date]['PAY'] = 0;
+                        $current_date = date("Y-m", strtotime('+1 MONTH', strtotime($current_date)));
+                    }
+                }
+
+
+                if (isset($payment_by_date['P2P']) || isset($payment_by_date['PAY'])) {
+                    if ($payment_by_date['P2P'] != 0 || $payment_by_date['PAY'] != 0) {
+                        $P2P += $payment_by_date['P2P'];
+                        $PAY += $payment_by_date['PAY'];
+                    }
+                }
+                $current_date = date("Y-m", strtotime('+1 MONTH', strtotime($current_date)));
+            }
+
+            if ($current_date != $end_date) {
+                while ($current_date != $end_date) {
+                    $operations_by_date[$key][$current_date]['date_payment'] = $current_date;
+                    $operations_by_date[$key][$current_date]['P2P'] = 0;
+                    $operations_by_date[$key][$current_date]['PAY'] = 0;
+                    $current_date = date("Y-m", strtotime('+1 MONTH', strtotime($current_date)));
+                }
+                $operations_by_date[$key][$current_date]['date_payment'] = $current_date;
+                $operations_by_date[$key][$current_date]['P2P'] = 0;
+                $operations_by_date[$key][$current_date]['PAY'] = 0;
+            }
+
+            usort($operations_by_date[$key], array($this, 'cmp'));
+        }
+
+        $this->design->assign('operations_by_date', $operations_by_date);
+
+        
+        $this->design->assign('begin_date', $begin_date);
+        $this->design->assign('end_date', $end_date);
+
+        return $this->design->fetch('statistics/recovery_rate.tpl');
     }
 
 }

@@ -3117,7 +3117,7 @@
                                             {/if}
                                             {if $document->name|escape == 'Приложение 1'}
                                                 {$is_pril_1=true}
-                                                {if !in_array($manager->role, ['developer'])}
+                                                {if !in_array($manager->role, ['developer', 'admin'])}
                                                     {continue}
                                                 {/if}
                                             {/if}
