@@ -55,7 +55,10 @@ class ReccurentCron extends Core
                     }
 
                     // если общая сумма списания превышает ту что в настройке,
-                    // приравниваем её к общей сумме долга
+                    // прир
+
+
+
                     if ($amount > $contract_total_summ) {
                         $amount = $contract_total_summ;
                     }
@@ -64,40 +67,73 @@ class ReccurentCron extends Core
 
                     $order = $this->orders->get_order($contract->order_id);
                     $reccurent_pay = $this->best2pay->reccurent_pay($order, $amount, $setting->id);
+                    print_r('reccurent_pay'.PHP_EOL);
+                    var_dump($reccurent_pay);
                     if (!$reccurent_pay) {
                         $this->contracts->update_contract($contract->id, array(
                             'reccurent_status' => 0,
                         ));
                     } else {
+
                         $amount = $amount / 100;
                         $save_amount = $amount;
 
                         $loan_peni_summ = $contract->loan_peni_summ;
                         $loan_percents_summ = $contract->loan_percents_summ;
                         $loan_body_summ = $contract->loan_body_summ;
+
+                        $transaction_peni_summ = 0;
+                        $transaction_percent_summ = 0;
+                        $transaction_body_summ = 0;
+
                         echo "Amount = $amount calc peni\r\n";
                         if ($amount >= $loan_peni_summ) {
                             $amount -= $loan_peni_summ;
+                            $transaction_peni_summ = $loan_peni_summ;
                             $loan_peni_summ = 0;
 
                             echo "Amount = $amount calc percents\r\n";
                             if ($amount >= $loan_percents_summ) {
                                 $amount -= $loan_percents_summ;
+                                $transaction_percent_summ = $loan_percents_summ;
                                 $loan_percents_summ = 0;
 
                                 echo "Amount = $amount calc body\r\n";
                                 if ($amount >= $loan_body_summ) {
+                                    $transaction_body_summ = $loan_body_summ;
                                     $loan_body_summ = 0;
                                 } else {
                                     $loan_body_summ -= $amount;
+                                    $transaction_body_summ = $amount;
                                 }
 
                             } else {
                                 $loan_percents_summ -= $amount;
+                                $transaction_percent_summ = $amount;
                             }
 
                         } else {
                             $loan_peni_summ -= $amount;
+                            $transaction_peni_summ = $amount;
+                        }
+
+                        $operation = OperationsORM::query()->where('id', '=', $reccurent_pay)->first();
+                        if ($operation) {
+                            echo "Operation exis\r\n";
+                            $operation->update([
+                                'loan_body_summ' => $transaction_body_summ,
+                                'loan_percents_summ' => $transaction_percent_summ,
+                                'loan_peni_summ' => $transaction_peni_summ
+                            ]);
+                        }
+                        $transaction = TransactionsORM::query()->where('id', '=', $operation->transaction_id)->first();
+                        if (!$transaction) {
+                            echo "Transaction exis\r\n";
+                            $transaction->update([
+                                'loan_body_summ' => $transaction_body_summ,
+                                'loan_percents_summ' => $transaction_percent_summ,
+                                'loan_peni_summ' => $transaction_peni_summ
+                            ]);
                         }
 
                         $save = [
@@ -118,6 +154,7 @@ class ReccurentCron extends Core
 
                         }
                         $this->contracts->update_contract($contract->id, $save);
+                        print_r(PHP_EOL.$contract->id.PHP_EOL);die();
                     }
                 }
 
