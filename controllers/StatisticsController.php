@@ -3878,11 +3878,9 @@ class StatisticsController extends Controller
             LEFT JOIN __transactions AS t
             ON t.id = o.transaction_id
             WHERE (o.type = 'P2P' OR o.type = 'PAY' OR o.type = 'RECURRENT')
-            #AND ((c.inssuance_date >= '2023-03-01' AND c.inssuance_date < '2023-04-01')
-            #OR (c.inssuance_date >= '2023-01-01' AND c.inssuance_date < '2023-02-01'))
-            AND (c.inssuance_date >= '2023-01-01' AND c.inssuance_date < '2023-02-01')
+            AND c.inssuance_date >= ?
             ORDER BY o.created
-        ");
+        ", $begin_date);
         $this->db->query($query);
 
         $results = $this->db->results();
@@ -3890,7 +3888,8 @@ class StatisticsController extends Controller
         $operations_by_date = [];
         foreach ($results as $op) {
             if (!array_key_exists(date('Y-m', strtotime($op->inssuance_date)), $operations_by_date)) {
-                $operations_by_date[date('Y-m', strtotime($op->inssuance_date))]['date_contract'] = date('Y-m', strtotime($op->inssuance_date));
+                $operations_by_date[date('Y-m', strtotime($op->inssuance_date))][date('Y-m', strtotime('-1 MONTH', strtotime($begin_date)))]['date_payment'] = date("Y-m", strtotime('-1 MONTH', strtotime($begin_date)));
+                $operations_by_date[date('Y-m', strtotime($op->inssuance_date))][date('Y-m', strtotime('-1 MONTH', strtotime($begin_date)))]['date_contract'] = date('Y-m', strtotime($op->inssuance_date));
                 $current_date = date('Y-m', strtotime($op->inssuance_date));
             }
 
@@ -3914,7 +3913,15 @@ class StatisticsController extends Controller
         $P2P = 0;
         $PAY = 0;
         foreach ($operations_by_date as $key => $operation_by_date) {
-            $current_date = $operation_by_date['date_contract'];
+            $current_date = $begin_date;
+            // if ($current_date != $operation_by_date[date('Y-m', strtotime('-1 MONTH', strtotime($begin_date)))]['date_contract']) {
+            //     while ($current_date != $operation_by_date[date('Y-m', strtotime('-1 MONTH', strtotime($begin_date)))]['date_contract']) {
+            //         $operations_by_date[$key][$current_date]['date_payment'] = $current_date;
+            //         $operations_by_date[$key][$current_date]['P2P'] = 0;
+            //         $operations_by_date[$key][$current_date]['PAY'] = 0;
+            //         $current_date = date("Y-m", strtotime('+1 MONTH', strtotime($current_date)));
+            //     }
+            // }
 
 
             if (date('Y-m', strtotime($key)) < $begin_date) {
@@ -3923,7 +3930,7 @@ class StatisticsController extends Controller
 
             foreach ($operation_by_date as $key_pay => $payment_by_date) {
                 
-                if ($key_pay == "date_contract") {
+                if ($key_pay == "2022-12") {
                     continue;
                 }
 
@@ -3946,7 +3953,7 @@ class StatisticsController extends Controller
                 $current_date = date("Y-m", strtotime('+1 MONTH', strtotime($current_date)));
             }
 
-            if ($current_date != $end_date) {
+            if ($current_date <= $end_date) {
                 while ($current_date != $end_date) {
                     $operations_by_date[$key][$current_date]['date_payment'] = $current_date;
                     $operations_by_date[$key][$current_date]['P2P'] = 0;
@@ -3960,6 +3967,7 @@ class StatisticsController extends Controller
 
             usort($operations_by_date[$key], array($this, 'cmp'));
         }
+        ksort($operations_by_date);
 
         $this->design->assign('operations_by_date', $operations_by_date);
 
