@@ -1189,9 +1189,7 @@ class Best2pay extends Core
                 'transaction_id' => $transaction->id,
                 'service_number' => $max_service_value,
             ));
-            $operation = $this->operations->get_operation($operation_id);
-            $operation->transaction = $this->transactions->get_transaction($transaction->id);
-            return true;
+            return $operation_id;
         } else {
             return false;
         }
