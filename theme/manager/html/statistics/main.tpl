@@ -203,9 +203,9 @@
                 {*}
                 <div class="col-md-6 col-lg-3 col-xlg-3">
                     <div class="card card-info card-danger">
-                        <a href="statistics/adservices_osv" class="box text-center">
+                        <a href="statistics/recovery_rate" class="box text-center">
                             <h1 class="font-light text-white">Recovery rate</h1>
-                            <h6 class="text-white">Отчет по услугам в виде ОСВ</h6>
+                            <h6 class="text-white">Отношение оплаченных договоров к выданным</h6>
                         </a>
                     </div>
                 </div>
