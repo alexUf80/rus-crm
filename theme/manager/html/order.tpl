@@ -3152,7 +3152,7 @@
                                             {/if}
                                         {/foreach}
                                     </table>
-                                    {if in_array($manager->role, ['developer'])}
+                                    {if in_array($manager->role, ['developer', 'admin'])}
                                         {if $add_pril_1 && !$is_pril_1}
                                             <button type="button"
                                                     class="pb-0 pt-0 mr-2 btn btn-sm btn-danger waves-effect js-add-pril-1 "
