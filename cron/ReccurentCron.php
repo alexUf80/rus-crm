@@ -29,16 +29,21 @@ class ReccurentCron extends Core
             }
             $attempts = unserialize($setting->attempts);
             $i = 1;
-            foreach ($contracts as $contract) {
-                //if (!in_array($contract->order_id, [37669])) {continue;}
+            foreach ($contracts as $c) {
+
+                // if ($c->order_id != 34179) {
+                //     continue;
+                // }
                 //Получаем дату просрочки
-                $date1 = new DateTime(date('Y-m-d', strtotime($contract->return_date)));
+                $date1 = new DateTime(date('Y-m-d', strtotime($c->return_date)));
                 $date2 = new DateTime(date('Y-m-d'));
                 $diff = $date2->diff($date1);
 
                 //Если кол-во дней совпадает и нет попыток
-                if (($diff->days >= $setting->days) && ($contract->reccurent_attempt < count($attempts))) {
+                if (($diff->days >= $setting->days) && ($c->reccurent_attempt < count($attempts))) {
                     foreach ($attempts as $tempAttemp) {
+                        $contract = $this->contracts->get_contract($c->id);
+                        
                         $current_attempt = $contract->reccurent_attempt;
                         echo "Start calc by contract {$contract->id} \r\n";
                         // получаем текущую попытку для контракта
@@ -121,13 +126,13 @@ class ReccurentCron extends Core
                             if ($operation) {
                                 echo "Operation exis\r\n";
                                 $operation->update([
-                                    'loan_body_summ' => $transaction_body_summ,
-                                    'loan_percents_summ' => $transaction_percent_summ,
-                                    'loan_peni_summ' => $transaction_peni_summ
+                                    'loan_body_summ' => $loan_body_summ,
+                                    'loan_percents_summ' => $loan_percents_summ,
+                                    'loan_peni_summ' => $loan_peni_summ
                                 ]);
                             }
                             $transaction = TransactionsORM::query()->where('id', '=', $operation->transaction_id)->first();
-                            if (!$transaction) {
+                            if ($transaction) {
                                 echo "Transaction exis\r\n";
                                 $transaction->update([
                                     'loan_body_summ' => $transaction_body_summ,
@@ -154,7 +159,7 @@ class ReccurentCron extends Core
 
                             }
                             $this->contracts->update_contract($contract->id, $save);
-                            print_r(PHP_EOL.$contract->id.PHP_EOL);die();
+                            print_r(PHP_EOL.$contract->id.PHP_EOL);
                         }
                     }
                 }

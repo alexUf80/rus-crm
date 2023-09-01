@@ -3540,29 +3540,59 @@ class OrderController extends Controller
             $loan_peni_summ = $contract->loan_peni_summ;
             $loan_percents_summ = $contract->loan_percents_summ;
             $loan_body_summ = $contract->loan_body_summ;
+
+            $transaction_peni_summ = 0;
+            $transaction_percent_summ = 0;
+            $transaction_body_summ = 0;
+            // $pay
             echo "Amount = $summ calc peni\r\n";
             if ($summ >= $loan_peni_summ) {
                 $summ -= $loan_peni_summ;
                 $loan_peni_summ = 0;
+                $transaction_peni_summ = $loan_peni_summ;
 
                 echo "Amount = $summ calc percents\r\n";
                 if ($summ >= $loan_percents_summ) {
                     $summ -= $loan_percents_summ;
                     $loan_percents_summ = 0;
+                    $transaction_percent_summ = $loan_percents_summ;
 
                     echo "Amount = $summ calc body\r\n";
                     if ($summ >= $loan_body_summ) {
+                        $transaction_body_summ = $loan_body_summ;
                         $loan_body_summ = 0;
                     } else {
                         $loan_body_summ -= $summ;
+                        $transaction_body_summ = $summ;
                     }
 
                 } else {
                     $loan_percents_summ -= $summ;
+                    $transaction_percent_summ = $summ;
                 }
 
             } else {
                 $loan_peni_summ -= $summ;
+                $transaction_peni_summ = $summ;
+            }
+
+            $operation = OperationsORM::query()->where('id', '=', $reccurent_pay)->first();
+            if ($operation) {
+                echo "Operation exis\r\n";
+                $operation->update([
+                    'loan_body_summ' => $loan_body_summ,
+                    'loan_percents_summ' => $loan_percents_summ,
+                    'loan_peni_summ' => $loan_peni_summ
+                ]);
+            }
+            $transaction = TransactionsORM::query()->where('id', '=', $operation->transaction_id)->first();
+            if ($transaction) {
+                echo "Transaction exis\r\n";
+                $transaction->update([
+                    'loan_body_summ' => $transaction_body_summ,
+                    'loan_percents_summ' => $transaction_percent_summ,
+                    'loan_peni_summ' => $transaction_peni_summ
+                ]);
             }
 
             $save = [
