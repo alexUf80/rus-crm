@@ -134,14 +134,16 @@
                                         <tr>
                                             <td>{$operation_by_date[0]['date_contract']}</td>
                                             {$p2p = 0}
+                                            {$pay = 0}
                                             {foreach $operation_by_date as $key_pay => $payment_by_date}
                                                 {if $key_pay == "date_contract"}
                                                     {continue}
                                                 {/if}
 
                                                 {$p2p = $p2p + $payment_by_date['P2P']}
-                                                {if $p2p > 0 && $payment_by_date['PAY'] > 0}
-                                                    <td>{($payment_by_date['PAY'] / $p2p * 100)|number_format:2:".":""}%</td>
+                                                {$pay = $pay + $payment_by_date['PAY']}
+                                                {if $p2p > 0 && $pay > 0}
+                                                    <td>{($pay / $p2p * 100)|number_format:2:".":""}%</td>
                                                 {else}
                                                     <td></td>
                                                 {/if}
