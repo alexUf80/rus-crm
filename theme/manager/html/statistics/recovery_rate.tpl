@@ -143,7 +143,7 @@
                                                 {$p2p = $p2p + $payment_by_date['P2P']}
                                                 {$pay = $pay + $payment_by_date['PAY']}
                                                 {if $p2p > 0 && $pay > 0}
-                                                    <td>{($pay / $p2p * 100)|number_format:2:".":""}%</td>
+                                                    <td>{($pay / $p2p * 100)|number_format:1:".":""} %</td>
                                                 {else}
                                                     <td></td>
                                                 {/if}

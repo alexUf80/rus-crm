@@ -3905,7 +3905,7 @@ class StatisticsController extends Controller
             else if ($op->type == 'PAY' || $op->type == 'RECURRENT') {
                 $transaction = $this->transactions->get_transaction($op->transaction_id);
                 if (isset($transaction)) {
-                    $operations_by_date[date('Y-m', strtotime($op->inssuance_date))][date('Y-m', strtotime($op->created))]['PAY'] += $transaction->loan_body_summ;
+                    $operations_by_date[date('Y-m', strtotime($op->inssuance_date))][date('Y-m', strtotime($op->created))]['PAY'] += $transaction->loan_body_summ + $transaction->loan_percents_summ + $transaction->loan_peni_summ;
                 }
             }
 
