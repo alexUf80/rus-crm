@@ -27,10 +27,9 @@ class ManagerController extends Controller
 
             $risk_id = (array)$this->request->post('risk_id');
             
+            $manager_id = $this->request->post('manager_id');
             if (!empty($risk_id))
             {
-                $manager_id = $this->request->post('manager_id');
-                // file_put_contents('c:\OSPanel\sas.txt', '$manager_id');
 
                 foreach ($risk_ops as $key => $value) {
                     $manager_risk_statuses[$key] = 0;
@@ -44,12 +43,21 @@ class ManagerController extends Controller
 
                 $added_risk_statuses = $this->ManagerRiskStatuses->get_record($manager_id);
                 if (isset($added_risk_statuses)) {
-                    // file_put_contents('c:\OSPanel\sas.txt', 1);
                     $this->ManagerRiskStatuses->update_record($manager_id, $manager_risk_statuses);
                 }
                 else{
                     $this->ManagerRiskStatuses->add_record($manager_risk_statuses);
                 }
+            }
+            else{
+                $manager_risk_statuses['created'] = date('Y-m-d H:i:s');
+                $manager_risk_statuses['manager_id'] = $manager_id;
+
+                foreach ($risk_ops as $key => $value) {
+                    $manager_risk_statuses[$key] = 0;
+                }
+
+                $this->ManagerRiskStatuses->update_record($manager_id, $manager_risk_statuses);
             }
 
             if (!empty($team_id))

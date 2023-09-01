@@ -35,10 +35,26 @@ class DistributiorCollectorsCron extends Core
             }
         }
 
+        // убираем по риск-статусу
+        $backRiskContracts = ContractsORM::selectRaw('id, (loan_body_summ + loan_percents_summ + loan_charge_summ + loan_peni_summ) as debt,
+            collection_status,
+            collection_manager_id,
+            user_id')
+            ->where('status', 4)
+            ->where('return_date', '<', date('Y-m-d'))
+            ->orderByRaw('debt', 'desc')
+            ->get();
+
+        $this->risk_statuses($backRiskContracts);
+        
+
+        // Распределение
+
         $expiredContracts = ContractsORM::selectRaw('id, (loan_body_summ + loan_percents_summ + loan_charge_summ + loan_peni_summ) as debt,
             collection_status,
             collection_manager_id,
-            return_date')
+            return_date,
+            user_id')
             ->where('status', 4)
             ->where('return_date', '<', date('Y-m-d'))
             ->orderByRaw('debt', 'desc')
@@ -94,6 +110,26 @@ class DistributiorCollectorsCron extends Core
             // array_push($collectorsMoveId, $lastCollectorId);
             $current_group_id = $collectorsMove->id;
             $lastCollectorId = $collectorsMoveId_worked[$groups_current_manager_number[$current_group_id] - 1];
+
+            if ($this->is_in_risk($contract, $lastCollectorId)) {
+                $lastCollectorId_prew = $lastCollectorId;
+                for ($i = 0; $i <= count($collectorsMoveId_worked); $i++) {
+                    
+                    $lastCollectorId = $collectorsMoveId_worked[$groups_current_manager_number[$current_group_id] - 1];
+                    if (!$this->is_in_risk($contract, $lastCollectorId)) {
+                        break;
+                    }
+                    $groups_current_manager_number[$collectorsMove->id]++;
+                    if($groups_current_manager_number[$collectorsMove->id] > count($collectorsMoveId_worked)){
+                        $groups_current_manager_number[$collectorsMove->id] = 1;
+                    }
+                }
+                if ($lastCollectorId_prew == $lastCollectorId) {
+                    continue;
+                }
+            }
+
+
             $groups_current_manager_number[$collectorsMove->id]++;
             if($groups_current_manager_number[$collectorsMove->id] > count($collectorsMoveId_worked)){
                 $groups_current_manager_number[$collectorsMove->id] = 1;
@@ -121,6 +157,43 @@ class DistributiorCollectorsCron extends Core
                 'expired_days' => $diff,
             ));
         }
+    }
+
+    private function risk_statuses($backRiskContracts)
+    {
+        foreach ($backRiskContracts as $contract) {
+            $user_risk_op = (array)$this->UsersRisksOperations->get_record($contract->user_id);
+            $user_risk_op = array_diff_key($user_risk_op, ["id"=>0, "user_id"=>0]);
+            $user_risk_op = array_diff($user_risk_op, [0]);
+            $user_risk_op = array_keys($user_risk_op);
+            
+            $added_risk_statuses = (array)$this->ManagerRiskStatuses->get_record($contract->collection_manager_id);
+            $added_risk_statuses = array_diff_key($added_risk_statuses, ["id"=>0, "manager_id"=>0, "created"=>0]);
+            $added_risk_statuses = array_diff($added_risk_statuses, [0]);
+            $added_risk_statuses = array_keys($added_risk_statuses);
+
+            $risk_op = $this->is_in_risk($contract,$contract->collection_manager_id);
+            if ($risk_op) {
+                ContractsORM::where('id', $contract->id)->update(['collection_status' => 0, 'collection_manager_id' => 0]);
+            }
+        }
+    }
+
+    private function is_in_risk($contract, $manager_id)
+    {
+        $user_risk_op = (array)$this->UsersRisksOperations->get_record($contract->user_id);
+        $user_risk_op = array_diff_key($user_risk_op, ["id"=>0, "user_id"=>0]);
+        $user_risk_op = array_diff($user_risk_op, [0]);
+        $user_risk_op = array_keys($user_risk_op);
+        
+        $added_risk_statuses = (array)$this->ManagerRiskStatuses->get_record($manager_id);
+        $added_risk_statuses = array_diff_key($added_risk_statuses, ["id"=>0, "manager_id"=>0, "created"=>0]);
+        $added_risk_statuses = array_diff($added_risk_statuses, [0]);
+        $added_risk_statuses = array_keys($added_risk_statuses);
+
+        $risk_op = array_intersect_assoc($user_risk_op, $added_risk_statuses);
+        
+        return $risk_op;
     }
 }
 
