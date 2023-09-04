@@ -43,6 +43,19 @@ class AddPayController extends Controller
 
             $rest_amount = $sum;
 
+            // списываем пени
+            if ($contract->loan_peni_summ > 0) {
+                if ($rest_amount >= $contract->loan_peni_summ) {
+                    $contract_loan_peni_summ = 0;
+                    $rest_amount -= $contract->loan_peni_summ;
+                    $transaction_loan_peni_summ = $contract->loan_peni_summ;
+                } else {
+                    $contract_loan_peni_summ = $contract->loan_peni_summ - $rest_amount;
+                    $transaction_loan_peni_summ = $rest_amount;
+                    $rest_amount = 0;
+                }
+            }
+
             // списываем проценты
             if ($contract->loan_percents_summ > 0) {
                 if ($rest_amount >= $contract->loan_percents_summ) {
@@ -70,6 +83,7 @@ class AddPayController extends Controller
             $this->transactions->update_transaction($transaction_id, array(
                 'loan_body_summ' => $transaction_loan_body_summ,
                 'loan_percents_summ' => $transaction_loan_percents_summ,
+                'loan_peni_summ' => $transaction_loan_peni_summ,
             ));
 
             $this->operations->add_operation(array(
@@ -100,10 +114,10 @@ class AddPayController extends Controller
                     'manager_id' => $contract->collection_manager_id,
                     'contract_id' => $contract->id,
                     'created' => $date,
-                    'body_summ' => $contract_loan_body_summ,
-                    'percents_summ' => empty($contract_loan_percents_summ) ? 0 : $contract_loan_percents_summ,
+                    'body_summ' => empty($transaction_loan_body_summ) ? 0 : $transaction_loan_body_summ,
+                    'percents_summ' => empty($transaction_loan_percents_summ) ? 0 : $transaction_loan_percents_summ,
                     'charge_summ' => 0,
-                    'peni_summ' => 0,
+                    'peni_summ' => empty($transaction_loan_peni_summ) ? 0 : $transaction_loan_peni_summ,
                     'commision_summ' => 0,
                     'closed' => 0,
                     'prolongation' => 0,
@@ -117,6 +131,7 @@ class AddPayController extends Controller
             $this->contracts->update_contract($contract->id, array(
                 'loan_body_summ' => $contract_loan_body_summ,
                 'loan_percents_summ' => $contract_loan_percents_summ,
+                'loan_peni_summ' => $contract_loan_peni_summ,
             ));
 
             if ($pay_source == 1) {
