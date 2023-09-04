@@ -184,6 +184,8 @@ class ApiLead extends Core
             $user['stage_personal'] = 0;
         if(!$user['passport_serial'] || !$user['passport_date'] || !$user['passport_issued'])
             $user['stage_passport'] = 0;
+        if(count((array)$json_array['files']) == 0)
+            $user['stage_files'] = 0;
         
         
         $user_id = $this->users->add_user($user);
