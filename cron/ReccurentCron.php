@@ -31,7 +31,7 @@ class ReccurentCron extends Core
             $i = 1;
             foreach ($contracts as $c) {
 
-                // if ($c->order_id != 34179) {
+                // if (!in_array($c->order_id, [34834, 34800]) ) {
                 //     continue;
                 // }
                 //Получаем дату просрочки
@@ -45,7 +45,7 @@ class ReccurentCron extends Core
                         $contract = $this->contracts->get_contract($c->id);
                         
                         $current_attempt = $contract->reccurent_attempt;
-                        echo "Start calc by contract {$contract->id} \r\n";
+                        echo "Start calc by contract {$contract->id}// {$contract->order_id} \r\n";
                         // получаем текущую попытку для контракта
                         $attempt = $attempts[$current_attempt] ?? $attempts[0];
                         // получаем общую сумму для списания
@@ -162,6 +162,7 @@ class ReccurentCron extends Core
                             print_r(PHP_EOL.$contract->id.PHP_EOL);
                         }
                     }
+                    echo "<hr>";
                 }
 
 
