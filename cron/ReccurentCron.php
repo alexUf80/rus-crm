@@ -16,18 +16,23 @@ class ReccurentCron extends Core
 
     public function run()
     {
+        //Получаем настройки рекурентов
+        $setting = RecurrentConfigORM::query()->where('actual', '=', 1)->first();
+        if (!$setting) {
+            return;
+        }
+        $attempts = unserialize($setting->attempts);
+        
+        if (!($setting->hour_time == date('H:i'))) {
+            return;
+        }
+
         /*$transaction = TransactionsORM::query()->where('id', '=', 161379)->first();
         $result = $this->best2pay->return_money_tr($transaction);
         print_r($result);
         die();*/
         if ($contracts = $this->contracts->get_contracts(array('status' => [4]))) {
 
-            //Получаем настройки рекурентов
-            $setting = RecurrentConfigORM::query()->where('actual', '=', 1)->first();
-            if (!$setting) {
-                return;
-            }
-            $attempts = unserialize($setting->attempts);
             $i = 1;
             foreach ($contracts as $c) {
 
@@ -40,7 +45,7 @@ class ReccurentCron extends Core
                 $diff = $date2->diff($date1);
 
                 //Если кол-во дней совпадает и нет попыток
-                if (($diff->days >= $setting->days) && ($c->reccurent_attempt < count($attempts))) {
+                if (($diff->days == $setting->days) && ($c->reccurent_attempt < count($attempts))) {
                     foreach ($attempts as $tempAttemp) {
                         $contract = $this->contracts->get_contract($c->id);
                         
