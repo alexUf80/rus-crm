@@ -522,7 +522,8 @@ class Nbki_report extends Core
         return $data;
     }
 
-    private function send($data, $url = 'v1/report/test/')
+    // private function send($data, $url = 'v1/report/test/')
+    private function send($data, $url = 'v2/report/temp-rutdf-5/')
     {
         $url = 'http://185.182.111.110:9009/api/' . $url;
 
