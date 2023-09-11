@@ -109,7 +109,8 @@ class Nbki_scoring extends Core
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
-            CURLOPT_URL => 'http://185.182.111.110:9009/api/v2/history/sign/',
+            // CURLOPT_URL => 'http://185.182.111.110:9009/api/v2/history/sign/',
+            CURLOPT_URL => 'http://185.182.111.110:9009/api/v2/report/temp-rutdf-5/',
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
