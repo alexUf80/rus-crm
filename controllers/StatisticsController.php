@@ -3723,6 +3723,7 @@ class StatisticsController extends Controller
             $contracts = $this->db->results();
             foreach ($contracts as $key => $contract) {
                 $order = $this->orders->get_order($contract->order_id);
+                $contract->order = $order;
 
                 $date1 = new DateTime(date('Y-m-d', strtotime($contract->return_date)));
                 $date2 = new DateTime(date('Y-m-d'));
@@ -3742,6 +3743,11 @@ class StatisticsController extends Controller
             
             $collection_statuses = $this->contracts->get_collection_statuses();
             $this->design->assign('collection_statuses', $collection_statuses);
+
+            $collector_tags = array();
+            foreach ($this->collector_tags->get_tags() as $ct)
+                $collector_tags[$ct->id] = $ct;
+            $this->design->assign('collector_tags', $collector_tags);
             
             if ($this->request->get('download') == 'excel') {
 

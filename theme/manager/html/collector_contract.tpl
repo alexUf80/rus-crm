@@ -1441,9 +1441,11 @@
                                                             <th>Комментарий</th>
                                                             <th>Пренадлежность</th>
                                                             <th>
-                                                                <div style="display: none" class="contact_edit_phone">
-                                                                    Скрыть телефон
-                                                                </div>
+                                                                {if in_array($manager->role, ['developer', 'admin','team_collector','senior collector'])}
+                                                                    <div style="display: none" class="contact_edit_phone">
+                                                                        Скрыть телефон
+                                                                    </div>
+                                                                {/if}
                                                             </th>
                                                             <th>
                                                                 <div data-id="{$client->id}" style="display: none"
@@ -1480,12 +1482,14 @@
                                                                 </td>
                                                                 <td>{$contact->comment}</td>
                                                                 <td>{$contact->relation}</td>
-                                                                <td>
-                                                                    <div class="custom-checkbox contact_edit_phone" style="display: none">
-                                                                        <input type="checkbox" name="hide-phone{$contact->id}" id="hide-phone{$contact->id}" class="js-hide-phone input-custom">
-                                                                        <label for="hide-phone{$contact->id}">Скрыть</label>
-                                                                    </div>
-                                                                </td>
+                                                                    <td>
+                                                                        <div class="custom-checkbox contact_edit_phone" style="display: none">
+                                                                            {if in_array($manager->role, ['developer', 'admin','team_collector','senior collector'])}
+                                                                                <input type="checkbox" name="hide-phone{$contact->id}" id="hide-phone{$contact->id}" class="js-hide-phone input-custom">
+                                                                                <label for="hide-phone{$contact->id}">Скрыть</label>
+                                                                            {/if}
+                                                                        </div>
+                                                                    </td>
                                                                 <td>
                                                                     
                                                                     <div class="btn btn-outline-warning edit_contact contact_edit_buttons"
@@ -3206,11 +3210,13 @@
                             <label class="custom-label">Комментарий</label>
                             <textarea class="form-control" name="comment"></textarea>
                         </div>
-                        <div class="custom-control custom-checkbox mr-sm-2 mb-3"> 
-                            <input type="checkbox" class="custom-control-input" id="contact_hide" name="contact_hide" value="1"
-                                placeholder="">
-                            <label for="contact_hide" class="custom-control-label">Скрыть телефон</label>
-                        </div>
+                        {if in_array($manager->role, ['developer', 'admin','team_collector','senior collector'])}
+                            <div class="custom-control custom-checkbox mr-sm-2 mb-3"> 
+                                <input type="checkbox" class="custom-control-input" id="contact_hide" name="contact_hide" value="1"
+                                    placeholder="">
+                                <label for="contact_hide" class="custom-control-label">Скрыть телефон</label>
+                            </div>
+                        {/if}
 
                         <div style="display: flex; justify-content: space-between">
                             <div id="contacts_actions" class="btn btn-success">Сохранить</div>
