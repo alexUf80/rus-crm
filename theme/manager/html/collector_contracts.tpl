@@ -13,13 +13,16 @@
     <script>
         $(function () {
 
-            let workout_checked = '';
-            $('.js-workout-input').each(function () {
-                if ($(this).is(':checked')) {
-                    workout_checked += $(this).val()+',';
-                }
-            })
-            $('.js_contracts_to_reset').val(workout_checked);
+            $('.js_reset_button').on('click', function (e) {
+                let workout_checked = '';
+                $('.js-workout-input').each(function () {
+                    if ($(this).is(':checked')) {
+                        workout_checked += $(this).val()+',';
+                    }
+                })
+                $('.js_contracts_to_reset').val(workout_checked);
+             })
+            
 
             $('.js-open-show').hide();
 
@@ -861,7 +864,7 @@
                                                 <input type="hidden" name="action" value="reset"/>
                                                 <input type="hidden" name="contracts_to_reset" class="js_contracts_to_reset"/>
 
-                                                <button class="btn btn-info" type="button" style="padding: 2px; margin-top: 5px"> Сброс отработано</button>
+                                                <button class="btn btn-info js_reset_button" type="button" style="padding: 2px; margin-top: 5px"> Сброс отработано</button>
                                             </form>
                                         </td>
                                         <td style="width: 140px;" class="jsgrid-cell">

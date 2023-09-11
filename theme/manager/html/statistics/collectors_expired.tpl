@@ -238,7 +238,14 @@
                                                 {/if}
                                             {/foreach}
                                             <td>{$mn}</td>
-                                            <td>{$collection_statuses[$contract->collection_status]}</td>
+                                            <td>
+                                                {if !$contract->order->contact_status}
+                                                    <span class="label label-warning">Нет данных</span>
+                                                {else}
+                                                    <span class="label"
+                                                            style="background:{$collector_tags[$contract->order->contact_status]->color}">{$collector_tags[$contract->order->contact_status]->name|escape}</span>
+                                                {/if}
+                                        </td>
                                             
                                             <td style="display: flex; flex-direction: column; align-items: flex-start">
                                             {if !empty($contract->risk)}
