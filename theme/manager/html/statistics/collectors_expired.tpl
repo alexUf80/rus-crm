@@ -245,7 +245,7 @@
                                                     <span class="label"
                                                             style="background:{$collector_tags[$contract->order->contact_status]->color}">{$collector_tags[$contract->order->contact_status]->name|escape}</span>
                                                 {/if}
-                                        </td>
+                                            </td>
                                             
                                             <td style="display: flex; flex-direction: column; align-items: flex-start">
                                             {if !empty($contract->risk)}

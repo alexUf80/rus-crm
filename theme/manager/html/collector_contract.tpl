@@ -88,7 +88,15 @@
                     {
                         $fileblock.find('.error_text').remove();
                         
-                        $fileblock.find('.js-fileName').addClass('uploaded').html('<img src="'+resp.filename+'" width="150" />');
+                        var ext_4 = ['tiff', 'wbmp', 'xbmp', 'jpeg'];
+                        var ext_3 = ['gif','jpg','png','swf','psd', 'bmp', 'jpc', 'jp2', 'jpx', 'jb2', 'swc', 'iff'];
+                        if(ext_3.includes(resp.filename.substr(-3)) || ext_4.includes(resp.filename.substr(-4))){
+                            $fileblock.find('.js-fileName').addClass('uploaded').html('<img src="'+resp.filename+'" width="150" />');
+                        }
+                        else{
+                            $fileblock.find('.js-fileName').addClass('uploaded').html('<H1>Файл загружается...</H1>');
+                        }
+                        $fileblock.find('.js-fileName-add').html('');
                         setTimeout(reload_func, 2000);
                         
                     }
@@ -119,7 +127,7 @@
                         Swal.fire({
                             timer: 5000,
                             title: '',
-                            text: 'Фотография документа удалена',
+                            text: 'Новый документ удалён',
                             type: 'success',
                         });
                         setTimeout(reload_func, 2000);
@@ -1187,7 +1195,7 @@
                             <li class="nav-item">
                                 <a class="nav-link js-event-add-click" data-toggle="tab" href="#collection_foto" role="tab" aria-selected="true" data-event="26" data-user="{$order->user_id}" data-order="{$order->order_id}" data-manager="{$manager->id}" >
                                     <span class="hidden-sm-up"><i class="ti-"></i></span>
-                                    <span class="hidden-xs-down">Фотографии документов</span>   
+                                    <span class="hidden-xs-down">Новые документы</span>   
                                 </a>
                             </li>
                         </ul>
@@ -3122,34 +3130,36 @@
                             </div>
                             <div class="tab-pane p-3" id="collection_foto" role="tabpanel">
 
-                                <h3>Фотографии документов</h3>
+                                <h3>Новые документы</h3>
 
                                 {if $user_files}
                                     
                                     {foreach $user_files as $user_file}
                                         <div style="max-height: 300px; width: auto;">
-                                            <img style="max-height: 300px; max-width: 100%; width: auto; " src="{$config->front_url}/files/users/{$user_file->name}" alt="" class="img-responsive" style="" />
+                                            {$ext_4 = ['tiff', 'wbmp', 'xbmp', 'jpeg']}
+                                            {$ext_3 = ['gif','jpg','png','swf','psd', 'bmp', 'jpc', 'jp2', 'jpx', 'jb2', 'swc', 'iff']}
+                                            {if (in_array(substr($user_file->name, -4), $ext_4)) || (in_array(substr($user_file->name, -3), $ext_3))}
+                                                <a href="{$config->front_url}/files/users/{$user_file->name}" target="_blank"><img style="max-height: 300px; max-width: 100%; width: auto; " src="{$config->front_url}/files/users/{$user_file->name}" alt="" class="img-responsive" style="" /></a>
+                                            {else}
+                                                <a href="{$config->front_url}/files/users/{$user_file->name}" target="_blank">{$user_file->name}</a>
+                                            {/if}
                                         </div>
                                         <button class="btn btn-danger delete-file" style="max-width: 150px; display: block; margin-top: 10px;" data-file-id="{$user_file->id}">Удалить</button>
                                         <hr>
                                     {/foreach}
                                 {else}
-                                    <h4>Нет фотографий документов</h4>
+                                    <h4>Нет новых документов</h4>
                                 {/if}
 
                                 <hr>
-                                <h3>Добавить фотографию документа</h3>
+                                <h3>Загрузить новый документ</h3>
                                 <div class="form_file_item {if $user_files['passport1']->status == 3}rejected{/if}">
                                     <input type="file" name="file1" id="file1" data-type="passport1" class="input_file" style="display:none">
                                     <label for="file1" class="btn js-labelFile">
                                     <span class="js-fileName {if $user_files['passport1']}uploaded{/if}">
-                                        <img src="theme/manager/assets/images/passport.png" width="150" />
+                                        <img src="theme/manager/assets/images/document.jpg" width="150" />
                                     </span>
-                                        {if $user_files['passport1']->status == 3}
-                                            <div class="-gil-m -fs-16 -red text-center">Заменить файл</div>
-                                        {else}
-                                            <div class="-gil-m -fs-16 -green text-center">Добавить файл</div>
-                                        {/if}
+                                        <div class="-gil-m -fs-16 -green text-center js-fileName-add">Добавить файл</div>
                                     </label>
                                     {if $user_files['passport1']->status == 3}
                                     <p class="text-danger">Файл не прошел проверку, загрузите новый</p>

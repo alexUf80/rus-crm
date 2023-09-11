@@ -24,6 +24,19 @@ class ToolsController extends Controller
                     return $this->action_reminders();
                     break;
 
+                // case 'distributior_collectors':
+                //     return $this->action_distributior_collectors();
+                //     break;
+
+                // case 'distributior_collectors_doc':
+                //     return $this->action_distributior_collectors_doc();
+                //     break;
+
+            endswitch;
+        }
+
+        if (in_array('collection_statistics', $this->manager->permissions)) {
+            switch ($this->request->get('action', 'string')):
                 case 'distributior_collectors':
                     return $this->action_distributior_collectors();
                     break;
@@ -31,7 +44,6 @@ class ToolsController extends Controller
                 case 'distributior_collectors_doc':
                     return $this->action_distributior_collectors_doc();
                     break;
-
             endswitch;
         }
     }

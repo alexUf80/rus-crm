@@ -3791,7 +3791,14 @@ class StatisticsController extends Controller
                         }
                     }
                     $active_sheet->setCellValue('E' . $i, $mn);
-                    $active_sheet->setCellValue('F' . $i, $collection_statuses[$contract->collection_status]);
+
+                    if (!$contract->order->contact_status){
+                        $tag = 'Нет данных';
+                    }
+                    else{
+                        $tag = $collector_tags[$contract->order->contact_status]->name;
+                    }
+                    $active_sheet->setCellValue('F' . $i, $tag);
 
                     $val_all = '';
                     if (!empty($contract->risk)){
