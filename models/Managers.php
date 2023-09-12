@@ -23,6 +23,7 @@ class Managers extends Core
     public function get_managers($filter = array())
     {
         $id_filter = '';
+        $name_filter = '';
         $role_filter = '';
         $blocked_filter = '';
         $collection_status_filter = '';
@@ -32,6 +33,9 @@ class Managers extends Core
 
         if (!empty($filter['id']))
             $id_filter = $this->db->placehold("AND id IN (?@)", array_map('intval', (array)$filter['id']));
+
+        if (isset($filter['name'])) 
+            $keyword_filter .= $this->db->placehold('AND (name LIKE "%' . $filter['name'] . '%" )');
 
         if (!empty($filter['role']))
             $role_filter = $this->db->placehold("AND role IN (?@)", (array)$filter['role']);
