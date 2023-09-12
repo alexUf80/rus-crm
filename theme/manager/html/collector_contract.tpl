@@ -1030,6 +1030,7 @@
                                             <input type="hidden" name="order_id" value="{$order->order_id}"/>
                                             <input type="hidden" name="user_id" value="{$order->user_id}"/>
                                             <input type="hidden" name="action" value="add_risk"/>
+                                            <input type="hidden" name="manager_id" value="{$manager->id}"/>
                                             <ul class="list-unstyled m-2" data-user="{$order->user_id}">
                                                 <li>
                                                     <div class="custom-checkbox">
@@ -3100,6 +3101,7 @@
                                             <th>Дата</th>
                                             <th>Риски</th>
                                             <th>Комментарий</th>
+                                            <th>Ответственный</th>
                                         </tr>
                                         {foreach $user_risk_statuses as $statuses}
                                             <tr class="">
@@ -3119,6 +3121,14 @@
                                                 </td>
                                                 <td>
                                                     <small>{$statuses->comment}</small>
+                                                </td>
+                                                <td>
+
+                                                    {if $statuses->manager_id != 0}
+
+                                                        <small>{$managers[$statuses->manager_id]->name}</small>
+
+                                                    {/if}
                                                 </td>
                                             </tr>
                                         {/foreach}

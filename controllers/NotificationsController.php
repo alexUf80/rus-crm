@@ -27,12 +27,12 @@ class NotificationsController extends Controller
         if ($mode == 'collection')
             $filter['collection_mode'] = 1;        
         
-        if (!($sort = $this->request->get('sort', 'string')))
-        {
-            $sort = 'id_desc';
-        }
-        $filter['sort'] = $sort;
-        $this->design->assign('sort', $sort);
+        // if (!($sort = $this->request->get('sort', 'string')))
+        // {
+        //     $sort = 'id_desc';
+        // }
+        // $filter['sort'] = $sort;
+        // $this->design->assign('sort', $sort);
         
         if ($search = $this->request->get('search'))
         {
@@ -52,10 +52,22 @@ class NotificationsController extends Controller
 
 		$filter['page'] = $current_page;
 		$filter['limit'] = $items_per_page;
-    	
         
+        if(isset($search['manager'])){
+            $managers_arr = $this->managers->get_managers(array('name' => $filter['search']['manager']));
+            $managers_id = [];
+            foreach ($managers_arr as $manager_arr) {
+                $managers_id[] = $manager_arr->id;
+            }
+
+            $filter['search']['manager_id'] = $managers_id;
+            if (count($managers_id) == 0) {
+                $filter['manager_id'] = [0];
+            }
+        }
+
         $notifications = array();
-        foreach ($this->notifications->get_notifications($filter) as $note)
+        foreach ($this->notifications->get_notifications($filter['search']) as $note)
         {
             if (!empty($note->event_id))
                 $note->event = $this->notifications->get_event($note->event_id);
@@ -88,6 +100,9 @@ class NotificationsController extends Controller
         
         $collection_statuses = $this->contracts->get_collection_statuses();
         $this->design->assign('collection_statuses', $collection_statuses);
+        
+        $manager = $this->managers->get_manager((int)$_SESSION['manager_id']);
+        $this->design->assign('manager', $manager);
         
         // if ($mode == 'collection')
             return $this->design->fetch('collector_notifications.tpl');

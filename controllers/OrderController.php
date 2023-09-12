@@ -3620,6 +3620,7 @@ class OrderController extends Controller
     private function action_add_risk()
     {
         $user_id = $this->request->post('user_id', 'integer');
+        $manager_id = $this->request->post('manager_id', 'integer');
         $text = $this->request->post('text');
 
         $user_risk_statuses_obj = $this->UsersRisksOperations->get_record($user_id);
@@ -3628,6 +3629,7 @@ class OrderController extends Controller
         unset($user_risk_statuses['id']);
         $user_risk_statuses['created'] = date('Y-m-d H:i:s');
         $user_risk_statuses['comment'] = $text;
+        $user_risk_statuses['manager_id'] = $manager_id;
 
         $this->UserRiskStatuses->add_record($user_risk_statuses);
 

@@ -40,6 +40,58 @@
     $(function(){
         new NotificationsApp
     })
+
+    var app = this;
+
+    $(document).on('keyup', '.jsgrid-filter-row input', function(e){
+        if (e.keyCode == 13){
+            app.filter();
+        }   
+    });
+
+    app.filter = function(){
+        var $form = $('#search_form');
+        var _searches = {};
+        $form.find('input[type=text], select').each(function(){
+            if ($(this).val() != '')
+            {
+                _searches[$(this).attr('name')] = $(this).val();
+            }
+        });     
+        var filter_status = $('#filter_status').val() || '';
+        
+        
+        var _request = {};
+        var _query;
+
+        _request.search = _searches;
+        if (!$.isEmptyObject(_searches))
+        {
+            _query_searches = '';
+            for (key in _searches) {
+              _query_searches += '&search['+key+']='+_searches[key];
+            }
+            _query += _query_searches;
+        }
+        console.log(_request);
+        
+      
+        $.ajax({
+            data: _request,
+            beforeSend: function(){
+            },
+            success: function(resp){
+                
+                $('#basicgrid .jsgrid-grid-body').html($(resp).find('#basicgrid .jsgrid-grid-body').html());
+
+                $('.jsgrid-pager-container').html($(resp).find('.jsgrid-pager-container').html() || '');
+                
+                if (!!_query)
+                    location.hash = _query;
+            }
+        })
+    
+    };
 </script>    
 
 {/capture}
@@ -65,7 +117,6 @@
                 <h3 class="text-themecolor mb-0 mt-0"><i class="mdi mdi-chart-bubble"></i> Напоминания</h3>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="/">Главная</a></li>
-                    <li class="breadcrumb-item active">Коллекшин</li>
                     <li class="breadcrumb-item active">Напоминания</li>
                 </ol>
             </div>
@@ -96,9 +147,9 @@
                                             ID
                                         </th>
                                         {if $manager->role != 'collector'}
-                                        <th style="width: 80px;" class="jsgrid-header-cell jsgrid-header-sortable {if $sort == 'birth_asc'}jsgrid-header-sort jsgrid-header-sort-asc{elseif $sort == 'birth_desc'}jsgrid-header-sort jsgrid-header-sort-desc{/if}">
-                                            Пользователь
-                                        </th>
+                                            <th style="width: 80px;" class="jsgrid-header-cell jsgrid-header-sortable {if $sort == 'birth_asc'}jsgrid-header-sort jsgrid-header-sort-asc{elseif $sort == 'birth_desc'}jsgrid-header-sort jsgrid-header-sort-desc{/if}">
+                                                Пользователь
+                                            </th>
                                         {/if}
                                         <th style="width: 120px;" class="jsgrid-header-cell jsgrid-header-sortable {if $sort == 'email_asc'}jsgrid-header-sort jsgrid-header-sort-asc{elseif $sort == 'email_desc'}jsgrid-header-sort jsgrid-header-sort-desc{/if}">
                                             ФИО
@@ -131,46 +182,64 @@
                                         </th>
                                     </tr>
 
-                                    {*}
-                                    <tr class="jsgrid-filter-row" id="search_form">                                    
-                                        <td style="width: 60px;" class="jsgrid-cell jsgrid-align-right">
-                                            <input type="hidden" name="sort" value="{$sort}" />
-                                            <input type="text" name="user_id" value="{$search['user_id']}" class="form-control input-sm">
-                                        </td>
-                                        <td style="width: 80px;" class="jsgrid-cell jsgrid-align-right">
-                                            <input type="text" name="created" value="{$search['created']}" class="form-control input-sm">
-                                        </td>
-                                        <td style="width: 120px;" class="jsgrid-cell jsgrid-align-right">
-                                            <input type="text" name="fio" value="{$search['fio']}" class="form-control input-sm">
-                                        </td>
-                                        <td style="width: 80px;" class="jsgrid-cell jsgrid-align-right">
-                                            <input type="text" name="birth" value="{$search['birth']}" class="form-control input-sm">
-                                        </td>
-                                        <td style="width: 100px;" class="jsgrid-cell">
-                                            <input type="text" name="email" value="{$search['email']}" class="form-control input-sm">
-                                        </td>
-                                        <td style="width: 100px;" class="jsgrid-cell">
-                                            <input type="text" name="phone" value="{$search['phone']}" class="form-control input-sm">
-                                        </td>
-                                    </tr>
-                                    {*}
+                                    {if $manager->role != 'collector'}
+                                        <tr class="jsgrid-filter-row" id="search_form">                                    
+                                            <td style="width: 60px;" class="jsgrid-cell jsgrid-align-right">
+                                            </td>
+                                            <td style="width: 120px;" class="jsgrid-cell jsgrid-align-right">
+                                                <input type="hidden" name="sort" value="{$sort}"/>
+                                                <input type="text" name="manager" value="{$search['manager']}"
+                                                    class="form-control input-sm">
+                                            </td>
+                                            <td style="width: 80px;" class="jsgrid-cell jsgrid-align-right">
+                                            </td>
+                                            <td style="width: 60px;" class="jsgrid-cell jsgrid-align-right">
+                                            </td>
+                                            <td style="width: 80px;" class="jsgrid-cell jsgrid-align-right">
+                                            </td>
+                                            <td style="width: 60px;" class="jsgrid-cell jsgrid-align-right">
+                                            </td>
+                                            <td style="width: 80px;" class="jsgrid-cell jsgrid-align-right">
+                                            </td>
+                                            <td style="width: 60px;" class="jsgrid-cell jsgrid-align-right">
+                                            </td>
+                                            <td style="width: 120px;" class="jsgrid-cell jsgrid-align-right">
+                                                <input type="hidden" name="sort" value="{$sort}"/>
+                                                <input type="text" name="notification_date" value="{$search['notification_date']}"
+                                                    class="form-control input-sm">
+                                            </td>
+                                            <td style="width: 80px;" class="jsgrid-cell jsgrid-align-right">
+                                            </td>
+                                            <td style="width: 60px;" class="jsgrid-cell jsgrid-align-right">
+                                            </td>
+                                            <td style="width: 60px;" class="jsgrid-cell jsgrid-align-right">
+                                            </td>
+                                        </tr>
+                                    {/if}
                                 </table>
                             </div>
                             <div class="jsgrid-grid-body">
                                 <table class="jsgrid-table table table-striped table-hover ">
                                     <tbody>
+                                    {$laoan = 0}
+                                    {$amount = 0}
                                     {foreach $notifications as $note}
+                                        {if in_array($manager->role, ['collector'])}
+                                            {if ($manager->id != $managers[$note->manager_id]->id)}
+                                                {continue}
+                                            {/if}
+                                        {/if}
                                         <tr class="jsgrid-row">
                                             <td style="width: 40px;" class="jsgrid-cell jsgrid-align-right">
                                                 {$note->id}
                                             </td>
                                             {if $manager->role != 'collector'}
-                                            <td style="width: 80px;" class="jsgrid-cell">
+                                            <td style="width: 80px;" class="jsgrid-cell">                                                    
                                                 {$managers[$note->manager_id]->name}
                                             </td>
                                             {/if}
                                             <td style="width: 120px;" class="jsgrid-cell ">
-                                                <small>{$note->user->lastname} {$note->user->firstname} {$note->user->patronymic}</small>
+                                                <a href="collector_contract/{$note->contract->id}"><small>{$note->user->lastname} {$note->user->firstname} {$note->user->patronymic}</small></a>
                                                 <br />
                                                 <span class="label {if $note->user->client_time_warning}label-danger{else}label-success{/if} "><i class="far fa-clock"></i> {$note->user->client_time|time}</span>
                                             </td>
@@ -178,14 +247,15 @@
                                                 {if $note->sudblock_contract_id}
                                                     <a href="sudblock_contract/{$note->contract->id}">{$note->contract->first_number}</a>
                                                 {else $note->collection_contract_id}
-                                                    <a href="my_contract/{$note->contract->order_id}">{$note->contract->number}</a>
+                                                    <a href="collector_contract/{$note->contract->id}">{$note->contract->number}</a>
                                                 {/if}
                                                 {if $note->contract->collection_status}
                                                 <span class="label label-primary">{$collection_statuses[$note->contract->collection_status]}</span>
                                                 {/if}
                                             </td>
                                             <td style="width: 60px;" class="jsgrid-cell">
-                                                <strong>{$note->contract->loan_body_summ+$note->contract->loan_percents_summ+$note->contract->loan_charge_summ+$note->contract->loan_peni_summ}</small>
+                                                <strong>{($note->contract->loan_body_summ+$note->contract->loan_percents_summ+$note->contract->loan_charge_summ+$note->contract->loan_peni_summ)|number_format:2:".":""}</strong>
+                                                {$loan = $laoan + $note->contract->loan_body_summ+$note->contract->loan_percents_summ+$note->contract->loan_charge_summ+$note->contract->loan_peni_summ}
                                             </td>
                                             <td style="width: 60px;" class="jsgrid-cell">
                                                 <small>{$note->user->workplace}</small>
@@ -200,16 +270,17 @@
                                                 {/if}
                                             </td>
                                             <td style="width: 60px;" class="jsgrid-cell">
-                                                {$note->created|date}
+                                                {$note->created}
                                             </td>
                                             <td style="width: 60px;" class="jsgrid-cell">
-                                                {$note->notification_date|date}
+                                                {$note->notification_date}
                                             </td>
                                             <td style="width: 120px;" class="jsgrid-cell">
                                                 <small>{$note->comment}</small>
                                             </td>
                                             <td style="width: 120px;" class="jsgrid-cell">
-                                                <small>{$note->amount}</small>
+                                                <strong>{$note->amount}</strong>
+                                                {$amount = $amount + $note->amount}
                                             </td>
                                             <td style="width: 60px;" class="jsgrid-cell">
                                                 {if $note->done}
@@ -219,7 +290,50 @@
                                                 {/if}
                                             </td>
                                         </tr>
-                                    {/foreach}
+                                {/foreach}
+
+
+                                    <tr class="jsgrid-row">
+                                        <td style="width: 40px;" class="jsgrid-cell jsgrid-align-right">
+                                            
+                                        </td>
+                                        {if $manager->role != 'collector'}
+                                        <td style="width: 80px;" class="jsgrid-cell">                                                    
+                                            
+                                        </td>
+                                        {/if}
+                                        <td style="width: 120px;" class="jsgrid-cell ">
+                                            
+                                        </td>
+                                        <td style="width: 60px;" class="jsgrid-cell">
+                                            
+                                        </td>
+                                        <td style="width: 60px;" class="jsgrid-cell">
+                                            <strong>{$loan|number_format:2:".":""}</strong>
+                                        </td>
+                                        <td style="width: 60px;" class="jsgrid-cell">
+                                            
+                                        </td>
+                                        <td style="width: 60px;" class="jsgrid-cell">
+                                           
+                                        </td>
+                                        <td style="width: 60px;" class="jsgrid-cell">
+                                            
+                                        </td>
+                                        <td style="width: 60px;" class="jsgrid-cell">
+                                            
+                                        </td>
+                                        <td style="width: 120px;" class="jsgrid-cell">
+                                            
+                                        </td>
+                                        <td style="width: 120px;" class="jsgrid-cell">
+                                            <strong>{$amount|number_format:2:".":""}</strong>
+                                        </td>
+                                        <td style="width: 60px;" class="jsgrid-cell">
+                                            
+                                        </td>
+                                    </tr>
+
                                     </tbody>
                                 </table>
                             </div>

@@ -88,6 +88,7 @@ class Notifications extends Core
 	public function get_notifications($filter = array())
 	{
 		$id_filter = '';
+		$manager_id_filter = '';
 		$sudblock_contract_id_filter = '';
         $collection_contract_id_filter = '';
         $notification_date_filter = '';
@@ -100,6 +101,9 @@ class Notifications extends Core
         
         if (!empty($filter['id']))
             $id_filter = $this->db->placehold("AND id IN (?@)", array_map('intval', (array)$filter['id']));
+
+        if (!empty($filter['manager_id']))
+            $manager_id_filter = $this->db->placehold("AND manager_id IN (?@)", array_map('intval', (array)$filter['manager_id']));
         
         if (!empty($filter['sudblock_contract_id']))
             $sudblock_contract_id_filter = $this->db->placehold("AND sudblock_contract_id IN (?@)", array_map('intval', (array)$filter['sudblock_contract_id']));
@@ -114,7 +118,7 @@ class Notifications extends Core
             $collection_mode_filter = $this->db->placehold("AND collection_contract_id > 0");
         
         if (!empty($filter['notification_date']))
-            $notification_date_filter = $this->db->placehold("AND DATE(notification_date) = ?", $filter['notification_date']);
+            $notification_date_filter = $this->db->placehold('AND notification_date LIKE "%'. $filter['notification_date'].'%" ');
         
         if (isset($filter['done']))
             $done_filter = $this->db->placehold("AND done = ?", (int)$filter['done']);
@@ -139,6 +143,7 @@ class Notifications extends Core
             FROM __notifications
             WHERE 1
                 $id_filter
+                $manager_id_filter
 				$sudblock_contract_id_filter
                 $collection_contract_id_filter
                 $notification_date_filter
