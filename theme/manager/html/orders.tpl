@@ -488,6 +488,9 @@
                                                         {else}
                                                             <span class="label label-success" title="API">{$order->partner} API</span>
                                                         {/if}
+                                                    {elseif $order->client_status == 'kd'}
+                                                        <span class="label" style="background-color: #ff9900"
+                                                              title="Кредитный доктор">КД</span>
                                                     {/if}
                                                 {else}
                                                     {if $order->have_crm_closed}
