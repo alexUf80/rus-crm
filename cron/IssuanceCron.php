@@ -329,6 +329,7 @@ class IssuanceCron extends Core
                     $contract->user_email = $user->email;
 
                     $this->create_document('IND_USLOVIYA_NL', $contract);
+                    $this->create_document('PRIL_1', $contract);
 
                     $this->contracts->update_contract($contract->id, array(
                         'status' => 2,
