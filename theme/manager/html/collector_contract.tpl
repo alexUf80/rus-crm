@@ -340,6 +340,7 @@
                         $('#contacts_form').find('[name="contact_hide"]').val(contact['contact_hide']);
                         if(contact['contact_hide'] != "0"){
                             $('#contacts_form').find('[name="contact_hide"]').prop('checked', true);
+                            $('.form-group-phone').hide();
                         }
 
                         if (relation === null) {
@@ -3154,7 +3155,9 @@
                                                 <a href="{$config->front_url}/files/users/{$user_file->name}" target="_blank">{$user_file->name}</a>
                                             {/if}
                                         </div>
-                                        <button class="btn btn-danger delete-file" style="max-width: 150px; display: block; margin-top: 10px;" data-file-id="{$user_file->id}">Удалить</button>
+                                        {if !in_array($manager->role, ['collector'])}
+                                            <button class="btn btn-danger delete-file" style="max-width: 150px; display: block; margin-top: 10px;" data-file-id="{$user_file->id}">Удалить</button>
+                                        {/if}
                                         <hr>
                                     {/foreach}
                                 {else}
@@ -3210,10 +3213,16 @@
                             <label class="custom-label">ФИО</label>
                             <input type="text" class="form-control" name="fio">
                         </div>
-                        <div class="form-group">
-                            <label class="custom-label">Номер телефона</label>
-                            <input type="text" class="form-control" placeholder="Например 79966225511" name="phone">
-                        </div>
+                        {if in_array($manager->role, ['collector'])}
+                            <div class="form-group-phone">
+                        {/if}
+                            <div class="form-group">
+                                <label class="custom-label">Номер телефона</label>
+                                <input type="text" class="form-control" placeholder="Например 79966225511" name="phone">
+                            </div>
+                        {if in_array($manager->role, ['collector'])}
+                            </div>
+                        {/if}
                         <div class="form-group">
                             <label class="custom-label">Кем приходится</label>
                             <select class="form-control" name="relation">
