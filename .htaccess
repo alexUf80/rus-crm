@@ -25,6 +25,8 @@ RewriteRule ^neworder/?$                index.php?module=NeworderController  [L,
 RewriteRule ^missings/?$                index.php?module=MissingsController  [L,QSA]
 RewriteRule ^missings/([^/]*)/?$        index.php?module=MissingsController&id=$1  [L,QSA]
 
+RewriteRule ^loan_doctor/?$             index.php?module=LoanDoctorController  [L,QSA]
+
 RewriteRule ^tickets/?$                 index.php?module=TicketsController  [L,QSA]
 RewriteRule ^ticket/([^/]*)/?$          index.php?module=TicketController&id=$1  [L,QSA]
 RewriteRule ^ticket_statuses/?$         index.php?module=TicketStatusesController  [L,QSA]
