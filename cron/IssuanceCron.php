@@ -150,7 +150,7 @@ class IssuanceCron extends Core
 
 
                     // Снимаем страховку если есть
-                    if (!empty($contract->service_insurance)) 
+                    if (!empty($contract->service_insurance))
                     {
                         $insurance_cost = $this->insurances->get_insurance_cost($contract->amount);
 
