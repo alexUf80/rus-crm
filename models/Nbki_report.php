@@ -99,7 +99,8 @@ class Nbki_report extends Core
 
         $wrapper = $this->get_wrapper($items);
 
-        $resp = $this->send($wrapper, 'v2/report/');
+        // $resp = $this->send($wrapper, 'v2/report/');
+        $resp = $this->send($wrapper, 'v2/report/temp-rutdf-5/');
 
         return $resp;
     }
@@ -112,6 +113,7 @@ class Nbki_report extends Core
         $HEADER = new StdClass();
         $HEADER->username = $this->username;
         $HEADER->password = $this->authorization_code;
+        $HEADER->creation_date = date('d.m.Y');
 
         $wrapper->HEADER = $HEADER;
 
@@ -196,6 +198,7 @@ class Nbki_report extends Core
         $C6_REGNUM = new StdClass();
         $C6_REGNUM->taxpayer_code = '1';
         $C6_REGNUM->taxpayer_number = empty($order->inn) ? '000000000000' : $order->inn;
+        $C6_REGNUM->is_special_tax = '0';
 
         $data->C6_REGNUM = $C6_REGNUM;
 
@@ -210,7 +213,7 @@ class Nbki_report extends Core
         $C18_TRADE->owner_indicator_code = '1';
         $C18_TRADE->opened_date = date('d.m.Y', strtotime($contract->inssuance_date));
         $C18_TRADE->trade_type_code = '1';
-        $C18_TRADE->load_kind_code = '1';
+        $C18_TRADE->load_kind_code = '13';
         $C18_TRADE->account_type_code = '14';
         $C18_TRADE->is_consumer_loan = '1';
         $C18_TRADE->has_card = '1';
@@ -218,6 +221,12 @@ class Nbki_report extends Core
         $C18_TRADE->is_money_source = '1';
         $C18_TRADE->is_money_borrower = '1';
         $C18_TRADE->close_date = date('d.m.Y', strtotime($contract->return_date));
+        $C18_TRADE->lender_type_code = '2';
+        $C18_TRADE->has_obtaining_part_creditor = '0';
+        $C18_TRADE->has_credit_line = '0';
+        $C18_TRADE->is_interest_rate_float = '0';
+        $C18_TRADE->has_transfer_part_creditor = '0';
+        $C18_TRADE->commit_date = date('d.m.Y', strtotime($contract->inssuance_date));
 
         $data->C18_TRADE = $C18_TRADE;
 
@@ -225,6 +234,9 @@ class Nbki_report extends Core
         $C19_ACCOUNTAMT = new StdClass();
         $C19_ACCOUNTAMT->credit_limit = str_replace('.', ',', sprintf("%01.2f", $contract->amount));
         $C19_ACCOUNTAMT->currency_code = 'RUB';
+        $C19_ACCOUNTAMT->commit_currency_code = 'RUB';
+        $C19_ACCOUNTAMT->amount_date = date('d.m.Y', strtotime($contract->inssuance_date));
+        $C19_ACCOUNTAMT->commit_uuid = $contract->uid;
 
         $data->C19_ACCOUNTAMT = $C19_ACCOUNTAMT;
 
@@ -242,7 +254,7 @@ class Nbki_report extends Core
 
 
         $C22_OVERALLVAL = new StdClass();
-        $C22_OVERALLVAL->total_credit_amount_interest = sprintf("%01.2f", $contract->base_percent * 365);
+        $C22_OVERALLVAL->total_credit_amount_interest = str_replace('.', ',', sprintf("%01.2f", $contract->base_percent * 365));
         $C22_OVERALLVAL->total_credit_amount_monetary = str_replace('.', ',', sprintf("%01.2f", $interest_terms_amount));
         $C22_OVERALLVAL->total_credit_amount_date = date('d.m.Y', strtotime($contract->inssuance_date));
 
@@ -312,13 +324,15 @@ class Nbki_report extends Core
 
         $C54_OBLIGACCOUNT = new StdClass();
         $C54_OBLIGACCOUNT->has_obligation = 1;
+        $C54_OBLIGACCOUNT->interest_rate = str_replace('.', ',', sprintf("%01.2f", $contract->base_percent * 365));
+        $C54_OBLIGACCOUNT->has_preferential_financing = '0';
 
         $data->C54_OBLIGACCOUNT = $C54_OBLIGACCOUNT;
 
 
         $C56_OBLIGPARTTAKE = new StdClass();
         $C56_OBLIGPARTTAKE->flag_indicator_code = '1';
-        $C56_OBLIGPARTTAKE->approved_loan_type_code = '1';
+        $C56_OBLIGPARTTAKE->approved_loan_type_code = '13';
         $C56_OBLIGPARTTAKE->agreement_number = $contract->uid;
         $C56_OBLIGPARTTAKE->funding_date = date('d.m.Y', strtotime($contract->inssuance_date));
         $C56_OBLIGPARTTAKE->default_flag = '0';
@@ -393,6 +407,7 @@ class Nbki_report extends Core
         $C6_REGNUM = new StdClass();
         $C6_REGNUM->taxpayer_code = '1';
         $C6_REGNUM->taxpayer_number = empty($order->inn) ? '000000000000' : $order->inn;
+        $C6_REGNUM->is_special_tax = '0';
 
         $data->C6_REGNUM = $C6_REGNUM;
 
@@ -407,7 +422,7 @@ class Nbki_report extends Core
         $C18_TRADE->owner_indicator_code = '1';
         $C18_TRADE->opened_date = date('d.m.Y', strtotime($contract->inssuance_date));
         $C18_TRADE->trade_type_code = '1';
-        $C18_TRADE->load_kind_code = '1';
+        $C18_TRADE->load_kind_code = '13';
         $C18_TRADE->account_type_code = '14';
         $C18_TRADE->is_consumer_loan = '1';
         $C18_TRADE->has_card = '1';
@@ -415,6 +430,12 @@ class Nbki_report extends Core
         $C18_TRADE->is_money_source = '1';
         $C18_TRADE->is_money_borrower = '1';
         $C18_TRADE->close_date = date('d.m.Y', strtotime($contract->return_date));
+        $C18_TRADE->lender_type_code = '2';
+        $C18_TRADE->has_obtaining_part_creditor = '0';
+        $C18_TRADE->has_credit_line = '0';
+        $C18_TRADE->is_interest_rate_float = '0';
+        $C18_TRADE->has_transfer_part_creditor = '0';
+        $C18_TRADE->commit_date = date('d.m.Y', strtotime($contract->inssuance_date));
 
         $data->C18_TRADE = $C18_TRADE;
 
@@ -422,6 +443,9 @@ class Nbki_report extends Core
         $C19_ACCOUNTAMT = new StdClass();
         $C19_ACCOUNTAMT->credit_limit = str_replace('.', ',', sprintf("%01.2f", $contract->amount));
         $C19_ACCOUNTAMT->currency_code = 'RUB';
+        $C19_ACCOUNTAMT->commit_currency_code = 'RUB';
+        $C19_ACCOUNTAMT->amount_date = date('d.m.Y', strtotime($contract->inssuance_date));
+        $C19_ACCOUNTAMT->commit_uuid = $contract->uid;
 
         $data->C19_ACCOUNTAMT = $C19_ACCOUNTAMT;
 
@@ -439,7 +463,7 @@ class Nbki_report extends Core
 
 
         $C22_OVERALLVAL = new StdClass();
-        $C22_OVERALLVAL->total_credit_amount_interest = sprintf("%01.2f", $contract->base_percent * 365);
+        $C22_OVERALLVAL->total_credit_amount_interest = str_replace('.', ',', sprintf("%01.2f", $contract->base_percent * 365));
         $C22_OVERALLVAL->total_credit_amount_monetary = str_replace('.', ',', sprintf("%01.2f", $interest_terms_amount));
         $C22_OVERALLVAL->total_credit_amount_date = date('d.m.Y', strtotime($contract->inssuance_date));
 
@@ -509,7 +533,7 @@ class Nbki_report extends Core
 
         $C56_OBLIGPARTTAKE = new StdClass();
         $C56_OBLIGPARTTAKE->flag_indicator_code = '1';
-        $C56_OBLIGPARTTAKE->approved_loan_type_code = '1';
+        $C56_OBLIGPARTTAKE->approved_loan_type_code = '13';
         $C56_OBLIGPARTTAKE->agreement_number = $contract->uid;
         $C56_OBLIGPARTTAKE->funding_date = date('d.m.Y', strtotime($contract->inssuance_date));
         $C56_OBLIGPARTTAKE->default_flag = '0';
