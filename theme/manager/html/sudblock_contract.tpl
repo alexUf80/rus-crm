@@ -1348,6 +1348,7 @@
                                                             {if $operation->type == 'INSURANCE'}Страховка{/if}
                                                             {if $operation->type == 'CHARGE'}Ответственность{/if}
                                                             {if $operation->type == 'PENI'}Пени{/if}
+                                                            {if $operation->type == 'DOCTOR'}Кредитный доктор{/if}
                                                         </td>
                                                         <td >
                                                             {$operation->amount} руб
