@@ -531,6 +531,14 @@ class Nbki_report extends Core
         $data->C29_MONTHAVERPAYMT = $C29_MONTHAVERPAYMT;
 
 
+        $C54_OBLIGACCOUNT = new StdClass();
+        $C54_OBLIGACCOUNT->has_obligation = 1;
+        $C54_OBLIGACCOUNT->interest_rate = str_replace('.', ',', sprintf("%01.2f", $contract->base_percent * 365));
+        $C54_OBLIGACCOUNT->has_preferential_financing = '0';
+
+        $data->C54_OBLIGACCOUNT = $C54_OBLIGACCOUNT;
+
+
         $C56_OBLIGPARTTAKE = new StdClass();
         $C56_OBLIGPARTTAKE->flag_indicator_code = '1';
         $C56_OBLIGPARTTAKE->approved_loan_type_code = '13';
