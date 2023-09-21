@@ -181,6 +181,7 @@ echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($min_date);echo '</pre><hr />'
                 'INSURANCE_BC',
                 'INSURANCE',
                 'REJECT_REASON'
+                'DOCTOR'
             )
             AND t.id IS NOT NULL
             LIMIT 10
