@@ -510,14 +510,14 @@ class Nbki_report extends Core
 
         $C28_PAYMT = new StdClass();
 
-        $C28_PAYMT->payment_amount = '0,00';
-        $C28_PAYMT->principal_payment_amount = '0,00';
-        $C28_PAYMT->interest_payment_amount = '0,00';
-        $C28_PAYMT->other_payment_amount = '0,00';
-        $C28_PAYMT->total_amount = '0,00';
-        $C28_PAYMT->principal_total_amount = '0,00';
-        $C28_PAYMT->interest_total_amount = '0,00';
-        $C28_PAYMT->other_total_amount = '0,00';
+        // $C28_PAYMT->payment_amount = '0,00';
+        // $C28_PAYMT->principal_payment_amount = '0,00';
+        // $C28_PAYMT->interest_payment_amount = '0,00';
+        // $C28_PAYMT->other_payment_amount = '0,00';
+        // $C28_PAYMT->total_amount = '0,00';
+        // $C28_PAYMT->principal_total_amount = '0,00';
+        // $C28_PAYMT->interest_total_amount = '0,00';
+        // $C28_PAYMT->other_total_amount = '0,00';
         $C28_PAYMT->amount_keep_code = '3';
         $C28_PAYMT->terms_due_code = '1';
         $C28_PAYMT->days_past_due = '0';
