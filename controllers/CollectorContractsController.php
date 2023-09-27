@@ -369,7 +369,7 @@ class CollectorContractsController extends Controller
 
         $risk_op = ['complaint' => 'Жалоба', 'bankrupt' => 'Банкрот', 'refusal' => 'Отказ от взаимодействия',
             'refusal_thrd' => 'Отказ от взаимодействия с 3 лицами', 'death' => 'Смерть', 'anticollectors' => 'Антиколлекторы', 'mls' => 'Находится в МЛС',
-            'bankrupt_init' => 'Инициировано банкротство', 'fraud' => 'Мошенничество', 'canicule' => "Кредитные каникулы"];
+            'bankrupt_init' => 'Инициировано банкротство', 'fraud' => 'Мошенничество', 'canicule' => 'Кредитные каникулы', 'request_cb' => 'Запрос ЦБ, ФССП'];
 
         $user_risk_op = $this->UsersRisksOperations->get_records();
 
