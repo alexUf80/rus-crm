@@ -100,7 +100,7 @@ class LoanDoctorController extends Controller
         $sql_limit = $this->db->placehold(' LIMIT ?, ? ', ($current_page-1)*$items_per_page, $items_per_page);
 
         $query = $this->db->placehold("
-            SELECT u.*, o.status FROM 
+            SELECT u.*, o.status, o.id AS order_id FROM 
             __orders o
             INNER JOIN __users u 
             ON o.user_id=u.id
@@ -117,6 +117,7 @@ class LoanDoctorController extends Controller
                 ) 
                 AND (o.status=8 OR o.status=3)
             )
+            ORDER BY order_id DESC
             $sql_limit
 
         ");
