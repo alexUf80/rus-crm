@@ -1103,6 +1103,13 @@
                                                         <label>Кредитные каникулы</label>
                                                     </div>
                                                 </li>
+                                                <li>
+                                                    <div class="custom-checkbox">
+                                                        <input type="checkbox" class="js-risk-op input-custom"
+                                                            value="request_cb"/>
+                                                        <label>Запрос ЦБ, ФССП</label>
+                                                    </div>
+                                                </li>
                                             </ul>
                                             <div class="form-group mb-1">
                                                 <textarea class="form-control" name="text" style="resize:vertical"></textarea>
