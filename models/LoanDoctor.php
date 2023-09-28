@@ -9,6 +9,7 @@ class LoanDoctor extends Core
             __orders o
             INNER JOIN __users u 
             ON o.user_id=u.id
+            AND o.reason_id != 54
             AND (
                 o.date = 
                 (
@@ -92,6 +93,7 @@ class LoanDoctor extends Core
             __orders o
             INNER JOIN __users u 
             ON o.user_id=u.id
+            AND o.reason_id != 54
             AND (
                 o.date = 
                 (
