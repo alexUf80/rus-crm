@@ -2,8 +2,6 @@
 
 {capture name='page_scripts'}
     
-    <script type="text/javascript" src="theme/{$settings->theme|escape}/js/apps/clients.js"></script>
-    
 
 {/capture}
 
@@ -72,8 +70,8 @@
                                             {if $sort == 'phone_asc'}<a href="{url page=null sort='phone_desc'}">Телефон</a>
                                             {else}<a href="{url page=null sort='phone_asc'}">Телефон</a>{/if}
                                         </th>
-                                        <th style="width: 100px;" class="jsgrid-header-cell jsgrid-header-sortable {if $sort == 'phone_asc'}jsgrid-header-sort jsgrid-header-sort-asc{elseif $sort == 'phone_desc'}jsgrid-header-sort jsgrid-header-sort-desc{/if}">
-                                            <a href="{url page=null sort='phone_asc'}">Лк</a>
+                                        <th style="width: 100px;" class="jsgrid-header-cell">
+                                            Лк
                                         </th>
                                     </tr>
 
