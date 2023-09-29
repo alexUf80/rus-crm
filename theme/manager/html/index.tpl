@@ -159,14 +159,12 @@
 
                         {*}
                         {*}
-                        {*}
                         {if in_array('missings', $manager->permissions)}
                             <li {if in_array($module, ['MissingsController'])}class="active"{/if}>
                                 <a class="" href="loan_doctor/" aria-expanded="false"><i
                                             class="mdi mdi-animation"></i><span class="hide-menu">Кредитный доктор</span></a>
                             </li>
                         {/if}
-                        {*}
                         {*}
                         {*}
 
