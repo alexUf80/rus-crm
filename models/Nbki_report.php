@@ -99,8 +99,8 @@ class Nbki_report extends Core
 
         $wrapper = $this->get_wrapper($items);
 
-        // $resp = $this->send($wrapper, 'v2/report/');
-        $resp = $this->send($wrapper, 'v2/report/temp-rutdf-5/');
+        $resp = $this->send($wrapper, 'v2/report/');
+        // $resp = $this->send($wrapper, 'v2/report/temp-rutdf-5/');
 
         return $resp;
     }
