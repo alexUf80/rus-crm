@@ -510,8 +510,8 @@ class Nbki_report extends Core
 
         $C28_PAYMT = new StdClass();
 
-        // $C28_PAYMT->payment_amount = '0,00';
-        $C28_PAYMT->principal_payment_amount = '0,00';
+        $C28_PAYMT->payment_amount = '0,00';
+        // $C28_PAYMT->principal_payment_amount = '0,00';
         // $C28_PAYMT->interest_payment_amount = '0,00';
         // $C28_PAYMT->other_payment_amount = '0,00';
         // $C28_PAYMT->total_amount = '0,00';
