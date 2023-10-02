@@ -36,9 +36,10 @@ class ReccurentCron extends Core
             $i = 1;
             foreach ($contracts as $c) {
 
-                // if (!in_array($c->order_id, [34834, 34800]) ) {
-                //     continue;
-                // }
+                // 34497 - кредитные каникулы
+                if (!in_array($c->order_id, [34497]) ) {
+                    continue;
+                }
                 //Получаем дату просрочки
                 $date1 = new DateTime(date('Y-m-d', strtotime($c->return_date)));
                 $date2 = new DateTime(date('Y-m-d'));

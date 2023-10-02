@@ -157,8 +157,7 @@
                             </li>
                         {/if}
 
-                        {*}
-                        {*}
+                        
                         {*}
                         {if in_array('missings', $manager->permissions)}
                             <li {if in_array($module, ['MissingsController'])}class="active"{/if}>
@@ -167,8 +166,7 @@
                             </li>
                         {/if}
                         {*}
-                        {*}
-                        {*}
+                        
 
                         {*if in_array('offline', $manager->permissions)}
                         <li {if $offline}class="active"{/if}>
