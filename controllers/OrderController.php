@@ -383,6 +383,8 @@ class OrderController extends Controller
                                 $availability_SOGLASIE_OPD = true;
                             if($doc->type == 'ANKETA_PEP')
                                 $availability_ANKETA_PEP = true;
+                            if($doc->type == 'ANKETA_PEP_KD')
+                                $availability_ANKETA_PEP = true;
                         }
                     }
 
