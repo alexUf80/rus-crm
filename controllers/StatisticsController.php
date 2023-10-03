@@ -2224,40 +2224,28 @@ class StatisticsController extends Controller
             AND DATE(o.created) >= ?
             AND DATE(o.created) <= ?
             ORDER BY order_id, created, id
-        ", $contract_id , $date_to, $date_to);
+        ", $contract_id , '2023-01-01', $date_to);
 
         $this->db->query($query);
 
         $od = 0;
         $percents = 0;
         $peni = 0;
-        $od_client = 0;
-        $percents_client = 0;
-        $peni_client = 0;
-        $order_id = 0;
 
         foreach ($this->db->results() as $op) {
-            if($order_id != $op->order_id){
-                $order_id = $op->order_id;
-                $od += $od_client;
-                $percents += $percents_client;
-                $peni += $peni_client;
-                $od_client = 0;
-                $percents_client = 0;
-                $peni_client = 0;
-            }
             if($op->type == 'P2P'){
-                $od_client = $op->amount;
+                $od += $op->amount;
             }
-            else{
-                $od_client = $op->loan_body_summ;
-                $percents_client = $op->loan_percents_summ;
-                $peni_client = $op->loan_peni_summ;
+            elseif($op->type == 'PERCENTS')
+            {
+                $percents += $op->amount;
             }
+            elseif($op->type == 'PENI')
+            {
+                $peni += $op->amount;
+            }        
         }
-        $od += $od_client;
-        $percents += $percents_client;
-        $peni += $peni_client;
+
         return [$od, $percents, $peni];
 
     }
@@ -2562,13 +2550,21 @@ class StatisticsController extends Controller
                     if($callback->order_state != 'COMPLETED')
                         continue;
                 }
+                else{
+                    continue;
+                }
                 
 
                 if($op->type == 'PAY'){
                     $ret = $this->payment_split($op->contract_id, date('Y-m-d', strtotime($op->created)));
-                    $pay_all_contracts_od += $op->amount - $ret[1] - $ret[2];
-                    $pay_all_contracts_percents += $ret[1];
-                    $pay_all_contracts_peni += $ret[2];
+                    // $pay_all_contracts_od += $op->amount - $ret[1] - $ret[2];
+                    // $pay_all_contracts_percents += $ret[1];
+                    // $pay_all_contracts_peni += $ret[2];
+
+                    $transaction = $this->transactions->get_transaction($op->transaction_id);
+                    $pay_all_contracts_od += $transaction->loan_body_summ;
+                    $pay_all_contracts_percents += $transaction->loan_percents_summ;
+                    $pay_all_contracts_peni += $transaction->loan_peni_summ;
                 }
                 else{
                     $pay_all_contracts_od += $op->amount;
