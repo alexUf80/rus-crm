@@ -37,7 +37,7 @@ class ReccurentCron extends Core
             foreach ($contracts as $c) {
 
                 // 34497 - кредитные каникулы
-                if (!in_array($c->order_id, [34497]) ) {
+                if (in_array($c->order_id, [34497]) ) {
                     continue;
                 }
                 //Получаем дату просрочки
