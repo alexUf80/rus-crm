@@ -446,17 +446,19 @@ class OrderController extends Controller
                                     ->toArray();
                             }
 
-                            $transaction = $this->transactions->get_transaction($contract_operation->transaction_id);
-                            $xml = simplexml_load_string($transaction->callback_response);
-                            $ofd_link = (string)$xml->ofd_link;
-                            
-                            if($ofd_link){
-                                $ofd_link = str_replace("%3A", ":", $ofd_link);
-                                $ofd_link = str_replace("%2F", "/", $ofd_link);
-                                $ofd_link = str_replace("%3D", "=", $ofd_link);
-                                $ofd_link = str_replace("%3F", "?", $ofd_link);
-                                $ofd_link = str_replace("%26", "&", $ofd_link);
-                                $receipts[] = (object) array('receipt_url' => $ofd_link, 'created' => $transaction->created);
+                            if ($contract_operation->type != 'RECURRENT') {
+                                $transaction = $this->transactions->get_transaction($contract_operation->transaction_id);
+                                $xml = simplexml_load_string($transaction->callback_response);
+                                $ofd_link = (string)$xml->ofd_link;
+                                
+                                if($ofd_link){
+                                    $ofd_link = str_replace("%3A", ":", $ofd_link);
+                                    $ofd_link = str_replace("%2F", "/", $ofd_link);
+                                    $ofd_link = str_replace("%3D", "=", $ofd_link);
+                                    $ofd_link = str_replace("%3F", "?", $ofd_link);
+                                    $ofd_link = str_replace("%26", "&", $ofd_link);
+                                    $receipts[] = (object) array('receipt_url' => $ofd_link, 'created' => $transaction->created);
+                                }
                             }
                         }
                     }
