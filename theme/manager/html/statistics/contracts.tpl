@@ -100,6 +100,7 @@
                             <tr>
                                 <th>Дата</th>
                                 <th>Договор</th>
+                                <th>Заявка</th>
                                 <th>Дата возврата</th>
                                 <th>ФИО</th>
                                 <th>Телефон</th>
@@ -111,6 +112,7 @@
                                 <th>Дата возврата</th>
                                 <th>ПДН</th>
                                 <th>Дней займа</th>
+                                <th>UTM-источник</th>
                             </tr>
 
                             {foreach $contracts as $contract}
@@ -118,6 +120,9 @@
                                 <td>{$contract->date|date}</td>
                                 <td>
                                     <a target="_blank" href="order/{$contract->order_id}">{$contract->number}</a>
+                                </td>
+                                <td>
+                                    <a target="_blank" href="order/{$contract->order_id}">{$contract->order_id}</a>
                                 </td>
                                 <td>
                                     {$contract->return_date|date}
@@ -163,6 +168,13 @@
                                 </td>
                                 <td>
                                     {$contract->period}
+                                </td>
+                                <td>
+                                    {if isset($contract->utm_source)}
+                                        {$contract->utm_source}
+                                    {else}
+                                        organic
+                                    {/if}
                                 </td>
                             </tr>
                             {/foreach}
