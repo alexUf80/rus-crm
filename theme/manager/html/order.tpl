@@ -3866,7 +3866,7 @@
                         <input type="hidden" name="user_id" value="{$order->user_id}"/>
                         <input type="hidden" name="order_id" value="{$order->id}"/>
                         <input type="hidden" name="role" value="{$manager->role}"/>
-                        <input type="hidden" name="action" value="send_sms"/>
+                        <input type="hidden" name="action" value="send_casual_sms"/>
                         <textarea name="text_sms" class="form-control casual-sms-form"
                                   style="display: none; height: 250px;"></textarea>
                         <ul class="casual-sms-form" style="display: none; margin-top: 5px">
