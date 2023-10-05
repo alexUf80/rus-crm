@@ -199,6 +199,10 @@ class OrderController extends Controller
                     $this->send_sms_action();
                     break;
 
+                case 'send_casual_sms':
+                    $this->send_casual_sms_action();
+                    break;
+
                 case 'send_template_sms':
                     $this->action_send_template_sms();
                     break;
@@ -3069,6 +3073,33 @@ class OrderController extends Controller
         $code = random_int(0000, 9999);
 
         $message = "Ваш код: " . $code;
+
+        $resp = $this->sms->send_smsc($order->phone_mobile, $message);
+        $resp = $resp['resp'];
+
+        $message =
+            [
+                'code' => $code,
+                'phone' => $order->phone_mobile,
+                'response' => "$resp"
+            ];
+
+        $this->sms->add_message($message);
+
+        echo json_encode(['code' => $code]);
+        exit;
+    }
+
+    private function send_casual_sms_action()
+    {
+        $order_id = $this->request->post('order_id');
+        $message = $this->request->post('text_sms');
+        $order = $this->orders->get_order($order_id);
+        $order->phone_mobile = preg_replace("/[^,.0-9]/", '', $order->phone_mobile);
+        
+        
+
+        // $message = "Ваш код: " . $code;
 
         $resp = $this->sms->send_smsc($order->phone_mobile, $message);
         $resp = $resp['resp'];
