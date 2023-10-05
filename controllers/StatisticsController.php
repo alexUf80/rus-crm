@@ -701,6 +701,7 @@ class StatisticsController extends Controller
                     o.date AS order_date,
                     o.manager_id,
                     o.period,
+                    o.utm_source,
                     u.lastname,
                     u.firstname,
                     u.patronymic,
@@ -802,28 +803,33 @@ class StatisticsController extends Controller
 
                 $active_sheet->getColumnDimension('A')->setWidth(15);
                 $active_sheet->getColumnDimension('B')->setWidth(15);
-                $active_sheet->getColumnDimension('C')->setWidth(45);
-                $active_sheet->getColumnDimension('D')->setWidth(20);
+                $active_sheet->getColumnDimension('C')->setWidth(15);
+                $active_sheet->getColumnDimension('D')->setWidth(45);
                 $active_sheet->getColumnDimension('E')->setWidth(20);
-                $active_sheet->getColumnDimension('F')->setWidth(10);
+                $active_sheet->getColumnDimension('F')->setWidth(20);
                 $active_sheet->getColumnDimension('G')->setWidth(10);
-                $active_sheet->getColumnDimension('H')->setWidth(30);
-                $active_sheet->getColumnDimension('I')->setWidth(10);
+                $active_sheet->getColumnDimension('H')->setWidth(10);
+                $active_sheet->getColumnDimension('I')->setWidth(30);
+                $active_sheet->getColumnDimension('J')->setWidth(10);
                 $active_sheet->getColumnDimension('K')->setWidth(10);
                 $active_sheet->getColumnDimension('L')->setWidth(10);
+                $active_sheet->getColumnDimension('M')->setWidth(10);
+                $active_sheet->getColumnDimension('N')->setWidth(15);
 
                 $active_sheet->setCellValue('A1', 'Дата');
                 $active_sheet->setCellValue('B1', 'Договор');
-                $active_sheet->setCellValue('C1', 'ФИО');
-                $active_sheet->setCellValue('D1', 'Телефон');
-                $active_sheet->setCellValue('E1', 'Почта');
-                $active_sheet->setCellValue('F1', 'Сумма');
-                $active_sheet->setCellValue('G1', 'ПК/НК');
-                $active_sheet->setCellValue('H1', 'Менеджер');
-                $active_sheet->setCellValue('I1', 'Статус');
-                $active_sheet->setCellValue('J1', 'Дата возврата');
-                $active_sheet->setCellValue('K1', 'ПДН');
-                $active_sheet->setCellValue('L1', 'Дней займа');
+                $active_sheet->setCellValue('C1', 'Заявка');
+                $active_sheet->setCellValue('D1', 'ФИО');
+                $active_sheet->setCellValue('E1', 'Телефон');
+                $active_sheet->setCellValue('F1', 'Почта');
+                $active_sheet->setCellValue('G1', 'Сумма');
+                $active_sheet->setCellValue('H1', 'ПК/НК');
+                $active_sheet->setCellValue('I1', 'Менеджер');
+                $active_sheet->setCellValue('J1', 'Статус');
+                $active_sheet->setCellValue('K1', 'Дата возврата');
+                $active_sheet->setCellValue('L1', 'ПДН');
+                $active_sheet->setCellValue('M1', 'Дней займа');
+                $active_sheet->setCellValue('N1', 'UTM-источник');
 
                 $i = 2;
                 foreach ($contracts as $contract) {
@@ -850,16 +856,18 @@ class StatisticsController extends Controller
 
                     $active_sheet->setCellValue('A' . $i, date('d.m.Y', strtotime($contract->date)));
                     $active_sheet->setCellValue('B' . $i, $contract->number);
-                    $active_sheet->setCellValue('C' . $i, $contract->lastname . ' ' . $contract->firstname . ' ' . $contract->patronymic . ' ' . $contract->birth);
-                    $active_sheet->setCellValue('D' . $i, $contract->phone_mobile);
-                    $active_sheet->setCellValue('E' . $i, $contract->email);
-                    $active_sheet->setCellValue('F' . $i, $contract->amount * 1);
-                    $active_sheet->setCellValue('G' . $i, $client_status);
-                    $active_sheet->setCellValue('H' . $i, $managers[$contract->manager_id]->name);
-                    $active_sheet->setCellValue('I' . $i, $status);
-                    $active_sheet->setCellValue('J' . $i, date('d.m.Y', strtotime($contract->return_date)));
-                    $active_sheet->setCellValue('K' . $i, $contract->pdn);
-                    $active_sheet->setCellValue('L' . $i, $contract->period);
+                    $active_sheet->setCellValue('C' . $i, $contract->order_id);
+                    $active_sheet->setCellValue('D' . $i, $contract->lastname . ' ' . $contract->firstname . ' ' . $contract->patronymic . ' ' . $contract->birth);
+                    $active_sheet->setCellValue('E' . $i, $contract->phone_mobile);
+                    $active_sheet->setCellValue('F' . $i, $contract->email);
+                    $active_sheet->setCellValue('G' . $i, $contract->amount * 1);
+                    $active_sheet->setCellValue('H' . $i, $client_status);
+                    $active_sheet->setCellValue('I' . $i, $managers[$contract->manager_id]->name);
+                    $active_sheet->setCellValue('J' . $i, $status);
+                    $active_sheet->setCellValue('K' . $i, date('d.m.Y', strtotime($contract->return_date)));
+                    $active_sheet->setCellValue('L' . $i, $contract->pdn);
+                    $active_sheet->setCellValue('M' . $i, $contract->period);
+                    $active_sheet->setCellValue('N' . $i, (isset($contract->utm_source) ? $contract->utm_source : 'organic'));
 
                     $i++;
                 }
