@@ -358,8 +358,8 @@
                                         {/if}
                                     {/foreach}
                                 </tr>
-                                {*<tr>
-                                    <td>"Будь в курсе"/Сумма</td>
+                                <tr>
+                                    <td>"СМС информирование"/Сумма</td>
                                     {foreach $final_array as $date => $operations}
                                         {if $date != 'Итого'}
                                         <td>{$operations['count_sms_services']} шт / {$operations['sum_sms_services']} руб</td>
@@ -368,7 +368,7 @@
                                             <td>{$operations['count_sms_services']} шт / {$operations['sum_sms_services']} руб</td>
                                         {/if}
                                     {/foreach}
-                                </tr>*}
+                                </tr>
                                 <tr>
                                     <td>"Узнай причину отказа"/Сумма</td>
                                     {foreach $final_array as $date => $operations}
