@@ -39,6 +39,7 @@ class ContractsService extends Core
         $query = $this->db->placehold("
 
             SELECT 
+                c.id,
                 c.number,
                 c.inssuance_date,
                 c.amount,
@@ -65,16 +66,16 @@ class ContractsService extends Core
             foreach ($contracts as $contract)
             {
 
-                if ($contract->service_insurance == 1)
-                {
-                    $insurance = OperationsORM::where(['contract_id' => $contract->id, 'type' => 'INSURANCE'])->get()->first();
-                    if (!empty($insurance->amount))
-                        $contract->amount += $insurance->amount;
+                // if ($contract->service_insurance == 1)
+                // {
+                //     $insurance = OperationsORM::where(['contract_id' => $contract->id, 'type' => 'INSURANCE'])->get()->first();
+                //     if (!empty($insurance->amount))
+                //         $contract->amount += $insurance->amount;
                     
-                }
+                // }
 
-                if ($contract->service_sms == 1)
-                    $contract->amount += 149;
+                // if ($contract->service_sms == 1)
+                //     $contract->amount += 149;
 
                 $item = new StdClass();
                 $item->number = $contract->number;
