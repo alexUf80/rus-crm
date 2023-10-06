@@ -2854,6 +2854,16 @@
                             <div class="tab-pane p-3" id="operations" role="tabpanel">
                                 {if $contract_operations}
                                     <table class="table table-hover ">
+                                        <tr>
+                                            <td>Дата</td>
+                                            <td>Операция</td>
+                                            <td>Сумма</td>
+                                            <td>Операция Б2П</td>
+                                            <td>ОД</td>
+                                            <td>Проценты</td>
+                                            <td>Пени</td>
+                                            <td>Отправить</td>
+                                        </tr>
                                         <tbody>
                                         {foreach $contract_operations as $operation}
                                             <tr class="
@@ -2893,6 +2903,30 @@
                                                 </td>
                                                 <td>
                                                     {$operation->amount} руб
+                                                </td>
+                                                <td>
+                                                    {if $operation->type == 'P2P'}
+                                                        {$operation->p2pOperation['operation_id']}
+                                                    {else}
+                                                        {$operation->transaction->operation}
+                                                    {/if}
+                                                </td>
+                                                <td>
+                                                    {$operation->loan_body_summ}
+                                                </td>
+                                                <td>
+                                                    {$operation->loan_percents_summ}
+                                                </td>
+                                                <td>
+                                                    {$operation->loan_peni_summ}
+                                                </td>
+                                                <td>
+                                                    {if $operation->type == 'PAY' || $operation->type == 'RECURRENT'}
+                                                        <button class="btn btn-info btn-block js-to-onec"
+                                                        data-event="15" data-operation="{$operation->id}">
+                                                            Отправить в 1С
+                                                        </button>
+                                                    {/if}
                                                 </td>
                                             </tr>
                                             <tr class="order-details" id="changelog_{$changelog->id}"
