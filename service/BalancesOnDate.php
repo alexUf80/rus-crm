@@ -40,6 +40,7 @@ class BalancesOnDate extends Core
             SELECT 
                 id,
                 number,
+                amount,
                 status,
                 loan_body_summ,
                 loan_percents_summ,
@@ -78,6 +79,7 @@ class BalancesOnDate extends Core
 
                 $query = $this->db->placehold("
                     SELECT 
+                        id,
                         loan_body_summ,
                         loan_percents_summ,
                         loan_peni_summ,
@@ -85,8 +87,9 @@ class BalancesOnDate extends Core
                         created
                     FROM s_operations
                     WHERE contract_id = ?
-                    AND DATE(created) = ?
-                    ORDER BY created ASC
+                    AND DATE(created) <= ?
+                    ORDER BY created DESC, id DESC
+                    LIMIT 2
                 ", $contract_operations[0]->id, date('Y-m-d', strtotime($date)));
                 $this->db->query($query);
                 $results = $this->db->results();
@@ -95,16 +98,23 @@ class BalancesOnDate extends Core
                 {
                     if ($contract_operation->type == 'P2P')
                     {
-                        $contract_item->ОстатокОД = $contract_operation->amount;
+                        $contract_item->ОстатокОД = $contract_operations[0]->amount;
+                        $contract_item->ОстатокПроцентов = 0;
+                        $contract_item->ОстатокПени = 0;
                     }
                     if ($contract_operation->type == 'PERCENTS')
                     {
                         $contract_item->ОстатокОД = $contract_operation->loan_body_summ;
-                        $contract_item->ОстатокПроцентов = $contract_operation->loan_percents_summ;                    
-                        $contract_item->ОстатокПени = $contract_operation->loan_peni_summ;
+                        if ($contract_item->ОстатокПроцентов < $contract_operation->loan_percents_summ) {
+                            $contract_item->ОстатокПроцентов = $contract_operation->loan_percents_summ;                    
+                        }
+                        if ($contract_item->ОстатокПени < $contract_operation->loan_peni_summ) {
+                            $contract_item->ОстатокПени = $contract_operation->loan_peni_summ;
+                        }
                     }
                     if ($contract_operation->type == 'PENI')
                     {
+                        $contract_item->ОстатокОД = $contract_operation->loan_body_summ;
                         $contract_item->ОстатокПени = $contract_operation->loan_peni_summ;
                     }
                     if ($contract_operation->type == 'PAY')
