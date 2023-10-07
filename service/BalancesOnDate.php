@@ -47,6 +47,7 @@ class BalancesOnDate extends Core
             FROM s_contracts 
             WHERE (status = 2 OR status = 3 OR status = 4)
             AND (DATE(close_date) > ? OR close_date IS null)
+            AND DATE(inssuance_date) <= '2023-09-02'
         ", date('Y-m-d', strtotime($date)));
         $this->db->query($query);
         $results = $this->db->results();
