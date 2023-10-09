@@ -438,7 +438,7 @@ class OrderController extends Controller
                     }
 
                     $receipts= [];
-                    if ($contract_operations = $this->operations->get_operations(array('order_id' => $order->order_id))) {
+                    if ($contract_operations = $this->operations->get_operations(array('order_id' => $order->order_id, 'sort' => 'created_asc'))) {
                         foreach ($contract_operations as $contract_operation) {
                             if (!empty($contract_operation->transaction_id))
                                 $contract_operation->transaction = $this->transactions->get_transaction($contract_operation->transaction_id);
