@@ -80,6 +80,8 @@ class Operations extends Core
                 
                 case 'id_desc':
                     $sort = 'id DESC';
+                case 'created_asc':
+                    $sort = 'created ASC';
                 break;
                 
             endswitch;
