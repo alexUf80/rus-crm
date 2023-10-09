@@ -34,7 +34,7 @@ class payments extends Core
             $this->output();
         }
 
-        $payments = OperationsORM::where('type', 'PAY')->whereBetween('created', [$date_from, $date_to])->get();
+        $payments = OperationsORM::whereIn('type', ['PAY', 'RECURRENT'])->whereBetween('created', [$date_from, $date_to])->get();
 
         $this->response['success'] = 1;
 
