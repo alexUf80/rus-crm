@@ -67,6 +67,9 @@ class BalancesOnDate extends Core
         {
             if (!empty($contract_operations[0]->number))
             {
+                // if ($contract_operations[0]->number != "0330-3907") {
+                //     continue;
+                // }
                 $contract_item = new StdClass();
                 $contract_item->НомерДоговора = $contract_operations[0]->number;
 
@@ -89,6 +92,8 @@ class BalancesOnDate extends Core
                 $this->db->query($query);
                 $results = $this->db->results();
 
+                // var_dump(count($results));
+
                 if (count($results) == 0) {
                     $query = $this->db->placehold("
                         SELECT 
@@ -107,6 +112,8 @@ class BalancesOnDate extends Core
                     $results = $this->db->results();
                 }
 
+                // var_dump($results);
+
                 foreach ($results as $contract_operation)
                 {
 
@@ -120,7 +127,10 @@ class BalancesOnDate extends Core
                     if ($contract_operation->type == 'PERCENTS')
                     {
                         $contract_item->ОстатокОД = $contract_operation->loan_body_summ;
-                        $contract_item->ОстатокПроцентов = $contract_operation->loan_percents_summ;                    
+                        // $contract_item->ОстатокПроцентов = $contract_operation->loan_percents_summ;                    
+                        if ($contract_item->ОстатокПроцентов < $contract_operation->loan_percents_summ) {
+                            $contract_item->ОстатокПроцентов = $contract_operation->loan_percents_summ;
+                        }
                         if ($contract_item->ОстатокПени < $contract_operation->loan_peni_summ) {
                             $contract_item->ОстатокПени = $contract_operation->loan_peni_summ;
                         }
