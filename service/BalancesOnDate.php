@@ -171,7 +171,7 @@ class BalancesOnDate extends Core
     private function output()
     {
         header('Content-type:application/json');
-        echo json_encode($this->response);
+        echo json_encode($this->response); 
         exit;
     }
 }
