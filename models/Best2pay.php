@@ -1170,7 +1170,8 @@ class Best2pay extends Core
     public function reccurent_pay($order, $summ, $setting)
     {
         $description = 'Реккурентное списание ' . $setting;
-        $xml = $this->recurring_by_token($order->card_id, $summ, $description);
+        // $xml = $this->recurring_by_token($order->card_id, $summ, $description);
+        $xml = $this->purchase_by_token_to_recurrent($order->card_id, $summ, $description);
         $b2p_status = (string)$xml->state;
         echo $b2p_status.PHP_EOL;
         print_r($xml->message.PHP_EOL);
@@ -1242,6 +1243,70 @@ class Best2pay extends Core
         $operation = (string)$xml->id;
         $reason_code = (string)$xml->reason_code;
 //echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($recurring );echo '</pre><hr />';
+
+        $transaction_id = $this->transactions->add_transaction(array(
+            'user_id' => $user->id,
+            'amount' => $amount,
+            'sector' => $sector,
+            'body' => json_encode($data),
+            'register_id' => $b2p_order_id,
+            'operation' => $operation,
+            'reason_code' => $reason_code,
+            'reference' => $user->id,
+            'description' => $description,
+            'created' => date('Y-m-d H:i:s'),
+            'callback_response' => $recurring
+        ));
+        return $xml;
+    }
+
+    public function purchase_by_token_to_recurrent($card_id, $amount, $description)
+    {
+        $amount = round($amount, 0);
+        $sector = $this->sectors['PAYMENT'];
+        $password = $this->passwords[$sector];
+        if (!($card = $this->cards->get_card($card_id)))
+            return false;
+        if (!($user = $this->users->get_user((int)$card->user_id)))
+            return false;
+
+        // регистрируем оплату
+        $data = array(
+            'sector' => $sector,
+            'amount' => $amount,
+            'currency' => $this->currency_code,
+            'reference' => $user->id,
+            'description' => $description,
+            'phone' => $user->phone_mobile,
+            'email' => $user->email,
+            'first_name' => $user->firstname,
+            'last_name' => $user->lastname,
+            'patronymic' => $user->patronymic,
+        );
+        $data['signature'] = $this->get_signature(array($data['sector'], $data['amount'], $data['currency'], $password));
+        $b2p_order = $this->send('Register', $data);
+        $xml = simplexml_load_string($b2p_order);
+        $b2p_order_id = (string)$xml->id;
+        $data = array(
+            'sector' => $sector,
+            'id' => $b2p_order_id,
+            'token' => $card->token,
+        //            'fee' => $fee
+        );
+        $data['signature'] = $this->get_signature(array(
+            $data['sector'],
+            $data['id'],
+            $data['token'],
+        //            $data['fee'],
+            $password
+        ));
+
+        $recurring = $this->send('PurchaseByToken', $data);
+        $xml = simplexml_load_string($recurring);
+        $status = (string)$xml->state;
+        $operation = (string)$xml->id;
+        $reason_code = (string)$xml->reason_code;
+        //echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($recurring );echo '</pre><hr />';
 
         $transaction_id = $this->transactions->add_transaction(array(
             'user_id' => $user->id,
