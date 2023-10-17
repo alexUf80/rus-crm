@@ -36,6 +36,7 @@ class LoanDoctorController extends Controller
 		$this->design->assign('current_page_num', $current_page);
 
         $sql_limit = $this->db->placehold(' LIMIT ?, ? ', ($current_page-1)*$items_per_page, $items_per_page);
+        $filter['limit'] = $sql_limit;
 
         $clients = $this->LoanDoctor->get_ld($filter);
 

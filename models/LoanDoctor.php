@@ -88,6 +88,8 @@ class LoanDoctor extends Core
             endswitch;
         }
 
+        $sql_limit = $filter['limit'];
+
     	$query = $this->db->placehold("
             SELECT u.*, o.status, o.id AS order_id FROM 
             __orders o
@@ -107,8 +109,8 @@ class LoanDoctor extends Core
                 ) 
                 AND (o.status=8 OR o.status=3)
             )
-            $sql_limit
             ORDER BY $sort
+            $sql_limit
         ");
 
         $this->db->query($query);
