@@ -270,6 +270,9 @@ class Orders extends Core
                 case 'pk':
                     $client_filter = $this->db->placehold("AND (o.client_status = 'pk' OR o.client_status = 'crm')");
                 break;
+                case 'kd':
+                    $client_filter = $this->db->placehold("AND o.client_status = 'kd'");
+                break;
             endswitch;
         }
         
@@ -999,6 +1002,9 @@ class Orders extends Core
                 break;
                 case 'pk':
                     $client_filter = $this->db->placehold("AND (o.client_status = 'pk' OR o.client_status = 'crm')");
+                break;
+                case 'kd':
+                    $client_filter = $this->db->placehold("AND o.client_status = 'kd'");
                 break;
             endswitch;
         }
