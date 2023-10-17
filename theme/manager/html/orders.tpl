@@ -249,6 +249,8 @@
                                    class="btn btn-xs {if $filter_client=='repeat'}btn-warning{else}btn-outline-warning{/if}">Повтор</a>
                                 <a href="{if $filter_client=='pk'}{url client=null page=null}{else}{url client='pk' page=null}{/if}"
                                    class="btn btn-xs {if $filter_client=='pk'}btn-success{else}btn-outline-success{/if}">ПК</a>
+                                <a href="{if $filter_client=='kd'}{url client=null page=null}{else}{url client='kd' page=null}{/if}"
+                                   class="btn btn-xs {if $filter_client=='kd'}btn-danger{else}btn-outline-danger{/if}">КД</a>
                                 {if $filter_client}
                                     <input type="hidden" value="{$filter_client}" id="filter_client"/>
                                 {/if}
