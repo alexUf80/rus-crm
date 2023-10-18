@@ -68,7 +68,7 @@ RewriteRule ^manager/([^/]*)/?$         index.php?module=ManagerController&id=$1
 
 RewriteRule ^changelogs/?$              index.php?module=ChangelogsController  [L,QSA]
 
-RewriteRule ^scorings/?$                index.php?module=ScoringsController  [L,QSA]
+RewriteRule ^scoringss/?$               index.php?module=ScoringsController  [L,QSA]
 RewriteRule ^settings/?$                index.php?module=SettingsController  [L,QSA]
 RewriteRule ^settings_communications/?$ index.php?module=SettingsCommunicationsController  [L,QSA]
 RewriteRule ^apikeys/?$                 index.php?module=ApikeysController  [L,QSA]

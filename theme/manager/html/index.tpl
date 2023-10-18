@@ -229,7 +229,7 @@
                                                     href="settings/">Общие</a></li>
                                         {if $manager->role != 'chief_collector'}
                                             <li {if in_array($module, ['ScoringsController'])}class="active"{/if}><a
-                                                        href="scorings/">Скоринги</a></li>
+                                                        href="scoringss/">Скоринги</a></li>
                                             <li {if in_array($module, ['ApikeysController'])}class="active"{/if}><a
                                                         href="apikeys/">Ключи для API</a></li>
                                             <li {if in_array($module, ['WhitelistController'])}class="active"{/if}><a
