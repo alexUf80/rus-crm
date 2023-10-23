@@ -3,7 +3,14 @@
 {capture name='page_scripts'}
 
     <script type="text/javascript">
+        $('#kd_on').on('change', function (e) {
+            
+            if ($("#kd_on").is(':checked'))
+                $('#kd_on').val("1");
+            else
+                $('#kd_on').val("0");
 
+        });
     </script>
 
 {/capture}
@@ -220,6 +227,36 @@
                             
                         </div>
                     </div>
+
+                    {*}
+                    <hr class="mb-3 mt-3" />
+                    
+                    <div class="row">
+                        <div class="col-12">
+                            <h3 class="box-title">
+                                Кредитный доктор
+                            </h3>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group mb-3">
+                                <div class=" col-form-label">Включить Кредитный доктор?</div>
+                            </div>
+
+                            <div class="onoffswitch">
+                                <input type="checkbox" name="kd_on" class="onoffswitch-checkbox" value="{$settings->kd_on}" id="kd_on" 
+                                {if $settings->kd_on}checked{/if}>
+                                <label class="onoffswitch-label" for="kd_on">
+                                    <span class="onoffswitch-inner"></span>
+                                    <span class="onoffswitch-switch"></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            
+                        </div>
+                    </div>
+                    {*}
                 </div>
             </div>
         
