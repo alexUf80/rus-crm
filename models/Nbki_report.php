@@ -295,6 +295,7 @@ class Nbki_report extends Core
 
         $C27_PASTDUEARREAR = new StdClass();
         $C27_PASTDUEARREAR->amount_outstanding = '0,00';
+        $C27_PASTDUEARREAR->calculation_date = date('d.m.Y', strtotime($contract->inssuance_date));
 
         $data->C27_PASTDUEARREAR = $C27_PASTDUEARREAR;
 
@@ -504,6 +505,7 @@ class Nbki_report extends Core
 
         $C27_PASTDUEARREAR = new StdClass();
         $C27_PASTDUEARREAR->amount_outstanding = '0,00';
+        $C27_PASTDUEARREAR->calculation_date = date('d.m.Y', strtotime($contract->inssuance_date));
 
         $data->C27_PASTDUEARREAR = $C27_PASTDUEARREAR;
 
