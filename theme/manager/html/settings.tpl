@@ -228,7 +228,6 @@
                         </div>
                     </div>
 
-                    {*}
                     <hr class="mb-3 mt-3" />
                     
                     <div class="row">
@@ -256,7 +255,6 @@
                             
                         </div>
                     </div>
-                    {*}
                 </div>
             </div>
         
