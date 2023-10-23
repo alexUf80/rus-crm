@@ -2554,7 +2554,12 @@ class StatisticsController extends Controller
                     if(is_null($op->callback_response))
                         continue;
 
-                    $callback = new SimpleXMLElement($op->callback_response);
+                    try {
+                        $callback = new SimpleXMLElement($op->callback_response);
+                    } catch (\Throwable $th) {
+                        continue;
+                    }
+                    
                     if($callback->order_state != 'COMPLETED')
                         continue;
                 }
