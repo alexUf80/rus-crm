@@ -30,6 +30,8 @@ class SettingsController extends Controller
 
             $this->settings->min_age = $this->request->post('min_age');
             $this->settings->max_age = $this->request->post('max_age');
+
+            // $this->settings->kd_on = $this->request->post('kd_on');
         }
         else
         {
