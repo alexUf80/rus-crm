@@ -28,8 +28,8 @@ class NbkiReportCron extends Core
     
     public function run()
     {
-        $date_from = date('Y-m-d', time() - 22 * 86400);
-        $date_to = date('Y-m-d', time() - 19 * 86400);
+        $date_from = date('Y-m-d', time() - 2 * 86400);
+        $date_to = date('Y-m-d', time() - 1 * 86400);
 
         $this->db->query("
             SELECT * FROM __operations 
