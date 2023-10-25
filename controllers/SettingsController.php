@@ -32,6 +32,7 @@ class SettingsController extends Controller
             $this->settings->max_age = $this->request->post('max_age');
 
             $this->settings->kd_on = $this->request->post('kd_on');
+            $this->settings->safe_mode = $this->request->post('safe_mode');
         }
         else
         {
