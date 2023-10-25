@@ -11,6 +11,15 @@
                 $('#kd_on').val("0");
 
         });
+
+        $('#safe_mode').on('change', function (e) {
+            
+            if ($("#safe_mode").is(':checked'))
+                $('#safe_mode').val("1");
+            else
+                $('#safe_mode').val("0");
+
+        });
     </script>
 
 {/capture}
@@ -245,6 +254,34 @@
                                 <input type="checkbox" name="kd_on" class="onoffswitch-checkbox" value="{$settings->kd_on}" id="kd_on" 
                                 {if $settings->kd_on}checked{/if}>
                                 <label class="onoffswitch-label" for="kd_on">
+                                    <span class="onoffswitch-inner"></span>
+                                    <span class="onoffswitch-switch"></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            
+                        </div>
+                    </div>
+
+                    <hr class="mb-3 mt-3" />
+                    
+                    <div class="row">
+                        <div class="col-12">
+                            <h3 class="box-title">
+                                Безопасный режим
+                            </h3>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group mb-3">
+                                <div class=" col-form-label">Включить безопасный режим?</div>
+                            </div>
+
+                            <div class="onoffswitch">
+                                <input type="checkbox" name="safe_mode" class="onoffswitch-checkbox" value="{$settings->safe_mode}" id="safe_mode" 
+                                {if $settings->safe_mode}checked{/if}>
+                                <label class="onoffswitch-label" for="safe_mode">
                                     <span class="onoffswitch-inner"></span>
                                     <span class="onoffswitch-switch"></span>
                                 </label>
