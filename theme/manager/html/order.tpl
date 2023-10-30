@@ -733,7 +733,7 @@
                                                     {/foreach}
                                                 {/foreach}
                                             {/if}
-                                            {if in_array($manager->role, ['developer', 'admin', 'user'])}
+                                            {if in_array($manager->role, ['developer', 'admin', 'user', 'manager'])}
                                                 <a href="javascript:void(0);"
                                                    class="text-info js-edit-form edit-amount js-event-add-click"
                                                    data-event="30" data-manager="{$manager->id}"
