@@ -116,6 +116,16 @@
                         </a>
                     </div>
                 </div>
+                {*}
+                <div class="col-md-6 col-lg-3 col-xlg-3">
+                    <div class="card card-inverse card-success">
+                        <a href="statistics/kd_click" class="box text-center">
+                            <h1 class="font-light text-white">Клики по КД</h1>
+                            <h6 class="text-white">Клики отказников по кнопке Кредитный доктор</h6>
+                        </a>
+                    </div>
+                </div>
+                {*}
             {/if}
             {if in_array('analitics', $manager->permissions) || in_array('penalty_statistics', $manager->permissions)}
 

@@ -102,6 +102,10 @@ class StatisticsController extends Controller
             case 'recovery_rate':
                 return $this->action_recovery_rate();
                 break;
+
+            case 'kd_click':
+                return $this->action_kd_click();
+                break;
     
                 
             default:
@@ -3999,5 +4003,91 @@ class StatisticsController extends Controller
 
         return $this->design->fetch('statistics/recovery_rate.tpl');
     }
+
+    private function action_kd_click()
+    {
+        if ($daterange = $this->request->get('daterange')) {
+            list($from, $to) = explode('-', $daterange);
+
+            $date_from = date('Y-m-d', strtotime($from));
+            $date_to = date('Y-m-d', strtotime($to));
+
+            $this->design->assign('date_from', $date_from);
+            $this->design->assign('date_to', $date_to);
+            $this->design->assign('from', $from);
+            $this->design->assign('to', $to);
+
+            $query = $this->db->placehold("
+                SELECT
+                    kd.id AS contract_id,
+                    kd.click_date,
+                    u.id AS user_id,
+                    u.lastname,
+                    u.firstname,
+                    u.patronymic,
+                    u.phone_mobile
+                FROM __kd_clicks AS kd
+                LEFT JOIN __users AS u
+                ON u.id = kd.user_id
+                WHERE DATE(kd.click_date) >= ?
+                AND DATE(kd.click_date) <= ?
+                ORDER BY click_date
+            ", $date_from, $date_to);
+            $this->db->query($query);
+            file_put_contents($this->config->root_dir.'files/sas.txt',$query);
+
+            $clicks = $this->db->results();
+            $this->design->assign('clicks', $clicks);
+
+            if ($this->request->get('download') == 'excel') {
+                $managers = array();
+                foreach ($this->managers->get_managers() as $m)
+                    $managers[$m->id] = $m;
+
+                $filename = 'files/reports/Клики по КД.xls';
+                require $this->config->root_dir . 'PHPExcel/Classes/PHPExcel.php';
+
+                $excel = new PHPExcel();
+
+                $excel->setActiveSheetIndex(0);
+                $active_sheet = $excel->getActiveSheet();
+
+                $active_sheet->setTitle("Клики по КД ");
+
+                $excel->getDefaultStyle()->getFont()->setName('Calibri')->setSize(12);
+                $excel->getDefaultStyle()->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
+
+                $active_sheet->getColumnDimension('A')->setWidth(30);
+                $active_sheet->getColumnDimension('B')->setWidth(20);
+                $active_sheet->getColumnDimension('C')->setWidth(15);
+
+                $active_sheet->setCellValue('A1', 'ФИО');
+                $active_sheet->setCellValue('B1', 'Телефон');
+                $active_sheet->setCellValue('C1', 'Дата клика');
+
+                $i = 2;
+                foreach ($clicks as $click) {
+
+                    $active_sheet->setCellValue('A' . $i, $click->lastname.' '.$click->firstname.' '.$click->patronymic);
+                    $active_sheet->setCellValue('B' . $i, $click->phone_mobile);
+                    $active_sheet->setCellValue('C' . $i, date('d.m.Y', strtotime($click->click_date)));
+
+                    $i++;
+                }
+
+                $objWriter = PHPExcel_IOFactory::createWriter($excel, 'Excel5');
+
+                $objWriter->save($this->config->root_dir . $filename);
+
+                header('Location:' . $this->config->root_url . '/' . $filename);
+                exit;
+            }
+
+            $this->design->assign('contracts', $contracts);
+        }
+
+        return $this->design->fetch('statistics/kd_click.tpl');
+    }
+
 
 }
