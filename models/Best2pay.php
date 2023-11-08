@@ -1263,6 +1263,7 @@ class Best2pay extends Core
     public function purchase_by_token_to_recurrent($card_id, $amount, $description)
     {
         $amount = round($amount, 0);
+        $fee = max($this->min_fee, floatval($amount * $this->fee));
         $sector = $this->sectors['PAYMENT'];
         $password = $this->passwords[$sector];
         if (!($card = $this->cards->get_card($card_id)))
@@ -1282,6 +1283,7 @@ class Best2pay extends Core
             'first_name' => $user->firstname,
             'last_name' => $user->lastname,
             'patronymic' => $user->patronymic,
+            'fee' => $fee
         );
         $data['signature'] = $this->get_signature(array($data['sector'], $data['amount'], $data['currency'], $password));
         $b2p_order = $this->send('Register', $data);
@@ -1291,13 +1293,13 @@ class Best2pay extends Core
             'sector' => $sector,
             'id' => $b2p_order_id,
             'token' => $card->token,
-        //            'fee' => $fee
+            'fee' => $fee
         );
         $data['signature'] = $this->get_signature(array(
             $data['sector'],
             $data['id'],
             $data['token'],
-        //            $data['fee'],
+            $data['fee'],
             $password
         ));
 
