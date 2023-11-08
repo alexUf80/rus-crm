@@ -23,9 +23,9 @@ class ReccurentCron extends Core
         }
         $attempts = unserialize($setting->attempts);
         
-        // if (!($setting->hour_time == date('H:i'))) {
-        //     return;
-        // }
+        if (!($setting->hour_time == date('H:i'))) {
+            return;
+        }
 
         /*$transaction = TransactionsORM::query()->where('id', '=', 161379)->first();
         $result = $this->best2pay->return_money_tr($transaction);
@@ -35,13 +35,6 @@ class ReccurentCron extends Core
 
             $i = 1;
             foreach ($contracts as $c) {
-
-                if ($c->order_id != 34179) {
-                    echo $i.'<br>';
-                    continue;
-                }
-                // var_dump($c);
-                // die;
 
                 // 34497 - кредитные каникулы
                 if (in_array($c->order_id, [34497]) ) {
@@ -53,7 +46,7 @@ class ReccurentCron extends Core
                 $diff = $date2->diff($date1);
 
                 //Если кол-во дней совпадает и нет попыток
-                // if (($diff->days == $setting->days) && ($c->reccurent_attempt < count($attempts))) {
+                if (($diff->days == $setting->days) && ($c->reccurent_attempt < count($attempts))) {
                     foreach ($attempts as $tempAttemp) {
                         $contract = $this->contracts->get_contract($c->id);
                         
@@ -176,7 +169,7 @@ class ReccurentCron extends Core
                         }
                     }
                     echo "<hr>";
-                // }
+                }
 
 
             }
