@@ -648,11 +648,11 @@
                                                         <table class="table table-hover mb-0">
                                                             <tr>
                                                                 <td>Адрес прописки</td>
-                                                                <td>{$faktaddress}</td>
+                                                                <td>{$regaddress}</td>
                                                             </tr>
                                                             <tr>
                                                                 <td>Адрес проживания</td>
-                                                                <td>{$regaddress}</td>
+                                                                <td>{$faktaddress}</td>
                                                             </tr>
                                                         </table>
                                                     </div>
