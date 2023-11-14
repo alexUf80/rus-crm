@@ -109,7 +109,7 @@
                                 <th>ПК/НК</th>
                                 <th>Менеджер</th>
                                 <th>Статус</th>
-                                <th>Дата возврата</th>
+                                <th>Дней просрочки</th>
                                 <th>ПДН</th>
                                 <th>Дней займа</th>
                                 <th>UTM-источник</th>
@@ -161,7 +161,7 @@
                                     {/if}
                                 </td>
                                 <td>
-                                    {$contract->return_date}
+                                    {$contract->expired_days}
                                 </td>
                                 <td>
                                     {$contract->pdn}

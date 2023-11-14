@@ -124,6 +124,7 @@
                                 <th>ФИО</th>
                                 <th>Телефон</th>
                                 <th>Email</th>
+                                <th>Cегмент клиента</th>
                                 <th>Менеджер</th>
                                 <th>Причина</th>
                                 <th>Скориста</th>
@@ -145,6 +146,20 @@
                                 </td>
                                 <td>
                                     {$order->email}
+                                </td>
+                                <td>
+                                    {if $order->client_status == 'pk'}
+                                        <span class="label label-success"
+                                                title="Клиент уже имеет погашенные займы">ПК</span>
+                                    {elseif $order->client_status == 'crm'}
+                                        <span class="label label-primary"
+                                                title="Клиент уже имеет погашенные займы в CRM">ПК CRM</span>
+                                    {elseif $order->client_status == 'rep'}
+                                        <span class="label label-warning"
+                                                title="Клиент уже подавал ранее заявки">Повтор</span>
+                                    {elseif $order->client_status == 'nk'}
+                                        <span class="label label-info" title="Новый клиент">Новая</span>
+                                    {/if}
                                 </td>
                                 <td>{$managers[$order->manager_id]->name|escape}</td>
                                 <td>
