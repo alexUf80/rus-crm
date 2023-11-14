@@ -222,8 +222,12 @@
                                 {elseif $type->name == 'fssp' || $type->name == 'fssp2'}
                                 <div class="col-md-6">
                                     <div class="form-group ">
-                                        <label class="control-label">Сумма долга, руб</label>
+                                        <label class="control-label">Сумма долга ПК, руб</label>
                                         <input type="text" name="settings[{$type->id}][params][amount]" value="{$type->params['amount']}" class="form-control" placeholder="" />
+                                    </div>
+                                    <div class="form-group ">
+                                        <label class="control-label">Сумма долга НК, руб</label>
+                                        <input type="text" name="settings[{$type->id}][params][amount_nk]" value="{$type->params['amount_nk']}" class="form-control" placeholder="" />
                                     </div>
                                 </div>
                 

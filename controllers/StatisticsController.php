@@ -555,6 +555,7 @@ class StatisticsController extends Controller
                     o.user_id,
                     o.manager_id,
                     o.utm_source,
+                    o.client_status,
                     u.lastname,
                     u.firstname,
                     u.patronymic,
@@ -638,10 +639,11 @@ class StatisticsController extends Controller
                 $active_sheet->setCellValue('C1', 'ФИО');
                 $active_sheet->setCellValue('D1', 'Телефон');
                 $active_sheet->setCellValue('E1', 'Email');
-                $active_sheet->setCellValue('F1', 'Менеджер');//---
-                $active_sheet->setCellValue('G1', 'Причина');
-                $active_sheet->setCellValue('H1', 'Скориста');//---
-                $active_sheet->setCellValue('H1', 'Источник');//---
+                $active_sheet->setCellValue('F1', 'Cегмент клиента');
+                $active_sheet->setCellValue('G1', 'Менеджер');//---
+                $active_sheet->setCellValue('H1', 'Причина');
+                $active_sheet->setCellValue('I1', 'Скориста');//---
+                $active_sheet->setCellValue('J1', 'Источник');//---
 
                 $i = 2;
                 foreach ($orders as $contract) {
@@ -650,10 +652,25 @@ class StatisticsController extends Controller
                     $active_sheet->setCellValue('C' . $i, $contract->lastname . ' ' . $contract->firstname . ' ' . $contract->patronymic);
                     $active_sheet->setCellValue('D' . $i, $contract->phone_mobile);
                     $active_sheet->setCellValue('E' . $i, $contract->email);
-                    $active_sheet->setCellValue('F' . $i, $managers[$contract->manager_id]->name);
-                    $active_sheet->setCellValue('G' . $i, ($contract->reason_id ? $reasons[$contract->reason_id]->admin_name : $contract->reject_reason));
-                    $active_sheet->setCellValue('H' . $i, empty($contract->scoring) ? '' : $contract->scoring->scorista_ball);
-                    $active_sheet->setCellValue('I' . $i, $contract->utm_source);
+
+                    $order_client_status = '';
+                    if ($contract->client_status == 'pk'){
+                        $order_client_status='ПК';
+                    }
+                    elseif ($contract->client_status == 'crm'){
+                        $order_client_status='ПК CRM';
+                    }
+                    elseif ($contract->client_status == 'rep'){
+                        $order_client_status='Повтор';
+                    }
+                    elseif ($contract->client_status == 'nk'){
+                        $order_client_status='Новая';
+                    }
+                    $active_sheet->setCellValue('F' . $i, $order_client_status);
+                    $active_sheet->setCellValue('G' . $i, $managers[$contract->manager_id]->name);
+                    $active_sheet->setCellValue('H' . $i, ($contract->reason_id ? $reasons[$contract->reason_id]->admin_name : $contract->reject_reason));
+                    $active_sheet->setCellValue('I' . $i, empty($contract->scoring) ? '' : $contract->scoring->scorista_ball);
+                    $active_sheet->setCellValue('J' . $i, $contract->utm_source);
 
 
                     $i++;
@@ -701,6 +718,7 @@ class StatisticsController extends Controller
                     c.collection_status,
                     c.sold,
                     c.return_date,
+                    c.close_date,
                     o.client_status,
                     o.date AS order_date,
                     o.manager_id,
@@ -728,8 +746,21 @@ class StatisticsController extends Controller
             $this->db->query($query);
 
             $contracts = array();
-            foreach ($this->db->results() as $c)
+            foreach ($this->db->results() as $c){
+
+                $date1 = new DateTime(date('Y-m-d', strtotime($c->return_date)));
+                $date2 = new DateTime(date('Y-m-d', strtotime($c->close_date)));
+
+                $diff = $date2->diff($date1);
+                if ($c->close_date) {
+                    if ($c->return_date > $c->close_date)
+                        $c->expired_days = -$diff->days;
+                    else
+                        $c->expired_days = $diff->days;
+                }
+
                 $contracts[$c->contract_id] = $c;
+            }
 
             foreach ($contracts as $c) {
                 if (empty($c->client_status)) {
@@ -831,9 +862,10 @@ class StatisticsController extends Controller
                 $active_sheet->setCellValue('I1', 'Менеджер');
                 $active_sheet->setCellValue('J1', 'Статус');
                 $active_sheet->setCellValue('K1', 'Дата возврата');
-                $active_sheet->setCellValue('L1', 'ПДН');
-                $active_sheet->setCellValue('M1', 'Дней займа');
-                $active_sheet->setCellValue('N1', 'UTM-источник');
+                $active_sheet->setCellValue('L1', 'Дней просрочки');
+                $active_sheet->setCellValue('M1', 'ПДН');
+                $active_sheet->setCellValue('N1', 'Дней займа');
+                $active_sheet->setCellValue('O1', 'UTM-источник');
 
                 $i = 2;
                 foreach ($contracts as $contract) {
@@ -869,9 +901,10 @@ class StatisticsController extends Controller
                     $active_sheet->setCellValue('I' . $i, $managers[$contract->manager_id]->name);
                     $active_sheet->setCellValue('J' . $i, $status);
                     $active_sheet->setCellValue('K' . $i, date('d.m.Y', strtotime($contract->return_date)));
-                    $active_sheet->setCellValue('L' . $i, $contract->pdn);
-                    $active_sheet->setCellValue('M' . $i, $contract->period);
-                    $active_sheet->setCellValue('N' . $i, (isset($contract->utm_source) ? $contract->utm_source : 'organic'));
+                    $active_sheet->setCellValue('L' . $i, $contract->expired_days);
+                    $active_sheet->setCellValue('M' . $i, $contract->pdn);
+                    $active_sheet->setCellValue('N' . $i, $contract->period);
+                    $active_sheet->setCellValue('O' . $i, (isset($contract->utm_source) ? $contract->utm_source : 'organic'));
 
                     $i++;
                 }
