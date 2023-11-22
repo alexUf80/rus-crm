@@ -443,6 +443,29 @@
                     }
                 });
             });
+
+            $('.editServicesGray').on('click', function () {
+                Swal.fire({
+                    title: 'СМС для возврата доп услуг отправлен',
+                    confirmButtonText: 'ОК'
+                });
+            });
+            
+            $('.editServices').on('click', function () {
+                $('#editServicesModal').modal();
+            });
+
+            $('.saveEditServices').on('click', function () {
+                let form = $(this).closest('form').serialize();
+
+                $.ajax({
+                    method: 'POST',
+                    data: form,
+                    success: function () {
+                        location.reload();
+                    }
+                });
+            });
         })
     </script>
     <script>
@@ -1142,6 +1165,19 @@
                                                      class="btn btn-block btn-success editLoanProfit">
                                                     Скорректировать долг/Остановить начисления
                                                 </div>
+                                            {/if}
+                                            {if in_array($contract->status, [2,4])}
+                                                {if is_null($contract->edit_services)}
+                                                    <div data-order="{$order->order_id}"
+                                                        class="btn btn-block btn-info editServices">
+                                                        Скорректировать долг/Возврат Доп. услуг
+                                                    </div>
+                                                {else}
+                                                    <div data-order="{$order->order_id}"
+                                                        class="btn btn-block btn-secondary editServicesGray">
+                                                        Скорректировать долг/Возврат Доп. услуг
+                                                    </div>
+                                                {/if}
                                             {/if}
                                             {if in_array('close_contract', $manager->permissions)}
                                                 <button class="btn btn-danger btn-block js-open-close-form js-event-add-click"
@@ -3319,7 +3355,7 @@
                                                     {if in_array($operation->type, ['PAY', 'RECURRENT'])}table-success{/if}
                                                     {if in_array($operation->type, ['PERCENTS', 'CHARGE', 'PENI'])}table-danger{/if}
                                                     {if in_array($operation->type, ['P2P', 'IMPORT'])}table-info{/if}
-                                                    {if in_array($operation->type, ['INSURANCE', 'INSURANCE_BC','BUD_V_KURSE', 'REJECT_REASON', 'RETURN_INSURANCE', 'SMS'])}table-warning{/if}
+                                                    {if in_array($operation->type, ['SERVICE_REFUND', 'INSURANCE', 'INSURANCE_BC','BUD_V_KURSE', 'REJECT_REASON', 'RETURN_INSURANCE', 'SMS'])}table-warning{/if}
                                                 ">
                                                 <td>
                                                     {*}
@@ -3351,6 +3387,8 @@
                                                     {if $operation->type == 'PENI'}Пени{/if}
                                                     {if $operation->type == 'IMPORT'}Импорт{/if}
                                                     {if $operation->type == 'DOCTOR'}Кредитный доктор{/if}
+                                                    {if $operation->type == 'SERVICE_REFUND'}Возврат за услуги{/if}
+                                                </td>
                                                 </td>
                                                 <td>
                                                     {$operation->amount} руб
@@ -4080,6 +4118,27 @@
                     </div>
                     <input type="button" class="btn btn-danger" data-dismiss="modal" value="Отмена">
                     <input type="button" class="btn btn-success saveEditLoanProfit" value="Сохранить">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="editServicesModal" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog"
+     aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Скорректировать долг / Вернуть Дополнительные услуги</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="alert" style="display:none"></div>
+                <form method="POST" id="editServicesForm">
+                    <input type="hidden" name="action" value="editServices">
+                    <input type="hidden" name="contractId" value="{$contract->id}">
+                    <input type="button" class="btn btn-danger" data-dismiss="modal" value="Отмена">
+                    <input type="button" class="btn btn-success saveEditServices" value="Вернуть Доп. услуги">
                 </form>
             </div>
         </div>
