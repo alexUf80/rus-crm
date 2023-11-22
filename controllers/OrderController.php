@@ -226,6 +226,10 @@ class OrderController extends Controller
                 case 'editLoanProfit':
                     return $this->action_editLoanProfit();
                     break;
+                
+                case 'editServices':
+                    return $this->action_editServices();
+                    break;
 
                 case 'add_risk':
                     $this->action_add_risk();
@@ -3551,6 +3555,44 @@ class OrderController extends Controller
             ];
 
         ContractsORM::where('id', $contractId)->update($update);
+        exit;
+    }
+
+    private function action_editServices()
+    {
+        $contractId = $this->request->post('contractId');
+
+        $contract = $this->contracts->get_contract($contractId);
+        if (!is_null($contract->edit_services)) {
+            exit;
+        }
+        $order = $this->orders->get_order($contract->order_id);
+        $order->phone_mobile = preg_replace("/[^,.0-9]/", '', $order->phone_mobile);
+        $code = random_int(0000, 9999);
+
+        $message = "Подпишите в ЛК. Код возврата средств за доп услуги: " . $code;
+
+        $resp = $this->sms->send_smsc($order->phone_mobile, $message);
+        $resp = $resp['resp'];
+
+        $sms_message =
+            [
+                'code' => $code,
+                'phone' => $order->phone_mobile,
+                'response' => "$resp",
+                'message' => $message
+            ];
+
+        $this->sms->add_message($sms_message);
+
+        $update =
+            [
+                'edit_services' => $code
+            ];
+
+        ContractsORM::where('id', $contractId)->update($update);
+
+        echo json_encode(['code' => $code]);
         exit;
     }
 
