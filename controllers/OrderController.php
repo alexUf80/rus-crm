@@ -3586,6 +3586,7 @@ class OrderController extends Controller
         $operations_ids = $this->request->post('operationsIds');
 
         // Код для СМС
+        $contract = $this->contracts->get_contract($contractId);
         $order = $this->orders->get_order($contract->order_id);
         $order->phone_mobile = preg_replace("/[^,.0-9]/", '', $order->phone_mobile);
         $code = random_int(0000, 9999);
@@ -3614,8 +3615,6 @@ class OrderController extends Controller
 
 
         // СМС
-        
-
         $message = "Подпишите в ЛК. Код возврата средств за доп услуги: " . $code;
 
         $resp = $this->sms->send_smsc($order->phone_mobile, $message);
