@@ -669,6 +669,28 @@ class OrderController extends Controller
         $pdn = $client->pdn;
         $this->design->assign('pdn', $pdn);
 
+
+        $operations_refund_services_arrs = $this->RefundForServices->get_done($order->contract_id);
+
+        $operations_refund_services = [];
+        foreach ($operations_refund_services_arrs as $key => $operations_refund_services_arr) {
+            $operations_arr = explode(',', $operations_refund_services_arr->operations_ids);
+            $operations_refund_services = array_merge($operations_refund_services, $operations_arr);
+        }
+
+        $this->design->assign('operations_refund_services', $operations_refund_services);
+        
+
+        $operations_service_count = 0;
+        $operations = $this->operations->get_operations(array('contract_id' => $order->contract_id));
+        foreach ($operations as $operation) {
+            if (in_array($operation->type, ['BUD_V_KURSE', 'INSURANCE', 'INSURANCE_BC'])) {
+                $operations_service_count++;
+            }
+        }
+        $this->design->assign('operations_not_refund_services', $operations_service_count - count($operations_refund_services));
+
+
         $body = $this->design->fetch('order.tpl');
 
         if ($this->request->get('ajax', 'integer')) {
@@ -3561,14 +3583,38 @@ class OrderController extends Controller
     private function action_editServices()
     {
         $contractId = $this->request->post('contractId');
+        $operations_ids = $this->request->post('operationsIds');
 
+        // Код для СМС
+        $order = $this->orders->get_order($contract->order_id);
+        $order->phone_mobile = preg_replace("/[^,.0-9]/", '', $order->phone_mobile);
+        $code = random_int(0000, 9999);
+
+        // Данные для заявления
+        // в договор
         $contract = $this->contracts->get_contract($contractId);
         if (!is_null($contract->edit_services)) {
             exit;
         }
-        $order = $this->orders->get_order($contract->order_id);
-        $order->phone_mobile = preg_replace("/[^,.0-9]/", '', $order->phone_mobile);
-        $code = random_int(0000, 9999);
+
+        $update =
+        [
+            'edit_services' => $code
+        ];
+        ContractsORM::where('id', $contractId)->update($update);
+        
+        // список операций, которые надо вернуть
+        $refund_for_services_add = array(
+            'contract_id' => $contractId,
+            'operations_ids' => $operations_ids,
+            'sms' => $code,
+        );
+        
+        $refund_for_services_id = $this->RefundForServices->add($refund_for_services_add);
+
+
+        // СМС
+        
 
         $message = "Подпишите в ЛК. Код возврата средств за доп услуги: " . $code;
 
@@ -3584,13 +3630,6 @@ class OrderController extends Controller
             ];
 
         $this->sms->add_message($sms_message);
-
-        $update =
-            [
-                'edit_services' => $code
-            ];
-
-        ContractsORM::where('id', $contractId)->update($update);
 
         echo json_encode(['code' => $code]);
         exit;
