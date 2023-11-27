@@ -17,6 +17,28 @@
                 location.reload()
             }
 
+            $('.check-operations-ids').on('change', function (e) {
+
+                var arr_operations_ids = $('.hidden-operations-ids').val().split(',');
+                var change_operation_id = String($(this).data("operation-id"));
+                var index = -1;
+                
+                if ($(this).prop('checked')){
+                    var index = arr_operations_ids.indexOf('');
+                    if(index == 0){
+                        arr_operations_ids=[];
+                    }
+                    arr_operations_ids.push(change_operation_id);
+                }
+                else{
+                   var index = arr_operations_ids.indexOf(change_operation_id);
+                   arr_operations_ids.splice(index, 1);
+                }
+
+                $('.hidden-operations-ids').val(arr_operations_ids.join(','));
+            });
+
+
             $('.js-to-onec').on('click', function (e) {
                 e.preventDefault();
 
@@ -447,6 +469,13 @@
             $('.editServicesGray').on('click', function () {
                 Swal.fire({
                     title: 'СМС для возврата доп услуг отправлен',
+                    confirmButtonText: 'ОК'
+                });
+            });
+
+            $('.editServicesGray0').on('click', function () {
+                Swal.fire({
+                    title: 'Все доп услуги возвращены',
                     confirmButtonText: 'ОК'
                 });
             });
@@ -1167,7 +1196,12 @@
                                                 </div>
                                             {/if}
                                             {if in_array($contract->status, [2,4])}
-                                                {if is_null($contract->edit_services)}
+                                                {if $operations_not_refund_services <= 0}
+                                                    <div data-order="{$order->order_id}"
+                                                        class="btn btn-block btn-secondary editServicesGray0">
+                                                        Скорректировать долг/Возврат Доп. услуг
+                                                    </div>
+                                                {elseif is_null($contract->edit_services)}
                                                     <div data-order="{$order->order_id}"
                                                         class="btn btn-block btn-info editServices">
                                                         Скорректировать долг/Возврат Доп. услуг
@@ -4127,7 +4161,7 @@
 <div id="editServicesModal" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog"
      aria-labelledby="mySmallModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-sm">
-        <div class="modal-content">
+        <div class="modal-content" style="min-width:330px">
             <div class="modal-header">
                 <h4 class="modal-title">Скорректировать долг / Вернуть Дополнительные услуги</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
@@ -4137,6 +4171,48 @@
                 <form method="POST" id="editServicesForm">
                     <input type="hidden" name="action" value="editServices">
                     <input type="hidden" name="contractId" value="{$contract->id}">
+                    
+                    {$operations_ids = ''}
+                    {foreach $contract_operations as $contract_operation}
+                        {if (in_array($contract_operation->type, ['BUD_V_KURSE', 'INSURANCE', 'INSURANCE_BC']))}
+                            
+                            {$cont = false}
+                            {foreach $operations_refund_services as $operations_refund_service}
+                            
+                                {if $operations_refund_service == $contract_operation->id}
+                                    {$cont = true}
+                                {/if}
+                            {/foreach}
+
+                            {if $cont == false}
+                                {if ($operations_ids != '')}
+                                    {$operations_ids = $operations_ids|cat:','|cat:$contract_operation->id}
+                                {else}
+                                    {$operations_ids = $operations_ids|cat:$contract_operation->id}
+                                {/if}
+
+                                <div>
+                                    <input type="checkbox" class="check-operations-ids" id="operation_{$contract_operation->id}" name="operation_{$contract_operation->id}" data-operation-id={$contract_operation->id} checked>
+                                    <label for="operation_{$contract_operation->id}" sttle="padding-left: 10px">
+                                    {if $contract_operation->type == BUD_V_KURSE}
+                                        <span style="color: rgb(141, 40, 40)">СМС-информирование</span> ({$contract_operation->created|date})
+                                    {elseif $contract_operation->type == 'INSURANCE'}
+                                        <span style="color: rgb(141, 40, 40)">Страховка</span> ({$contract_operation->created|date})
+                                    {elseif $contract_operation->type == 'INSURANCE_BC'}
+                                        <span style="color: rgb(141, 40, 40)">Страховка БК</span> ({$contract_operation->created|date})
+                                    {else}
+                                        <span style="color: rgb(141, 40, 40)">{$contract_operation->type}</span> ({$contract_operation->created|date})
+                                    {/if}
+                                    </label>
+                                </div>
+                            {/if}
+
+                            
+
+                        {/if}
+                    {/foreach}
+                    <input type="hidden" class="hidden-operations-ids" name="operationsIds" value="{$operations_ids}">
+                    <hr>
                     <input type="button" class="btn btn-danger" data-dismiss="modal" value="Отмена">
                     <input type="button" class="btn btn-success saveEditServices" value="Вернуть Доп. услуги">
                 </form>
