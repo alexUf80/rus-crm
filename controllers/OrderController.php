@@ -3585,6 +3585,19 @@ class OrderController extends Controller
         $contractId = $this->request->post('contractId');
         $operations_ids = $this->request->post('operationsIds');
 
+        $operations_ids_arr = explode(',', $operations_ids);
+        $operations_refund_services_arrs = $this->RefundForServices->get_done($contractId);
+        foreach ($operations_refund_services_arrs as $operations_refund_services_arr) {
+            $operations_refund_services = explode(',', $operations_refund_services_arr->operations_ids);
+            foreach ($operations_refund_services as $operations_refund_service) {
+                foreach ($operations_ids_arr as $operations_ids_val) {
+                    if ($operations_refund_service == $operations_ids_val) {
+                        exit;
+                    }
+                }
+            }
+        }
+
         // Код для СМС
         $contract = $this->contracts->get_contract($contractId);
         $order = $this->orders->get_order($contract->order_id);
