@@ -243,7 +243,7 @@ class IssuanceCron extends Core
                     }
 
                     // Снимаем смс-информирование если есть
-                    $sms_cost = 149;
+                    $sms_cost = 199;
                     if (!empty($contract->service_sms)) 
                     {
                         $sms_amount = $sms_cost * 100;
