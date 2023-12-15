@@ -96,26 +96,38 @@
                             <table border="1">
                                 <thead>
                                 <tr>
+                                    <th>Номер п/п</th>
                                     <th>Номер заявки</th>
                                     <th>Договор / Дата выдачи</th>
+                                    <th>Тип выдачи</th>
                                     <th>ФИО</th>
-                                    <th>Телефон</th>
-                                    <th>Регистрация</th>
-                                    <th>Проживание</th>
-                                    <th>Займ</th>
-                                    <th>Начислено</th>
-                                    <th>Дата последнего платежа</th>
-                                    <th>Сумма платежа</th>
-                                    <th>Конт. лицо</th>
+                                    <th>Паспорт</th>
                                     <th>ИНН</th>
-                                    <th>Работа</th>
+                                    <th>Пол</th>
+                                    <th>Место рождения</th>
+                                    <th>Адрес регистрации</th>
+                                    <th>Адрес (фактически)</th>
+                                    <th>Телефон</th>
+                                    <th>Займ</th>
+                                    <th>Просрочка</th>
+                                    <th>Оплаты</th>
+                                    <th>Долг</th>
+                                    <th>Процентная ставка в день</th>
+                                    <th>Полная стоимость кредита</th>
+                                    <th>УИД</th>
+                                    <th>Дата формирования реестра</th>
                                 </tr>
 
                                 </thead>
 
                                 <tbody id="table_content">
+                                {$i = 1}
                                 {foreach $contracts as $contract}
+                                    
                                     <tr>
+                                        <td>
+                                            {$i++}
+                                        </td>
                                         <td>
                                             <a href="order/{$contract->order_id}">{$contract->order_id}</a>
                                         </td>
@@ -129,6 +141,9 @@
                                             {$contract->create_date|date}
                                         </td>
                                         <td>
+                                            Онлайн
+                                        </td>
+                                        <td>
                                             <span class="label label-primary">{$contract->client_status}</span>
                                             <a href="client/{$contract->user_id}" target="_blank">
                                                 <small style="text-transform:uppercase;font-weight:300;">{$contract->user->lastname|escape} {$contract->user->firstname|escape} {$contract->user->patronymic|escape}</small>
@@ -138,15 +153,31 @@
                                             <span class="label label-primary">{$contract->user->age}</span>
                                         </td>
                                         <td>
+                                            {$contract->user->passport_serial} Выдан: {$contract->user->passport_date|date} {$contract->user->passport_issued}
+                                        </td>
+                                        <td>
+                                            {$contract->user->inn}
+                                        </td>
+                                        <td>
+                                            {if $contract->user->gender == 'male'}
+                                                Мужской
+                                            {else}
+                                                Женский
+                                            {/if}
+                                        </td>
+                                        <td>
+                                            {$contract->user->birth_place}
+                                        </td>
+                                        <td>
+                                            {$contract->user->regAddr->adressfull}
+                                        </td>
+                                        <td>
+                                            {$contract->user->faktAddr->adressfull}
+                                        </td>
+                                        <td>
                                             <strong>{$contract->user->phone_mobile}</strong>
                                             <br/>
                                             <small>{$contract->user->email}</small>
-                                        </td>
-                                        <td>
-                                            <small>{$contract->user->regAddr->adressfull}</small>
-                                        </td>
-                                        <td>
-                                            <small>{$contract->user->faktAddr->adressfull}</small>
                                         </td>
                                         <td>
                                             <small>Сумма:&nbsp;{$contract->amount*1}P</small>
@@ -157,14 +188,42 @@
                                             <small>Возврат:&nbsp;{$contract->return_date|date}</small>
                                         </td>
                                         <td>
-                                            <small>ОД: {$contract->loan_body_summ*1}P</small>
-                                            <br/>
-                                            <small>Пр-ты: {$contract->loan_percents_summ*1}</small>
-                                            <br/>
-                                            <small>
-                                                Всего: {$contract->loan_body_summ + $contract->loan_percents_summ}</small>
-
+                                            {$contract->delay}
                                         </td>
+                                        <td>
+                                            <nobr><small>ОД: {$contract->loan_body_summ*1}</small></nobr>
+                                            <br/>
+                                            <nobr><small>Пр-ты: {$contract->loan_percents_summ*1}</small></nobr>
+                                            <br/>
+                                            <nobr><small>Пени: {$contract->loan_peni_summ*1}</small></nobr>
+                                            <br/>
+                                            <nobr><small>
+                                                Всего: {$contract->loan_body_summ + $contract->loan_percents_summ + $contract->loan_peni_summ}</small></nobr>
+                                        </td>
+                                        <td>
+                                            <nobr><small>ОД: {$contract->pay_body_summ*1}</small></nobr>
+                                            <br/>
+                                            <nobr><small>Пр-ты: {$contract->pay_percents_summ*1}</small></nobr>
+                                            <br/>
+                                            <nobr><small>Пени: {$contract->pay_peni_summ*1}</small></nobr>
+                                            <br/>
+                                            <nobr><small>
+                                                Всего: {$contract->pay_body_summ + $contract->pay_percents_summ + $contract->pay_peni_summ}</small></nobr>
+                                        </td>
+                                        <td>
+                                            {$contract->base_percent}
+                                        </td>
+                                        <td>
+                                            {$contract->loan_body_summ + $contract->loan_percents_summ + $contract->loan_peni_summ + $contract->pay_body_summ + $contract->pay_percents_summ + $contract->pay_peni_summ}
+                                        </td>
+                                        <td>
+                                            {$contract->uid}
+                                        </td>
+                                        <td>
+                                            {$contract->date|date}
+                                        </td>
+                                        
+                                        {*}
                                         {if !empty($contract->last_operation)}
                                             <td>
                                                 {$contract->last_operation->created|date}
@@ -177,21 +236,8 @@
                                                 Оплат не поступало
                                             </td>
                                         {/if}
-                                        <td>
-                                            {if $contract->user->contact_person_name}
-                                                {$contract->user->contact_person_name|escape}
-                                                {if $contract->user->contact_person_relation}({$contract->user->contact_person_relation|escape}){/if}
-                                                {$contract->user->contact_person_phone|escape}
-                                            {/if}
-                                        </td>
-                                        <td>
-                                            {$contract->user->inn}
-                                        </td>
-                                        <td>
-                                            {$contract->user->workplace}
-                                            <br/>
-                                            <strong>{$contract->user->workphone}</strong>
-                                        </td>
+                                        {*}
+                                        
                                     </tr>
                                 {/foreach}
                                 </tbody>
