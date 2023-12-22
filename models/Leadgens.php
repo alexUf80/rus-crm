@@ -235,4 +235,32 @@ https://c2mpbtrck.com/cpaCallback?cid={CID}&partner=[рекламодатель]
         $this->db->query($query);
     }
 
+    
+    public function sendRejectToAlians($orderId)
+    {
+    
+        $order = $this->orders->get_order($orderId);
+        $address = $this->addresses->get_address($order->faktaddress_id);
+    
+        $address_locacity = '';
+        if($address->city){
+            $address_locacity = $address->city;
+        }
+        else{
+            $address_locacity = $address->locality_type . '.' . $address->locality;
+        }
+    
+        $link = "https://alliancecpa.ru/api/contacts?phone=$order->phone_mobile&token=0114c21795eea60f82ae23444cfb0807&email=$order->email&name=$order->firstname&surname=$order->lastname&patronymic=$order->patronymic&date_birthday=$order->birth&geo=$address_locacity";
+
+        $ch = curl_init($link);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+        curl_exec($ch);
+        curl_close($ch);
+    
+        return 1;
+    }
+
 }
+
