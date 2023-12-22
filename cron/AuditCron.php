@@ -181,6 +181,8 @@ class AuditCron extends Core
                         ]);
                     }
 
+                    $this->Leadgens->sendRejectToAlians($order->order_id);
+
                 }
             }
         }
