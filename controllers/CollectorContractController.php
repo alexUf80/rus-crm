@@ -128,7 +128,7 @@ class CollectorContractController extends Controller
                 }
 
 
-                $contract_operations = $this->operations->get_operations(array('contract_id' => $contract->id));
+                $contract_operations = $this->operations->get_operations(array('contract_id' => $contract->id, 'sort' => 'created_asc'));
 
                 foreach ($contract_operations as $contract_operation) {
                     if (!empty($contract_operation->transaction_id))
@@ -137,14 +137,14 @@ class CollectorContractController extends Controller
 
 
                 if (!empty($contract_operations)) {
-                    usort($contract_operations,
-                        function ($a, $b) {
+                    // usort($contract_operations,
+                    //     function ($a, $b) {
 
-                            if ($a->created == $b->created)
-                                return 0;
+                    //         if ($a->created == $b->created)
+                    //             return 0;
 
-                            return (date('Y-m-d', strtotime($a->created)) < date('Y-m-d', strtotime($b->created))) ? -1 : 1;
-                        });
+                    //         return (date('Y-m-d', strtotime($a->created)) < date('Y-m-d', strtotime($b->created))) ? -1 : 1;
+                    //     });
 
                     $this->design->assign('contract_operations', $contract_operations);
                 }

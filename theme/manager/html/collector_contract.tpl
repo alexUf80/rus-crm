@@ -2870,7 +2870,7 @@
                                                     {if in_array($operation->type, ['PAY'])}table-success{/if}
                                                     {if in_array($operation->type, ['PERCENTS', 'CHARGE', 'PENI'])}table-danger{/if}
                                                     {if in_array($operation->type, ['P2P'])}table-info{/if}
-                                                    {if in_array($operation->type, ['INSURANCE','INSURANCE_BC'])}table-warning{/if}
+                                                    {if in_array($operation->type, ['INSURANCE','INSURANCE_BC','BUD_V_KURSE'])}table-warning{/if}
                                                 ">
                                                 <td>
                                                     {*}
@@ -2897,6 +2897,7 @@
                                                     {if $operation->type == 'PERCENTS'}Начисление процентов{/if}
                                                     {if $operation->type == 'INSURANCE'}Страховка{/if}
                                                     {if $operation->type == 'INSURANCE_BC'}Страховка{/if}
+                                                    {if $operation->type == 'BUD_V_KURSE'}СМС-информирование{/if}
                                                     {if $operation->type == 'CHARGE'}Ответственность{/if}
                                                     {if $operation->type == 'PENI'}Пени{/if}
                                                     {if $operation->type == 'DOCTOR'}Кредитный доктор{/if}
