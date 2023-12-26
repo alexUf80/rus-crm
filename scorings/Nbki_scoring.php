@@ -100,7 +100,7 @@ class Nbki_scoring extends Core
     "requisites": {
         "member_code": "1401SS000000",
         "user_id": "1401SS000002",
-        "password": "934kjnG@"
+        "password": "934kjnG1"
     }
 }';
         echo 'nbki';
