@@ -3,7 +3,7 @@
 class Nbki_report extends Core
 {
     private $username = '1401SS000000';
-    private $authorization_code = '934kjnG@';
+    private $authorization_code = '934kjnG1';
 
 
     public function send_operations($operations)
