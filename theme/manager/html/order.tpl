@@ -37,7 +37,14 @@
 
                 $('.hidden-operations-ids').val(arr_operations_ids.join(','));
             });
-
+            $('.check-operations-ids-close').on('change', function (e) {
+                if ($(this).prop('checked')){
+                    $('.saveEditServicesClosed').show();
+                }
+                else{
+                   $('.saveEditServicesClosed').hide();
+                }
+            });
 
             $('.js-to-onec').on('click', function (e) {
                 e.preventDefault();
@@ -483,8 +490,22 @@
             $('.editServices').on('click', function () {
                 $('#editServicesModal').modal();
             });
+            $('.editServicesClosed').on('click', function () {
+                $('#editServicesClosedModal').modal();
+            });
 
             $('.saveEditServices').on('click', function () {
+                let form = $(this).closest('form').serialize();
+
+                $.ajax({
+                    method: 'POST',
+                    data: form,
+                    success: function () {
+                        location.reload();
+                    }
+                });
+            });
+            $('.saveEditServicesClosed').on('click', function () {
                 let form = $(this).closest('form').serialize();
 
                 $.ajax({
@@ -1269,6 +1290,13 @@
                                                     <h6>Договор #{$contract->number}</h6>
                                                 </div>
                                             </div>
+
+                                            {if $contract_close_insurance_state}
+                                                <div data-order="{$order->order_id}"
+                                                    class="btn btn-block btn-info editServicesClosed">
+                                                    Возврат Страховки при закрытии
+                                                </div>
+                                            {/if}
                                         {/if}
                                         {if $order->status == 8}
                                             <div class="card card-danger">
@@ -4215,6 +4243,42 @@
                     <hr>
                     <input type="button" class="btn btn-danger" data-dismiss="modal" value="Отмена">
                     <input type="button" class="btn btn-success saveEditServices" value="Вернуть Доп. услуги">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="editServicesClosedModal" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog"
+     aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content" style="min-width:330px">
+            <div class="modal-header">
+                <h4 class="modal-title">Вернуть страховку при закрытии на карту?</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="alert" style="display:none"></div>
+                <form method="POST" id="editServicesClosedForm">
+                    <input type="hidden" name="action" value="editServicesClosed">
+                    <input type="hidden" name="contractId" value="{$contract->id}">
+                    
+                    <div>
+                        <input type="checkbox" class="check-operations-ids-close" id="operation_{$contract_close_insurance->id}" name="operation_{$contract_close_insurance->id}" data-operation-id={$contract_close_insurance->id}>
+                        <label for="operation_{$contract_close_insurance->id}" sttle="padding-left: 10px">
+                        {if $contract_close_insurance->type == 'INSURANCE'}
+                            <span style="color: rgb(141, 40, 40)">Страховка</span> ({$contract_close_insurance->created|date} - {$contract_close_insurance->amount} руб.)
+                        {elseif $contract_close_insurance->type == 'INSURANCE_BC'}
+                            <span style="color: rgb(141, 40, 40)">Страховка БК</span> ({$contract_close_insurance->created|date})
+                        {else}
+                            <span style="color: rgb(141, 40, 40)">{$contract_close_insurance->type}</span> ({$contract_close_insurance->created|date})
+                        {/if}
+                        </label>
+                    </div>
+
+                    <input type="hidden" class="hidden-operations-ids" name="operationsIds" value="{$contract_close_insurance->id}">
+                    <input type="button" class="btn btn-danger" data-dismiss="modal" value="Отмена">
+                    <input type="button" class="btn btn-success saveEditServicesClosed" value="Вернуть Страховку"  style='display: none'>
                 </form>
             </div>
         </div>

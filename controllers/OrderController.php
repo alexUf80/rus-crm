@@ -231,6 +231,10 @@ class OrderController extends Controller
                     return $this->action_editServices();
                     break;
 
+                case 'editServicesClosed':
+                    return $this->action_editServicesClosed();
+                    break;
+
                 case 'add_risk':
                     $this->action_add_risk();
                     break;
@@ -468,9 +472,21 @@ class OrderController extends Controller
                                     $receipts[] = (object) array('receipt_url' => $ofd_link, 'created' => $transaction->created);
                                 }
                             }
+
+                            if ($contract->status == 3 && $contract_operation->type == 'INSURANCE' && date('Y-m-d', strtotime($contract->close_date)) == date('Y-m-d', strtotime($contract_operation->created))) {
+                                $contract_close_insurance = $contract_operation;
+
+                                $transaction_close_insurance = $this->transactions->get_transaction($contract_operation->transaction_id);
+                                $contract_close_insurance_state = strripos($transaction_close_insurance->callback_response, '<order_state>COMPLETED</order_state>');
+                            }
+                                
                         }
                     }
 
+                    if (isset($contract_close_insurance)) {
+                        $this->design->assign('contract_close_insurance', $contract_close_insurance);
+                        $this->design->assign('contract_close_insurance_state', $contract_close_insurance_state);
+                    }
                     $this->design->assign('contract_operations', $contract_operations);
                     $this->design->assign('receipts', $receipts);
 
@@ -3646,6 +3662,25 @@ class OrderController extends Controller
         $this->sms->add_message($sms_message);
 
         echo json_encode(['code' => $code]);
+        exit;
+    }
+
+    private function action_editServicesClosed()
+    {
+        $contractId = $this->request->post('contractId');
+        $operations_ids = $this->request->post('operationsIds');
+        
+        $contract = $this->contracts->get_contract($contractId);
+
+        $operation = $this->operations->get_operation($operations_ids);
+        $transaction = $this->transactions->get_transaction($operation->transaction_id);
+        
+        $b2p_status = $this->Best2pay->return_insurance($transaction, $contract);
+        $operation_info = $this->Best2pay->get_operation_info($transaction->sector, $transaction->register_id, $transaction->operation);
+
+        $this->transactions->update_transaction($transaction->id, array(
+            'callback_response' => $operation_info
+        ));
         exit;
     }
 
