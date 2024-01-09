@@ -167,6 +167,7 @@ class IssuanceCron extends Core
     
                             $description = 'Страховой полис';
     
+                            // $xml = $this->best2pay->recurring_by_token($contract->card_id, $insurance_amount, $description, 7710026574);
                             $xml = $this->best2pay->recurring_by_token($contract->card_id, $insurance_amount, $description);
                             $status = (string)$xml->state;
     
@@ -337,6 +338,10 @@ class IssuanceCron extends Core
 
                     $this->create_document('IND_USLOVIYA_NL', $contract);
                     $this->create_document('PRIL_1', $contract);
+
+                    if (!empty($contract->service_insurance) || !empty($contract->service_sms)){
+                        $this->create_document('USLUGI_ZAYAVL', $contract);
+                    } 
 
                     $this->contracts->update_contract($contract->id, array(
                         'status' => 2,

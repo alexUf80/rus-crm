@@ -20,6 +20,10 @@ class Documents extends Core
         'INFORMATION_SERVICES_AGREEMENT' => 'information_services_agreement.tpl',
         'FIND_REASON_FOR_REFUSAL' =>  'find_reason_for_refusal.tpl',
         'PRIL_1' => 'pril_1.tpl',
+        'DOP_DOCTOR' => 'dop_doctor.tpl',
+        'ANKETA_PEP_KD' => 'zayavlenie_na_poluchenie_kd.tpl',
+        'SERVICE_FUNDS_REFUND' => 'service_funds_refund.tpl',
+        'USLUGI_ZAYAVL' => 'zayavlenie_uslugi.tpl',
     );
 
 
@@ -40,6 +44,10 @@ class Documents extends Core
         'INFORMATION_SERVICES_AGREEMENT' => 'Договор об оказании информационных услуг',
         'FIND_REASON_FOR_REFUSAL' =>  'Причина отказа',
         'PRIL_1' => 'Приложение 1',
+        'DOP_DOCTOR' => 'Дополнительное соглашение по Кредитному доктору',
+        'ANKETA_PEP_KD' => 'Заявление-анкета на получение займа по услуге Кредитный доктор',
+        'SERVICE_FUNDS_REFUND' => 'Заявление об отказе от оказания услуг и возврате денежных средств',
+        'USLUGI_ZAYAVL' => 'Заявление о предоставлении услуг',
     );
 
     private $client_visible = array(
@@ -59,6 +67,10 @@ class Documents extends Core
         'INFORMATION_SERVICES_AGREEMENT' => 1,
         'FIND_REASON_FOR_REFUSAL' =>  1,
         'PRIL_1' => 1,
+        'DOP_DOCTOR' => 1,
+        'ANKETA_PEP_KD' => 1,
+        'SERVICE_FUNDS_REFUND' => 1,
+        'USLUGI_ZAYAVL' => 1,
     );
 
     public function get_sudblock_create_documents($block)
