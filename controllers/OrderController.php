@@ -331,8 +331,13 @@ class OrderController extends Controller
                     $this->design->assign('client_time', $client->time_zone);
                     $this->design->assign('client_time_zone', $time_zone);
 
-                    $receipts = ReceiptsORM::where('order_id', $order_id)->get();
-                    $this->design->assign('receipts', $receipts);
+                    $receipts1 = ReceiptsORM::where('order_id', $order_id)->get();
+                    $rec = [];
+                    foreach ($receipts1 as $receipt) {
+
+                        $receipt->url = $this->Best2pay->checkReceiptUrl($receipt->receipt_url);
+                    }
+                    $this->design->assign('receipts1', $receipts1);
 
                     $regaddress = $this->Addresses->get_address($client->regaddress_id);
                     $faktaddress = $this->Addresses->get_address($client->faktaddress_id);
@@ -1129,7 +1134,7 @@ class OrderController extends Controller
 
         $defaultCard = CardsORM::where('user_id', $order->user_id)->where('base_card', 1)->first();
 
-        $resp = $this->Best2pay->recurring_by_token($defaultCard->id, 3900, 'Списание за услугу "Причина отказа"');
+        $resp = $this->Best2pay->recurring_by_token($defaultCard->id, 3900, 'Списание за услугу "Причина отказа"', $order->order_id);
         $status = (string)$resp->state;
 
         $max_service_value = $this->operations->max_service_number();

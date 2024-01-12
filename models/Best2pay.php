@@ -51,7 +51,7 @@ class Best2pay extends Core
 
         $description = 'Услуга "Узнай причину отказа"';
 
-        $xml = $this->recurring_by_token($order->card_id, $service_summ, $description);
+        $xml = $this->recurring_by_token($order->card_id, $service_summ, $description, $order->order_id);
         $b2p_status = (string)$xml->state;
 
         if ($b2p_status == 'APPROVED') {
@@ -1196,7 +1196,7 @@ class Best2pay extends Core
         }
     }
 
-    public function recurring_by_token($card_id, $amount, $description, $inn='')
+    public function recurring_by_token($card_id, $amount, $description, $order_id=0, $inn='')
     {
         $amount = round($amount, 0);
         $sector = $this->sectors['RECURRENT'];
@@ -1258,43 +1258,68 @@ class Best2pay extends Core
             'callback_response' => $recurring
         ));
 
-        // // регистрируем чек
-        // $data = array(
-        //     'sector' => $sector,
-        //     'order_id' => $b2p_order_id,
-        // );
+        // регистрируем чек
+        $data = array(
+            'sector' => $sector,
+            'order_id' => $b2p_order_id,
+        );
 
-        // $data['fiscalData'] = $this->get_fiscalData($data_pay_reg['amount'], $data_pay_reg['description'], $inn);
-        // file_put_contents($this->config->root_dir.'files/sas.txt', $data['fiscalData']);
+        $data['fiscalData'] = $this->get_fiscalData($data_pay_reg['amount'], $data_pay_reg['description'], $inn);
         
-        // $data['signature'] = $this->get_signature(array(
-        //     $data['sector'],
-        //     $data['order_id'],
-        //     $data['fiscalData'],
-        //     $password,
-        // ));
+        $data['signature'] = $this->get_signature(array(
+            $data['sector'],
+            $data['order_id'],
+            $data['fiscalData'],
+            $password,
+        ));
         
-        // $receipt = $this->sendReceipt('FiscalReg', $data);
-        // $xml = simplexml_load_string($receipt);
-        // $fiscal_record_id = (string)$xml->fiscal_record_id;
+        $receipt = $this->sendReceipt('FiscalReg', $data);
+        $json_receipt = json_decode($receipt);
+        $fiscal_record_id = (string)$json_receipt->fiscal_record_id;
 
-        // // Уточнение статуса чека
-        // $data = array(
-        //     'sector' => $sector,
-        //     'fiscal_record_id' => $fiscal_record_id,
-        // );
-        
-        // $data['signature'] = $this->get_signature(array(
-        //     $data['sector'],
-        //     $data['fiscal_record_id'],
-        //     $password,
-        // ));
-
-        // $response = $this->sendReceipt('FiscalCheck', $data);
-        // $xml = simplexml_load_string($response);
-        // // $fiscal_record_id = (string)$xml->fiscal_record_id;
+        // В таблицу информцию о чеке
+        $order = $this->orders->get_order($order_id);
+        $add_receipt = array(
+            'user_id' => $order->user_id,
+            'name' => $description,
+            'order_id' => $order_id,
+            'contract_id' => $order->contract_id,
+            'receipt_url' => $fiscal_record_id,
+            'response' => $receipt,
+            'created' => date('Y-m-d H:i:s'),
+        );
+        $this->Receipts->add_receipt($add_receipt);
 
         return $xml;
+    }
+
+    public function checkReceiptUrl($fiscal_record_id)
+    {
+        $sector = $this->sectors['RECURRENT'];
+        $password = $this->passwords[$sector];
+        // Уточнение статуса чека
+        $data = array(
+            'sector' => $sector,
+            'fiscal_record_id' => $fiscal_record_id,
+        );
+        
+        $data['signature'] = $this->get_signature(array(
+            $data['sector'],
+            $data['fiscal_record_id'],
+            $password,
+        ));
+
+        $response = $this->sendReceipt('FiscalCheck', $data);
+        $json_response = json_decode($response);
+        if (isset($json_response->ofdLink)){
+            $resxp_url = $json_response->ofdLink;
+        }
+        else{
+            $resxp_url = null;
+        }
+
+        return $resxp_url;
+
     }
 
     private function sendReceipt($method, $data, $type = 'ofd/external')
@@ -1308,11 +1333,7 @@ class Best2pay extends Core
                 'content' => $string_data
             )
         ));
-        // file_put_contents($this->config->root_dir.'files/sas.txt', $this->url . $type . '/' . $method. '/' . $string_data);
         $b2p = file_get_contents($this->url . $type . '/' . $method, false, $context);
-        // file_put_contents($this->config->root_dir.'files/sas.txt', '111 - '.$b2p);
-
-        // $this->soap1c->logging($type, $method, $data, $b2p, 'b2p.txt');
 
         return $b2p;
     }
@@ -1352,7 +1373,7 @@ class Best2pay extends Core
             $fiscalData->supplierINN = $inn;
         }
 
-        return json_encode($fiscalData);
+        return base64_encode(json_encode($fiscalData));
     }
 
     
