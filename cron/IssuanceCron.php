@@ -167,8 +167,8 @@ class IssuanceCron extends Core
     
                             $description = 'Страховой полис';
     
-                            // $xml = $this->best2pay->recurring_by_token($contract->card_id, $insurance_amount, $description, 7710026574);
-                            $xml = $this->best2pay->recurring_by_token($contract->card_id, $insurance_amount, $description);
+                            $xml = $this->best2pay->recurring_by_token($contract->card_id, $insurance_amount, $description, $contract->order_id, 7710026574);
+                            // $xml = $this->best2pay->recurring_by_token($contract->card_id, $insurance_amount, $description);
                             $status = (string)$xml->state;
     
                             if ($status == 'APPROVED') {
@@ -251,7 +251,7 @@ class IssuanceCron extends Core
 
                         $description = 'СМС-информирование';
 
-                        $xml = $this->best2pay->recurring_by_token($contract->card_id, $sms_amount, $description);
+                        $xml = $this->best2pay->recurring_by_token($contract->card_id, $sms_amount, $description, $contract->order_id);
                         $status = (string)$xml->state;
 
                         if ($status == 'APPROVED') {

@@ -3288,6 +3288,22 @@
                                             </td>
                                         </tr>
                                     {/foreach}
+
+                                    {foreach $receipts1 as $receipt}
+                                        <tr>
+                                            <td class="text-info">
+                                                <a target="_blank"
+                                                   href="{$receipt->url}">
+                                                    <i class="fas fa-file-pdf fa-lg"></i>&nbsp;
+                                                    Чек от {$receipt->created|date}
+                                                </a>
+                                            </td>
+                                            <td class="text-right">
+                                                {$receipt->created|date}
+                                                {$receipt->created|time}
+                                            </td>
+                                        </tr>
+                                    {/foreach}
                                 </table>
                             </div>
                             <!-- /Документы -->
