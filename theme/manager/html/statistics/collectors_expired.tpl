@@ -216,6 +216,7 @@
                                     <tr>
                                         <th>№ контракта</th>
                                         <th>ФИО</th>
+                                        <th>Телефон</th>
                                         <th>Cумма долга</th>
                                         <th>Дней просрочки</th>
                                         <th>Коллектор</th>
@@ -228,6 +229,7 @@
                                         <tr>
                                             <td><a href="collector_contract/{$contract->id}">{$contract->number}</a></td>
                                             <td>{$contract->lastname} {$contract->firstname} {$contract->patronymic}</td>
+                                            <td>{$contract->phone_mobile}</td>
                                             <td>{$contract->loan_body_summ+$contract->loan_percents_summ+$contract->loan_peni_summ}</td>
                                             <td>{$contract->expired_days}</td>
 
