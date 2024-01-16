@@ -3757,7 +3757,8 @@ class StatisticsController extends Controller
                 u.lastname,
                 u.firstname,
                 u.patronymic,
-                u.id as user_id
+                u.id as user_id,
+                u.phone_mobile
                 FROM __contracts AS c
                 LEFT JOIN __users AS u
                 ON c.user_id = u.id
@@ -3823,19 +3824,21 @@ class StatisticsController extends Controller
 
                 $active_sheet->setCellValue('A1', '№ контракта');
                 $active_sheet->setCellValue('B1', 'ФИО');
-                $active_sheet->setCellValue('C1', 'Cумма долга');
-                $active_sheet->setCellValue('D1', 'Дней просрочки');
-                $active_sheet->setCellValue('E1', 'Коллектор');
-                $active_sheet->setCellValue('F1', 'Тег');
-                $active_sheet->setCellValue('G1', 'Риск-статус');
+                $active_sheet->setCellValue('C1', 'Телефон');
+                $active_sheet->setCellValue('D1', 'Cумма долга');
+                $active_sheet->setCellValue('E1', 'Дней просрочки');
+                $active_sheet->setCellValue('F1', 'Коллектор');
+                $active_sheet->setCellValue('G1', 'Тег');
+                $active_sheet->setCellValue('H1', 'Риск-статус');
 
                 $i = 2;
                 foreach ($contracts as $contract) {
                     
                     $active_sheet->setCellValue('A' . $i, $contract->number);
                     $active_sheet->setCellValue('B' . $i, $contract->lastname . ' ' . $contract->firstname . ' ' . $contract->patronymic . ' ' . $contract->birth);
-                    $active_sheet->setCellValue('C' . $i, $contract->loan_body_summ+$contract->loan_percents_summ+$contract->loan_peni_summ);
-                    $active_sheet->setCellValue('D' . $i, $contract->expired_days);
+                    $active_sheet->setCellValue('C' . $i, $contract->phone_mobile);
+                    $active_sheet->setCellValue('D' . $i, $contract->loan_body_summ+$contract->loan_percents_summ+$contract->loan_peni_summ);
+                    $active_sheet->setCellValue('E' . $i, $contract->expired_days);
 
                     foreach ($managers as $m){
                         $mn = '';
@@ -3843,7 +3846,7 @@ class StatisticsController extends Controller
                             $mn = $m->name;
                         }
                     }
-                    $active_sheet->setCellValue('E' . $i, $mn);
+                    $active_sheet->setCellValue('F' . $i, $mn);
 
                     if (!$contract->order->contact_status){
                         $tag = 'Нет данных';
@@ -3851,7 +3854,7 @@ class StatisticsController extends Controller
                     else{
                         $tag = $collector_tags[$contract->order->contact_status]->name;
                     }
-                    $active_sheet->setCellValue('F' . $i, $tag);
+                    $active_sheet->setCellValue('G' . $i, $tag);
 
                     $val_all = '';
                     if (!empty($contract->risk)){
@@ -3863,7 +3866,7 @@ class StatisticsController extends Controller
                             }
                         }
                     }
-                    $active_sheet->setCellValue('G' . $i, $val_all);
+                    $active_sheet->setCellValue('H' . $i, $val_all);
 
                     $i++;
                 }
