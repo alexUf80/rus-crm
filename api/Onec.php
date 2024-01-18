@@ -495,5 +495,65 @@ echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($result);echo '</pre><hr />';
         return $result;
     }
 
+    public static function send_refund_service($service)
+    {
+        $item = new StdClass();
+        $item->Дата = date('Ymd000000', strtotime($service->date));
+        $item->Сумма = $service->amount;
+        $item->ID_Займ = $service->contract_id;
+        $item->ID_Оплата = $service->id;
+        $item->id = $service->id;
+        $item->СуммаОД = $service->loan_body_summ;
+        $item->СуммаПроцентов  = $service->loan_percents_summ;
+        $item->СуммаПени = $service->loan_peni_summ;
+        $item->Услуга_OperationID = $service->service_operation_id;
+
+        $item =
+            [
+                [
+                    'Дата' => date('Ymd000000', strtotime($service->date)),
+                    'Сумма' => $service->amount,
+                    'ID_Займ' => $service->contract_id,
+                    'ID_Оплата' => $service->id,
+                    'id' => $service->id,
+                    'СуммаОД' => $service->loan_body_summ,
+                    'СуммаПроцентов' => $service->loan_percents_summ,
+                    'СуммаПени' => $service->loan_peni_summ,
+                    'Услуга_OperationID' => $service->service_operation_id,
+                ]
+            ];
+
+
+        self::$orderId = $service->order_id;
+
+        $request = new StdClass();
+        $request->TextJSON = json_encode($item);
+
+
+        $response = self::send_request('CRM_WebService', 'CreditingServicesForPayment', $request);
+        $result = json_decode($response);
+        var_dump(isset($result->return), $result->return);
+
+        if (isset($result->return) && $result->return == 'ОК')
+        {
+            $update = array(
+                'sent_date' => date('Y-m-d H:i:s'),
+                'sent_status' => 2
+            );
+        }
+        else
+        {
+            $update = array(
+                'sent_date' => date('Y-m-d H:i:s'),
+                'sent_status' => 8
+            );                    
+        }
+            
+        OperationsORM::where('id', $service->id)->update($update);
+        
+        // var_dump($result);
+        return $result;
+    }
+
 
 }

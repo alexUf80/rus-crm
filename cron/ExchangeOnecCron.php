@@ -25,6 +25,7 @@ class ExchangeOnecCron extends Core
         $this->send('send_taxings');
         $this->send('send_payments');
         $this->send('send_services');
+        $this->send('send_refund_services');
     }
     
     private function send($methodname)
@@ -211,6 +212,101 @@ echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($service, $result);echo '</pre
         }
         
         return $items;
+    }
+
+    private function send_refund_services()
+    {
+        $this->db->query("
+        SELECT
+            o.id,
+            o.type,
+            o.user_id,
+            o.order_id,
+            o.contract_id,
+            o.amount,
+            o.created,
+            r.loan_body_summ,
+            r.loan_percents_summ,
+            r.loan_peni_summ,
+            r.operations_ids
+            FROM s_operations AS o
+            LEFT JOIN s_refund_for_services AS r
+            ON r.refund_operation_id = o.id
+            WHERE o.sent_status = 0
+            AND o.type IN (
+                'SERVICE_REFUND'
+                )
+                LIMIT 10
+        ");
+        if ($items = $this->db->results())
+        {
+            
+            foreach ($items as $item)
+            {
+                $refund_service = new StdClass();
+                $refund_service->date = $item->created;
+                $refund_service->contract_id = $item->contract_id;
+                $refund_service->order_id = $item->order_id;
+                $refund_service->id = $item->id;
+                
+                $operations_ids = explode(",", $item->operations_ids);
+                
+                $i = 0;
+                foreach ($operations_ids as $operation_id) {
+                    $i++;
+                    
+                    $operation = $this->operations->get_operation($operation_id);
+                    
+                    $refund_service->service_operation_id = $operation_id;
+                    $refund_service->amount = $operation->amount;
+                    
+                    
+                    $amount = $operation->amount;
+                    if ($i < 2) {
+                        $loan_peni_summ = $item->loan_peni_summ;
+                        $loan_percents_summ = $item->loan_percents_summ;
+                        $loan_body_summ = $item->loan_body_summ;
+                        
+                        $loan_peni_summ_old = $item->loan_peni_summ;
+                        $loan_percents_summ_old = $item->loan_percents_summ;
+                        $loan_body_summ_old = $item->loan_body_summ;
+                    }
+                    
+                    if ($amount >= $loan_peni_summ) {
+                        $amount -= $loan_peni_summ;
+                        $loan_peni_summ = 0;
+                        
+                        if ($amount >= $loan_percents_summ) {
+                            $amount -= $loan_percents_summ;
+                            $loan_percents_summ = 0;
+                            
+                            $loan_body_summ -= $amount;
+                            
+                        } else {
+                            $loan_percents_summ -= $amount;
+                        }
+                        
+                    } else {
+                        $loan_peni_summ -= $amount;
+                    }
+                    
+                    $refund_service->loan_body_summ = $loan_body_summ_old - $loan_body_summ;
+                    $refund_service->loan_percents_summ = $loan_percents_summ_old - $loan_percents_summ;
+                    $refund_service->loan_peni_summ = $loan_peni_summ_old - $loan_peni_summ;
+                    
+                    $loan_peni_summ_old = $loan_peni_summ;
+                    $loan_percents_summ_old = $loan_percents_summ;
+                    $loan_body_summ_old = $loan_body_summ;
+                    
+                    $result = Onec::send_refund_service($refund_service);
+                    echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($refund_service, $result);echo '</pre><hr />';
+                }
+                
+            }
+        }
+
+        return $items;
+
     }
 }
 
