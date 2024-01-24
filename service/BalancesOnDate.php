@@ -143,7 +143,7 @@ class BalancesOnDate extends Core
                         }
                         $contract_item->ОстатокПени = $contract_operation->loan_peni_summ;
                     }
-                    if ($contract_operation->type == 'PAY' || $contract_operation->type == 'RECURRENT')
+                    if ($contract_operation->type == 'PAY' || $contract_operation->type == 'RECURRENT' || $contract_operation->type == 'SERVICE_REFUND')
                     {
                         if (!is_null($contract_operation->loan_body_summ)) {
                             $contract_item->ОстатокОД = $contract_operation->loan_body_summ;
