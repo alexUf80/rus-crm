@@ -303,6 +303,8 @@ echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($result, $item);echo '</pre><h
      */
     public static function sendTaxingWithPeni($date)
     {
+        var_dump($date);
+        echo '<hr>';
         $start = date('Y-m-d 00:00:00', strtotime($date));
         $end = date('Y-m-d 23:59:59', strtotime($date));
 
@@ -325,6 +327,28 @@ echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($result, $item);echo '</pre><h
             foreach ($operations as $operation) {
                 $contract = ContractsORM::find($operation->contract_id);
 
+                $operations_p2p_pay = OperationsORM::whereIn('type', ['P2P', 'PAY'])
+                    ->whereBetween('created', ['2000-01-01', $end])
+                    ->whereIn('contract_id', [$operation->contract_id])
+                    ->groupBy()
+                    ->get();
+
+                foreach ($operations_p2p_pay as $operation_p2p_pay) {
+                    if ($operation_p2p_pay->type == 'P2P') {
+                        $dt = new DateTime($contract->inssuance_date);
+                        $dt->modify('+'.$contract->period.' days');
+                    }
+                    else{
+                        $transaction = TransactionsORM::whereIn('id', [$operation_p2p_pay->transaction_id])
+                            ->first();
+
+                        if ($transaction->prolongation == 1) {
+                            $dt = new DateTime($operation_p2p_pay->created);
+                            $dt->modify('+30 days');
+                        }
+                    }
+                }
+
                 if (empty($contract) || empty($contract->number))
                     continue;
 
@@ -345,7 +369,8 @@ echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($result, $item);echo '</pre><h
                         [
                             'НомерДоговора' => $contract->number,
                             'ВидНачисления' => 'Проценты',
-                            'ДатаПлатежа' => date('Ymd000000', strtotime($contract->return_date)),
+                            // 'ДатаПлатежа' => date('Ymd000000', strtotime($contract->return_date)),
+                            'ДатаПлатежа' => $dt->format('Ymd000000'),
                             'Сумма' => $operation->amount
                         ];
                     
