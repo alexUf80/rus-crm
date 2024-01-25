@@ -34,7 +34,8 @@ class payments extends Core
             $this->output();
         }
 
-        $payments = OperationsORM::whereIn('type', ['PAY', 'RECURRENT'])->whereBetween('created', [$date_from, $date_to])->get();
+        // $payments = OperationsORM::whereIn('type', ['PAY', 'RECURRENT'])->whereBetween('created', [$date_from, $date_to])->get();
+        $payments = OperationsORM::whereIn('type', ['PAY', 'RECURRENT', 'SERVICE_REFUND'])->whereBetween('created', [$date_from, $date_to])->get();
 
         $this->response['success'] = 1;
 
@@ -54,9 +55,46 @@ class payments extends Core
                 $item = new StdClass();
                 $item->Date = date('Ymd000000', strtotime($payment->created));
                 $item->Contract_number = (string)$contract->number;
-                $item->Od = (float)$transaction->loan_body_summ;
-                $item->Percent = (float)$transaction->loan_percents_summ;
-                $item->Peni = (float)$transaction->loan_peni_summ;
+                if ($payment->type == 'SERVICE_REFUND') {
+                    $amount = $payment->amount;
+
+                    $r_s_operation = $this->RefundForServices->get_by_refund_operation_id($payment->id);
+   
+                    $loan_peni_summ_old = $r_s_operation->loan_peni_summ;
+                    $loan_percents_summ_old = $r_s_operation->loan_percents_summ;
+                    $loan_body_summ_old = $r_s_operation->loan_body_summ;
+
+                    $loan_peni_summ = $r_s_operation->loan_peni_summ;
+                    $loan_percents_summ = $r_s_operation->loan_percents_summ;
+                    $loan_body_summ = $r_s_operation->loan_body_summ;
+
+                    if ($amount >= $loan_peni_summ) {
+                        $amount -= $loan_peni_summ;
+                        $loan_peni_summ = 0;
+                        
+                        if ($amount >= $loan_percents_summ) {
+                            $amount -= $loan_percents_summ;
+                            $loan_percents_summ = 0;
+                            
+                            $loan_body_summ -= $amount;
+                            
+                        } else {
+                            $loan_percents_summ -= $amount;
+                        }
+                        
+                    } else {
+                        $loan_peni_summ -= $amount;
+                    }
+
+                    $item->Od = (float)$loan_body_summ_old - $loan_body_summ;
+                    $item->Percent = (float)$loan_percents_summ_old - $loan_percents_summ;
+                    $item->Peni = (float)$loan_peni_summ_old - $loan_peni_summ;
+                }
+                else{
+                    $item->Od = (float)$transaction->loan_body_summ;
+                    $item->Percent = (float)$transaction->loan_percents_summ;
+                    $item->Peni = (float)$transaction->loan_peni_summ;
+                }
 
                 $this->response['items'][] = $item;
             }

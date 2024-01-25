@@ -34,6 +34,23 @@ class RefundForServices extends Core
         return $result;
     }
 
+    public function get_by_refund_operation_id($refund_operation_id)
+    {
+        $query = $this->db->placehold("
+            SELECT * 
+            FROM s_refund_for_services 
+            WHERE refund_operation_id = ?
+            ORDER BY id DESC 
+            LIMIT 1
+        ", $refund_operation_id);
+
+        $this->db->query($query);
+
+        $result = $this->db->result();
+
+        return $result;
+    }
+
     public function get_done($contract_id)
     {
         $query = $this->db->placehold("
