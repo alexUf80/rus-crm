@@ -53,6 +53,8 @@ class ContractsService extends Core
             ON u.id = c.user_id
             WHERE DATE(c.inssuance_date) >= ?
             AND DATE(c.inssuance_date) <= ?
+            # ТЕСТОВЫЕ КОНТРАКТЫ
+            AND c.number NOT IN ('1016-6080')
         ", $date_from, $date_to);
         $this->db->query($query);
         $contracts = $this->db->results();
