@@ -435,21 +435,47 @@ echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($result);echo '</pre><hr />';
             if (strtotime(date('Y-m-d', strtotime($payment->created))) == strtotime(date('Y-m-d', strtotime($payment->close_date))))
                 $item->Закрытие = 1;
 
-        $item->Оплаты =
-            [
+
+        // if (in_array($payment->id, [294881, 294882, 294883, 294884])) {
+        //     $item->Оплаты =
+        //     [
+        //         [
+        //             'ИдентификаторВидаНачисления' => 'ОсновнойДолг',
+        //             'Сумма' => 0
+        //         ],
+        //         [
+        //             'ИдентификаторВидаНачисления' => 'Проценты',
+        //             'Сумма' => 0
+        //         ],
+        //         [
+        //             'ИдентификаторВидаНачисления' => 'Пени',
+        //             'Сумма' => 0
+        //         ],
+        //         [
+        //             'ИдентификаторВидаНачисления' => 'Переплата',
+        //             'Сумма' => ((empty($payment->loan_body_summ) ? 0 : (float)$payment->loan_body_summ ?? $payment->amount)+
+        //             (empty($payment->loan_percents_summ) ? 0 : (float)$payment->loan_percents_summ) +
+        //             (empty($payment->loan_peni_summ) ? 0 : (float)$payment->loan_peni_summ))
+        //         ]
+        //     ];
+        // }
+        // else{
+            $item->Оплаты =
                 [
-                    'ИдентификаторВидаНачисления' => 'ОсновнойДолг',
-                    'Сумма' => empty($payment->loan_body_summ) ? 0 : (float)$payment->loan_body_summ ?? $payment->amount
-                ],
-                [
-                    'ИдентификаторВидаНачисления' => 'Проценты',
-                    'Сумма' => empty($payment->loan_percents_summ) ? 0 : (float)$payment->loan_percents_summ
-                ],
-                [
-                    'ИдентификаторВидаНачисления' => 'Пени',
-                    'Сумма' => empty($payment->loan_peni_summ) ? 0 : (float)$payment->loan_peni_summ
-                ]
-            ];
+                    [
+                        'ИдентификаторВидаНачисления' => 'ОсновнойДолг',
+                        'Сумма' => empty($payment->loan_body_summ) ? 0 : (float)$payment->loan_body_summ ?? $payment->amount
+                    ],
+                    [
+                        'ИдентификаторВидаНачисления' => 'Проценты',
+                        'Сумма' => empty($payment->loan_percents_summ) ? 0 : (float)$payment->loan_percents_summ
+                    ],
+                    [
+                        'ИдентификаторВидаНачисления' => 'Пени',
+                        'Сумма' => empty($payment->loan_peni_summ) ? 0 : (float)$payment->loan_peni_summ
+                    ]
+                ];
+        // }
 
         self::$orderId = $payment->order_id;
 
