@@ -106,6 +106,10 @@ class StatisticsController extends Controller
             case 'kd_click':
                 return $this->action_kd_click();
                 break;
+
+            case 'sspv':
+                return $this->action_sspv();
+                break;
     
                 
             default:
@@ -4132,5 +4136,115 @@ class StatisticsController extends Controller
         return $this->design->fetch('statistics/kd_click.tpl');
     }
 
+    private function action_sspv()
+    {
+        if ($daterange = $this->request->get('daterange')) {
+            list($from, $to) = explode('-', $daterange);
+
+            $date_from = date('Y-m-d', strtotime($from));
+            $date_to = date('Y-m-d', strtotime($to));
+
+            $this->design->assign('date_from', $date_from);
+            $this->design->assign('date_to', $date_to);
+            $this->design->assign('from', $from);
+            $this->design->assign('to', $to);
+
+            $query = $this->db->placehold("
+            SELECT *
+                FROM s_contracts
+                WHERE number in (
+                    '1107-4049',
+                    '0728-5185', '0927-5901', '0725-5142', '1004-5966', '1004-5965', '0926-5886', '0926-5887', '1003-5953', '1003-5950', '0925-5870', '0524-4733', '1002-5947', '1001-5941', '0825-5550', '1001-5940', '0915-5776', '0923-5855', '0425-4323', '0930-5927', '0930-5929', '0704-4956', '0913-5758', '0822-5514', '0929-5918', '0506-4471', '0822-5509', '0928-5904', '0926-5890', '0926-5884', '0926-5885', '0919-5807', '0925-5877', '0925-5876', '0925-5875', '0925-5871', '0909-5723', '0925-5867', '0805-5296', '0825-5556', '0924-5862', '0819-5473', '0917-5791', '0923-5852', '0923-5844', '0415-4109', '0612-4840', '0915-5775', '0914-5766', '0921-5831', '0610-4811', '0904-5696', '0819-5476', '0814-5411', '0821-5499', '0919-5809', '0816-5443', '0903-5681', '0912-5748', '0919-5810', '0610-4813', '0911-5740', '0918-5803', '0526-4741', '0918-5802', '0918-5800', '0813-5404', '0901-5648', '0910-5732', '0917-5795', '0802-5249', '0810-5364', '0429-4375', '0915-5778', '0830-5614', '0815-5428', '0614-4854', '0716-5044', '0526-4746', '0827-5583', '0912-5749', '0905-5702', '0905-5697', '0911-5736', '0826-5557', '0903-5673', '0811-5371', '0801-5236', '0426-4332', '0909-5722', '0824-5533', '0806-5305', '0831-5633', '0822-5512', '0822-5510', '0821-5502', '0802-5255', '0728-5179', '0830-5617', '0821-5490', '0721-5102', '0905-5698', '0905-5706', '0905-5699', '0904-5695', '0731-5225', '0903-5678', '0827-5582', '0903-5680', '0903-5679', '0903-5675', '0903-5671', '0902-5668', '0817-5455', '0403-3945', '0803-5272', '0902-5663', '0728-5178', '0902-5662', '0826-5562', '0630-4938', '0825-5552', '0901-5652', '0825-5543', '0825-5546', '0726-5155', '0824-5541', '0718-5068', '0721-5095', '0824-5538', '0823-5525', '0823-5524', '0624-4917', '0830-5618', '0829-5610', '0822-5507', '0829-5603', '0829-5609', '0829-5604', '0822-5505', '0726-5154', '0812-5392', '0828-5593', '0828-5588', '0728-5169', '0606-4781', '0724-5131', '0827-5574', '0827-5578', '0827-5575', '0811-5367', '0819-5478', '0819-5477', '0826-5570', '0716-5049', '0616-4877', '0701-4941', '0825-5554', '0825-5553', '0825-5549', '0719-5076', '0825-5548', '0818-5462', '0720-5092', '0824-5540', '0824-5536', '0824-5534', '0824-5532', '0824-5527', '0824-5530', '0817-5453', '0817-5448', '0817-5446', '0823-5519', '0823-5515', '0815-5429', '0820-5481', '0815-5427', '0815-5422', '0814-5420', '0819-5471', '0707-4972', '0814-5409', '0813-5408', '0618-4895', '0813-5397', '0706-4965', '0820-5483', '0820-5482', '0818-5466', '0818-5457', '0811-5368', '0818-5459', '0817-5456', '0810-5360', '0801-5235', '0810-5357', '0817-5447', '0713-5017', '0807-5318', '0815-5425', '0814-5419', '0807-5316', '0807-5312', '0729-5186', '0806-5308', '0703-4948', '0813-5401', '0813-5406', '0728-5170', '0619-4898', '0812-5395', '0805-5297', '0812-5388', '0727-5163', '0805-5295', '0812-5386', '0805-5286', '0712-5008', '0811-5379', '0811-5373', '0810-5366', '0725-5141', '0809-5337', '0802-5259', '0809-5336', '0802-5253', '0809-5338', '0801-5246', '0808-5328', '0801-5244', '0807-5321', '0805-5291'
+                    )
+        
+            ");
+
+            $this->db->query($query);
+            $contracts = $this->db->results();
+
+            
+            foreach ($contracts as $key => $contract) {
+                $query = $this->db->placehold("
+                SELECT *
+                FROM s_operations
+                WHERE contract_id = ? AND type='PAY' 
+                AND created>? AND created<?
+    
+                ",$contract->id, $date_from, $date_to);
+                $this->db->query($query);
+                $pays = $this->db->results();
+                if (count($pays) > 0) {
+                    foreach ($pays as $pay) {
+                        $contracts[$key]->date_pay = $pay->created;
+                        $contracts[$key]->amount = $pay->amount;
+                        // echo date('d.m.Y', strtotime($pay->created)).'; '.$pay->amount.'; ';
+                    }
+                }
+                else{
+                    $contracts[$key]->date_pay = '';
+                    $contracts[$key]->amount = 0.00;
+                    // echo '; 0.00; ';
+                }
+    
+                $all = $contract->loan_body_summ + $contract->loan_percents_summ + $contract->loan_peni_summ;
+                $contracts[$key]->all = $all;
+                // echo $all.'<br>';
+                
+            }
+            
+
+            if ($this->request->get('download') == 'excel') {
+                $managers = array();
+                foreach ($this->managers->get_managers() as $m)
+                    $managers[$m->id] = $m;
+
+                $filename = 'files/reports/Реестр ССПВ.xls';
+                require $this->config->root_dir . 'PHPExcel/Classes/PHPExcel.php';
+
+                $excel = new PHPExcel();
+
+                $excel->setActiveSheetIndex(0);
+                $active_sheet = $excel->getActiveSheet();
+
+                $active_sheet->setTitle("ССПВ " . $from . "-" . $to);
+
+                $excel->getDefaultStyle()->getFont()->setName('Calibri')->setSize(12);
+                $excel->getDefaultStyle()->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
+
+                $active_sheet->getColumnDimension('A')->setWidth(15);
+                $active_sheet->getColumnDimension('B')->setWidth(15);
+                $active_sheet->getColumnDimension('C')->setWidth(15);
+                $active_sheet->getColumnDimension('D')->setWidth(20);                $active_sheet->getColumnDimension('H')->setWidth(30);
+
+                $active_sheet->setCellValue('A1', '№ договора');
+                $active_sheet->setCellValue('B1', 'Дата платежа');
+                $active_sheet->setCellValue('C1', 'Сумма платежа');
+                $active_sheet->setCellValue('D1', 'Остаток задолженности');
+
+                $i = 2;
+                foreach ($contracts as $contract) {
+                    
+
+                    $active_sheet->setCellValue('A' . $i, $contract->number);
+                    $active_sheet->setCellValue('B' . $i, $contract->date_pay!='' ? date('d.m.Y', strtotime($contract->date_pay)) : '');
+                    $active_sheet->setCellValue('C' . $i, $contract->amount);
+                    $active_sheet->setCellValue('D' . $i, $contract->all);
+                    
+                    $i++;
+                }
+
+                $objWriter = PHPExcel_IOFactory::createWriter($excel, 'Excel5');
+
+                $objWriter->save($this->config->root_dir . $filename);
+
+                header('Location:' . $this->config->root_url . '/' . $filename);
+                exit;
+            }
+
+            $this->design->assign('contracts', $contracts);
+        }
+
+        return $this->design->fetch('statistics/sspv.tpl');
+    }
 
 }
