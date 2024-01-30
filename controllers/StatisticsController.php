@@ -321,6 +321,7 @@ class StatisticsController extends Controller
             $active_sheet->getColumnDimension('AС')->setWidth(15);
             $active_sheet->getColumnDimension('AD')->setWidth(15);
             $active_sheet->getColumnDimension('AE')->setWidth(15);
+            $active_sheet->getColumnDimension('AF')->setWidth(15);
 
             $active_sheet->setCellValue('A1', '№ п/п');
             $active_sheet->setCellValue('B1', 'Номер / ID кредитного договора');
@@ -337,23 +338,24 @@ class StatisticsController extends Controller
             $active_sheet->setCellValue('M1', 'Место рождения');//---
             $active_sheet->setCellValue('N1', 'Адрес регистрации');//---
             $active_sheet->setCellValue('O1', 'Адрес (фактически)');//---
-            $active_sheet->setCellValue('P1', 'Дата планового окончания кредитного договора');//---
-            $active_sheet->setCellValue('Q1', 'Срок договора, дней');//---
-            $active_sheet->setCellValue('R1', 'Просрочка , дней');//---
-            $active_sheet->setCellValue('S1', 'Сумма выданного кредита, руб.');//---
-            $active_sheet->setCellValue('T1', 'Сумма платежей с момента выдачи кредита, руб. ');//---
-            $active_sheet->setCellValue('U1', 'Сумма оплат основного долга, руб.');//---
-            $active_sheet->setCellValue('V1', 'Сумма оплат процентов, руб.');//---
-            $active_sheet->setCellValue('W1', 'Сумма оплат штрафов, руб.');//---
-            $active_sheet->setCellValue('X1', 'Сумма основного долга, руб.');//---
-            $active_sheet->setCellValue('Y1', 'Сумма долга  проценты, руб.');//---
-            $active_sheet->setCellValue('Z1', 'Сумма долга штрафы, руб.');//---
+            $active_sheet->setCellValue('P1', 'Телефон');//---
+            $active_sheet->setCellValue('Q1', 'Дата планового окончания кредитного договора');//---
+            $active_sheet->setCellValue('R1', 'Срок договора, дней');//---
+            $active_sheet->setCellValue('S1', 'Просрочка , дней');//---
+            $active_sheet->setCellValue('T1', 'Сумма выданного кредита, руб.');//---
+            $active_sheet->setCellValue('U1', 'Сумма платежей с момента выдачи кредита, руб. ');//---
+            $active_sheet->setCellValue('V1', 'Сумма оплат основного долга, руб.');//---
+            $active_sheet->setCellValue('W1', 'Сумма оплат процентов, руб.');//---
+            $active_sheet->setCellValue('X1', 'Сумма оплат штрафов, руб.');//---
+            $active_sheet->setCellValue('Y1', 'Сумма основного долга, руб.');//---
+            $active_sheet->setCellValue('Z1', 'Сумма долга  проценты, руб.');//---
+            $active_sheet->setCellValue('AA1', 'Сумма долга штрафы, руб.');//---
             
-            $active_sheet->setCellValue('AA1', 'ОСЗ (Общая Сумма Задолженности), руб.');//---
-            $active_sheet->setCellValue('AB1', 'Процентная ставка в день, %');//---
-            $active_sheet->setCellValue('AC1', 'Полная стоимость кредита');//---
-            $active_sheet->setCellValue('AD1', 'УИД');//---
-            $active_sheet->setCellValue('AE1', 'Дата формирования реестра');//---
+            $active_sheet->setCellValue('AB1', 'ОСЗ (Общая Сумма Задолженности), руб.');//---
+            $active_sheet->setCellValue('AC1', 'Процентная ставка в день, %');//---
+            $active_sheet->setCellValue('AD1', 'Полная стоимость кредита');//---
+            $active_sheet->setCellValue('AE1', 'УИД');//---
+            $active_sheet->setCellValue('AF1', 'Дата формирования реестра');//---
 
             $i = 2;
             foreach ($contracts as $contract) {
@@ -377,24 +379,26 @@ class StatisticsController extends Controller
                 $active_sheet->setCellValue('M' . $i, $contract->user->birth_place);//---
                 $active_sheet->setCellValue('N' . $i, $contract->user->regAddr->adressfull);//---
                 $active_sheet->setCellValue('O' . $i, $contract->user->faktAddr->adressfull);//---
+                $active_sheet->setCellValue('P' . $i, $contract->user->phone_mobile);//---
+
                 $dto = new DateTime($contract->inssuance_date);
                 $dto->modify('+'.$contract->period.' days');
-                $active_sheet->setCellValue('P' . $i, $dto->format('d.m.Y'));//---
-                $active_sheet->setCellValue('Q' . $i, $contract->period);//---
-                $active_sheet->setCellValue('R' . $i, $contract->delay);//---
-                $active_sheet->setCellValue('S' . $i, $contract->amount);//---
-                $active_sheet->setCellValue('T' . $i, ($contract->pay_body_summ + $contract->pay_percents_summ + $contract->pay_peni_summ));//---
-                $active_sheet->setCellValue('U' . $i, $contract->pay_body_summ);//---
-                $active_sheet->setCellValue('V' . $i, $contract->pay_percents_summ);//---
-                $active_sheet->setCellValue('W' . $i, $contract->pay_peni_summ);//---
-                $active_sheet->setCellValue('X' . $i, $contract->loan_body_summ);//---
-                $active_sheet->setCellValue('Y' . $i, $contract->loan_percents_summ);//---
-                $active_sheet->setCellValue('Z' . $i, $contract->loan_peni_summ);//--
-                $active_sheet->setCellValue('AA' . $i, ($contract->loan_body_summ + $contract->loan_percents_summ + $contract->loan_peni_summ));//---
-                $active_sheet->setCellValue('AB' . $i, $contract->base_percent);//---
-                $active_sheet->setCellValue('AC' . $i, ($contract->loan_body_summ + $contract->loan_percents_summ + $contract->loan_peni_summ + $contract->pay_body_summ + $contract->pay_percents_summ + $contract->pay_peni_summ));//---
-                $active_sheet->setCellValue('AD' . $i, $contract->uid);//---
-                $active_sheet->setCellValue('AE' . $i, date('d.m.Y'));//---          
+                $active_sheet->setCellValue('Q' . $i, $dto->format('d.m.Y'));//---
+                $active_sheet->setCellValue('R' . $i, $contract->period);//---
+                $active_sheet->setCellValue('S' . $i, $contract->delay);//---
+                $active_sheet->setCellValue('T' . $i, $contract->amount);//---
+                $active_sheet->setCellValue('U' . $i, ($contract->pay_body_summ + $contract->pay_percents_summ + $contract->pay_peni_summ));//---
+                $active_sheet->setCellValue('V' . $i, $contract->pay_body_summ);//---
+                $active_sheet->setCellValue('W' . $i, $contract->pay_percents_summ);//---
+                $active_sheet->setCellValue('X' . $i, $contract->pay_peni_summ);//---
+                $active_sheet->setCellValue('Y' . $i, $contract->loan_body_summ);//---
+                $active_sheet->setCellValue('Z' . $i, $contract->loan_percents_summ);//---
+                $active_sheet->setCellValue('AA' . $i, $contract->loan_peni_summ);//--
+                $active_sheet->setCellValue('AB' . $i, ($contract->loan_body_summ + $contract->loan_percents_summ + $contract->loan_peni_summ));//---
+                $active_sheet->setCellValue('AC' . $i, $contract->base_percent);//---
+                $active_sheet->setCellValue('AD' . $i, ($contract->loan_body_summ + $contract->loan_percents_summ + $contract->loan_peni_summ + $contract->pay_body_summ + $contract->pay_percents_summ + $contract->pay_peni_summ));//---
+                $active_sheet->setCellValue('AE' . $i, $contract->uid);//---
+                $active_sheet->setCellValue('AF' . $i, date('d.m.Y'));//---          
 
                 $i++;
             }
