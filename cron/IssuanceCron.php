@@ -157,8 +157,7 @@ class IssuanceCron extends Core
 
 
                     // Снимаем страховку если есть
-                    $order = $this->orders->get_order($contract->order_id);
-                    if (!empty($contract->service_insurance) && $order->order_id != 66270) 
+                    if (!empty($contract->service_insurance)) 
                     {
                         $insurance_cost = $this->insurances->get_insurance_cost($contract->amount);
 
