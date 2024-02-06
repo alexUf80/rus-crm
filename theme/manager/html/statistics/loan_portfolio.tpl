@@ -280,6 +280,14 @@
                                         <td class="right">{number_format($prolongation_contracts_peni, 2, '.',' ')}</td>
                                     </tr>
                                     <tr>
+                                        <td>Проданные договоры</td>
+                                        <td class="right">{$count_cessia_contracts}</td>
+                                        <td class="right">{number_format(($cessia_contracts_od+$cessia_contracts_percents+$cessia_contracts_peni), 2, '.',' ')}</td>
+                                        <td class="right">{number_format($cessia_contracts_od, 2, '.',' ')}</td>
+                                        <td class="right">{number_format($cessia_contracts_percents, 2, '.',' ')}</td>
+                                        <td class="right">{number_format($cessia_contracts_peni, 2, '.',' ')}</td>
+                                    </tr>
+                                    <tr>
                                         <td>Итого собрано (ОД + проценты)</td>
                                         <td class="right"> </td>
                                         <td class="right">{number_format($pay_all_contracts_od+$pay_all_contracts_percents+$pay_all_contracts_peni, 2, '.',' ')}</td>
