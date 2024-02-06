@@ -1247,6 +1247,27 @@
                                                         {/foreach}
                                                     </div>
                                             </div>
+                                            <div class="mb-3 border">
+                                                <h5 class="card-header text-white">
+                                                    <span>Расчет ПДН</span>
+                                                </h5>
+
+                                                <div class="row view-block p-2 {if $card_error}hide{/if}">
+                                                    <div class="col-md-12">
+                                                        <div class="form-group mb-0 row">
+                                                            <label class="control-label col-md-8 col-7">
+                                                                Значение: {$pdn}
+                                                            </label>
+                                                            <div class="col-md-4 col-5">
+
+                                                                <p class="form-control-static text-right">
+
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
 
                                             <form action="{url}" class="mb-3 border js-order-item-form"
                                                   id="services_form">

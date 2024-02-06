@@ -288,6 +288,10 @@ class ClientController extends Controller
                 $this->design->assign('risk_op', $risk_op);
                 $this->design->assign('user_risk_op', $user_risk_op);
             }
+
+        $pdn = $client->pdn;
+        $this->design->assign('pdn', $pdn);
+
         return $this->design->fetch('client.tpl');
     }
 
