@@ -2582,6 +2582,48 @@ class StatisticsController extends Controller
             $this->design->assign('prolongation_contracts_percents', $prolongation_contracts_percents);
             $this->design->assign('prolongation_contracts_peni', $prolongation_contracts_peni);
 
+            $query = $this->db->placehold("
+            SELECT *
+            FROM __contracts AS c
+            WHERE 1
+            #AND DATE(c.close_date) >= ?
+            #AND DATE(c.close_date) <= ?
+
+            AND DATE(accept_date) >= ?
+            AND DATE(accept_date) <= ?
+            AND (status = 7)
+
+        ", $date_from, $date, $date_from, $date);
+
+        $this->db->query($query);
+
+        $count_cessia_contracts = 0;
+        $cessia_contracts_all = 0;
+
+        $cessia_contracts_od = 0;
+        $cessia_contracts_percents = 0;
+        $cessia_contracts_peni = 0;
+        foreach ($this->db->results() as $c) {
+            $count_cessia_contracts += 1;
+            $cessia_contracts_all += $c->amount;
+
+            $cessia_close_date = date('Y-m-d');
+            if (!is_null($c->close_date)) {
+                $cessia_close_date = date('Y-m-d', strtotime($c->close_date));
+            }
+            $ret = $this->payment_split($c->id, $cessia_close_date);
+            $cessia_contracts_od += $ret[0];
+            $cessia_contracts_percents += $ret[1];
+            $cessia_contracts_peni += $ret[2];
+        }
+
+        $this->design->assign('count_cessia_contracts', $count_cessia_contracts);
+        $this->design->assign('cessia_contracts_all', $cessia_contracts_all);
+        $this->design->assign('cessia_contracts_od', $cessia_contracts_od);
+        $this->design->assign('cessia_contracts_percents', $cessia_contracts_percents);
+        $this->design->assign('cessia_contracts_peni', $cessia_contracts_peni);
+
+
             $period_start_date = $period == 'period' ? $date_from : '2020-01-01';
 
             $query = $this->db->placehold("
