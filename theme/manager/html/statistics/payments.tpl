@@ -270,8 +270,11 @@
                                             {$operation->created|time}
                                         </td>
                                         <td>
-                                            <a target="_blank"
-                                               href="order/{$operation->order_id}">{$operation->contract_number}</a>
+                                            <a target="_blank" href="order/{$operation->order_id}">
+                                               {if $operation->contract_number}{$operation->contract_number}
+                                               {else}{$operation->order_id}{/if}
+                                            </a>
+                                            <br />
                                             {if $operation->sector == '7036'}
                                                 <span class="label label-danger">ЮК</span>
                                             {else}
@@ -285,7 +288,7 @@
                                                     {$operation->firstname|escape}
                                                     {$operation->patronymic|escape}
                                                 </strong><br/>
-                                                {$operation->birth|escape}
+                                                <small>{$operation->birth|date}</small>
                                             </a>
                                         </td>
                                         <td>

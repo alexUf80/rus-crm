@@ -1044,7 +1044,7 @@ class StatisticsController extends Controller
                 LEFT JOIN __transactions AS `t` ON `t`.id = `o`.transaction_id
                 LEFT JOIN __insurances   AS `i` ON `i`.id = `t`.insurance_id
                 LEFT JOIN __orders    AS `or` ON `or`.id = `o`.order_id
-                WHERE `o`.type != 'INSURANCE' AND `o`.type != 'BUD_V_KURSE' AND `o`.type != 'SMS'
+                WHERE 1 
                 $search_filter
                 AND DATE(`t`.created) >= ?
                 AND DATE(`t`.created) <= ?
@@ -1058,11 +1058,14 @@ class StatisticsController extends Controller
 
                 if(is_null($op->callback_response))
                     continue;
-
-                $callback = new SimpleXMLElement($op->callback_response);
-                if($callback->order_state != 'COMPLETED')
-                    continue;
-
+                
+                if (!in_array($op->type, ['BUD_V_KURSE', 'SMS', 'INSURANCE'])) {
+                    if (!empty($op->callback_response)) {
+                        $callback = new SimpleXMLElement($op->callback_response);
+                        if($callback->order_state != 'COMPLETED')
+                            continue;
+                    }
+                }
                 if($op->type == 'PAY'){
                     $op->amount += $INSURANCE_BC;
                 }
@@ -1081,8 +1084,10 @@ class StatisticsController extends Controller
                 $operations[$op->id]->pan = $card->pan;
                 if(is_null($card->pan))
                     $operations[$op->id]->pan = $card->pan;
-                else
+                elseif ($callback->pan)
                     $operations[$op->id]->pan = $callback->pan;
+                else
+                    $operations[$op->id]->pan = $callback->pan2;
 
                 $transaction = $this->transactions->get_transaction($operations[$op->id]->transaction_id);
                 $user = $this->users->get_user($transaction->user_id);
