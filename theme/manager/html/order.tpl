@@ -1169,8 +1169,8 @@
                                                                 оплаты: {$contract->next_pay|date}</h5>
                                                         {/if}
                                                         {if !in_array($contract->status, [10,11])}
-                                                            <h3 class="text-white">Выдан
-                                                                {if !is_null({$contract->canicule})} (Каникулы){/if}
+                                                            <h3 class="text-white">Выдан 
+                                                                {if {$contract->canicule}} (Каникулы){/if}
                                                             </h3>
                                                             <h6 class="text-center text-white">
                                                                 Погашение: {$contract->loan_body_summ+$contract->loan_percents_summ+$contract->loan_charge_summ+$contract->loan_peni_summ}
