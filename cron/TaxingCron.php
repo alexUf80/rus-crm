@@ -38,6 +38,10 @@ class TaxingCron extends Core
         //Начисления
         if ($contracts = $this->contracts->get_contracts(array('status' => [2, 4], 'type' => 'base', 'stop_profit' => 0, 'is_restructed' => 0))) {
             foreach ($contracts as $contract) {
+                if ($contract->id != 4074) {
+                    continue;
+                }
+                
                 $this->db->query("
                 select sum(amount) as sum_taxing
                 from s_operations
@@ -60,6 +64,11 @@ class TaxingCron extends Core
 
                 //Начисление процентов
                 $percents_summ = round($contract->loan_body_summ / 100 * $contract->base_percent, 2);
+                
+                // если каникулы 
+                if(!is_null($contract->canicule)){
+                    $percents_summ = round($contract->loan_body_summ / 100 * $contract->base_percent * 2 / 3, 2);
+                }
 
                 if ($percents_summ > ($taxing_limit - $sum_taxing->sum_taxing)) {
                     $percents_summ = $taxing_limit - $sum_taxing->sum_taxing;
@@ -81,7 +90,7 @@ class TaxingCron extends Core
                     ));
     
                     //Начисление пени, если просрочен займ
-                    if ($contract->status == 4 && $stop_taxing == 0) {
+                    if ($contract->status == 4 && $stop_taxing == 0 && is_null($contract->canicule)) {
                         $diff_days = date_diff(
                             new DateTime(date('Y-m-d', strtotime($contract->inssuance_date))),
                             new DateTime(date('Y-m-d', strtotime($contract->return_date)))
