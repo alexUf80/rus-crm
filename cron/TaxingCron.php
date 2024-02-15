@@ -38,9 +38,6 @@ class TaxingCron extends Core
         //Начисления
         if ($contracts = $this->contracts->get_contracts(array('status' => [2, 4], 'type' => 'base', 'stop_profit' => 0, 'is_restructed' => 0))) {
             foreach ($contracts as $contract) {
-                if ($contract->id != 4074) {
-                    continue;
-                }
                 
                 $this->db->query("
                 select sum(amount) as sum_taxing
