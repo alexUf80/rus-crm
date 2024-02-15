@@ -944,7 +944,9 @@
                                             {else}
                                                 <div class="card card-primary mb-2">
                                                     <div class="box text-center">
-                                                        <h3 class="text-white">Выдан</h3>
+                                                        <h3 class="text-white">Выдан
+                                                            {if !is_null({$contract->canicule})} (Каникулы){/if}
+                                                        </h3>
                                                         <h6>Договор {$contract->number}</h6>
                                                         {if $contract->outer_id}<h6>{$contract->outer_id}</h6>{/if}
                                                     </div>
