@@ -1256,6 +1256,8 @@ class OrderController extends Controller
 
         $this->Leadgens->sendRejectToAlians($order->order_id);
 
+        $this->Leadgens->sendApiVitkol($order_id);
+
         return array('success' => 1, 'status' => $status);
     }
 
