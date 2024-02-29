@@ -262,5 +262,38 @@ https://c2mpbtrck.com/cpaCallback?cid={CID}&partner=[рекламодатель]
         return 1;
     }
 
+    public function sendApiVitkol($order_id)
+    {
+
+        $order = $this->orders->get_order($order_id);
+        $user = $this->users->get_user($order->user_id);
+
+        $data = [
+            "external_id" => strval($order_id), 
+            "first_name" => $user->firstname,
+            "last_name" => $user->lastname, 
+            "father_name" => $user->patronymic,
+            "phone" => $user->phone_mobile, 
+            "datetime" => $order->reject_date,
+            "refusal_datetime" => "2024-02-29 08:16:07", 
+            "amount" => $order->amount,
+        ];
+
+        $data_string = json_encode ($data, JSON_UNESCAPED_UNICODE);
+        $curl = curl_init('http://51.250.86.237/leads?token=f83e10123a6f5f4beacbde8a5076ebbcb5c8e67bb655d2f01836d');
+        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "POST");
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $data_string);
+        
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, [
+        'Content-Type: application/json',
+        'Content-Length: ' . strlen($data_string)
+        ]);
+        $result = curl_exec($curl);
+        curl_close($curl);
+        // echo '<pre>';
+        return($result);
+    }
+
 }
 
