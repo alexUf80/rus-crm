@@ -274,8 +274,8 @@ https://c2mpbtrck.com/cpaCallback?cid={CID}&partner=[рекламодатель]
             "last_name" => $user->lastname, 
             "father_name" => $user->patronymic,
             "phone" => $user->phone_mobile, 
-            "datetime" => $order->reject_date,
-            "refusal_datetime" => "2024-02-29 08:16:07", 
+            "datetime" => $order->date,
+            "refusal_datetime" => $order->reject_date, 
             "amount" => $order->amount,
         ];
 
