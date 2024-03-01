@@ -628,19 +628,19 @@ class OrderController extends Controller
                     // получаем комменты из 1С
                     $orders = $this->orders->get_orders(array('user_id' => $order->user_id));
 
-                    foreach ($orders as $order) {
+                    foreach ($orders as $orderr) {
 
-                        if (!empty($order->contract_id))
-                            $order->contract = $this->contracts->get_contract($order->contract_id);
+                        if (!empty($orderr->contract_id))
+                            $orderr->contract = $this->contracts->get_contract($orderr->contract_id);
 
-                        if (!empty($order->contract) && ($order->contract->close_date)) {
-                            $dateBegin = DateTime::createFromFormat("Y-m-d H:i:s", $order->contract->inssuance_date); //дата получения
-                            $dateClose = DateTime::createFromFormat("Y-m-d H:i:s", $order->contract->close_date); //дата закрытия
+                        if (!empty($orderr->contract) && ($orderr->contract->close_date)) {
+                            $dateBegin = DateTime::createFromFormat("Y-m-d H:i:s", $orderr->contract->inssuance_date); //дата получения
+                            $dateClose = DateTime::createFromFormat("Y-m-d H:i:s", $orderr->contract->close_date); //дата закрытия
                             $interval = $dateBegin->diff($dateClose);
 
                             $wordDay = $this->num2word($interval->days, array('день', 'дня', 'дней'));
 
-                            $order->contract->usage_time = $interval->days . ' ' . $wordDay;
+                            $orderr->contract->usage_time = $interval->days . ' ' . $wordDay;
                         }
                     }
                     $this->design->assign('orders', $orders);
@@ -3627,7 +3627,7 @@ class OrderController extends Controller
         $contract = $this->contracts->get_contract($contractId);
         $order = $this->orders->get_order($contract->order_id);
         $order->phone_mobile = preg_replace("/[^,.0-9]/", '', $order->phone_mobile);
-        $code = random_int(0000, 9999);
+        $code = random_int(1000, 9999);
 
         // Данные для заявления
         // в договор
