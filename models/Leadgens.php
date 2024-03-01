@@ -280,14 +280,16 @@ https://c2mpbtrck.com/cpaCallback?cid={CID}&partner=[рекламодатель]
         ];
 
         $data_string = json_encode ($data, JSON_UNESCAPED_UNICODE);
-        $curl = curl_init('http://51.250.86.237/leads?token=f83e10123a6f5f4beacbde8a5076ebbcb5c8e67bb655d2f01836d');
+        $curl = curl_init('http://51.250.86.237/leads');
         curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "POST");
         curl_setopt($curl, CURLOPT_POSTFIELDS, $data_string);
         
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_HTTPHEADER, [
+        'accept: application/json',
+        'token: f83e10123a6f5f4beacbde8a5076ebbcb5c8e67bb655d2f01836d',
         'Content-Type: application/json',
-        'Content-Length: ' . strlen($data_string)
+        'Content-Length: ' . strlen($data_string),
         ]);
         $result = curl_exec($curl);
         curl_close($curl);
