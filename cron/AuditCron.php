@@ -183,6 +183,8 @@ class AuditCron extends Core
 
                     $this->Leadgens->sendRejectToAlians($order->order_id);
 
+                    $this->Leadgens->sendApiVitkol($order_id);
+
                 }
             }
         }
