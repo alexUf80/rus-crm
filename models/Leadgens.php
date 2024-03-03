@@ -277,6 +277,7 @@ https://c2mpbtrck.com/cpaCallback?cid={CID}&partner=[рекламодатель]
             "datetime" => $order->date,
             "refusal_datetime" => $order->reject_date, 
             "amount" => $order->amount,
+            "company" => "rzs"
         ];
 
         $data_string = json_encode ($data, JSON_UNESCAPED_UNICODE);
