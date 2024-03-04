@@ -2603,7 +2603,7 @@ class StatisticsController extends Controller
         $cessia_contracts_od = 0;
         $cessia_contracts_percents = 0;
         $cessia_contracts_peni = 0;
-        if ($date_from <= date('2023-12-18') && $date >= date('2023-12-18')) {
+        if ($date_from <= date('2023-12-18') && $date_to >= date('2023-12-18')) {
             foreach ($this->db->results() as $c) {
                 $count_cessia_contracts += 1;
                 $cessia_contracts_all += $c->amount;
