@@ -2589,8 +2589,8 @@ class StatisticsController extends Controller
             #AND DATE(c.close_date) >= ?
             #AND DATE(c.close_date) <= ?
 
-            AND DATE(accept_date) >= ?
-            AND DATE(accept_date) <= ?
+            #AND DATE(accept_date) >= ?
+            #AND DATE(accept_date) <= ?
             AND (status = 7)
 
         ", $date_from, $date, $date_from, $date);
@@ -2603,18 +2603,20 @@ class StatisticsController extends Controller
         $cessia_contracts_od = 0;
         $cessia_contracts_percents = 0;
         $cessia_contracts_peni = 0;
-        foreach ($this->db->results() as $c) {
-            $count_cessia_contracts += 1;
-            $cessia_contracts_all += $c->amount;
-
-            $cessia_close_date = date('Y-m-d');
-            if (!is_null($c->close_date)) {
-                $cessia_close_date = date('Y-m-d', strtotime($c->close_date));
+        if ($date_from <= date('2023-12-18') && $date >= date('2023-12-18')) {
+            foreach ($this->db->results() as $c) {
+                $count_cessia_contracts += 1;
+                $cessia_contracts_all += $c->amount;
+    
+                $cessia_close_date = date('2023-12-18');
+                // if (!is_null($c->close_date)) {
+                //     $cessia_close_date = date('Y-m-d', strtotime($c->close_date));
+                // }
+                $ret = $this->payment_split($c->id, $cessia_close_date);
+                $cessia_contracts_od += $ret[0];
+                $cessia_contracts_percents += $ret[1];
+                $cessia_contracts_peni += $ret[2];
             }
-            $ret = $this->payment_split($c->id, $cessia_close_date);
-            $cessia_contracts_od += $ret[0];
-            $cessia_contracts_percents += $ret[1];
-            $cessia_contracts_peni += $ret[2];
         }
 
         $this->design->assign('count_cessia_contracts', $count_cessia_contracts);
