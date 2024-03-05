@@ -166,7 +166,7 @@ class IssuanceCron extends Core
 
 
                     // Снимаем страховку если есть
-                    if (!empty($contract->service_insurance)) 
+                    if ($contract->service_insurance) 
                     {
                         $insurance_cost = $this->insurances->get_insurance_cost($contract->amount);
 
@@ -254,7 +254,7 @@ class IssuanceCron extends Core
 
                     // Снимаем смс-информирование если есть
                     $sms_cost = 199;
-                    if (!empty($contract->service_sms)) 
+                    if ($contract->service_sms) 
                     {
                         $sms_amount = $sms_cost * 100;
 
