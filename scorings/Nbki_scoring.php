@@ -13,60 +13,48 @@ class Nbki_scoring extends Core
 
     public function run_scoring($scoring_id)
     {
-        // !!!!!!!!!!!!!!!!!!!!!
         $scoring = $this->scorings->get_scoring($scoring_id);
+        $this->scoring_id = $scoring_id;
+
         $user = $this->users->get_user((int)$scoring->user_id);
+
         if (in_array($user->client_status, ['nk', 'rep']) || is_null($user->client_status)){
             $add_scoring = array(
                 'body' => '',
                 'status' => 'completed',
                 'success' => 0,
-                'string_result' => 'Новый клиент'
+                'string_result' => 'Новый клиент '.$user->client_status.'.'
             );
-        }
-        else {
-            $add_scoring = array(
-                'body' => '',
-                'status' => 'completed',
-                'success' => 1,
-                'string_result' => 'Старый клиент'
-            );
+            $this->scorings->update_scoring($scoring_id, $add_scoring);
+
+            return $add_scoring;
         }
 
-        $this->scorings->update_scoring($scoring_id, $add_scoring);
+        $regAddress = $this->Addresses->get_address($user->regaddress_id);
 
-        return $add_scoring;
-        // !!!!!!!!!!!!!!!!!!!!!
-        // $scoring = $this->scorings->get_scoring($scoring_id);
-        // $this->scoring_id = $scoring_id;
-
-        // $user = $this->users->get_user((int)$scoring->user_id);
-
-        // $regAddress = $this->Addresses->get_address($user->regaddress_id);
-
-        // if ($regAddress->locality)
-        //     $city = $regAddress->locality;
-        // else
-        //     $city = $regAddress->city;
+        if ($regAddress->locality)
+            $city = $regAddress->locality;
+        else
+            $city = $regAddress->city;
 
 
-        // return $this->scoring(
-        //     $user->firstname,
-        //     $user->patronymic,
-        //     $user->lastname,
-        //     $city,
-        //     $regAddress->street,
-        //     $user->birth,
-        //     $user->birth_place,
-        //     $user->passport_serial,
-        //     $user->passport_date,
-        //     $user->passport_issued,
-        //     $user->subdivision_code,
-        //     $user->gender,
-        //     $user->client_status,
-        //     $user->inn,
-        //     $user->snils
-        // );
+        return $this->scoring(
+            $user->firstname,
+            $user->patronymic,
+            $user->lastname,
+            $city,
+            $regAddress->street,
+            $user->birth,
+            $user->birth_place,
+            $user->passport_serial,
+            $user->passport_date,
+            $user->passport_issued,
+            $user->subdivision_code,
+            $user->gender,
+            $user->client_status,
+            $user->inn,
+            $user->snils
+        );
 
 
     }
@@ -173,7 +161,7 @@ class Nbki_scoring extends Core
             if (json_encode($result['data']) == "No subject found for this inquiry") {
                 $add_scoring = array(
                     'body' => '',
-                    'status' => 1,
+                    'status' => 'error',
                     'success' => (int)true,
                     'string_result' => 'Неуспешный ответ: ' . 'субъект не найден',
                 );
