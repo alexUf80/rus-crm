@@ -183,9 +183,9 @@
                             </li>
                         {/if}
                     {/if}
-                    {if in_array('my_contracts', $manager->permissions) || in_array('collection_report', $manager->permissions) || in_array('zvonobot', $manager->permissions)}
+                    {if in_array('my_contracts', $manager->permissions) || in_array('collection_report', $manager->permissions) || in_array('zvonobot', $manager->permissions) || in_array('only_contracts', $manager->permissions)}
                         <li class="nav-small-cap">Коллекшн</li>
-                        {if in_array('my_contracts', $manager->permissions)}
+                        {if in_array('my_contracts', $manager->permissions) || in_array('only_contracts', $manager->permissions)}
                             <li {if in_array($module, ['CollectorContractsController'])}class="active"{/if}>
                                 <a class="" href="my_contracts/" aria-expanded="false"><i
                                             class="mdi mdi-book-multiple"></i><span

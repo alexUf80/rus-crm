@@ -139,7 +139,7 @@ class CollectorContractsController extends Controller
         if (in_array($this->manager->role, ['collector', 'manager'])) {
             $filter['collection_status'] = array($this->manager->collection_status_id);
             $filter['collection_manager_id'] = $this->manager->id;
-        } elseif (in_array($this->manager->role, array('developer', 'admin', 'senior collector'))) {
+        } elseif (in_array($this->manager->role, array('developer', 'admin', 'senior collector', 'collector_120'))) {
             $filter['collection_status'] = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
             $filter['collection_manager_id'] = null;
         }
@@ -180,6 +180,10 @@ class CollectorContractsController extends Controller
         $current_page = max(1, $current_page);
         $this->design->assign('current_page_num', $current_page);
         $this->design->assign('items_per_page', $items_per_page);
+
+        if (in_array($this->manager->role, array('collector_120'))) {
+            $filter['search']['delay_from'] = 120;
+        }
 
         $contracts_count = $this->contracts->count_contracts($filter);
 
@@ -862,7 +866,7 @@ class CollectorContractsController extends Controller
                     if ($this->manager->role == 'collector') {
                         $filter['collection_status'] = array($this->manager->collection_status_id);
                         $filter['collection_manager_id'] = $this->manager->id;
-                    } elseif (in_array($this->manager->role, array('developer', 'admin', 'senior collector'))) {
+                    } elseif (in_array($this->manager->role, array('developer', 'admin', 'senior collector', 'collector_120'))) {
                         $filter['collection_status'] = array(1, 2, 3, 4, 5, 6, 7, 8, 9);
                         $filter['collection_manager_id'] = null;
                     } elseif ($this->manager->role == 'team_collector') {
