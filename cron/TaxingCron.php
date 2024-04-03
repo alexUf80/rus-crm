@@ -38,6 +38,27 @@ class TaxingCron extends Core
         //Начисления
         if ($contracts = $this->contracts->get_contracts(array('status' => [2, 4], 'type' => 'base', 'stop_profit' => 0, 'is_restructed' => 0))) {
             foreach ($contracts as $contract) {
+                // // !!!!!!!
+                // if ($contract->order_id != 34438) {
+                //     continue;
+                // }
+                
+                $filter = [];
+                $filter['from'] = date('Y-m-d H:i:s');
+                $filter['to'] = date('Y-m-d H:i:s');
+                $filter['order_id'] = $contract->order_id;
+                $count_canicules = $this->canicules->count_canicules($filter);
+                if ($count_canicules) {
+                    $canicule = $this->canicules->get_canicules($filter)[0];
+                    $canicule_type = $canicule->type;
+                    $canicule_from = $canicule->from_date;
+
+                    // менять в OrderController
+                    $kk_base_percent = 190.059;
+                    if ($canicule_from > '2024-02-15') {
+                        $kk_base_percent = 190.839;
+                    }
+                }
                 
                 $this->db->query("
                 select sum(amount) as sum_taxing
@@ -66,6 +87,12 @@ class TaxingCron extends Core
                 if(!is_null($contract->canicule)){
                     $percents_summ = round($contract->loan_body_summ / 100 * $contract->base_percent * 2 / 3, 2);
                 }
+                if($count_canicules > 0){
+                    if (isset($canicule_type) && $canicule_type == 'svo') {
+ 
+                        $percents_summ = round($contract->loan_body_summ / 100 * $kk_base_percent / 365, 2);
+                    }
+                }
 
                 if ($percents_summ > ($taxing_limit - $sum_taxing->sum_taxing)) {
                     $percents_summ = $taxing_limit - $sum_taxing->sum_taxing;
@@ -87,7 +114,7 @@ class TaxingCron extends Core
                     ));
     
                     //Начисление пени, если просрочен займ
-                    if ($contract->status == 4 && $stop_taxing == 0 && is_null($contract->canicule)) {
+                    if ($contract->status == 4 && $stop_taxing == 0 && is_null($contract->canicule) && $count_canicules == 0) {
                         $diff_days = date_diff(
                             new DateTime(date('Y-m-d', strtotime($contract->inssuance_date))),
                             new DateTime(date('Y-m-d', strtotime($contract->return_date)))

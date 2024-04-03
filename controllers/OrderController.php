@@ -110,6 +110,10 @@ class OrderController extends Controller
                     $this->action_add_comment();
                     break;
 
+                case 'add_canicules':
+                    $this->action_add_canicules();
+                    break;
+
                 case 'close_contract':
                     $this->action_close_contract();
                     break;
@@ -376,6 +380,9 @@ class OrderController extends Controller
                     }
 
 
+                    $canicules = $this->canicules->get_canicules(array('user_id' => $client->id));
+                    $this->design->assign('canicules', $canicules);
+
                     $communications = $this->communications->get_communications(array('user_id' => $client->id));
                     $this->design->assign('communications', $communications);
                     $this->design->assign('order', $order);
@@ -437,6 +444,13 @@ class OrderController extends Controller
                     if (!empty($order->contract_id)) {
                         $contract = $this->contracts->get_contract((int)$order->contract_id);
                         $this->design->assign('contract', $contract);
+
+                        $filter = [];
+                        $filter['from'] = date('Y-m-d H:i:s');
+                        $filter['to'] = date('Y-m-d H:i:s');
+                        $filter['order_id'] = $contract->order_id;
+                        $count_canicules = $this->canicules->count_canicules($filter);
+                        $this->design->assign('count_canicules', $count_canicules);
 
                         $code = $this->helpers->c2o_encode($contract->id);
                         $short_link = $this->config->main_domain . '/p/' . $code;
@@ -2724,6 +2738,123 @@ class OrderController extends Controller
                 ));
             } else {
                 $this->json_output(array('error' => 'Не удалось добавить!'));
+            }
+        }
+    }
+
+    private function action_add_canicules()
+    {
+        $user_id = $this->request->post('user_id', 'integer');
+        $order_id = $this->request->post('order_id', 'integer');
+        $type  = $this->request->post('type');
+        $canicule_from = $this->request->post('canicule_from');
+        $canicule_to = $this->request->post('canicule_to');
+        $canicule_type = $this->request->post('canicule_type');
+
+        if (empty($canicule_from) || empty($canicule_to)) {
+            $this->json_output(array('error' => 'Выберите даты каникул!'));
+        } else {
+
+            // менять в TaxingCron
+            $kk_base_percent = 190.059;
+            if ($canicule_from > '2024-02-15') {
+                $kk_base_percent = 190.839;
+            }
+
+            $canicule_from = date($canicule_from.' 00:00:00');
+            $canicule_to = date($canicule_to.' 23:59:59');
+
+            $comment = array(
+                'user_id' => $user_id,
+                'order_id' => $order_id,
+                'manager_id' => $this->manager->id,
+                'created' => date('Y-m-d H:i:s'),
+                'type' => $canicule_type,
+                'from_date' => $canicule_from,
+                'to_date' => $canicule_to,
+                'active' => 1,
+            );
+
+            $order = $this->orders->get_order($order_id);
+            $contract = $this->contracts->get_contract($order->contract_id);
+            if ($contract->return_date < $canicule_to) {
+                if ($canicule_id = $this->canicules->add_canicule($comment)) {
+
+                    $percents_sum_full = round($contract->loan_body_summ / 100 * $contract->base_percent, 2);
+
+                    $get_operations_arr = [];
+                    $get_operations_arr['order_id'] = $order_id;
+                    $get_operations_arr['date_from'] = date('Y-m-d H:i:s', strtotime($canicule_from)- 86400);
+                    $get_operations_arr['date_to'] = date('Y-m-d 23:59:59', strtotime($canicule_from)- 86400);
+
+                    $operations = $this->operations->get_operations($get_operations_arr);
+
+                    $persents_to_date = 0;
+                    $peni_to_date = 0;
+                    foreach ($operations as $operation) {
+                        if ($persents_to_date < $operation->loan_percents_summ) {
+                            $persents_to_date = $operation->loan_percents_summ;
+                        }
+                        if ($peni_to_date < $operation->loan_peni_summ) {
+                            $peni_to_date = $operation->loan_peni_summ;
+                        }
+                    }
+
+                    $get_operations_arr = [];
+                    $get_operations_arr['order_id'] = $order_id;
+                    $get_operations_arr['date_from'] = date('Y-m-d H:i:s', strtotime($canicule_from));
+                    $get_operations_arr['date_to'] = date('Y-m-d H:i:s');
+
+                    $operations = $this->operations->get_operations($get_operations_arr);
+
+                    foreach ($operations as $operation) {
+                        if ($operation->type == 'PENI') {
+                            $operation_arr = [];
+                            $operation_arr['amount'] = 0;
+                            $operation_arr['loan_peni_summ'] = $peni_to_date;
+                            $operation_arr['loan_percents_summ'] = $persents_to_date;
+                            $this->operations->update_operation($operation->id, $operation_arr);
+                        }
+                        if ($operation->type == 'PERCENTS') {
+
+                            $operation_arr = [];
+                            $operation_arr['loan_peni_summ'] = $peni_to_date;
+                            if ($canicule_type == 'svo') {
+                                $percents_sum = round($contract->loan_body_summ / 100 * $kk_base_percent / 365, 2);
+                                $persents_to_date += $percents_sum;
+
+                                $operation_arr['amount'] = $percents_sum;
+                                $operation_arr['loan_percents_summ'] = $persents_to_date;
+                            }
+                            else{
+                                $persents_to_date += $percents_sum_full;
+                            }
+                            $this->operations->update_operation($operation->id, $operation_arr);
+                        }
+                    }
+
+                    // Срок погашения заявки - последний день кредитных каникул
+                    $contract_arr = [];
+                    $contract_arr['return_date'] = $canicule_to;
+                    $contract_arr['status'] = 2;
+                    $contract_arr['loan_peni_summ'] = $peni_to_date;
+                    $contract_arr['loan_percents_summ'] = $persents_to_date;
+                    $this->contracts->update_contract($order->contract_id, $contract_arr);
+
+                    $this->json_output(array(
+                        'success' => 1,
+                        'created' => date('d.m.Y H:i:s'),
+                        'type' => $canicule_type,
+                        'from' => $canicule_from,
+                        'to' => $canicule_to,
+                        'manager_name' => $this->manager->name,
+                    ));
+                } else {
+                    $this->json_output(array('error' => 'Не удалось добавить!'));
+                }
+            }
+            else{
+                $this->json_output(array('error' => 'Дата окончания КК меньше даты окончания займа!'));
             }
         }
     }

@@ -3,7 +3,7 @@
 {capture name='page_scripts'}
     <script src="theme/{$settings->theme|escape}/assets/plugins/Magnific-Popup-master/dist/jquery.magnific-popup.min.js"></script>
     <script src="theme/{$settings->theme|escape}/assets/plugins/fancybox3/dist/jquery.fancybox.js"></script>
-    <script type="text/javascript" src="theme/{$settings->theme|escape}/js/apps/order.js?v=1.22"></script>
+    <script type="text/javascript" src="theme/{$settings->theme|escape}/js/apps/order.js?v=1.23"></script>
     <script type="text/javascript" src="theme/{$settings->theme|escape}/js/apps/movements.app.js"></script>
     <script type="text/javascript" src="theme/{$settings->theme|escape}/js/apps/penalty.app.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment-with-locales.min.js"></script>
@@ -12,6 +12,9 @@
         $(function () {
 
             init();
+
+            //document.getElementById('canicule_from').valueAsDate = new Date();
+            //document.getElementById('canicule_to').valueAsDate = new Date();
 
             function reload_func() {
                 location.reload()
@@ -1170,7 +1173,7 @@
                                                         {/if}
                                                         {if !in_array($contract->status, [10,11])}
                                                             <h3 class="text-white">Выдан 
-                                                                {if {$contract->canicule}} (Каникулы){/if}
+                                                                {if $contract->canicule || $count_canicules} (Каникулы){/if}
                                                             </h3>
                                                             <h6 class="text-center text-white">
                                                                 Погашение: {$contract->loan_body_summ+$contract->loan_percents_summ+$contract->loan_charge_summ+$contract->loan_peni_summ}
@@ -1477,6 +1480,16 @@
                                     <span class="hidden-xs-down">Коммуникации</span>
                                 </a>
                             </li>
+                            {*}
+                            <li class="nav-item">
+                                <a class="nav-link js-event-add-click" data-toggle="tab" href="#canicule"
+                                   role="tab" aria-selected="true" data-event="25" data-user="{$order->user_id}"
+                                   data-order="{$order->order_id}" data-manager="{$manager->id}">
+                                    <span class="hidden-sm-up"><i class="ti-mobile"></i></span>
+                                    <span class="hidden-xs-down">Кредитные каникулы</span>
+                                </a>
+                            </li>
+                            {*}
                         </ul>
 
                         <!-- Tab panes -->
@@ -3645,6 +3658,52 @@
                                 {/if}
                             </div>
 
+                            {*}
+                            <!-- Кредитные каникулы -->
+                            <div class="tab-pane p-3" id="canicule" role="tabpanel">
+
+                                <div class="row">
+                                    <div class="col-12">
+                                        <h4 class="float-left">Кредитные каникулы</h4>
+                                        <button class="btn float-right btn-success js-open-canicules-form">
+                                            <i class="mdi mdi-plus-circle"></i>
+                                            Добавить
+                                        </button>
+                                    </div>
+                                    <hr class="m-3"/>
+                                    <div class="col-12">
+                                        {if $canicules}
+                                            <table class="table table-hover ">
+                                            <tr style="background: #f4f4f4">
+                                                <td>Дата начала</td>
+                                                <td>Дата окончания</td>
+                                                <td>Тип</td>
+                                            </tr>
+                                            <tbody>
+                                            {foreach $canicules as $canicule}
+                                                <tr>
+                                                    <td>{$canicule->from_date|date}</td>
+                                                    <td>{$canicule->to_date|date}</td>
+                                                    <td>
+                                                        {if $canicule->type == 'tgs'}
+                                                            Трудная жизненная ситуация
+                                                        {else if $canicule->type == 'svo'}
+                                                            СВО
+                                                        {/if}
+                                                    </td>
+                                                </tr>
+                                            {/foreach}
+                                        {/if}
+
+
+                                        {if !$canicules}
+                                            <h4>Нет кредитных каникул</h4>
+                                        {/if}
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- /Кредитные каникулы -->
+                            {*}
                         </div>
 
 
@@ -3795,6 +3854,56 @@
         </div>
     </div>
 </div>
+
+{*}
+<div id="modal_add_canicules" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog"
+     aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md md-comment">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h4 class="modal-title">Добавить кредитные каникулы</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" id="form_add_canicules" action="order/{$order->order_id}">
+
+                    <input type="hidden" name="order_id" value="{$order->order_id}"/>
+                    <input type="hidden" name="user_id" value="{$order->user_id}"/>
+                    <input type="hidden" name="block" value=""/>
+                    <input type="hidden" name="action" value="add_canicules"/>
+
+                    <div style="display: flex;">
+                        <div class="mr-sm-2 mb-3">
+                            <label class="" for="canicule_from">С</label>
+                            <input type="date" name="canicule_from" class="1custom-control-input" id="canicule_from">
+                        </div>
+                        <div class="mr-sm-2 mb-3">
+                            <label class="" for="canicule_to">По</label>
+                            <input type="date" name="canicule_to" class="1custom-control-input" id="canicule_to">
+                        </div>
+
+                    </div>
+                    <div class="mr-sm-2 mb-3">
+                        <label class="" for="canicule_type">Причина</label>
+                        <select name="canicule_type">
+                            <option value="svo">СВО</option>
+                            <option selected value="tgs">Трудная жизненная ситуация</option>
+                        </select>
+                    </div>
+                    <div class="form-action">
+                        <button type="button" class="btn btn-danger waves-effect js-event-add-click" data-event="70"
+                                data-manager="{$manager->id}" data-order="{$order->order_id}"
+                                data-user="{$order->user_id}" data-dismiss="modal">Отмена
+                        </button>
+                        <button type="submit" class="btn btn-success waves-effect waves-light">Сохранить</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{*}
 
 <div id="modal_close_contract" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog"
      aria-labelledby="mySmallModalLabel" aria-hidden="true">

@@ -150,6 +150,12 @@ class CollectorContractController extends Controller
                 }
 
                 $this->design->assign('contract', $contract);
+                $filter = [];
+                $filter['from'] = date('Y-m-d H:i:s');
+                $filter['to'] = date('Y-m-d H:i:s');
+                $filter['order_id'] = $contract->order_id;
+                $count_canicules = $this->canicules->count_canicules($filter);
+                $this->design->assign('count_canicules', $count_canicules);
 
                 $code = $this->helpers->c2o_encode($contract->id);
                 $short_link = $this->config->main_domain . '/p/' . $code;
