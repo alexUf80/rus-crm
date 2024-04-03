@@ -13,8 +13,8 @@
 
             init();
 
-            //document.getElementById('canicule_from').valueAsDate = new Date();
-            //document.getElementById('canicule_to').valueAsDate = new Date();
+            document.getElementById('canicule_from').valueAsDate = new Date();
+            document.getElementById('canicule_to').valueAsDate = new Date();
 
             function reload_func() {
                 location.reload()
@@ -1481,6 +1481,7 @@
                                 </a>
                             </li>
                             {*}
+                            {*}
                             <li class="nav-item">
                                 <a class="nav-link js-event-add-click" data-toggle="tab" href="#canicule"
                                    role="tab" aria-selected="true" data-event="25" data-user="{$order->user_id}"
@@ -1489,6 +1490,7 @@
                                     <span class="hidden-xs-down">Кредитные каникулы</span>
                                 </a>
                             </li>
+                            {*}
                             {*}
                         </ul>
 
@@ -3659,6 +3661,7 @@
                             </div>
 
                             {*}
+                            {*}
                             <!-- Кредитные каникулы -->
                             <div class="tab-pane p-3" id="canicule" role="tabpanel">
 
@@ -3703,6 +3706,7 @@
                                 </div>
                             </div>
                             <!-- /Кредитные каникулы -->
+                            {*}
                             {*}
                         </div>
 
@@ -3856,6 +3860,7 @@
 </div>
 
 {*}
+{*}
 <div id="modal_add_canicules" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog"
      aria-labelledby="mySmallModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-md md-comment">
@@ -3903,6 +3908,7 @@
         </div>
     </div>
 </div>
+{*}
 {*}
 
 <div id="modal_close_contract" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog"
