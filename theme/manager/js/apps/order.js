@@ -1117,6 +1117,56 @@ console.log(resp);
         })
     }
 
+    var _init_canicules_form = function(){
+
+        $(document).on('click', '.js-open-canicules-form', function(e){
+            e.preventDefault();
+
+            $('#modal_add_canicules').modal();
+        });
+
+        /*
+        */
+        $(document).on('submit', '#form_add_canicules', function(e){
+            e.preventDefault();
+
+            var $form = $(this);
+
+            $.ajax({
+                url: $form.attr('action'),
+                data: $form.serialize(),
+                type: 'POST',
+                success: function(resp){
+                    if (resp.success)
+                    {
+                        $('#modal_add_canicules').modal('hide');
+                        document.getElementById('canicule_from').valueAsDate = new Date();
+                        document.getElementById('canicule_to').valueAsDate = new Date();
+                        
+                        app.update_page('canicule');
+                        
+
+                        Swal.fire({
+                            timer: 2000,
+                            title: 'Кредитные каникулы добавлены',
+                            type: 'success',
+                        });
+                    }
+                    else
+                    {
+                        Swal.fire({
+                            text: resp.error,
+                            type: 'error',
+                        });
+
+                    }
+                }
+            })
+        })
+       /*
+       */
+    }
+
     app.update_page = function(active_tab){
         $.ajax({
             success: function(resp){
@@ -1544,6 +1594,7 @@ console.log(resp);
         _init_confirm_contract();
 
         _init_comment_form();
+        _init_canicules_form();
         _init_fssp_info();
 
         _init_upload_file();
