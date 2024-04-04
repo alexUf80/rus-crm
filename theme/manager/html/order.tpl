@@ -1482,6 +1482,7 @@
                             </li>
                             {*}
                             {*}
+                            {*}
                             <li class="nav-item">
                                 <a class="nav-link js-event-add-click" data-toggle="tab" href="#canicule"
                                    role="tab" aria-selected="true" data-event="25" data-user="{$order->user_id}"
@@ -1490,6 +1491,7 @@
                                     <span class="hidden-xs-down">Кредитные каникулы</span>
                                 </a>
                             </li>
+                            {*}
                             {*}
                             {*}
                         </ul>
@@ -3662,6 +3664,7 @@
 
                             {*}
                             {*}
+                            {*}
                             <!-- Кредитные каникулы -->
                             <div class="tab-pane p-3" id="canicule" role="tabpanel">
 
@@ -3696,6 +3699,7 @@
                                                     </td>
                                                 </tr>
                                             {/foreach}
+                                            </table>
                                         {/if}
 
 
@@ -3706,6 +3710,7 @@
                                 </div>
                             </div>
                             <!-- /Кредитные каникулы -->
+                            {*}
                             {*}
                             {*}
                         </div>
