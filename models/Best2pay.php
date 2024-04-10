@@ -1411,13 +1411,13 @@ class Best2pay extends Core
             'sector' => $sector,
             'id' => $b2p_order_id,
             'token' => $card->token,
-            'fee' => $fee
+            // 'fee' => $fee
         );
         $data['signature'] = $this->get_signature(array(
             $data['sector'],
             $data['id'],
             $data['token'],
-            $data['fee'],
+            // $data['fee'],
             $password
         ));
 
