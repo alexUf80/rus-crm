@@ -17,6 +17,70 @@ class DistributiorCollectorsCron extends Core
     private function run()
     {
 
+        // Распределение для юристов
+        $lawyersArr = ManagerORM::selectRaw(
+            'id')
+            ->where('role', 'lawyer')
+           ->get();
+
+        $lawyers = [];
+        $lawyersCount = 0;
+        $minLawyersCount = 10000;
+        $i = 0;
+        foreach ($lawyersArr as $lawyer) {
+            $lawyersCount++;
+
+            $lawyerExpiredContractsCount = ContractsORM::selectRaw(
+                'count(id) as cou')
+                ->where('status', 4)
+                ->where('return_date', '<', date('Y-m-d'))
+                ->where('lawyer_manager_id', $lawyer->id)
+                ->get();
+            $lawyers[] = new StdClass();
+            $lawyers[$i]->id = $lawyer->id;
+            $lawyers[$i]->count = $lawyerExpiredContractsCount[0]->cou;
+            if ($lawyerExpiredContractsCount[0]->cou < $minLawyersCount) {
+                $minLawyersCount = $lawyerExpiredContractsCount[0]->cou;
+            }
+            $i++;
+        }
+
+        $lawyerExpiredContracts = ContractsORM::selectRaw(
+            'id,
+            order_id,
+            lawyer_manager_id')
+            ->where('status', 4)
+            ->where('return_date', '<', date('Y-m-d'))
+            ->get();
+        
+        foreach ($lawyerExpiredContracts as $contract) {
+            if (!$contract->lawyer_manager_id) {
+                $i = 0;
+                $updated = false;
+                foreach ($lawyers as $lawyer) {
+                    if (!$updated) {
+                        if ($lawyer->count <= $minLawyersCount) {
+                            if (ContractsORM::where('id', $contract->id)->update(['lawyer_manager_id' => $lawyer->id])) {
+    
+                                $sas = ContractsORM::selectRaw(
+                                    'id, lawyer_manager_id')
+                                    ->where('id', $contract->id)
+                                    ->get();
+    
+                                $lawyers[$i]->count = $lawyers[$i]->count + 1;
+                                $minLawyersCount = $lawyers[$i]->count;
+                                $updated = true;
+                            };
+                        }
+                    }
+                    if ($lawyer->count < $minLawyersCount) {
+                        $minLawyersCount = $lawyer->count;
+                    }
+                    $i++;
+                }
+            }
+        }
+
         $timestamp_group_movings = date('Y-m-d H:i:s');
 
         $backContracts = ContractsORM::selectRaw('id, (loan_body_summ + loan_percents_summ + loan_charge_summ + loan_peni_summ) as debt,
