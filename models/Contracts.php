@@ -463,6 +463,7 @@ echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($query);echo '</pre><hr />';
         $sent_status_filter = '';
         $collection_status_filter = '';
         $collection_manager_id_filter = '';
+        $lawyer_manager_id_filter = '';
         $inssuance_date_from_filter = '';
         $inssuance_date_to_filter = '';
         $inssuance_datetime_to_filter = '';
@@ -511,6 +512,12 @@ echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($query);echo '</pre><hr />';
                 $collection_manager_id_filter = $this->db->placehold("AND (c.collection_manager_id IS NULL OR c.collection_manager_id = 0)");        
             else
                 $collection_manager_id_filter = $this->db->placehold("AND c.collection_manager_id in (?@)", (array)$filter['collection_manager_id']);        
+        
+        if (isset($filter['lawyer_manager_id']))
+            if (empty($filter['lawyer_manager_id']))
+                $lawyer_manager_id_filter = $this->db->placehold("AND (c.lawyer_manager_id IS NULL OR c.lawyer_manager_id = 0)");        
+            else
+                $lawyer_manager_id_filter = $this->db->placehold("AND c.lawyer_manager_id in (?@)", (array)$filter['lawyer_manager_id']);        
         
         if (!empty($filter['inssuance_date_from']))
             $inssuance_date_from_filter = $this->db->placehold("AND DATE(c.inssuance_date) >= ?", $filter['inssuance_date_from']);
@@ -680,6 +687,14 @@ echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($query);echo '</pre><hr />';
                 else
                     $search_filter .= $this->db->placehold(" AND c.collection_manager_id = ?", (int)$filter['search']['manager_id']);
             }
+
+            if (!empty($filter['search']['l_manager_id']))
+            {
+                if ($filter['search']['l_manager_id'] == 'none')
+                    $search_filter .= $this->db->placehold(" AND (c.lawyer_manager_id = 0 OR c.lawyer_manager_id IS NULL)");                
+                else
+                    $search_filter .= $this->db->placehold(" AND c.lawyer_manager_id = ?", (int)$filter['search']['l_manager_id']);
+            }
             
             if (!empty($filter['search']['delay_from']))
             {
@@ -710,6 +725,7 @@ echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($query);echo '</pre><hr />';
                 $sent_status_filter
                 $collection_status_filter
                 $collection_manager_id_filter
+                $lawyer_manager_id_filter
                 $inssuance_date_from_filter
                 $inssuance_date_to_filter
                 $inssuance_datetime_to_filter
@@ -740,6 +756,7 @@ echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($query);echo '</pre><hr />';
         $sent_status_filter = '';
         $collection_status_filter = '';
         $collection_manager_id_filter = '';
+        $lawyer_manager_id_filter = '';
         $inssuance_date_from_filter = '';
         $inssuance_date_to_filter = '';
         $close_date_from_filter = '';
@@ -768,6 +785,9 @@ echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($query);echo '</pre><hr />';
         
         if (isset($filter['collection_manager_id']))
             $collection_manager_id_filter = $this->db->placehold("AND collection_manager_id in (?@)", (array)$filter['collection_manager_id']);
+
+        if (isset($filter['lawyer_manager_id']))
+            $lawyer_manager_id_filter = $this->db->placehold("AND lawyer_manager_id in (?@)", (array)$filter['lawyer_manager_id']);
 
         if (!empty($filter['inssuance_date_from']))
             $inssuance_date_from_filter = $this->db->placehold("AND DATE(inssuance_date) >= ?", $filter['inssuance_date_from']);
@@ -861,6 +881,7 @@ echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($query);echo '</pre><hr />';
                 $sent_status_filter
                 $collection_status_filter
                 $collection_manager_id_filter
+                $lawyer_manager_id_filter
                 $inssuance_date_from_filter
                 $inssuance_date_to_filter
                 $close_date_from_filter

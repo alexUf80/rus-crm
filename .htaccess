@@ -52,6 +52,8 @@ RewriteRule ^notifications_list/?$      index.php?module=NotificationsController
 RewriteRule ^collection_report/?$       index.php?module=CollectionReportController  [L,QSA]
 RewriteRule ^my_contracts/?$            index.php?module=CollectorContractsController  [L,QSA]
 RewriteRule ^my_contract/([^/]*)/?$     index.php?module=CollectorContractController&id=$1  [L,QSA]
+RewriteRule ^lawyer_contracts/?$           index.php?module=LawyerContractsController  [L,QSA]
+RewriteRule ^lawyer_contract/([^/]*)/?$   index.php?module=LawyerContractController&id=$1  [L,QSA]
 RewriteRule ^zvonobot/?$                index.php?module=ZvonobotController  [L,QSA]
 RewriteRule ^collector_mailing/?$       index.php?module=CollectorMailingController  [L,QSA]
 RewriteRule ^collection_notifications/?$  index.php?module=NotificationsController&mode=collection  [L,QSA]

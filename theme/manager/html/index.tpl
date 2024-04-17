@@ -206,6 +206,16 @@
                             </li>
                         {/if}
                     {/if}
+                    {if in_array('lawyer', $manager->permissions)}
+                        <li class="nav-small-cap">Юристы</li>
+                        {if in_array('lawyer', $manager->permissions)}
+                            <li {if in_array($module, ['LawyerContractsController'])}class="active"{/if}>
+                                <a class="" href="lawyer_contracts/" aria-expanded="false"><i
+                                            class="mdi mdi-book-multiple"></i><span
+                                            class="hide-menu">Договоры юристов</span></a>
+                            </li>
+                        {/if}
+                    {/if}
                     {if  in_array('managers', $manager->permissions) ||  in_array('changelogs', $manager->permissions) ||  in_array('settings', $manager->permissions) ||  in_array('handbooks', $manager->permissions) ||  in_array('pages', $manager->permissions)}
                         <li class="nav-small-cap">Управление</li>
                         {if in_array('managers', $manager->permissions)}
