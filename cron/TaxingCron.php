@@ -39,7 +39,7 @@ class TaxingCron extends Core
         if ($contracts = $this->contracts->get_contracts(array('status' => [2, 4], 'type' => 'base', 'stop_profit' => 0, 'is_restructed' => 0))) {
             foreach ($contracts as $contract) {
                 // // !!!!!!!
-                // if ($contract->order_id != 34438) {
+                // if ($contract->order_id != 34583) {
                 //     continue;
                 // }
                 
@@ -86,6 +86,9 @@ class TaxingCron extends Core
                 // если каникулы 
                 if(!is_null($contract->canicule)){
                     $percents_summ = round($contract->loan_body_summ / 100 * $contract->base_percent * 2 / 3, 2);
+                    if ($contract->order_id == 71209) {
+                        $percents_summ = 0;
+                    }
                 }
                 if($count_canicules > 0){
                     if (isset($canicule_type) && $canicule_type == 'svo') {
@@ -99,7 +102,7 @@ class TaxingCron extends Core
                     $stop_taxing = 1;
                 }
 
-                if ($stop_taxing == 0) {
+                if ($stop_taxing == 0 && $percents_summ > 0) {
                     $this->operations->add_operation(array(
                         'contract_id' => $contract->id,
                         'user_id' => $contract->user_id,
