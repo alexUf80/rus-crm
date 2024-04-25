@@ -186,7 +186,16 @@
     <tr>
         <td>
             <h4>IP при регистрации</h4>
-            <h6>{$results['reg_ip']->search}</h6>
+            <h6>
+                {$results['reg_ip']->search} 
+                {if $results['reg_ip']->SxGeoCityFull}
+                    {if $results['reg_ip']->SxGeoCityFull["country"]["name_ru"] == "Россия"}
+                        ({$results['reg_ip']->SxGeoCityFull["region"]["name_ru"]})
+                    {else}
+                        ({$results['reg_ip']->SxGeoCityFull["country"]["name_ru"]})
+                    {/if}
+                {/if}
+            </h6>
         </td>
         <td class="p-0">
             {if empty($results['reg_ip']->found)}
@@ -217,7 +226,16 @@
     <tr>
         <td>
             <h4>IP при последнем входе</h4>
-            <h6>{$results['last_ip']->search}</h6>
+            <h6>
+                {$results['last_ip']->search}
+                {if $results['last_ip']->SxGeoCityFull}
+                    {if $results['last_ip']->SxGeoCityFull["country"]["name_ru"] == "Россия"}
+                        ({$results['last_ip']->SxGeoCityFull["region"]["name_ru"]})
+                    {else}
+                        ({$results['last_ip']->SxGeoCityFull["country"]["name_ru"]})
+                    {/if}
+                {/if}
+            </h6>
         </td>
         <td class="p-0">
             {if empty($results['last_ip']->found)}

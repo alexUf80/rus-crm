@@ -48,16 +48,22 @@ class ConnexionsAjax extends Core
                     $result['inn']->found = array_filter($this->find_inn($user->id, $user->inn));
                 }
 
+                // Регион по ip - https://sypexgeo.net/ru/download/
+                include($this->config->root_dir."service/SxGeo/SxGeo.php ");
+                $SxGeo = new SxGeo($this->config->root_dir."service/SxGeo/SxGeoCity.dat", SXGEO_BATCH | SXGEO_MEMORY);
+
                 if ($user->reg_ip) {
                     $result['reg_ip'] = new StdClass();
                     $result['reg_ip']->search = $user->reg_ip;
                     $result['reg_ip']->found = array_filter($this->find_reg_ip($user->id, $user->reg_ip));
+                    $result['reg_ip']->SxGeoCityFull = $SxGeo->getCityFull($user->reg_ip);
                 }
 
                 if ($user->last_ip) {
                     $result['last_ip'] = new StdClass();
                     $result['last_ip']->search = $user->last_ip;
                     $result['last_ip']->found = array_filter($this->find_last_ip($user->id, $user->last_ip));
+                    $result['last_ip']->SxGeoCityFull = $SxGeo->getCityFull($user->last_ip);
                 }
 
                 $result['card_number'] = new StdClass();
