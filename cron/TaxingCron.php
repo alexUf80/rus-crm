@@ -86,7 +86,7 @@ class TaxingCron extends Core
                 // если каникулы 
                 if(!is_null($contract->canicule)){
                     $percents_summ = round($contract->loan_body_summ / 100 * $contract->base_percent * 2 / 3, 2);
-                    if ($contract->order_id == 71209) {
+                    if ($contract->order_id == 71209 || $contract->order_id == 71064) {
                         $percents_summ = 0;
                     }
                 }
