@@ -11,7 +11,7 @@ class Nbki_report extends Core
         $orders = [];
         $items = [];
         foreach ($operations as $operation) {
-            if (in_array($operation->order_id, [45777, 50979]) ) {
+            if (in_array($operation->order_id, [45777, 50979, 51829]) ) {
                 continue;
             }
             $format_date = date('Ymd', strtotime($operation->created));
