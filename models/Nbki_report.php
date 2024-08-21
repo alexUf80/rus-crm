@@ -88,7 +88,7 @@ class Nbki_report extends Core
 
                     if (!empty($query_operations)) {
                         foreach ($query_operations as $query_operation) {
-                            if (strtotime(date('Y-m-d', strtotime($query_operation->created))) <= strtotime(date('Y-m-d', strtotime($operation->created)))) {
+                            if (strtotime(date('Y-m-d', strtotime($query_operation->created))) == strtotime(date('Y-m-d', strtotime($operation_date)))) {
                                 if ($query_operation->type == 'PAY') {
                                     if ($query_transaction = $this->transactions->get_transaction($query_operation->transaction_id)) {
                                         $order->total_amount += $query_transaction->loan_body_summ + $query_transaction->loan_percents_summ + $query_transaction->loan_peni_summ;
@@ -111,7 +111,7 @@ class Nbki_report extends Core
     
                     if (!empty($query_operations)) {
                         foreach ($query_operations as $query_operation) {
-                            if (strtotime(date('Y-m-d', strtotime($query_operation->created))) <= strtotime(date('Y-m-d', strtotime($operation->created)))) {
+                            if (strtotime(date('Y-m-d', strtotime($query_operation->created))) == strtotime(date('Y-m-d', strtotime($operation_date)))) {
                                 if ($query_operation->type == 'PAY') {
                                     if ($query_transaction = $this->transactions->get_transaction($query_operation->transaction_id)) {
                                         $order->total_amount += $query_transaction->loan_body_summ + $query_transaction->loan_percents_summ + $query_transaction->loan_peni_summ;
