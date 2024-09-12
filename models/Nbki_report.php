@@ -11,7 +11,7 @@ class Nbki_report extends Core
         $orders = [];
         $items = [];
         foreach ($operations as $operation) {
-            if (in_array($operation->order_id, [45777, 50979, 51829]) ) {
+            if (in_array($operation->order_id, [45777, 50979, 51829, 52060]) ) {
                 continue;
             }
             $format_date = date('Ymd', strtotime($operation->created));
@@ -1300,15 +1300,15 @@ class Nbki_report extends Core
 
 
         $C28_PAYMT = new StdClass();
-        $C28_PAYMT->payment_date = date('d.m.Y', strtotime($order->operation->created));
+        // $C28_PAYMT->payment_date = date('d.m.Y', strtotime($order->operation->created));
         $C28_PAYMT->payment_amount = str_replace('.', ',', sprintf("%01.2f", $order->payment_amount));
-        $C28_PAYMT->principal_payment_amount = str_replace('.', ',', sprintf("%01.2f", $order->principal_payment_amount));
-        $C28_PAYMT->interest_payment_amount = str_replace('.', ',', sprintf("%01.2f", $order->interest_payment_amount));
-        $C28_PAYMT->other_payment_amount = str_replace('.', ',', sprintf("%01.2f", $order->other_payment_amount));
-        $C28_PAYMT->total_amount = str_replace('.', ',', sprintf("%01.2f", $order->total_amount));
-        $C28_PAYMT->principal_total_amount = str_replace('.', ',', sprintf("%01.2f", $order->principal_total_amount));
-        $C28_PAYMT->interest_total_amount = str_replace('.', ',', sprintf("%01.2f", $order->interest_total_amount));
-        $C28_PAYMT->other_total_amount = str_replace('.', ',', sprintf("%01.2f", $order->other_total_amount));
+        // $C28_PAYMT->principal_payment_amount = str_replace('.', ',', sprintf("%01.2f", $order->principal_payment_amount));
+        // $C28_PAYMT->interest_payment_amount = str_replace('.', ',', sprintf("%01.2f", $order->interest_payment_amount));
+        // $C28_PAYMT->other_payment_amount = str_replace('.', ',', sprintf("%01.2f", $order->other_payment_amount));
+        // $C28_PAYMT->total_amount = str_replace('.', ',', sprintf("%01.2f", $order->total_amount));
+        // $C28_PAYMT->principal_total_amount = str_replace('.', ',', sprintf("%01.2f", $order->principal_total_amount));
+        // $C28_PAYMT->interest_total_amount = str_replace('.', ',', sprintf("%01.2f", $order->interest_total_amount));
+        // $C28_PAYMT->other_total_amount = str_replace('.', ',', sprintf("%01.2f", $order->other_total_amount));
         $C28_PAYMT->amount_keep_code = $order->amount_keep_code;
         $C28_PAYMT->terms_due_code = $order->terms_due_code;
         $C28_PAYMT->days_past_due = $order->days_past_due;
@@ -1803,19 +1803,56 @@ class Nbki_report extends Core
             
         }
 
+        
+        if (!count($ret_date_operations)) {
+            $this->db->query("
+            SELECT * FROM `s_operations` 
+            WHERE contract_id=? AND type in ('PAY', 'P2P')
+            ORDER BY created asc LIMIT 2
+            ", $order->contract->id);
+            
+            $ret_date_operations1 = $this->db->results();
+
+            $p2pDate = '';
+            $payDate = '';
+            foreach ($ret_date_operations1 as $ret_date_operation) {
+                if ($ret_date_operation->type == 'P2P') {
+                    $p2pDate = $ret_date_operation->created;
+                }
+                if ($ret_date_operation->type == 'PAY') {
+                    $payDate = $ret_date_operation->created;
+                }
+            }
+
+            $ret_date_operations = [];
+            if($p2pDate && date('Y-m-d', strtotime($p2pDate)) == date('Y-m-d', strtotime($payDate))){
+                foreach ($ret_date_operations1 as $ret_date_operation) {
+                    if ($ret_date_operation->type == 'P2P') {
+                        $ret_date_operations[] = $ret_date_operation;
+                    }
+                }
+            }
+            
+        }
+        
         if ($ret_date_operations) {
             $ret_date_body_summ = 0;
             $ret_date_percents_summ = 0;
             $ret_date_peni_summ = 0;
             foreach ($ret_date_operations as $ret_date_operation) {
-                if ($ret_date_body_summ < $ret_date_operation->loan_body_summ) {
-                    $ret_date_body_summ = $ret_date_operation->loan_body_summ;
+                if ($ret_date_operation->type == 'P2P') {
+                    $ret_date_body_summ = $ret_date_operation->amount;
                 }
-                if ($ret_date_percents_summ < $ret_date_operation->loan_percents_summ) {
-                    $ret_date_percents_summ = $ret_date_operation->loan_percents_summ;
-                }
-                if ($ret_date_peni_summ < $ret_date_operation->loan_peni_summ) {
-                    $ret_date_peni_summ = $ret_date_operation->loan_peni_summ;
+                else{
+                    if ($ret_date_body_summ < $ret_date_operation->loan_body_summ) {
+                        $ret_date_body_summ = $ret_date_operation->loan_body_summ;
+                    }
+                    if ($ret_date_percents_summ < $ret_date_operation->loan_percents_summ) {
+                        $ret_date_percents_summ = $ret_date_operation->loan_percents_summ;
+                    }
+                    if ($ret_date_peni_summ < $ret_date_operation->loan_peni_summ) {
+                        $ret_date_peni_summ = $ret_date_operation->loan_peni_summ;
+                    }
                 }
             }
         }
