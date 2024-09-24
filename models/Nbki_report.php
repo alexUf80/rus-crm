@@ -875,7 +875,8 @@ class Nbki_report extends Core
         $GROUPHEADER = new StdClass();
         $GROUPHEADER->event_number = "2.11";
         $GROUPHEADER->operation_code = "B";
-        $GROUPHEADER->event_date = date('d.m.Y', strtotime($order->operation->created));
+        // $GROUPHEADER->event_date = date('d.m.Y', strtotime($order->operation->created));
+        $GROUPHEADER->event_date = date('d.m.Y', strtotime($contract->cession));
 
         $data->GROUPHEADER = $GROUPHEADER;
 
