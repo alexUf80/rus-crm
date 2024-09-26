@@ -1356,12 +1356,23 @@ class Nbki_report extends Core
         $passport_number = substr($passport_serial, 4, 6);
 
 
+        $ret_date_array = $this->ret_date_data($order);
+
+        $ret_date = $ret_date_array[0];
+        $days_past_due = $ret_date_array[1];
+        $ret_date_body_summ = $ret_date_array[2];
+        $ret_date_percents_summ = $ret_date_array[3];
+        $ret_date_peni_summ = $ret_date_array[4];
+        $new_ret_date = $ret_date_array[5];
+
+        
         $data = new StdClass();
 
         $GROUPHEADER = new StdClass();
         $GROUPHEADER->event_number = "2.3";
         $GROUPHEADER->operation_code = "B";
-        $GROUPHEADER->event_date = date('d.m.Y', strtotime($order->operation->created));
+        // $GROUPHEADER->event_date = date('d.m.Y', strtotime($order->operation->created));
+        $GROUPHEADER->event_date = date('d.m.Y', strtotime($new_ret_date));
 
         $data->GROUPHEADER = $GROUPHEADER;
 
@@ -1483,22 +1494,13 @@ class Nbki_report extends Core
         $C25_ARREAR->start_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $contract->amount));
         $C25_ARREAR->is_last_payment_due = '0';
 
-        
-        $ret_date_array = $this->ret_date_data($order);
-
-        $ret_date = $ret_date_array[0];
-        $days_past_due = $ret_date_array[1];
-        $ret_date_body_summ = $ret_date_array[2];
-        $ret_date_percents_summ = $ret_date_array[3];
-        $ret_date_peni_summ = $ret_date_array[4];
-
-
         $C25_ARREAR->amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $ret_date_body_summ + $ret_date_percents_summ + $ret_date_peni_summ));
         $C25_ARREAR->principal_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $ret_date_body_summ));
         $C25_ARREAR->interest_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $ret_date_percents_summ + $ret_date_peni_summ));
         $C25_ARREAR->other_amount_outstanding = '0,00';
         // $C25_ARREAR->calculation_date = date('d.m.Y', strtotime($ret_date));
-        $C25_ARREAR->calculation_date = date('d.m.Y', time());
+        // $C25_ARREAR->calculation_date = date('d.m.Y', time());
+        $C25_ARREAR->calculation_date = date('d.m.Y', strtotime($new_ret_date));
 
         $data->C25_ARREAR = $C25_ARREAR;
         
@@ -1523,7 +1525,8 @@ class Nbki_report extends Core
         $C27_PASTDUEARREAR->interest_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $ret_date_percents_summ + $ret_date_peni_summ));
         $C27_PASTDUEARREAR->other_amount_outstanding = '0,00';
         // $C27_PASTDUEARREAR->calculation_date = date('d.m.Y', strtotime($ret_date));
-        $C27_PASTDUEARREAR->calculation_date = date('d.m.Y', time());
+        // $C27_PASTDUEARREAR->calculation_date = date('d.m.Y', time());
+        $C27_PASTDUEARREAR->calculation_date = date('d.m.Y', strtotime($new_ret_date));
         $C27_PASTDUEARREAR->principal_missed_date = date('d.m.Y', strtotime($contract->return_date));
         $C27_PASTDUEARREAR->interest_missed_date = date('d.m.Y', strtotime($contract->return_date));
 
@@ -1773,6 +1776,7 @@ class Nbki_report extends Core
         $contract = $this->contracts->get_contract($order->contract_id);
 
         $ret_date = date('Y-m-d', strtotime($contract->return_date) + 86400);
+        $last_ret_date = $ret_date;
         
         $new_ret_date = date('Y-m-d', strtotime($ret_date) + 30 * 86400);
         $days_past_due = 1;
@@ -1780,6 +1784,7 @@ class Nbki_report extends Core
         while ($new_ret_date < date('Y-m-d') && $new_ret_date > '2022-12-31') {
             if ($new_ret_date < date('Y-m-d')) {
                 $ret_date = $new_ret_date;
+                $last_ret_date = $ret_date;
                 $days_past_due += 30;
             }
             $new_ret_date = date('Y-m-d', strtotime($ret_date) + 30 * 86400);
@@ -1863,7 +1868,7 @@ class Nbki_report extends Core
             $ret_date_peni_summ = $contract->loan_peni_summ;
         }
 
-        return [$ret_date, $days_past_due, $ret_date_body_summ, $ret_date_percents_summ, $ret_date_peni_summ];
+        return [$ret_date, $days_past_due, $ret_date_body_summ, $ret_date_percents_summ, $ret_date_peni_summ, $last_ret_date];
     }
 
     public function last_payment_data($order)
