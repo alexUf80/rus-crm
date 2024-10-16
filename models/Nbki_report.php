@@ -129,7 +129,8 @@ class Nbki_report extends Core
 
         $wrapper = $this->get_wrapper($items);
 
-        $resp = $this->send($wrapper, 'v2/report/');
+        $resp = $this->send($wrapper, 'v3/report/');
+        // $resp = $this->send($wrapper, 'v2/report/');
         // $resp = $this->send($wrapper, 'v2/report/temp-rutdf-5/');
 
         return $resp;
@@ -138,20 +139,31 @@ class Nbki_report extends Core
     private function get_wrapper($items)
     {
         $wrapper = new StdClass();
-        $wrapper->MANY_EVENTS = [];
 
-        $HEADER = new StdClass();
-        $HEADER->username = $this->username;
-        $HEADER->password = $this->authorization_code;
-        $HEADER->creation_date = date('d.m.Y');
+        $wrapper->member_code = $this->username;
 
-        $wrapper->HEADER = $HEADER;
+        $SOURCE = new StdClass();
+        $SOURCE->source_code = 1;
+        $SOURCE->source_registration_fact = true;
+        $SOURCE->full_name = "ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ МИКРОКРЕДИТНАЯ КОМПАНИЯ «РУСЗАЙМСЕРВИС»";
+        $SOURCE->short_name = "ООО МКК «РУСЗАЙМСЕРВИС»";
+        $SOURCE->reg_num = "4789652145890";
+
+        $TAXPAYER_INFO = new StdClass();
+        $TAXPAYER_INFO->taxpayer_number = 7801623851;
+        $TAXPAYER_INFO->taxpayer_number_code = "1";
+
+        $SOURCE->taxpayer_info = [$TAXPAYER_INFO];
+
+        $wrapper->source = $SOURCE;
+
+
 
         if (!empty($items['P2P'])) {
             foreach ($items['P2P'] as $operation_date => $orders) {
                 foreach ($orders as $order){
                     // var_dump($order->id);
-                    $wrapper->MANY_EVENTS[] = $this->get_p2p_item($order);
+                    $wrapper->person_data[] = $this->get_p2p_item($order);
                 }
             }
         }
@@ -159,7 +171,7 @@ class Nbki_report extends Core
         if (!empty($items['PAY'])) {
             foreach ($items['PAY'] as $operation_date => $orders) {
                 foreach ($orders as $order){
-                    $wrapper->MANY_EVENTS[] = $this->get_pay_item($order);
+                    $wrapper->person_data[] = $this->get_pay_item($order);
                 }
             }
         }
@@ -167,7 +179,7 @@ class Nbki_report extends Core
         if (!empty($items['CLOSE'])) {
             foreach ($items['CLOSE'] as $operation_date => $orders) {
                 foreach ($orders as $order){
-                    $wrapper->MANY_EVENTS[] = $this->get_close_item($order);
+                    $wrapper->person_data[] = $this->get_close_item($order);
                 }
             }
         }
@@ -175,7 +187,7 @@ class Nbki_report extends Core
         if (!empty($items['CESSIA'])) {
             foreach ($items['CESSIA'] as $operation_date => $orders) {
                 foreach ($orders as $order){
-                    $wrapper->MANY_EVENTS[] = $this->get_cessia_item($order);
+                    $wrapper->person_data[] = $this->get_cessia_item($order);
                 }
             }
         }
@@ -183,7 +195,7 @@ class Nbki_report extends Core
         if (!empty($items['CANICULE'])) {
             foreach ($items['CANICULE'] as $operation_date => $orders) {
                 foreach ($orders as $order){
-                    $wrapper->MANY_EVENTS[] = $this->get_canicule_item($order);
+                    $wrapper->person_data[] = $this->get_canicule_item($order);
                 }
             }
         }
@@ -191,7 +203,7 @@ class Nbki_report extends Core
         if (!empty($items['PENI'])) {
             foreach ($items['PENI'] as $operation_date => $orders) {
                 foreach ($orders as $order){
-                    $wrapper->MANY_EVENTS[] = $this->get_peni_item($order);
+                    $wrapper->person_data[] = $this->get_peni_item($order);
                 }
             }
         }
@@ -201,208 +213,451 @@ class Nbki_report extends Core
 
     private function get_pay_item($order)
     {
+
         $contract = $this->contracts->get_contract($order->contract_id);
 
         $passport_serial = str_replace([' ', '-'], '', $order->passport_serial);
         $passport_series = substr($passport_serial, 0, 4);
         $passport_number = substr($passport_serial, 4, 6);
 
+        $ret_date_array = $this->ret_date_data($order);
 
+        $ret_date = $ret_date_array[0];
+        $days_past_due = $ret_date_array[1];
+        $ret_date_body_summ = $ret_date_array[2];
+        $ret_date_percents_summ = $ret_date_array[3];
+        $ret_date_peni_summ = $ret_date_array[4];
+        $new_ret_date = $ret_date_array[5];
+
+        
         $data = new StdClass();
 
-        $GROUPHEADER = new StdClass();
-        $GROUPHEADER->event_number = "2.3";
-        $GROUPHEADER->operation_code = "B";
-        $GROUPHEADER->event_date = date('d.m.Y', strtotime($order->operation->created));
+            $TITLE = new StdClass();
 
-        $data->GROUPHEADER = $GROUPHEADER;
+                $CURRENT_NAME = new StdClass();
 
+                    $C1_NAME = new StdClass();
+                    $C1_NAME->surname = $this->uppercase($order->lastname);
+                    $C1_NAME->name = $this->uppercase($order->firstname);
+                    $C1_NAME->patronymic = $this->uppercase($order->patronymic);
+                    $CURRENT_NAME->name = $C1_NAME;
 
-        $C1_NAME = new StdClass();
-        $C1_NAME->surname = $this->clearing($order->lastname);
-        $C1_NAME->name = $this->clearing($order->firstname);
-        $C1_NAME->patronymic = $this->clearing($order->patronymic);
+                    $C4_DOCUMENTS = [];
+                    $C4_DOCUMENTS_OBJ = new StdClass();
+                    $C4_DOCUMENTS_OBJ->country_code = 643;
+                    $C4_DOCUMENTS_OBJ->document_code = 21;
+                    $C4_DOCUMENTS_OBJ->series_number = $passport_series;
+                    $C4_DOCUMENTS_OBJ->document_number = $passport_number;
+                    $C4_DOCUMENTS_OBJ->issue_date = date('d.m.Y', strtotime($order->passport_date));
+                    $C4_DOCUMENTS_OBJ->issued_by_division = $this->clearing($order->passport_issued);
+                    $C4_DOCUMENTS_OBJ->division_code = $order->subdivision_code;
+                    $C4_DOCUMENTS_OBJ->foreigner_code = 3;
+                    $C4_DOCUMENTS [] = $C4_DOCUMENTS_OBJ;
+                    $CURRENT_NAME->documents = $C4_DOCUMENTS;
+                
+                $TITLE->current_name = $CURRENT_NAME;
+    
+                $PREVIOUS_PERSONALITY_DETAILS = [];
+                $PREVIOUS_PERSONALITY_DETAILS_OBJ = new StdClass();
 
-        $data->C1_NAME = $C1_NAME;
+                    $C2_PREVIOUS_NAME = new StdClass();
+                    $C2_PREVIOUS_NAME->is_prev_name = 0;
+                    $PREVIOUS_PERSONALITY_DETAILS_OBJ->previous_name = $C2_PREVIOUS_NAME;
+                    
+                    $C5_PREVIOUS_DOCUMENTS =[];
+                    $C5_PREVIOUS_DOCUMENTS_OBJ = new StdClass();
+                    $C5_PREVIOUS_DOCUMENTS_OBJ->is_prev_document = 0;
+                    $C5_PREVIOUS_DOCUMENTS[] = $C5_PREVIOUS_DOCUMENTS_OBJ;
+                    $PREVIOUS_PERSONALITY_DETAILS_OBJ->previous_documents = $C5_PREVIOUS_DOCUMENTS;
 
+                $PREVIOUS_PERSONALITY_DETAILS[] = $PREVIOUS_PERSONALITY_DETAILS_OBJ;
+                $TITLE->previous_personality_details = $PREVIOUS_PERSONALITY_DETAILS;
 
-        $C2_PREVNAME = new StdClass();
-        $C2_PREVNAME->is_prev_name = '0';
+                $BIRTH_DETAILS = new StdClass();
 
-        $data->C2_PREVNAME = $C2_PREVNAME;
+                $C3_BIRTH_DETAILS = new StdClass();
+                $C3_BIRTH_DETAILS->birth_date = date('d.m.Y', strtotime($order->birth));
+                $C3_BIRTH_DETAILS->country_code = '643';
+                $C3_BIRTH_DETAILS->birth_place = $this->clearing($order->birth_place);
 
+                $TITLE->birth_details = $C3_BIRTH_DETAILS;
 
-        $C3_BIRTH = new StdClass();
-        $C3_BIRTH->birth_date = date('d.m.Y', strtotime($order->birth));
-        $C3_BIRTH->country_code = '643';
-        $C3_BIRTH->birth_place = $this->clearing($order->birth_place);
+                $C6_TAXPAYER_INFO = new StdClass();
+                    
+                    $TAXPAYER_INFO = new StdClass();
+                    $TAXPAYER_INFO->taxpayer_number = empty($order->inn) ? '000000000000' : $order->inn;
+                    $TAXPAYER_INFO->taxpayer_number_code = '1';
+                    $C6_TAXPAYER_INFO->taxpayer_info = $TAXPAYER_INFO;
 
-        $data->C3_BIRTH = $C3_BIRTH;
+                    $C6_TAXPAYER_INFO->is_special_tax = '0';
 
+                $TITLE->taxpayer_info = $C6_TAXPAYER_INFO;
 
-        $C4_ID = new StdClass();
-        $C4_ID->country_code = '643';
-        $C4_ID->document_code = '21';
-        $C4_ID->series_number = $passport_series;
-        $C4_ID->document_number = $passport_number;
-        $C4_ID->issue_date = date('d.m.Y', strtotime($order->passport_date));
-        $C4_ID->issued_by_division = $this->clearing($order->passport_issued);
-        $C4_ID->division_code = $order->subdivision_code;
+            $data->title = $TITLE;
 
-        $data->C4_ID = $C4_ID;
+            $EVENTS = [];
+            $EVENTS_OBJ = new StdClass();
 
+                $EVENT_2_3 = new StdClass();
+                $EVENT_2_3->order_num = $order->order_id;
+                $EVENT_2_3->event_date = date('Y-m-d', strtotime($new_ret_date));
+                $EVENT_2_3->operation_code = "B";
 
-        $C5_PREVID = new StdClass();
-        $C5_PREVID->is_prev_document = '0';
+                $DEAL_UID  = new StdClass();
+                $DEAL_UID->uuid = $contract->uid;
+                $DEAL_UID->open_date = date('Y-m-d', strtotime($contract->inssuance_date));
+                $EVENT_2_3->deal_uid = $DEAL_UID;
 
-        $data->C5_PREVID = $C5_PREVID;
+                $C18_TRADE = new StdClass();
+                $C18_TRADE->owner_indicator_code = '1';
+                $C18_TRADE->trade_type_code = '1';
+                $C18_TRADE->load_kind_code = '13'; 
+                $C18_TRADE->account_type_code = [99];
+                $C18_TRADE->is_consumer_loan = '1';
+                $C18_TRADE->has_card = '1';
+                $C18_TRADE->is_novation = '0';
+                $C18_TRADE->is_money_source = '1';
+                $C18_TRADE->is_money_borrower = '1';
+                $C18_TRADE->close_date = date('Y-m-d', strtotime($contract->return_date));
+                $C18_TRADE->lender_type_code = '2';
+                $C18_TRADE->has_obtaining_part_creditor = '0';
+                $C18_TRADE->transfer_part_creditor_uuid = '-';
+                $C18_TRADE->has_credit_line = '0';
+                $C18_TRADE->is_interest_rate_float = '0';
+                $C18_TRADE->has_transfer_part_creditor = '0';
+                $C18_TRADE->opened_date = date('Y-m-d', strtotime($contract->inssuance_date));
+                $C18_TRADE->repayment_fact = 0;
+                $C18_TRADE->transfer_fact = 0;
+                $C18_TRADE->partner_financing_fact = 0;
+                $EVENT_2_3->deal = $C18_TRADE;
 
+                $C19_ACCOUNTAMT = new StdClass();
+                $C19_ACCOUNTAMT->credit_limit = sprintf("%01.2f", $contract->amount);
+                $C19_ACCOUNTAMT->currency_code = 'RUB';
+                $C19_ACCOUNTAMT->amount_date = date('Y-m-d', strtotime($contract->inssuance_date));
+                $EVENT_2_3->amount = $C19_ACCOUNTAMT;
 
-        $C6_REGNUM = new StdClass();
-        $C6_REGNUM->taxpayer_code = '1';
-        $C6_REGNUM->taxpayer_number = empty($order->inn) ? '000000000000' : $order->inn;
-        $C6_REGNUM->is_special_tax = '0';
+                $C19_ACCOUNTAMT_INFO = [];
+                $C19_ACCOUNTAMT_INFO_OBJ = new StdClass();
+                $C19_ACCOUNTAMT_INFO_OBJ->security_fact = 0;
+                $C19_ACCOUNTAMT_INFO [] = $C19_ACCOUNTAMT_INFO_OBJ;
+                $EVENT_2_3->amount_info = $C19_ACCOUNTAMT_INFO;
 
-        $data->C6_REGNUM = $C6_REGNUM;
+                $interest_terms_amount = ($contract->amount * $contract->base_percent / 100 * $contract->period);
+                $C21_PAYMTCONDITION = new StdClass();
+                $C21_PAYMTCONDITION->principal_terms_amount = sprintf("%01.2f", $contract->amount);
+                $C21_PAYMTCONDITION->principal_terms_amount_date = date('Y-m-d', strtotime($contract->return_date));
+                $C21_PAYMTCONDITION->interest_terms_amount = sprintf("%01.2f", $interest_terms_amount);
+                $C21_PAYMTCONDITION->interest_terms_amount_date = date('Y-m-d', strtotime($contract->return_date));
+                $C21_PAYMTCONDITION->terms_frequency_code = '3';
+                $C21_PAYMTCONDITION->interest_payment_due_date = date('Y-m-d', strtotime($contract->return_date));
+                $EVENT_2_3->payment_terms = $C21_PAYMTCONDITION;
 
-
-        $C17_UID = new StdClass();
-        $C17_UID->uuid = $contract->uid;
-
-        $data->C17_UID = $C17_UID;
-
-
-        $C18_TRADE = new StdClass();
-        $C18_TRADE->owner_indicator_code = '1';
-        $C18_TRADE->opened_date = date('d.m.Y', strtotime($contract->inssuance_date));
-        $C18_TRADE->trade_type_code = '1';
-        $C18_TRADE->load_kind_code = '13';
-        $C18_TRADE->account_type_code = '14';
-        $C18_TRADE->is_consumer_loan = '1';
-        $C18_TRADE->has_card = '1';
-        $C18_TRADE->is_novation = '0';
-        $C18_TRADE->is_money_source = '1';
-        $C18_TRADE->is_money_borrower = '1';
-        $C18_TRADE->close_date = date('d.m.Y', strtotime($contract->return_date));
-        $C18_TRADE->lender_type_code = '2';
-        $C18_TRADE->has_obtaining_part_creditor = '0';
-        $C18_TRADE->has_credit_line = '0';
-        $C18_TRADE->is_interest_rate_float = '0';
-        $C18_TRADE->has_transfer_part_creditor = '0';
-        $C18_TRADE->commit_date = date('d.m.Y', strtotime($contract->inssuance_date));
-
-        $data->C18_TRADE = $C18_TRADE;
-
-
-        $C19_ACCOUNTAMT = new StdClass();
-        $C19_ACCOUNTAMT->credit_limit = str_replace('.', ',', sprintf("%01.2f", $contract->amount));
-        $C19_ACCOUNTAMT->currency_code = 'RUB';
-        $C19_ACCOUNTAMT->commit_currency_code = 'RUB';
-        $C19_ACCOUNTAMT->amount_date = date('d.m.Y', strtotime($contract->inssuance_date));
-        $C19_ACCOUNTAMT->commit_uuid = $contract->uid;
-
-        $data->C19_ACCOUNTAMT = $C19_ACCOUNTAMT;
-
-
-        $interest_terms_amount = ($contract->amount * $contract->base_percent / 100 * $contract->period);
-        $C21_PAYMTCONDITION = new StdClass();
-        $C21_PAYMTCONDITION->principal_terms_amount = str_replace('.', ',', sprintf("%01.2f", $contract->amount));
-        $C21_PAYMTCONDITION->principal_terms_amount_date = date('d.m.Y', strtotime($contract->return_date));
-        $C21_PAYMTCONDITION->interest_terms_amount = str_replace('.', ',', sprintf("%01.2f", $interest_terms_amount));
-        $C21_PAYMTCONDITION->interest_terms_amount_date = date('d.m.Y', strtotime($contract->return_date));
-        $C21_PAYMTCONDITION->terms_frequency_code = '3';
-        $C21_PAYMTCONDITION->interest_payment_due_date = date('d.m.Y', strtotime($contract->return_date));
-
-        $data->C21_PAYMTCONDITION = $C21_PAYMTCONDITION;
-
-
-        $C22_OVERALLVAL = new StdClass();
-        $C22_OVERALLVAL->total_credit_amount_interest = str_replace('.', ',', sprintf("%01.2f", $contract->base_percent * 365));
-        $C22_OVERALLVAL->total_credit_amount_monetary = str_replace('.', ',', sprintf("%01.2f", $interest_terms_amount));
-        $C22_OVERALLVAL->total_credit_amount_date = date('d.m.Y', strtotime($contract->inssuance_date));
-
-        $data->C22_OVERALLVAL = $C22_OVERALLVAL;
-
-
-        $C24_FUNDDATE = new StdClass();
-        $C24_FUNDDATE->funding_date = date('d.m.Y', strtotime($contract->inssuance_date));
-
-        $data->C24_FUNDDATE = $C24_FUNDDATE;
-
-
-        $C25_ARREAR = new StdClass();
-        $C25_ARREAR->has_arrear = '1';
-        $C25_ARREAR->start_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $contract->amount));
-        $C25_ARREAR->is_last_payment_due = '1';
-        $C25_ARREAR->amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $contract->amount + $interest_terms_amount));
-        $C25_ARREAR->principal_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $contract->amount));
-        $C25_ARREAR->interest_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $interest_terms_amount));
-        $C25_ARREAR->other_amount_outstanding = '0,00';
-        $C25_ARREAR->calculation_date = date('d.m.Y', strtotime($contract->inssuance_date));
-
-        $data->C25_ARREAR = $C25_ARREAR;
+                $C22_OVERALLVAL = new StdClass();
+                $C22_OVERALLVAL->total_credit_amount_interest = sprintf("%01.3f", $contract->base_percent * 365);
+                $C22_OVERALLVAL->total_credit_amount_monetary = sprintf("%01.2f", $interest_terms_amount);
+                $C22_OVERALLVAL->total_credit_amount_date = date('Y-m-d', strtotime($contract->inssuance_date));
+                $EVENT_2_3->total_cost = $C22_OVERALLVAL;
 
 
-        $C26_DUEARREAR = new StdClass();
-        $C26_DUEARREAR->start_date = date('d.m.Y', strtotime($contract->inssuance_date));
-        $C26_DUEARREAR->is_last_payment_due = '1';
-        $C26_DUEARREAR->amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $contract->amount + $interest_terms_amount));
-        $C26_DUEARREAR->principal_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $contract->amount));
-        $C26_DUEARREAR->interest_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $interest_terms_amount));
-        $C26_DUEARREAR->other_amount_outstanding = '0,00';
-        $C26_DUEARREAR->calculation_date = date('d.m.Y', strtotime($contract->inssuance_date));
+                $DEBT_INFO = new StdClass();
+                $DEBT_INFO->last_pay_exists = 0;
+                $DEBT_INFO->calc_date = date('Y-m-d', strtotime($new_ret_date));
 
-        $data->C26_DUEARREAR = $C26_DUEARREAR;
+                    $C25_ARREAR = new StdClass();
+                    $C25_ARREAR->has_arrear = '1';
+                    $C25_ARREAR->amount_outstanding = sprintf("%01.2f", $contract->amount + $interest_terms_amount);
+                    $C25_ARREAR->principal_amount_outstanding = sprintf("%01.2f", $contract->amount);
+                    $C25_ARREAR->interest_amount_outstanding = sprintf("%01.2f", $interest_terms_amount);
+                    $C25_ARREAR->other_amount_outstanding = '0.00';
+                    $C25_ARREAR->is_unconfirmed_grace = 0;
+                    $DEBT_INFO->debt = $C25_ARREAR;
+
+                    $C26_DUEARREAR = new StdClass();
+                    $C26_DUEARREAR->amount_outstanding = sprintf("%01.2f", $contract->amount + $interest_terms_amount);
+                    $C26_DUEARREAR->principal_amount_outstanding = sprintf("%01.2f", $contract->amount);
+                    $C26_DUEARREAR->interest_amount_outstanding = sprintf("%01.2f", $interest_terms_amount);
+                    $C26_DUEARREAR->other_amount_outstanding = '0.00';
+                    $C26_DUEARREAR->start_date = date('Y-m-d', strtotime($contract->inssuance_date));
+                    $DEBT_INFO->debt_due = $C26_DUEARREAR;
+
+                    $C27_PASTDUEARREAR = new StdClass();
+                    $C27_PASTDUEARREAR->is_last_payment_due = "1";
+                    $C27_PASTDUEARREAR->amount_outstanding = '0.00';
+                    $DEBT_INFO->debt_overdue = $C27_PASTDUEARREAR;
+
+                    $C28_PAYMT = new StdClass();
+                    $C28_PAYMT->payment_amount = sprintf("%01.2f", $order->payment_amount);
+                    $C28_PAYMT->principal_payment_amount = sprintf("%01.2f", $order->principal_payment_amount);
+                    $C28_PAYMT->interest_payment_amount = sprintf("%01.2f", $order->interest_payment_amount);
+                    $C28_PAYMT->other_payment_amount = sprintf("%01.2f", $order->other_payment_amount);
+                    $C28_PAYMT->total_amount = sprintf("%01.2f", $order->total_amount);
+                    $C28_PAYMT->principal_total_amount = sprintf("%01.2f", $order->principal_total_amount);
+                    $C28_PAYMT->interest_total_amount = sprintf("%01.2f", $order->interest_total_amount);
+                    $C28_PAYMT->other_total_amount = sprintf("%01.2f", $order->other_total_amount);
+                    $C28_PAYMT->amount_keep_code = $order->amount_keep_code;
+                    $C28_PAYMT->terms_due_code = $order->terms_due_code;
+                    $DEBT_INFO->payment = $C28_PAYMT;
+                $EVENT_2_3->debt_info = $DEBT_INFO;
+
+                $C29_MONTHAVERPAYMT = new StdClass();
+                $C29_MONTHAVERPAYMT->average_payment_amount = round($contract->amount + $interest_terms_amount);
+                $C29_MONTHAVERPAYMT->calculation_date = date('Y-m-d', strtotime($contract->inssuance_date));
+                $C29_MONTHAVERPAYMT->sum_total = sprintf("%01.2f", ($ret_date_body_summ + $ret_date_percents_summ + $ret_date_peni_summ));
+                $EVENT_2_3->monthly_payment = $C29_MONTHAVERPAYMT;
+
+                $C20_COBORROWER  = new StdClass();
+                $C20_COBORROWER->has_solidary = 0;
+                $EVENT_2_3->joint_debtors = $C20_COBORROWER;
+                
+                $C54_OBLIGACCOUNT = new StdClass();
+                $C54_OBLIGACCOUNT->has_obligation = 1;
+                $C54_OBLIGACCOUNT->min_interest_rate = sprintf("%01.2f", $contract->base_percent * 365);
+                $C54_OBLIGACCOUNT->max_interest_rate = sprintf("%01.2f", $contract->base_percent * 365);
+                $C54_OBLIGACCOUNT->has_preferential_financing = '0';
+                $C54_OBLIGACCOUNT->preferential_financing_info = ["85453-87"]; //???
+                $C54_OBLIGACCOUNT->calc_date = date('Y-m-d', strtotime($new_ret_date));
+                $EVENT_2_3->accounting = $C54_OBLIGACCOUNT;
+
+                $C55_APPLICATION = new StdClass();
+                $C55_APPLICATION->requested_flag_indicator_code = 1;
+                $C55_APPLICATION->requested_amount = sprintf("%01.2f", $order->amount);
+                $C55_APPLICATION->requested_currency_code = "RUB";
+                $C55_APPLICATION->application_number = $contract->uid;
+                $C55_APPLICATION->application_date = date('Y-m-d', strtotime($order->date));
+                $C55_APPLICATION->creditor_type_code = 2;
+                $C55_APPLICATION->application_shipment_code = 8;
+                $C55_APPLICATION->consideration_shipment_code = 5;
+                $C55_APPLICATION->transit_date = date('Y-m-d', strtotime($contract->inssuance_date));
+                $C55_APPLICATION->application_code = 7;
+                $EVENT_2_3->application = $C55_APPLICATION;
+
+                $C56_OBLIGPARTTAKE = new StdClass();
+                $C56_OBLIGPARTTAKE->flag_indicator_code = '1';
+                $C56_OBLIGPARTTAKE->approved_loan_type_code = '13';
+                $C56_OBLIGPARTTAKE->agreement_number = $contract->uid;
+                $C56_OBLIGPARTTAKE->funding_date = date('Y-m-d', strtotime($contract->inssuance_date));
+                $C56_OBLIGPARTTAKE->default_flag = '0';
+                $C56_OBLIGPARTTAKE->loan_indicator = intval($order->closed) > 0 ? '1' : '0';
+                $EVENT_2_3->participation = $C56_OBLIGPARTTAKE;
+
+            $EVENTS_OBJ->event_2_3 = $EVENT_2_3;
+
+            $EVENTS[] = $EVENTS_OBJ;
+
+        $data->events = $EVENTS;
 
 
-        $C27_PASTDUEARREAR = new StdClass();
-        $C27_PASTDUEARREAR->amount_outstanding = '0,00';
-        $C27_PASTDUEARREAR->calculation_date = date('d.m.Y', strtotime($contract->inssuance_date));
-
-        $data->C27_PASTDUEARREAR = $C27_PASTDUEARREAR;
 
 
-        $C28_PAYMT = new StdClass();
-        $C28_PAYMT->payment_date = date('d.m.Y', strtotime($order->operation->created));
-        $C28_PAYMT->payment_amount = str_replace('.', ',', sprintf("%01.2f", $order->payment_amount));
-        $C28_PAYMT->principal_payment_amount = str_replace('.', ',', sprintf("%01.2f", $order->principal_payment_amount));
-        $C28_PAYMT->interest_payment_amount = str_replace('.', ',', sprintf("%01.2f", $order->interest_payment_amount));
-        $C28_PAYMT->other_payment_amount = str_replace('.', ',', sprintf("%01.2f", $order->other_payment_amount));
-        $C28_PAYMT->total_amount = str_replace('.', ',', sprintf("%01.2f", $order->total_amount));
-        $C28_PAYMT->principal_total_amount = str_replace('.', ',', sprintf("%01.2f", $order->principal_total_amount));
-        $C28_PAYMT->interest_total_amount = str_replace('.', ',', sprintf("%01.2f", $order->interest_total_amount));
-        $C28_PAYMT->other_total_amount = str_replace('.', ',', sprintf("%01.2f", $order->other_total_amount));
-        $C28_PAYMT->amount_keep_code = $order->amount_keep_code;
-        $C28_PAYMT->terms_due_code = $order->terms_due_code;
-        $C28_PAYMT->days_past_due = $order->days_past_due;
-
-        $data->C28_PAYMT = $C28_PAYMT;
 
 
-        $C29_MONTHAVERPAYMT = new StdClass();
-        $C29_MONTHAVERPAYMT->average_payment_amount = round($contract->amount + $interest_terms_amount);
-        $C29_MONTHAVERPAYMT->calculation_date = date('d.m.Y', strtotime($contract->inssuance_date));
-
-        $data->C29_MONTHAVERPAYMT = $C29_MONTHAVERPAYMT;
 
 
-        $C54_OBLIGACCOUNT = new StdClass();
-        $C54_OBLIGACCOUNT->has_obligation = 1;
-        $C54_OBLIGACCOUNT->interest_rate = str_replace('.', ',', sprintf("%01.2f", $contract->base_percent * 365));
-        $C54_OBLIGACCOUNT->has_preferential_financing = '0';
-
-        $data->C54_OBLIGACCOUNT = $C54_OBLIGACCOUNT;
 
 
-        $C56_OBLIGPARTTAKE = new StdClass();
-        $C56_OBLIGPARTTAKE->flag_indicator_code = '1';
-        $C56_OBLIGPARTTAKE->approved_loan_type_code = '13';
-        $C56_OBLIGPARTTAKE->agreement_number = $contract->uid;
-        $C56_OBLIGPARTTAKE->funding_date = date('d.m.Y', strtotime($contract->inssuance_date));
-        $C56_OBLIGPARTTAKE->default_flag = '0';
-        $C56_OBLIGPARTTAKE->loan_indicator = intval($order->closed) > 0 ? '1' : '0';
 
-        $data->C56_OBLIGPARTTAKE = $C56_OBLIGPARTTAKE;
+
+
+
+
+
+
+        // $data = new StdClass();
+
+        // $GROUPHEADER = new StdClass();
+        // $GROUPHEADER->event_number = "2.3";
+        // $GROUPHEADER->operation_code = "B";
+        // $GROUPHEADER->event_date = date('d.m.Y', strtotime($order->operation->created));
+
+        // $data->GROUPHEADER = $GROUPHEADER;
+
+
+        // $C1_NAME = new StdClass();
+        // $C1_NAME->surname = $this->clearing($order->lastname);
+        // $C1_NAME->name = $this->clearing($order->firstname);
+        // $C1_NAME->patronymic = $this->clearing($order->patronymic);
+
+        // $data->C1_NAME = $C1_NAME;
+
+
+        // $C2_PREVNAME = new StdClass();
+        // $C2_PREVNAME->is_prev_name = '0';
+
+        // $data->C2_PREVNAME = $C2_PREVNAME;
+
+
+        // $C3_BIRTH = new StdClass();
+        // $C3_BIRTH->birth_date = date('d.m.Y', strtotime($order->birth));
+        // $C3_BIRTH->country_code = '643';
+        // $C3_BIRTH->birth_place = $this->clearing($order->birth_place);
+
+        // $data->C3_BIRTH = $C3_BIRTH;
+
+
+        // $C4_ID = new StdClass();
+        // $C4_ID->country_code = '643';
+        // $C4_ID->document_code = '21';
+        // $C4_ID->series_number = $passport_series;
+        // $C4_ID->document_number = $passport_number;
+        // $C4_ID->issue_date = date('d.m.Y', strtotime($order->passport_date));
+        // $C4_ID->issued_by_division = $this->clearing($order->passport_issued);
+        // $C4_ID->division_code = $order->subdivision_code;
+
+        // $data->C4_ID = $C4_ID;
+
+
+        // $C5_PREVID = new StdClass();
+        // $C5_PREVID->is_prev_document = '0';
+
+        // $data->C5_PREVID = $C5_PREVID;
+
+
+        // $C6_REGNUM = new StdClass();
+        // $C6_REGNUM->taxpayer_code = '1';
+        // $C6_REGNUM->taxpayer_number = empty($order->inn) ? '000000000000' : $order->inn;
+        // $C6_REGNUM->is_special_tax = '0';
+
+        // $data->C6_REGNUM = $C6_REGNUM;
+
+
+        // $C17_UID = new StdClass();
+        // $C17_UID->uuid = $contract->uid;
+
+        // $data->C17_UID = $C17_UID;
+
+
+        // $C18_TRADE = new StdClass();
+        // $C18_TRADE->owner_indicator_code = '1';
+        // $C18_TRADE->opened_date = date('d.m.Y', strtotime($contract->inssuance_date));
+        // $C18_TRADE->trade_type_code = '1';
+        // $C18_TRADE->load_kind_code = '13';
+        // $C18_TRADE->account_type_code = '14';
+        // $C18_TRADE->is_consumer_loan = '1';
+        // $C18_TRADE->has_card = '1';
+        // $C18_TRADE->is_novation = '0';
+        // $C18_TRADE->is_money_source = '1';
+        // $C18_TRADE->is_money_borrower = '1';
+        // $C18_TRADE->close_date = date('d.m.Y', strtotime($contract->return_date));
+        // $C18_TRADE->lender_type_code = '2';
+        // $C18_TRADE->has_obtaining_part_creditor = '0';
+        // $C18_TRADE->has_credit_line = '0';
+        // $C18_TRADE->is_interest_rate_float = '0';
+        // $C18_TRADE->has_transfer_part_creditor = '0';
+        // $C18_TRADE->commit_date = date('d.m.Y', strtotime($contract->inssuance_date));
+
+        // $data->C18_TRADE = $C18_TRADE;
+
+
+        // $C19_ACCOUNTAMT = new StdClass();
+        // $C19_ACCOUNTAMT->credit_limit = str_replace('.', ',', sprintf("%01.2f", $contract->amount));
+        // $C19_ACCOUNTAMT->currency_code = 'RUB';
+        // $C19_ACCOUNTAMT->commit_currency_code = 'RUB';
+        // $C19_ACCOUNTAMT->amount_date = date('d.m.Y', strtotime($contract->inssuance_date));
+        // $C19_ACCOUNTAMT->commit_uuid = $contract->uid;
+
+        // $data->C19_ACCOUNTAMT = $C19_ACCOUNTAMT;
+
+
+        // $interest_terms_amount = ($contract->amount * $contract->base_percent / 100 * $contract->period);
+        // $C21_PAYMTCONDITION = new StdClass();
+        // $C21_PAYMTCONDITION->principal_terms_amount = str_replace('.', ',', sprintf("%01.2f", $contract->amount));
+        // $C21_PAYMTCONDITION->principal_terms_amount_date = date('d.m.Y', strtotime($contract->return_date));
+        // $C21_PAYMTCONDITION->interest_terms_amount = str_replace('.', ',', sprintf("%01.2f", $interest_terms_amount));
+        // $C21_PAYMTCONDITION->interest_terms_amount_date = date('d.m.Y', strtotime($contract->return_date));
+        // $C21_PAYMTCONDITION->terms_frequency_code = '3';
+        // $C21_PAYMTCONDITION->interest_payment_due_date = date('d.m.Y', strtotime($contract->return_date));
+
+        // $data->C21_PAYMTCONDITION = $C21_PAYMTCONDITION;
+
+
+        // $C22_OVERALLVAL = new StdClass();
+        // $C22_OVERALLVAL->total_credit_amount_interest = str_replace('.', ',', sprintf("%01.2f", $contract->base_percent * 365));
+        // $C22_OVERALLVAL->total_credit_amount_monetary = str_replace('.', ',', sprintf("%01.2f", $interest_terms_amount));
+        // $C22_OVERALLVAL->total_credit_amount_date = date('d.m.Y', strtotime($contract->inssuance_date));
+
+        // $data->C22_OVERALLVAL = $C22_OVERALLVAL;
+
+
+        // $C24_FUNDDATE = new StdClass();
+        // $C24_FUNDDATE->funding_date = date('d.m.Y', strtotime($contract->inssuance_date));
+
+        // $data->C24_FUNDDATE = $C24_FUNDDATE;
+
+
+        // $C25_ARREAR = new StdClass();
+        // $C25_ARREAR->has_arrear = '1';
+        // $C25_ARREAR->start_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $contract->amount));
+        // $C25_ARREAR->is_last_payment_due = '1';
+        // $C25_ARREAR->amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $contract->amount + $interest_terms_amount));
+        // $C25_ARREAR->principal_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $contract->amount));
+        // $C25_ARREAR->interest_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $interest_terms_amount));
+        // $C25_ARREAR->other_amount_outstanding = '0,00';
+        // $C25_ARREAR->calculation_date = date('d.m.Y', strtotime($contract->inssuance_date));
+
+        // $data->C25_ARREAR = $C25_ARREAR;
+
+
+        // $C26_DUEARREAR = new StdClass();
+        // $C26_DUEARREAR->start_date = date('d.m.Y', strtotime($contract->inssuance_date));
+        // $C26_DUEARREAR->is_last_payment_due = '1';
+        // $C26_DUEARREAR->amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $contract->amount + $interest_terms_amount));
+        // $C26_DUEARREAR->principal_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $contract->amount));
+        // $C26_DUEARREAR->interest_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $interest_terms_amount));
+        // $C26_DUEARREAR->other_amount_outstanding = '0,00';
+        // $C26_DUEARREAR->calculation_date = date('d.m.Y', strtotime($contract->inssuance_date));
+
+        // $data->C26_DUEARREAR = $C26_DUEARREAR;
+
+
+        // $C27_PASTDUEARREAR = new StdClass();
+        // $C27_PASTDUEARREAR->amount_outstanding = '0,00';
+        // $C27_PASTDUEARREAR->calculation_date = date('d.m.Y', strtotime($contract->inssuance_date));
+
+        // $data->C27_PASTDUEARREAR = $C27_PASTDUEARREAR;
+
+
+        // $C28_PAYMT = new StdClass();
+        // $C28_PAYMT->payment_date = date('d.m.Y', strtotime($order->operation->created));
+        // $C28_PAYMT->payment_amount = str_replace('.', ',', sprintf("%01.2f", $order->payment_amount));
+        // $C28_PAYMT->principal_payment_amount = str_replace('.', ',', sprintf("%01.2f", $order->principal_payment_amount));
+        // $C28_PAYMT->interest_payment_amount = str_replace('.', ',', sprintf("%01.2f", $order->interest_payment_amount));
+        // $C28_PAYMT->other_payment_amount = str_replace('.', ',', sprintf("%01.2f", $order->other_payment_amount));
+        // $C28_PAYMT->total_amount = str_replace('.', ',', sprintf("%01.2f", $order->total_amount));
+        // $C28_PAYMT->principal_total_amount = str_replace('.', ',', sprintf("%01.2f", $order->principal_total_amount));
+        // $C28_PAYMT->interest_total_amount = str_replace('.', ',', sprintf("%01.2f", $order->interest_total_amount));
+        // $C28_PAYMT->other_total_amount = str_replace('.', ',', sprintf("%01.2f", $order->other_total_amount));
+        // $C28_PAYMT->amount_keep_code = $order->amount_keep_code;
+        // $C28_PAYMT->terms_due_code = $order->terms_due_code;
+        // $C28_PAYMT->days_past_due = $order->days_past_due;
+
+        // $data->C28_PAYMT = $C28_PAYMT;
+
+
+        // $C29_MONTHAVERPAYMT = new StdClass();
+        // $C29_MONTHAVERPAYMT->average_payment_amount = round($contract->amount + $interest_terms_amount);
+        // $C29_MONTHAVERPAYMT->calculation_date = date('d.m.Y', strtotime($contract->inssuance_date));
+
+        // $data->C29_MONTHAVERPAYMT = $C29_MONTHAVERPAYMT;
+
+
+        // $C54_OBLIGACCOUNT = new StdClass();
+        // $C54_OBLIGACCOUNT->has_obligation = 1;
+        // $C54_OBLIGACCOUNT->interest_rate = str_replace('.', ',', sprintf("%01.2f", $contract->base_percent * 365));
+        // $C54_OBLIGACCOUNT->has_preferential_financing = '0';
+
+        // $data->C54_OBLIGACCOUNT = $C54_OBLIGACCOUNT;
+
+
+        // $C56_OBLIGPARTTAKE = new StdClass();
+        // $C56_OBLIGPARTTAKE->flag_indicator_code = '1';
+        // $C56_OBLIGPARTTAKE->approved_loan_type_code = '13';
+        // $C56_OBLIGPARTTAKE->agreement_number = $contract->uid;
+        // $C56_OBLIGPARTTAKE->funding_date = date('d.m.Y', strtotime($contract->inssuance_date));
+        // $C56_OBLIGPARTTAKE->default_flag = '0';
+        // $C56_OBLIGPARTTAKE->loan_indicator = intval($order->closed) > 0 ? '1' : '0';
+
+        // $data->C56_OBLIGPARTTAKE = $C56_OBLIGPARTTAKE;
 
         return $data;
     }
@@ -417,205 +672,423 @@ class Nbki_report extends Core
         $passport_series = substr($passport_serial, 0, 4);
         $passport_number = substr($passport_serial, 4, 6);
 
+        $ret_date_array = $this->ret_date_data($order);
+
+        $ret_date = $ret_date_array[0];
+        $days_past_due = $ret_date_array[1];
+        $ret_date_body_summ = $ret_date_array[2];
+        $ret_date_percents_summ = $ret_date_array[3];
+        $ret_date_peni_summ = $ret_date_array[4];
+        $new_ret_date = $ret_date_array[5];
+
 
         $data = new StdClass();
 
-        $GROUPHEADER = new StdClass();
-        $GROUPHEADER->event_number = "2.2";
-        $GROUPHEADER->operation_code = "B";
-        $GROUPHEADER->event_date = date('d.m.Y', strtotime($order->operation->created));
+            $TITLE = new StdClass();
 
-        $data->GROUPHEADER = $GROUPHEADER;
+                $CURRENT_NAME = new StdClass();
 
+                    $C1_NAME = new StdClass();
+                    $C1_NAME->surname = $this->uppercase($order->lastname);
+                    $C1_NAME->name = $this->uppercase($order->firstname);
+                    $C1_NAME->patronymic = $this->uppercase($order->patronymic);
+                    $CURRENT_NAME->name = $C1_NAME;
 
-        $C1_NAME = new StdClass();
-        $C1_NAME->surname = $this->clearing($order->lastname);
-        $C1_NAME->name = $this->clearing($order->firstname);
-        $C1_NAME->patronymic = $this->clearing($order->patronymic);
+                    $C4_DOCUMENTS = [];
+                    $C4_DOCUMENTS_OBJ = new StdClass();
+                    $C4_DOCUMENTS_OBJ->country_code = 643;
+                    $C4_DOCUMENTS_OBJ->document_code = 21;
+                    $C4_DOCUMENTS_OBJ->series_number = $passport_series;
+                    $C4_DOCUMENTS_OBJ->document_number = $passport_number;
+                    $C4_DOCUMENTS_OBJ->issue_date = date('d.m.Y', strtotime($order->passport_date));
+                    $C4_DOCUMENTS_OBJ->issued_by_division = $this->clearing($order->passport_issued);
+                    $C4_DOCUMENTS_OBJ->division_code = $order->subdivision_code;
+                    $C4_DOCUMENTS_OBJ->foreigner_code = 3;
+                    $C4_DOCUMENTS [] = $C4_DOCUMENTS_OBJ;
+                    $CURRENT_NAME->documents = $C4_DOCUMENTS;
+                
+                $TITLE->current_name = $CURRENT_NAME;
+    
+                $PREVIOUS_PERSONALITY_DETAILS = [];
+                $PREVIOUS_PERSONALITY_DETAILS_OBJ = new StdClass();
 
-        $data->C1_NAME = $C1_NAME;
+                    $C2_PREVIOUS_NAME = new StdClass();
+                    $C2_PREVIOUS_NAME->is_prev_name = 0;
+                    $PREVIOUS_PERSONALITY_DETAILS_OBJ->previous_name = $C2_PREVIOUS_NAME;
+                    
+                    $C5_PREVIOUS_DOCUMENTS =[];
+                    $C5_PREVIOUS_DOCUMENTS_OBJ = new StdClass();
+                    $C5_PREVIOUS_DOCUMENTS_OBJ->is_prev_document = 0;
+                    $C5_PREVIOUS_DOCUMENTS[] = $C5_PREVIOUS_DOCUMENTS_OBJ;
+                    $PREVIOUS_PERSONALITY_DETAILS_OBJ->previous_documents = $C5_PREVIOUS_DOCUMENTS;
 
+                $PREVIOUS_PERSONALITY_DETAILS[] = $PREVIOUS_PERSONALITY_DETAILS_OBJ;
+                $TITLE->previous_personality_details = $PREVIOUS_PERSONALITY_DETAILS;
 
-        $C2_PREVNAME = new StdClass();
-        $C2_PREVNAME->is_prev_name = '0';
+                $BIRTH_DETAILS = new StdClass();
 
-        $data->C2_PREVNAME = $C2_PREVNAME;
+                $C3_BIRTH_DETAILS = new StdClass();
+                $C3_BIRTH_DETAILS->birth_date = date('d.m.Y', strtotime($order->birth));
+                $C3_BIRTH_DETAILS->country_code = '643';
+                $C3_BIRTH_DETAILS->birth_place = $this->clearing($order->birth_place);
 
+                $TITLE->birth_details = $C3_BIRTH_DETAILS;
 
-        $C3_BIRTH = new StdClass();
-        $C3_BIRTH->birth_date = date('d.m.Y', strtotime($order->birth));
-        $C3_BIRTH->country_code = '643';
-        $C3_BIRTH->birth_place = $this->clearing($order->birth_place);
+                $C6_TAXPAYER_INFO = new StdClass();
+                    
+                    $TAXPAYER_INFO = new StdClass();
+                    $TAXPAYER_INFO->taxpayer_number = empty($order->inn) ? '000000000000' : $order->inn;
+                    $TAXPAYER_INFO->taxpayer_number_code = '1';
+                    $C6_TAXPAYER_INFO->taxpayer_info = $TAXPAYER_INFO;
 
-        $data->C3_BIRTH = $C3_BIRTH;
+                    $C6_TAXPAYER_INFO->is_special_tax = '0';
 
+                $TITLE->taxpayer_info = $C6_TAXPAYER_INFO;
 
-        $C4_ID = new StdClass();
-        $C4_ID->country_code = '643';
-        $C4_ID->document_code = '21';
-        $C4_ID->series_number = $passport_series;
-        $C4_ID->document_number = $passport_number;
-        $C4_ID->issue_date = date('d.m.Y', strtotime($order->passport_date));
-        $C4_ID->issued_by_division = $this->clearing($order->passport_issued);
-        $C4_ID->division_code = $order->subdivision_code;
+            $data->title = $TITLE;
 
-        $data->C4_ID = $C4_ID;
+            $EVENTS = [];
+            $EVENTS_OBJ = new StdClass();
 
+                $EVENT_2_3 = new StdClass();
+                $EVENT_2_3->order_num = $order->order_id;
+                $EVENT_2_3->event_date = date('Y-m-d', strtotime($new_ret_date));
+                $EVENT_2_3->operation_code = "B";
 
-        $C5_PREVID = new StdClass();
-        $C5_PREVID->is_prev_document = '0';
+                $DEAL_UID  = new StdClass();
+                $DEAL_UID->uuid = $contract->uid;
+                $DEAL_UID->open_date = date('Y-m-d', strtotime($contract->inssuance_date));
+                $EVENT_2_3->deal_uid = $DEAL_UID;
 
-        $data->C5_PREVID = $C5_PREVID;
+                $C18_TRADE = new StdClass();
+                $C18_TRADE->owner_indicator_code = '1';
+                $C18_TRADE->trade_type_code = '1';
+                $C18_TRADE->load_kind_code = '13'; 
+                $C18_TRADE->account_type_code = [99];
+                $C18_TRADE->is_consumer_loan = '1';
+                $C18_TRADE->has_card = '1';
+                $C18_TRADE->is_novation = '0';
+                $C18_TRADE->is_money_source = '1';
+                $C18_TRADE->is_money_borrower = '1';
+                $C18_TRADE->close_date = date('Y-m-d', strtotime($contract->return_date));
+                $C18_TRADE->lender_type_code = '2';
+                $C18_TRADE->has_obtaining_part_creditor = '0';
+                $C18_TRADE->transfer_part_creditor_uuid = '-';
+                $C18_TRADE->has_credit_line = '0';
+                $C18_TRADE->is_interest_rate_float = '0';
+                $C18_TRADE->has_transfer_part_creditor = '0';
+                $C18_TRADE->opened_date = date('Y-m-d', strtotime($contract->inssuance_date));
+                $C18_TRADE->repayment_fact = 0;
+                $C18_TRADE->transfer_fact = 0;
+                $C18_TRADE->partner_financing_fact = 0;
+                $EVENT_2_3->deal = $C18_TRADE;
 
+                $C19_ACCOUNTAMT = new StdClass();
+                $C19_ACCOUNTAMT->credit_limit = sprintf("%01.2f", $contract->amount);
+                $C19_ACCOUNTAMT->currency_code = 'RUB';
+                $C19_ACCOUNTAMT->amount_date = date('Y-m-d', strtotime($contract->inssuance_date));
+                $EVENT_2_3->amount = $C19_ACCOUNTAMT;
 
-        $C6_REGNUM = new StdClass();
-        $C6_REGNUM->taxpayer_code = '1';
-        $C6_REGNUM->taxpayer_number = empty($order->inn) ? '000000000000' : $order->inn;
-        $C6_REGNUM->is_special_tax = '0';
+                $C19_ACCOUNTAMT_INFO = [];
+                $C19_ACCOUNTAMT_INFO_OBJ = new StdClass();
+                $C19_ACCOUNTAMT_INFO_OBJ->security_fact = 0;
+                $C19_ACCOUNTAMT_INFO [] = $C19_ACCOUNTAMT_INFO_OBJ;
+                $EVENT_2_3->amount_info = $C19_ACCOUNTAMT_INFO;
 
-        $data->C6_REGNUM = $C6_REGNUM;
+                $interest_terms_amount = ($contract->amount * $contract->base_percent / 100 * $contract->period);
+                $C21_PAYMTCONDITION = new StdClass();
+                $C21_PAYMTCONDITION->principal_terms_amount = sprintf("%01.2f", $contract->amount);
+                $C21_PAYMTCONDITION->principal_terms_amount_date = date('Y-m-d', strtotime($contract->return_date));
+                $C21_PAYMTCONDITION->interest_terms_amount = sprintf("%01.2f", $interest_terms_amount);
+                $C21_PAYMTCONDITION->interest_terms_amount_date = date('Y-m-d', strtotime($contract->return_date));
+                $C21_PAYMTCONDITION->terms_frequency_code = '3';
+                $C21_PAYMTCONDITION->interest_payment_due_date = date('Y-m-d', strtotime($contract->return_date));
+                $EVENT_2_3->payment_terms = $C21_PAYMTCONDITION;
 
+                $C22_OVERALLVAL = new StdClass();
+                $C22_OVERALLVAL->total_credit_amount_interest = sprintf("%01.3f", $contract->base_percent * 365);
+                $C22_OVERALLVAL->total_credit_amount_monetary = sprintf("%01.2f", $interest_terms_amount);
+                $C22_OVERALLVAL->total_credit_amount_date = date('Y-m-d', strtotime($contract->inssuance_date));
+                $EVENT_2_3->total_cost = $C22_OVERALLVAL;
 
-        $C17_UID = new StdClass();
-        $C17_UID->uuid = $contract->uid;
+                $DEBT_INFO = new StdClass();
+                $DEBT_INFO->last_pay_exists = 0;
+                $DEBT_INFO->calc_date = date('Y-m-d', strtotime($new_ret_date));
+ 
+                    $C25_ARREAR = new StdClass();
+                    $C25_ARREAR->has_arrear = '1';
+                    $C25_ARREAR->amount_outstanding = sprintf("%01.2f", $contract->amount + $interest_terms_amount);
+                    $C25_ARREAR->principal_amount_outstanding = sprintf("%01.2f", $contract->amount);
+                    $C25_ARREAR->interest_amount_outstanding = sprintf("%01.2f", $interest_terms_amount);
+                    $C25_ARREAR->other_amount_outstanding = '0.00';
+                    $C25_ARREAR->is_unconfirmed_grace = 0;
+                    $DEBT_INFO->debt = $C25_ARREAR;
 
-        $data->C17_UID = $C17_UID;
+                    $C26_DUEARREAR = new StdClass();
+                    $C26_DUEARREAR->amount_outstanding = sprintf("%01.2f", $contract->amount + $interest_terms_amount);
+                    $C26_DUEARREAR->principal_amount_outstanding = sprintf("%01.2f", $contract->amount);
+                    $C26_DUEARREAR->interest_amount_outstanding = sprintf("%01.2f", $interest_terms_amount);
+                    $C26_DUEARREAR->other_amount_outstanding = '0.00';
+                    $C26_DUEARREAR->start_date = date('Y-m-d', strtotime($contract->inssuance_date));
+                    $DEBT_INFO->debt_due = $C26_DUEARREAR;
+                    
+                    $C27_PASTDUEARREAR = new StdClass();
+                    $C27_PASTDUEARREAR->is_last_payment_due = "1";
+                    $C27_PASTDUEARREAR->amount_outstanding = '0.00';
+                    $DEBT_INFO->debt_overdue = $C27_PASTDUEARREAR;
 
-
-        $C18_TRADE = new StdClass();
-        $C18_TRADE->owner_indicator_code = '1';
-        $C18_TRADE->opened_date = date('d.m.Y', strtotime($contract->inssuance_date));
-        $C18_TRADE->trade_type_code = '1';
-        $C18_TRADE->load_kind_code = '13';
-        $C18_TRADE->account_type_code = '14';
-        $C18_TRADE->is_consumer_loan = '1';
-        $C18_TRADE->has_card = '1';
-        $C18_TRADE->is_novation = '0';
-        $C18_TRADE->is_money_source = '1';
-        $C18_TRADE->is_money_borrower = '1';
-        $C18_TRADE->close_date = date('d.m.Y', strtotime($contract->return_date));
-        $C18_TRADE->lender_type_code = '2';
-        $C18_TRADE->has_obtaining_part_creditor = '0';
-        $C18_TRADE->has_credit_line = '0';
-        $C18_TRADE->is_interest_rate_float = '0';
-        $C18_TRADE->has_transfer_part_creditor = '0';
-        $C18_TRADE->commit_date = date('d.m.Y', strtotime($contract->inssuance_date));
-
-        $data->C18_TRADE = $C18_TRADE;
-
-
-        $C19_ACCOUNTAMT = new StdClass();
-        $C19_ACCOUNTAMT->credit_limit = str_replace('.', ',', sprintf("%01.2f", $contract->amount));
-        $C19_ACCOUNTAMT->currency_code = 'RUB';
-        $C19_ACCOUNTAMT->commit_currency_code = 'RUB';
-        $C19_ACCOUNTAMT->amount_date = date('d.m.Y', strtotime($contract->inssuance_date));
-        $C19_ACCOUNTAMT->commit_uuid = $contract->uid;
-
-        $data->C19_ACCOUNTAMT = $C19_ACCOUNTAMT;
-
-
-        $interest_terms_amount = ($contract->amount * $contract->base_percent / 100 * $contract->period);
-        $C21_PAYMTCONDITION = new StdClass();
-        $C21_PAYMTCONDITION->principal_terms_amount = str_replace('.', ',', sprintf("%01.2f", $contract->amount));
-        $C21_PAYMTCONDITION->principal_terms_amount_date = date('d.m.Y', strtotime($contract->return_date));
-        $C21_PAYMTCONDITION->interest_terms_amount = str_replace('.', ',', sprintf("%01.2f", $interest_terms_amount));
-        $C21_PAYMTCONDITION->interest_terms_amount_date = date('d.m.Y', strtotime($contract->return_date));
-        $C21_PAYMTCONDITION->terms_frequency_code = '3';
-        $C21_PAYMTCONDITION->interest_payment_due_date = date('d.m.Y', strtotime($contract->return_date));
-
-        $data->C21_PAYMTCONDITION = $C21_PAYMTCONDITION;
-
-
-        $C22_OVERALLVAL = new StdClass();
-        $C22_OVERALLVAL->total_credit_amount_interest = str_replace('.', ',', sprintf("%01.2f", $contract->base_percent * 365));
-        $C22_OVERALLVAL->total_credit_amount_monetary = str_replace('.', ',', sprintf("%01.2f", $interest_terms_amount));
-        $C22_OVERALLVAL->total_credit_amount_date = date('d.m.Y', strtotime($contract->inssuance_date));
-
-        $data->C22_OVERALLVAL = $C22_OVERALLVAL;
-
-
-        $C24_FUNDDATE = new StdClass();
-        $C24_FUNDDATE->funding_date = date('d.m.Y', strtotime($contract->inssuance_date));
-
-        $data->C24_FUNDDATE = $C24_FUNDDATE;
-
-
-        $C25_ARREAR = new StdClass();
-        $C25_ARREAR->has_arrear = '1';
-        $C25_ARREAR->start_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $contract->amount));
-        $C25_ARREAR->is_last_payment_due = '1';
-        $C25_ARREAR->amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $contract->amount + $interest_terms_amount));
-        $C25_ARREAR->principal_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $contract->amount));
-        $C25_ARREAR->interest_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $interest_terms_amount));
-        $C25_ARREAR->other_amount_outstanding = '0,00';
-        $C25_ARREAR->calculation_date = date('d.m.Y', strtotime($contract->inssuance_date));
-
-        $data->C25_ARREAR = $C25_ARREAR;
-
-
-        $C26_DUEARREAR = new StdClass();
-        $C26_DUEARREAR->start_date = date('d.m.Y', strtotime($contract->inssuance_date));
-        $C26_DUEARREAR->is_last_payment_due = '1';
-        $C26_DUEARREAR->amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $contract->amount + $interest_terms_amount));
-        $C26_DUEARREAR->principal_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $contract->amount));
-        $C26_DUEARREAR->interest_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $interest_terms_amount));
-        $C26_DUEARREAR->other_amount_outstanding = '0,00';
-        $C26_DUEARREAR->calculation_date = date('d.m.Y', strtotime($contract->inssuance_date));
-
-        $data->C26_DUEARREAR = $C26_DUEARREAR;
-
-
-        $C27_PASTDUEARREAR = new StdClass();
-        $C27_PASTDUEARREAR->amount_outstanding = '0,00';
-        $C27_PASTDUEARREAR->calculation_date = date('d.m.Y', strtotime($contract->inssuance_date));
-
-        $data->C27_PASTDUEARREAR = $C27_PASTDUEARREAR;
-
-
-        $C28_PAYMT = new StdClass();
-
-        $C28_PAYMT->payment_amount = '0,00';
-        // $C28_PAYMT->principal_payment_amount = '0,00';
-        // $C28_PAYMT->interest_payment_amount = '0,00';
-        // $C28_PAYMT->other_payment_amount = '0,00';
-        // $C28_PAYMT->total_amount = '0,00';
-        // $C28_PAYMT->principal_total_amount = '0,00';
-        // $C28_PAYMT->interest_total_amount = '0,00';
-        // $C28_PAYMT->other_total_amount = '0,00';
-        $C28_PAYMT->amount_keep_code = '3';
-        $C28_PAYMT->terms_due_code = '1';
-        $C28_PAYMT->days_past_due = '0';
-
-        $data->C28_PAYMT = $C28_PAYMT;
+                    $C28_PAYMT = new StdClass();
+                    $C28_PAYMT->payment_amount = '0.00';
+                    $C28_PAYMT->amount_keep_code = '3';
+                    $C28_PAYMT->terms_due_code = '1';
+                    $DEBT_INFO->payment = $C28_PAYMT;
+                $EVENT_2_3->debt_info = $DEBT_INFO;
 
 
-        $C29_MONTHAVERPAYMT = new StdClass();
-        $C29_MONTHAVERPAYMT->average_payment_amount = round($contract->amount + $interest_terms_amount);
-        $C29_MONTHAVERPAYMT->calculation_date = date('d.m.Y', strtotime($contract->inssuance_date));
+                $C29_MONTHAVERPAYMT = new StdClass();
+                $C29_MONTHAVERPAYMT->average_payment_amount = round($contract->amount + $interest_terms_amount);
+                $C29_MONTHAVERPAYMT->calculation_date = date('Y-m-d', strtotime($contract->inssuance_date));
+                $EVENT_2_3->monthly_payment = $C29_MONTHAVERPAYMT;
 
-        $data->C29_MONTHAVERPAYMT = $C29_MONTHAVERPAYMT;
+                $C20_COBORROWER  = new StdClass();
+                $C20_COBORROWER->has_solidary = 0;
+                $EVENT_2_3->joint_debtors = $C20_COBORROWER;
+                
+                $C54_OBLIGACCOUNT = new StdClass();
+                $C54_OBLIGACCOUNT->has_obligation = 1;
+                $C54_OBLIGACCOUNT->min_interest_rate = sprintf("%01.2f", $contract->base_percent * 365);
+                $C54_OBLIGACCOUNT->max_interest_rate = sprintf("%01.2f", $contract->base_percent * 365);
+                $C54_OBLIGACCOUNT->has_preferential_financing = '0';
+                $C54_OBLIGACCOUNT->preferential_financing_info = ["85453-87"]; //???
+                $C54_OBLIGACCOUNT->calc_date = date('Y-m-d', strtotime($new_ret_date));
+                $EVENT_2_3->accounting = $C54_OBLIGACCOUNT;
+
+                $C55_APPLICATION = new StdClass();
+                $C55_APPLICATION->requested_flag_indicator_code = 1;
+                $C55_APPLICATION->requested_amount = sprintf("%01.2f", $order->amount);
+                $C55_APPLICATION->requested_currency_code = "RUB";
+                $C55_APPLICATION->application_number = $contract->uid;
+                $C55_APPLICATION->application_date = date('Y-m-d', strtotime($order->date));
+                $C55_APPLICATION->creditor_type_code = 2;
+                $C55_APPLICATION->application_shipment_code = 8;
+                $C55_APPLICATION->consideration_shipment_code = 5;
+                $C55_APPLICATION->transit_date = date('Y-m-d', strtotime($contract->inssuance_date));
+                $C55_APPLICATION->application_code = 7;
+                $EVENT_2_3->application = $C55_APPLICATION;
+
+                $C56_OBLIGPARTTAKE = new StdClass();
+                $C56_OBLIGPARTTAKE->flag_indicator_code = '1';
+                $C56_OBLIGPARTTAKE->approved_loan_type_code = '13';
+                $C56_OBLIGPARTTAKE->agreement_number = $contract->uid;
+                $C56_OBLIGPARTTAKE->funding_date = date('Y-m-d', strtotime($contract->inssuance_date));
+                $C56_OBLIGPARTTAKE->default_flag = 0;
+                $C56_OBLIGPARTTAKE->loan_indicator = 0;
+
+                $EVENT_2_3->participation = $C56_OBLIGPARTTAKE;
+
+            $EVENTS_OBJ->event_2_3 = $EVENT_2_3;
+
+            $EVENTS[] = $EVENTS_OBJ;
+
+        $data->events = $EVENTS;
 
 
-        $C54_OBLIGACCOUNT = new StdClass();
-        $C54_OBLIGACCOUNT->has_obligation = 1;
-        $C54_OBLIGACCOUNT->interest_rate = str_replace('.', ',', sprintf("%01.2f", $contract->base_percent * 365));
-        $C54_OBLIGACCOUNT->has_preferential_financing = '0';
+        // $data = new StdClass();
 
-        $data->C54_OBLIGACCOUNT = $C54_OBLIGACCOUNT;
+        // $GROUPHEADER = new StdClass();
+        // $GROUPHEADER->event_number = "2.2";
+        // $GROUPHEADER->operation_code = "B";
+        // $GROUPHEADER->event_date = date('d.m.Y', strtotime($order->operation->created));
+
+        // $data->GROUPHEADER = $GROUPHEADER;
 
 
-        $C56_OBLIGPARTTAKE = new StdClass();
-        $C56_OBLIGPARTTAKE->flag_indicator_code = '1';
-        $C56_OBLIGPARTTAKE->approved_loan_type_code = '13';
-        $C56_OBLIGPARTTAKE->agreement_number = $contract->uid;
-        $C56_OBLIGPARTTAKE->funding_date = date('d.m.Y', strtotime($contract->inssuance_date));
-        $C56_OBLIGPARTTAKE->default_flag = '0';
-        $C56_OBLIGPARTTAKE->loan_indindicator = '0';
+        // $C1_NAME = new StdClass();
+        // $C1_NAME->surname = $this->clearing($order->lastname);
+        // $C1_NAME->name = $this->clearing($order->firstname);
+        // $C1_NAME->patronymic = $this->clearing($order->patronymic);
 
-        $data->C56_OBLIGPARTTAKE = $C56_OBLIGPARTTAKE;
-        // echo __FILE__ . ' ' . __LINE__ . '<br /><pre>';
-        // var_dump($data);
-        // echo '</pre><hr />';
+        // $data->C1_NAME = $C1_NAME;
+
+
+        // $C2_PREVNAME = new StdClass();
+        // $C2_PREVNAME->is_prev_name = '0';
+
+        // $data->C2_PREVNAME = $C2_PREVNAME;
+
+
+        // $C3_BIRTH = new StdClass();
+        // $C3_BIRTH->birth_date = date('d.m.Y', strtotime($order->birth));
+        // $C3_BIRTH->country_code = '643';
+        // $C3_BIRTH->birth_place = $this->clearing($order->birth_place);
+
+        // $data->C3_BIRTH = $C3_BIRTH;
+
+
+        // $C4_ID = new StdClass();
+        // $C4_ID->country_code = '643';
+        // $C4_ID->document_code = '21';
+        // $C4_ID->series_number = $passport_series;
+        // $C4_ID->document_number = $passport_number;
+        // $C4_ID->issue_date = date('d.m.Y', strtotime($order->passport_date));
+        // $C4_ID->issued_by_division = $this->clearing($order->passport_issued);
+        // $C4_ID->division_code = $order->subdivision_code;
+
+        // $data->C4_ID = $C4_ID;
+
+
+        // $C5_PREVID = new StdClass();
+        // $C5_PREVID->is_prev_document = '0';
+
+        // $data->C5_PREVID = $C5_PREVID;
+
+
+        // $C6_REGNUM = new StdClass();
+        // $C6_REGNUM->taxpayer_code = '1';
+        // $C6_REGNUM->taxpayer_number = empty($order->inn) ? '000000000000' : $order->inn;
+        // $C6_REGNUM->is_special_tax = '0';
+
+        // $data->C6_REGNUM = $C6_REGNUM;
+
+
+        // $C17_UID = new StdClass();
+        // $C17_UID->uuid = $contract->uid;
+
+        // $data->C17_UID = $C17_UID;
+
+
+        // $C18_TRADE = new StdClass();
+        // $C18_TRADE->owner_indicator_code = '1';
+        // $C18_TRADE->opened_date = date('d.m.Y', strtotime($contract->inssuance_date));
+        // $C18_TRADE->trade_type_code = '1';
+        // $C18_TRADE->load_kind_code = '13';
+        // $C18_TRADE->account_type_code = '14';
+        // $C18_TRADE->is_consumer_loan = '1';
+        // $C18_TRADE->has_card = '1';
+        // $C18_TRADE->is_novation = '0';
+        // $C18_TRADE->is_money_source = '1';
+        // $C18_TRADE->is_money_borrower = '1';
+        // $C18_TRADE->close_date = date('d.m.Y', strtotime($contract->return_date));
+        // $C18_TRADE->lender_type_code = '2';
+        // $C18_TRADE->has_obtaining_part_creditor = '0';
+        // $C18_TRADE->has_credit_line = '0';
+        // $C18_TRADE->is_interest_rate_float = '0';
+        // $C18_TRADE->has_transfer_part_creditor = '0';
+        // $C18_TRADE->commit_date = date('d.m.Y', strtotime($contract->inssuance_date));
+
+        // $data->C18_TRADE = $C18_TRADE;
+
+
+        // $C19_ACCOUNTAMT = new StdClass();
+        // $C19_ACCOUNTAMT->credit_limit = str_replace('.', ',', sprintf("%01.2f", $contract->amount));
+        // $C19_ACCOUNTAMT->currency_code = 'RUB';
+        // $C19_ACCOUNTAMT->commit_currency_code = 'RUB';
+        // $C19_ACCOUNTAMT->amount_date = date('d.m.Y', strtotime($contract->inssuance_date));
+        // $C19_ACCOUNTAMT->commit_uuid = $contract->uid;
+
+        // $data->C19_ACCOUNTAMT = $C19_ACCOUNTAMT;
+
+
+        // $interest_terms_amount = ($contract->amount * $contract->base_percent / 100 * $contract->period);
+        // $C21_PAYMTCONDITION = new StdClass();
+        // $C21_PAYMTCONDITION->principal_terms_amount = str_replace('.', ',', sprintf("%01.2f", $contract->amount));
+        // $C21_PAYMTCONDITION->principal_terms_amount_date = date('d.m.Y', strtotime($contract->return_date));
+        // $C21_PAYMTCONDITION->interest_terms_amount = str_replace('.', ',', sprintf("%01.2f", $interest_terms_amount));
+        // $C21_PAYMTCONDITION->interest_terms_amount_date = date('d.m.Y', strtotime($contract->return_date));
+        // $C21_PAYMTCONDITION->terms_frequency_code = '3';
+        // $C21_PAYMTCONDITION->interest_payment_due_date = date('d.m.Y', strtotime($contract->return_date));
+
+        // $data->C21_PAYMTCONDITION = $C21_PAYMTCONDITION;
+
+
+        // $C22_OVERALLVAL = new StdClass();
+        // $C22_OVERALLVAL->total_credit_amount_interest = str_replace('.', ',', sprintf("%01.2f", $contract->base_percent * 365));
+        // $C22_OVERALLVAL->total_credit_amount_monetary = str_replace('.', ',', sprintf("%01.2f", $interest_terms_amount));
+        // $C22_OVERALLVAL->total_credit_amount_date = date('d.m.Y', strtotime($contract->inssuance_date));
+
+        // $data->C22_OVERALLVAL = $C22_OVERALLVAL;
+
+
+        // $C24_FUNDDATE = new StdClass();
+        // $C24_FUNDDATE->funding_date = date('d.m.Y', strtotime($contract->inssuance_date));
+
+        // $data->C24_FUNDDATE = $C24_FUNDDATE;
+
+
+        // $C25_ARREAR = new StdClass();
+        // $C25_ARREAR->has_arrear = '1';
+        // $C25_ARREAR->start_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $contract->amount));
+        // $C25_ARREAR->is_last_payment_due = '1';
+        // $C25_ARREAR->amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $contract->amount + $interest_terms_amount));
+        // $C25_ARREAR->principal_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $contract->amount));
+        // $C25_ARREAR->interest_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $interest_terms_amount));
+        // $C25_ARREAR->other_amount_outstanding = '0,00';
+        // $C25_ARREAR->calculation_date = date('d.m.Y', strtotime($contract->inssuance_date));
+
+        // $data->C25_ARREAR = $C25_ARREAR;
+
+
+        // $C26_DUEARREAR = new StdClass();
+        // $C26_DUEARREAR->start_date = date('d.m.Y', strtotime($contract->inssuance_date));
+        // $C26_DUEARREAR->is_last_payment_due = '1';
+        // $C26_DUEARREAR->amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $contract->amount + $interest_terms_amount));
+        // $C26_DUEARREAR->principal_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $contract->amount));
+        // $C26_DUEARREAR->interest_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $interest_terms_amount));
+        // $C26_DUEARREAR->other_amount_outstanding = '0,00';
+        // $C26_DUEARREAR->calculation_date = date('d.m.Y', strtotime($contract->inssuance_date));
+
+        // $data->C26_DUEARREAR = $C26_DUEARREAR;
+
+
+        // $C27_PASTDUEARREAR = new StdClass();
+        // $C27_PASTDUEARREAR->amount_outstanding = '0,00';
+        // $C27_PASTDUEARREAR->calculation_date = date('d.m.Y', strtotime($contract->inssuance_date));
+
+        // $data->C27_PASTDUEARREAR = $C27_PASTDUEARREAR;
+
+
+        // $C28_PAYMT = new StdClass();
+
+        // $C28_PAYMT->payment_amount = '0,00';
+        // // $C28_PAYMT->principal_payment_amount = '0,00';
+        // // $C28_PAYMT->interest_payment_amount = '0,00';
+        // // $C28_PAYMT->other_payment_amount = '0,00';
+        // // $C28_PAYMT->total_amount = '0,00';
+        // // $C28_PAYMT->principal_total_amount = '0,00';
+        // // $C28_PAYMT->interest_total_amount = '0,00';
+        // // $C28_PAYMT->other_total_amount = '0,00';
+        // $C28_PAYMT->amount_keep_code = '3';
+        // $C28_PAYMT->terms_due_code = '1';
+        // $C28_PAYMT->days_past_due = '0';
+
+        // $data->C28_PAYMT = $C28_PAYMT;
+
+
+        // $C29_MONTHAVERPAYMT = new StdClass();
+        // $C29_MONTHAVERPAYMT->average_payment_amount = round($contract->amount + $interest_terms_amount);
+        // $C29_MONTHAVERPAYMT->calculation_date = date('d.m.Y', strtotime($contract->inssuance_date));
+
+        // $data->C29_MONTHAVERPAYMT = $C29_MONTHAVERPAYMT;
+
+
+        // $C54_OBLIGACCOUNT = new StdClass();
+        // $C54_OBLIGACCOUNT->has_obligation = 1;
+        // $C54_OBLIGACCOUNT->interest_rate = str_replace('.', ',', sprintf("%01.2f", $contract->base_percent * 365));
+        // $C54_OBLIGACCOUNT->has_preferential_financing = '0';
+
+        // $data->C54_OBLIGACCOUNT = $C54_OBLIGACCOUNT;
+
+
+        // $C56_OBLIGPARTTAKE = new StdClass();
+        // $C56_OBLIGPARTTAKE->flag_indicator_code = '1';
+        // $C56_OBLIGPARTTAKE->approved_loan_type_code = '13';
+        // $C56_OBLIGPARTTAKE->agreement_number = $contract->uid;
+        // $C56_OBLIGPARTTAKE->funding_date = date('d.m.Y', strtotime($contract->inssuance_date));
+        // $C56_OBLIGPARTTAKE->default_flag = '0';
+        // $C56_OBLIGPARTTAKE->loan_indindicator = '0';
+
+        // $data->C56_OBLIGPARTTAKE = $C56_OBLIGPARTTAKE;
+
         return $data;
     }
 
@@ -627,129 +1100,6 @@ class Nbki_report extends Core
         $passport_series = substr($passport_serial, 0, 4);
         $passport_number = substr($passport_serial, 4, 6);
 
-
-        $data = new StdClass();
-
-        $GROUPHEADER = new StdClass();
-        $GROUPHEADER->event_number = "2.5";
-        $GROUPHEADER->operation_code = "B";
-        $GROUPHEADER->event_date = date('d.m.Y', strtotime($order->operation->created));
-
-        $data->GROUPHEADER = $GROUPHEADER;
-
-
-        $C1_NAME = new StdClass();
-        $C1_NAME->surname = $this->clearing($order->lastname);
-        $C1_NAME->name = $this->clearing($order->firstname);
-        $C1_NAME->patronymic = $this->clearing($order->patronymic);
-
-        $data->C1_NAME = $C1_NAME;
-
-
-        $C2_PREVNAME = new StdClass();
-        $C2_PREVNAME->is_prev_name = '0';
-
-        $data->C2_PREVNAME = $C2_PREVNAME;
-
-
-        $C3_BIRTH = new StdClass();
-        $C3_BIRTH->birth_date = date('d.m.Y', strtotime($order->birth));
-        $C3_BIRTH->country_code = '643';
-        $C3_BIRTH->birth_place = $this->clearing($order->birth_place);
-
-        $data->C3_BIRTH = $C3_BIRTH;
-
-
-        $C4_ID = new StdClass();
-        $C4_ID->country_code = '643';
-        $C4_ID->document_code = '21';
-        $C4_ID->series_number = $passport_series;
-        $C4_ID->document_number = $passport_number;
-        $C4_ID->issue_date = date('d.m.Y', strtotime($order->passport_date));
-        $C4_ID->issued_by_division = $this->clearing($order->passport_issued);
-        $C4_ID->division_code = $order->subdivision_code;
-
-        $data->C4_ID = $C4_ID;
-
-
-        $C5_PREVID = new StdClass();
-        $C5_PREVID->is_prev_document = '0';
-
-        $data->C5_PREVID = $C5_PREVID;
-
-
-        $C6_REGNUM = new StdClass();
-        $C6_REGNUM->taxpayer_code = '1';
-        $C6_REGNUM->taxpayer_number = empty($order->inn) ? '000000000000' : $order->inn;
-        $C6_REGNUM->is_special_tax = '0';
-
-        $data->C6_REGNUM = $C6_REGNUM;
-
-
-        $C17_UID = new StdClass();
-        $C17_UID->uuid = $contract->uid;
-
-        $data->C17_UID = $C17_UID;
-
-
-        $C18_TRADE = new StdClass();
-        $C18_TRADE->owner_indicator_code = '1';
-        $C18_TRADE->opened_date = date('d.m.Y', strtotime($contract->inssuance_date));
-        $C18_TRADE->trade_type_code = '1';
-        $C18_TRADE->load_kind_code = '13';
-        $C18_TRADE->account_type_code = '14';
-        $C18_TRADE->is_consumer_loan = '1';
-        $C18_TRADE->has_card = '1';
-        $C18_TRADE->is_novation = '0';
-        $C18_TRADE->is_money_source = '1';
-        $C18_TRADE->is_money_borrower = '1';
-        $C18_TRADE->close_date = date('d.m.Y', strtotime($contract->return_date));
-        $C18_TRADE->lender_type_code = '2';
-        $C18_TRADE->has_obtaining_part_creditor = '0';
-        $C18_TRADE->has_credit_line = '0';
-        $C18_TRADE->is_interest_rate_float = '0';
-        $C18_TRADE->has_transfer_part_creditor = '0';
-        $C18_TRADE->commit_date = date('d.m.Y', strtotime($contract->inssuance_date));
-
-        $data->C18_TRADE = $C18_TRADE;
-
-
-        $C19_ACCOUNTAMT = new StdClass();
-        $C19_ACCOUNTAMT->credit_limit = str_replace('.', ',', sprintf("%01.2f", $contract->amount));
-        $C19_ACCOUNTAMT->currency_code = 'RUB';
-        $C19_ACCOUNTAMT->commit_currency_code = 'RUB';
-        $C19_ACCOUNTAMT->amount_date = date('d.m.Y', strtotime($contract->inssuance_date));
-        $C19_ACCOUNTAMT->commit_uuid = $contract->uid;
-
-        $data->C19_ACCOUNTAMT = $C19_ACCOUNTAMT;
-
-
-        $interest_terms_amount = ($contract->amount * $contract->base_percent / 100 * $contract->period);
-        $C21_PAYMTCONDITION = new StdClass();
-        $C21_PAYMTCONDITION->principal_terms_amount = str_replace('.', ',', sprintf("%01.2f", $contract->amount));
-        $C21_PAYMTCONDITION->principal_terms_amount_date = date('d.m.Y', strtotime($contract->return_date));
-        $C21_PAYMTCONDITION->interest_terms_amount = str_replace('.', ',', sprintf("%01.2f", $interest_terms_amount));
-        $C21_PAYMTCONDITION->interest_terms_amount_date = date('d.m.Y', strtotime($contract->return_date));
-        $C21_PAYMTCONDITION->terms_frequency_code = '3';
-        $C21_PAYMTCONDITION->interest_payment_due_date = date('d.m.Y', strtotime($contract->return_date));
-
-        $data->C21_PAYMTCONDITION = $C21_PAYMTCONDITION;
-
-
-        $C22_OVERALLVAL = new StdClass();
-        $C22_OVERALLVAL->total_credit_amount_interest = str_replace('.', ',', sprintf("%01.2f", $contract->base_percent * 365));
-        $C22_OVERALLVAL->total_credit_amount_monetary = str_replace('.', ',', sprintf("%01.2f", $interest_terms_amount));
-        $C22_OVERALLVAL->total_credit_amount_date = date('d.m.Y', strtotime($contract->inssuance_date));
-
-        $data->C22_OVERALLVAL = $C22_OVERALLVAL;
-
-
-        $C24_FUNDDATE = new StdClass();
-        $C24_FUNDDATE->funding_date = date('d.m.Y', strtotime($contract->inssuance_date));
-
-        $data->C24_FUNDDATE = $C24_FUNDDATE;
-
-
         $ret_date_array = $this->ret_date_data($order);
 
         $ret_date = $ret_date_array[0];
@@ -757,182 +1107,291 @@ class Nbki_report extends Core
         $ret_date_body_summ = $ret_date_array[2];
         $ret_date_percents_summ = $ret_date_array[3];
         $ret_date_peni_summ = $ret_date_array[4];
-
-        $C25_ARREAR = new StdClass();
-        $C25_ARREAR->has_arrear = '1';
-        $C25_ARREAR->start_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $contract->amount));
-        $C25_ARREAR->is_last_payment_due = '1';
-        // $C25_ARREAR->amount_outstanding = '0,00';
-        $C25_ARREAR->amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $ret_date_body_summ + $ret_date_percents_summ + $ret_date_peni_summ));
-        $C25_ARREAR->principal_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $ret_date_body_summ));
-        $C25_ARREAR->interest_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $ret_date_percents_summ + $ret_date_peni_summ));
-        $C25_ARREAR->other_amount_outstanding = '0,00';
-        // $C25_ARREAR->calculation_date = date('d.m.Y', strtotime($contract->inssuance_date));
-        $C25_ARREAR->calculation_date = date('d.m.Y', strtotime($contract->close_date));
-
-
-        $data->C25_ARREAR = $C25_ARREAR;
-
-
-        $C26_DUEARREAR = new StdClass();
-        $C26_DUEARREAR->start_date = date('d.m.Y', strtotime($contract->inssuance_date));
-        $C26_DUEARREAR->is_last_payment_due = '1';
-        // if ($ret_date_peni_summ) {
-            $C26_DUEARREAR->amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $ret_date_body_summ + $ret_date_percents_summ + $ret_date_peni_summ));
-            $C26_DUEARREAR->principal_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $ret_date_body_summ));
-            $C26_DUEARREAR->interest_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $ret_date_percents_summ + $ret_date_peni_summ));
-            $C26_DUEARREAR->other_amount_outstanding = '0,00';
-        // }
-        // else{
-        //     $C26_DUEARREAR->amount_outstanding = '0,00';
-        //     $C26_DUEARREAR->principal_amount_outstanding = '0,00';
-        //     $C26_DUEARREAR->interest_amount_outstanding = '0,00';
-        //     $C26_DUEARREAR->other_amount_outstanding = '0,00';
-        // }
-        // $C26_DUEARREAR->calculation_date = date('d.m.Y', strtotime($contract->inssuance_date));
-        $C26_DUEARREAR->calculation_date = date('d.m.Y', strtotime($contract->close_date));
-
-        $data->C26_DUEARREAR = $C26_DUEARREAR;
-
-
-        $C27_PASTDUEARREAR = new StdClass();
-        $C27_PASTDUEARREAR->amount_outstanding = '0,00';
-        // $C27_PASTDUEARREAR->calculation_date = date('d.m.Y', strtotime($this->last_missed_percents_payment($order)));
-        $C27_PASTDUEARREAR->calculation_date = date('d.m.Y', strtotime($contract->close_date));
-
-        $data->C27_PASTDUEARREAR = $C27_PASTDUEARREAR;
-
-
-        $C28_PAYMT = new StdClass();
-        $C28_PAYMT->payment_date = date('d.m.Y', strtotime($order->operation->created));
-        $C28_PAYMT->payment_amount = str_replace('.', ',', sprintf("%01.2f", $order->payment_amount));
-        $C28_PAYMT->principal_payment_amount = str_replace('.', ',', sprintf("%01.2f", $order->principal_payment_amount));
-        $C28_PAYMT->interest_payment_amount = str_replace('.', ',', sprintf("%01.2f", $order->interest_payment_amount));
-        $C28_PAYMT->other_payment_amount = str_replace('.', ',', sprintf("%01.2f", $order->other_payment_amount));
-        $C28_PAYMT->total_amount = str_replace('.', ',', sprintf("%01.2f", $order->total_amount));
-        $C28_PAYMT->principal_total_amount = str_replace('.', ',', sprintf("%01.2f", $order->principal_total_amount));
-        $C28_PAYMT->interest_total_amount = str_replace('.', ',', sprintf("%01.2f", $order->interest_total_amount));
-        $C28_PAYMT->other_total_amount = str_replace('.', ',', sprintf("%01.2f", $order->other_total_amount));
-        // $C28_PAYMT->amount_keep_code = $order->amount_keep_code;
-        // $C28_PAYMT->terms_due_code = $order->terms_due_code;
-        // $C28_PAYMT->days_past_due = $order->days_past_due;
-        $C28_PAYMT->amount_keep_code = '1';
-        $C28_PAYMT->terms_due_code = '2';
-        $C28_PAYMT->days_past_due = '0';
-
-        $data->C28_PAYMT = $C28_PAYMT;
-
-
-        $C29_MONTHAVERPAYMT = new StdClass();
-        // $C29_MONTHAVERPAYMT->average_payment_amount = round($contract->amount + $interest_terms_amount);
-        $C29_MONTHAVERPAYMT->average_payment_amount = 0;
-        // $C29_MONTHAVERPAYMT->calculation_date = date('d.m.Y', strtotime($contract->inssuance_date));
-        $C29_MONTHAVERPAYMT->calculation_date = date('d.m.Y', strtotime($contract->close_date));
-
-        $data->C29_MONTHAVERPAYMT = $C29_MONTHAVERPAYMT;
-
-
-        $C38_OBLIGTERMINATION  = new StdClass();
-        $C38_OBLIGTERMINATION->loan_indicator = 1;
-        $C38_OBLIGTERMINATION->loan_indicator_date = date('d.m.Y', strtotime($contract->close_date));
-
-        $data->C38_OBLIGTERMINATION  = $C38_OBLIGTERMINATION ;
-
-
-        $C54_OBLIGACCOUNT = new StdClass();
-        $C54_OBLIGACCOUNT->has_obligation = 1;
-        $C54_OBLIGACCOUNT->interest_rate = str_replace('.', ',', sprintf("%01.2f", $contract->base_percent * 365));
-        $C54_OBLIGACCOUNT->has_preferential_financing = '0';
-
-        $data->C54_OBLIGACCOUNT = $C54_OBLIGACCOUNT;
-
-
-        $C56_OBLIGPARTTAKE = new StdClass();
-        $C56_OBLIGPARTTAKE->flag_indicator_code = '1';
-        $C56_OBLIGPARTTAKE->approved_loan_type_code = '13';
-        $C56_OBLIGPARTTAKE->agreement_number = $contract->uid;
-        $C56_OBLIGPARTTAKE->funding_date = date('d.m.Y', strtotime($contract->inssuance_date));
-        $C56_OBLIGPARTTAKE->default_flag = '0';
-        // $C56_OBLIGPARTTAKE->loan_indicator = intval($order->closed) > 0 ? '1' : '0';
-        $C56_OBLIGPARTTAKE->loan_indicator = 1;
-
-        $data->C56_OBLIGPARTTAKE = $C56_OBLIGPARTTAKE;
-
-        return $data;
-    }
-
-    private function get_cessia_item($order)
-    {
-        $contract = $this->contracts->get_contract($order->contract_id);
-
-        $passport_serial = str_replace([' ', '-'], '', $order->passport_serial);
-        $passport_series = substr($passport_serial, 0, 4);
-        $passport_number = substr($passport_serial, 4, 6);
+        $new_ret_date = $ret_date_array[5];
 
 
         $data = new StdClass();
 
-        $GROUPHEADER = new StdClass();
-        $GROUPHEADER->event_number = "2.11";
-        $GROUPHEADER->operation_code = "B";
+            $TITLE = new StdClass();
+
+                $CURRENT_NAME = new StdClass();
+
+                    $C1_NAME = new StdClass();
+                    $C1_NAME->surname = $this->uppercase($order->lastname);
+                    $C1_NAME->name = $this->uppercase($order->firstname);
+                    $C1_NAME->patronymic = $this->uppercase($order->patronymic);
+                    $CURRENT_NAME->name = $C1_NAME;
+
+                    $C4_DOCUMENTS = [];
+                    $C4_DOCUMENTS_OBJ = new StdClass();
+                    $C4_DOCUMENTS_OBJ->country_code = 643;
+                    $C4_DOCUMENTS_OBJ->document_code = 21;
+                    $C4_DOCUMENTS_OBJ->series_number = $passport_series;
+                    $C4_DOCUMENTS_OBJ->document_number = $passport_number;
+                    $C4_DOCUMENTS_OBJ->issue_date = date('d.m.Y', strtotime($order->passport_date));
+                    $C4_DOCUMENTS_OBJ->issued_by_division = $this->clearing($order->passport_issued);
+                    $C4_DOCUMENTS_OBJ->division_code = $order->subdivision_code;
+                    $C4_DOCUMENTS_OBJ->foreigner_code = 3;
+                    $C4_DOCUMENTS [] = $C4_DOCUMENTS_OBJ;
+                    $CURRENT_NAME->documents = $C4_DOCUMENTS;
+                
+                $TITLE->current_name = $CURRENT_NAME;
+    
+                $PREVIOUS_PERSONALITY_DETAILS = [];
+                $PREVIOUS_PERSONALITY_DETAILS_OBJ = new StdClass();
+
+                    $C2_PREVIOUS_NAME = new StdClass();
+                    $C2_PREVIOUS_NAME->is_prev_name = 0;
+                    $PREVIOUS_PERSONALITY_DETAILS_OBJ->previous_name = $C2_PREVIOUS_NAME;
+                    
+                    $C5_PREVIOUS_DOCUMENTS =[];
+                    $C5_PREVIOUS_DOCUMENTS_OBJ = new StdClass();
+                    $C5_PREVIOUS_DOCUMENTS_OBJ->is_prev_document = 0;
+                    $C5_PREVIOUS_DOCUMENTS[] = $C5_PREVIOUS_DOCUMENTS_OBJ;
+                    $PREVIOUS_PERSONALITY_DETAILS_OBJ->previous_documents = $C5_PREVIOUS_DOCUMENTS;
+
+                $PREVIOUS_PERSONALITY_DETAILS[] = $PREVIOUS_PERSONALITY_DETAILS_OBJ;
+                $TITLE->previous_personality_details = $PREVIOUS_PERSONALITY_DETAILS;
+
+                $BIRTH_DETAILS = new StdClass();
+
+                $C3_BIRTH_DETAILS = new StdClass();
+                $C3_BIRTH_DETAILS->birth_date = date('d.m.Y', strtotime($order->birth));
+                $C3_BIRTH_DETAILS->country_code = '643';
+                $C3_BIRTH_DETAILS->birth_place = $this->clearing($order->birth_place);
+
+                $TITLE->birth_details = $C3_BIRTH_DETAILS;
+
+                $C6_TAXPAYER_INFO = new StdClass();
+                    
+                    $TAXPAYER_INFO = new StdClass();
+                    $TAXPAYER_INFO->taxpayer_number = empty($order->inn) ? '000000000000' : $order->inn;
+                    $TAXPAYER_INFO->taxpayer_number_code = '1';
+                    $C6_TAXPAYER_INFO->taxpayer_info = $TAXPAYER_INFO;
+
+                    $C6_TAXPAYER_INFO->is_special_tax = '0';
+
+                $TITLE->taxpayer_info = $C6_TAXPAYER_INFO;
+
+            $data->title = $TITLE;
+
+            $EVENTS = [];
+            $EVENTS_OBJ = new StdClass();
+
+                $EVENT_2_3 = new StdClass();
+                $EVENT_2_3->order_num = $order->order_id;
+                $EVENT_2_3->event_date = date('Y-m-d', strtotime($new_ret_date));
+                $EVENT_2_3->operation_code = "B";
+
+                $DEAL_UID  = new StdClass();
+                $DEAL_UID->uuid = $contract->uid;
+                $DEAL_UID->open_date = date('Y-m-d', strtotime($contract->inssuance_date));
+                $EVENT_2_3->deal_uid = $DEAL_UID;
+
+                $C18_TRADE = new StdClass();
+                $C18_TRADE->owner_indicator_code = '1';
+                $C18_TRADE->trade_type_code = '1';
+                $C18_TRADE->load_kind_code = '13'; 
+                $C18_TRADE->account_type_code = [99];
+                $C18_TRADE->is_consumer_loan = '1';
+                $C18_TRADE->has_card = '1';
+                $C18_TRADE->is_novation = '0';
+                $C18_TRADE->is_money_source = '1';
+                $C18_TRADE->is_money_borrower = '1';
+                $C18_TRADE->close_date = date('Y-m-d', strtotime($contract->return_date));
+                $C18_TRADE->lender_type_code = '2';
+                $C18_TRADE->has_obtaining_part_creditor = '0';
+                $C18_TRADE->transfer_part_creditor_uuid = '-';
+                $C18_TRADE->has_credit_line = '0';
+                $C18_TRADE->is_interest_rate_float = '0';
+                $C18_TRADE->has_transfer_part_creditor = '0';
+                $C18_TRADE->opened_date = date('Y-m-d', strtotime($contract->inssuance_date));
+                $C18_TRADE->repayment_fact = 0;
+                $C18_TRADE->transfer_fact = 0;
+                $C18_TRADE->partner_financing_fact = 0;
+                $EVENT_2_3->deal = $C18_TRADE;
+
+                $C19_ACCOUNTAMT = new StdClass();
+                $C19_ACCOUNTAMT->credit_limit = sprintf("%01.2f", $contract->amount);
+                $C19_ACCOUNTAMT->currency_code = 'RUB';
+                $C19_ACCOUNTAMT->amount_date = date('Y-m-d', strtotime($contract->inssuance_date));
+                $EVENT_2_3->amount = $C19_ACCOUNTAMT;
+
+                $C19_ACCOUNTAMT_INFO = [];
+                $C19_ACCOUNTAMT_INFO_OBJ = new StdClass();
+                $C19_ACCOUNTAMT_INFO_OBJ->security_fact = 0;
+                $C19_ACCOUNTAMT_INFO [] = $C19_ACCOUNTAMT_INFO_OBJ;
+                $EVENT_2_3->amount_info = $C19_ACCOUNTAMT_INFO;
+
+                $interest_terms_amount = ($contract->amount * $contract->base_percent / 100 * $contract->period);
+                $C21_PAYMTCONDITION = new StdClass();
+                $C21_PAYMTCONDITION->principal_terms_amount = sprintf("%01.2f", $contract->amount);
+                $C21_PAYMTCONDITION->principal_terms_amount_date = date('Y-m-d', strtotime($contract->return_date));
+                $C21_PAYMTCONDITION->interest_terms_amount = sprintf("%01.2f", $interest_terms_amount);
+                $C21_PAYMTCONDITION->interest_terms_amount_date = date('Y-m-d', strtotime($contract->return_date));
+                $C21_PAYMTCONDITION->terms_frequency_code = '3';
+                $C21_PAYMTCONDITION->interest_payment_due_date = date('Y-m-d', strtotime($contract->return_date));
+                $EVENT_2_3->payment_terms = $C21_PAYMTCONDITION;
+
+                $C22_OVERALLVAL = new StdClass();
+                $C22_OVERALLVAL->total_credit_amount_interest = sprintf("%01.3f", $contract->base_percent * 365);
+                $C22_OVERALLVAL->total_credit_amount_monetary = sprintf("%01.2f", $interest_terms_amount);
+                $C22_OVERALLVAL->total_credit_amount_date = date('Y-m-d', strtotime($contract->inssuance_date));
+                $EVENT_2_3->total_cost = $C22_OVERALLVAL;
+
+
+                $DEBT_INFO = new StdClass();
+                $DEBT_INFO->last_pay_exists = 0;
+                $DEBT_INFO->calc_date = date('Y-m-d', strtotime($new_ret_date));
+
+                    $C25_ARREAR = new StdClass();
+                    $C25_ARREAR->has_arrear = '1';
+                    $C25_ARREAR->amount_outstanding = sprintf("%01.2f", $ret_date_body_summ + $ret_date_percents_summ + $ret_date_peni_summ);
+                    $C25_ARREAR->principal_amount_outstanding = sprintf("%01.2f", $ret_date_body_summ);
+                    $C25_ARREAR->interest_amount_outstanding = sprintf("%01.2f", $ret_date_percents_summ + $ret_date_peni_summ);
+                    $C25_ARREAR->other_amount_outstanding = '0.00';
+                    $C25_ARREAR->is_unconfirmed_grace = 0;
+                    $DEBT_INFO->debt = $C25_ARREAR;
+
+                    $C26_DUEARREAR = new StdClass();
+                    $C26_DUEARREAR->amount_outstanding = sprintf("%01.2f", $ret_date_body_summ + $ret_date_percents_summ + $ret_date_peni_summ);
+                    $C26_DUEARREAR->principal_amount_outstanding = sprintf("%01.2f", $ret_date_body_summ);
+                    $C26_DUEARREAR->interest_amount_outstanding = sprintf("%01.2f", $ret_date_percents_summ + $ret_date_peni_summ);
+                    $C26_DUEARREAR->other_amount_outstanding = '0.00';
+                    $C26_DUEARREAR->start_date = date('Y-m-d', strtotime($contract->inssuance_date));
+                    $DEBT_INFO->debt_due = $C26_DUEARREAR;
+
+                    $C27_PASTDUEARREAR = new StdClass();
+                    $C27_PASTDUEARREAR->is_last_payment_due = "1";
+                    $C27_PASTDUEARREAR->amount_outstanding = '0.00';
+                    $DEBT_INFO->debt_overdue = $C27_PASTDUEARREAR;
+
+                    $C28_PAYMT = new StdClass();
+                    $C28_PAYMT->payment_amount = sprintf("%01.2f", $order->payment_amount);
+                    $C28_PAYMT->principal_payment_amount = sprintf("%01.2f", $order->principal_payment_amount);
+                    $C28_PAYMT->interest_payment_amount = sprintf("%01.2f", $order->interest_payment_amount);
+                    $C28_PAYMT->other_payment_amount = sprintf("%01.2f", $order->other_payment_amount);
+                    $C28_PAYMT->total_amount = sprintf("%01.2f", $order->total_amount);
+                    $C28_PAYMT->principal_total_amount = sprintf("%01.2f", $order->principal_total_amount);
+                    $C28_PAYMT->interest_total_amount = sprintf("%01.2f", $order->interest_total_amount);
+                    $C28_PAYMT->other_total_amount = sprintf("%01.2f", $order->other_total_amount);
+                    $C28_PAYMT->amount_keep_code = '1';
+                    $C28_PAYMT->terms_due_code = '2';
+                    $DEBT_INFO->payment = $C28_PAYMT;
+                $EVENT_2_3->debt_info = $DEBT_INFO;
+
+                $C29_MONTHAVERPAYMT = new StdClass();
+                $C29_MONTHAVERPAYMT->average_payment_amount = 0;
+                $C29_MONTHAVERPAYMT->calculation_date = date('Y-m-d', strtotime($contract->close_date));
+                $C29_MONTHAVERPAYMT->sum_total = sprintf("%01.2f", ($ret_date_body_summ + $ret_date_percents_summ + $ret_date_peni_summ));
+                $EVENT_2_3->monthly_payment = $C29_MONTHAVERPAYMT;
+
+                $C20_COBORROWER  = new StdClass();
+                $C20_COBORROWER->has_solidary = 0;
+                $EVENT_2_3->joint_debtors = $C20_COBORROWER;
+                
+                $C54_OBLIGACCOUNT = new StdClass();
+                $C54_OBLIGACCOUNT->has_obligation = 1;
+                $C54_OBLIGACCOUNT->min_interest_rate = sprintf("%01.2f", $contract->base_percent * 365);
+                $C54_OBLIGACCOUNT->max_interest_rate = sprintf("%01.2f", $contract->base_percent * 365);
+                $C54_OBLIGACCOUNT->has_preferential_financing = '0';
+                $C54_OBLIGACCOUNT->preferential_financing_info = ["85453-87"]; //???
+                $C54_OBLIGACCOUNT->calc_date = date('Y-m-d', strtotime($new_ret_date));
+                $EVENT_2_3->accounting = $C54_OBLIGACCOUNT;
+
+                $C55_APPLICATION = new StdClass();
+                $C55_APPLICATION->requested_flag_indicator_code = 1;
+                $C55_APPLICATION->requested_amount = sprintf("%01.2f", $order->amount);
+                $C55_APPLICATION->requested_currency_code = "RUB";
+                $C55_APPLICATION->application_number = $contract->uid;
+                $C55_APPLICATION->application_date = date('Y-m-d', strtotime($order->date));
+                $C55_APPLICATION->creditor_type_code = 2;
+                $C55_APPLICATION->application_shipment_code = 8;
+                $C55_APPLICATION->consideration_shipment_code = 5;
+                $C55_APPLICATION->transit_date = date('Y-m-d', strtotime($contract->inssuance_date));
+                $C55_APPLICATION->application_code = 7;
+                $EVENT_2_3->application = $C55_APPLICATION;
+
+                $C56_OBLIGPARTTAKE = new StdClass();
+                $C56_OBLIGPARTTAKE->flag_indicator_code = '1';
+                $C56_OBLIGPARTTAKE->approved_loan_type_code = '13';
+                $C56_OBLIGPARTTAKE->agreement_number = $contract->uid;
+                $C56_OBLIGPARTTAKE->funding_date = date('Y-m-d', strtotime($contract->inssuance_date));
+                $C56_OBLIGPARTTAKE->default_flag = '0';
+                $C56_OBLIGPARTTAKE->loan_indicator = 1;
+                $EVENT_2_3->participation = $C56_OBLIGPARTTAKE;
+
+            $EVENTS_OBJ->event_2_3 = $EVENT_2_3;
+
+            $EVENTS[] = $EVENTS_OBJ;
+
+        $data->events = $EVENTS;
+
+
+        
+
+        // $data = new StdClass();
+
+        // $GROUPHEADER = new StdClass();
+        // $GROUPHEADER->event_number = "2.5";
+        // $GROUPHEADER->operation_code = "B";
         // $GROUPHEADER->event_date = date('d.m.Y', strtotime($order->operation->created));
-        $GROUPHEADER->event_date = date('d.m.Y', strtotime($contract->cession));
 
-        $data->GROUPHEADER = $GROUPHEADER;
-
-
-        $C1_NAME = new StdClass();
-        $C1_NAME->surname = $this->clearing($order->lastname);
-        $C1_NAME->name = $this->clearing($order->firstname);
-        $C1_NAME->patronymic = $this->clearing($order->patronymic);
-
-        $data->C1_NAME = $C1_NAME;
+        // $data->GROUPHEADER = $GROUPHEADER;
 
 
-        $C2_PREVNAME = new StdClass();
-        $C2_PREVNAME->is_prev_name = '0';
+        // $C1_NAME = new StdClass();
+        // $C1_NAME->surname = $this->clearing($order->lastname);
+        // $C1_NAME->name = $this->clearing($order->firstname);
+        // $C1_NAME->patronymic = $this->clearing($order->patronymic);
 
-        $data->C2_PREVNAME = $C2_PREVNAME;
-
-
-        $C3_BIRTH = new StdClass();
-        $C3_BIRTH->birth_date = date('d.m.Y', strtotime($order->birth));
-        $C3_BIRTH->country_code = '643';
-        $C3_BIRTH->birth_place = $this->clearing($order->birth_place);
-
-        $data->C3_BIRTH = $C3_BIRTH;
+        // $data->C1_NAME = $C1_NAME;
 
 
-        $C4_ID = new StdClass();
-        $C4_ID->country_code = '643';
-        $C4_ID->document_code = '21';
-        $C4_ID->series_number = $passport_series;
-        $C4_ID->document_number = $passport_number;
-        $C4_ID->issue_date = date('d.m.Y', strtotime($order->passport_date));
-        $C4_ID->issued_by_division = $this->clearing($order->passport_issued);
-        $C4_ID->division_code = $order->subdivision_code;
+        // $C2_PREVNAME = new StdClass();
+        // $C2_PREVNAME->is_prev_name = '0';
 
-        $data->C4_ID = $C4_ID;
+        // $data->C2_PREVNAME = $C2_PREVNAME;
 
 
-        $C5_PREVID = new StdClass();
-        $C5_PREVID->is_prev_document = '0';
+        // $C3_BIRTH = new StdClass();
+        // $C3_BIRTH->birth_date = date('d.m.Y', strtotime($order->birth));
+        // $C3_BIRTH->country_code = '643';
+        // $C3_BIRTH->birth_place = $this->clearing($order->birth_place);
 
-        $data->C5_PREVID = $C5_PREVID;
-
-
-        $C6_REGNUM = new StdClass();
-        $C6_REGNUM->taxpayer_code = '1';
-        $C6_REGNUM->taxpayer_number = empty($order->inn) ? '000000000000' : $order->inn;
-        $C6_REGNUM->is_special_tax = '0';
-
-        $data->C6_REGNUM = $C6_REGNUM;
+        // $data->C3_BIRTH = $C3_BIRTH;
 
 
-        $C17_UID = new StdClass();
-        $C17_UID->uuid = $contract->uid;
+        // $C4_ID = new StdClass();
+        // $C4_ID->country_code = '643';
+        // $C4_ID->document_code = '21';
+        // $C4_ID->series_number = $passport_series;
+        // $C4_ID->document_number = $passport_number;
+        // $C4_ID->issue_date = date('d.m.Y', strtotime($order->passport_date));
+        // $C4_ID->issued_by_division = $this->clearing($order->passport_issued);
+        // $C4_ID->division_code = $order->subdivision_code;
 
-        $data->C17_UID = $C17_UID;
+        // $data->C4_ID = $C4_ID;
+
+
+        // $C5_PREVID = new StdClass();
+        // $C5_PREVID->is_prev_document = '0';
+
+        // $data->C5_PREVID = $C5_PREVID;
+
+
+        // $C6_REGNUM = new StdClass();
+        // $C6_REGNUM->taxpayer_code = '1';
+        // $C6_REGNUM->taxpayer_number = empty($order->inn) ? '000000000000' : $order->inn;
+        // $C6_REGNUM->is_special_tax = '0';
+
+        // $data->C6_REGNUM = $C6_REGNUM;
+
+
+        // $C17_UID = new StdClass();
+        // $C17_UID->uuid = $contract->uid;
+
+        // $data->C17_UID = $C17_UID;
 
 
         // $C18_TRADE = new StdClass();
@@ -1001,20 +1460,18 @@ class Nbki_report extends Core
         // $ret_date_percents_summ = $ret_date_array[3];
         // $ret_date_peni_summ = $ret_date_array[4];
 
-
         // $C25_ARREAR = new StdClass();
-        // $C25_ARREAR->has_arrear = '0';
-        // // $C25_ARREAR->start_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $contract->amount));
-        // // $C25_ARREAR->is_last_payment_due = '0';
-        // // // $C25_ARREAR->amount_outstanding = '0,00';
-        // // // $C25_ARREAR->principal_amount_outstanding = '0,00';
-        // // // $C25_ARREAR->interest_amount_outstanding = '0,00';
-        // // // $C25_ARREAR->other_amount_outstanding = '0,00';
-        // // $C25_ARREAR->amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $ret_date_body_summ + $ret_date_percents_summ + $ret_date_peni_summ));
-        // // $C25_ARREAR->principal_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $ret_date_body_summ));
-        // // $C25_ARREAR->interest_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $ret_date_percents_summ + $ret_date_peni_summ));
-        // // $C25_ARREAR->other_amount_outstanding = '0,00';
-        // // $C25_ARREAR->calculation_date = date('d.m.Y', strtotime($contract->cession));
+        // $C25_ARREAR->has_arrear = '1';
+        // $C25_ARREAR->start_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $contract->amount));
+        // $C25_ARREAR->is_last_payment_due = '1';
+        // // $C25_ARREAR->amount_outstanding = '0,00';
+        // $C25_ARREAR->amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $ret_date_body_summ + $ret_date_percents_summ + $ret_date_peni_summ));
+        // $C25_ARREAR->principal_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $ret_date_body_summ));
+        // $C25_ARREAR->interest_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $ret_date_percents_summ + $ret_date_peni_summ));
+        // $C25_ARREAR->other_amount_outstanding = '0,00';
+        // // $C25_ARREAR->calculation_date = date('d.m.Y', strtotime($contract->inssuance_date));
+        // $C25_ARREAR->calculation_date = date('d.m.Y', strtotime($contract->close_date));
+
 
         // $data->C25_ARREAR = $C25_ARREAR;
 
@@ -1022,23 +1479,1152 @@ class Nbki_report extends Core
         // $C26_DUEARREAR = new StdClass();
         // $C26_DUEARREAR->start_date = date('d.m.Y', strtotime($contract->inssuance_date));
         // $C26_DUEARREAR->is_last_payment_due = '1';
-        // // $C26_DUEARREAR->amount_outstanding = '0,00';
-        // // $C26_DUEARREAR->principal_amount_outstanding = '0,00';
-        // // $C26_DUEARREAR->interest_amount_outstanding = '0,00';
-        // // $C26_DUEARREAR->other_amount_outstanding = '0,00';
-        // $C26_DUEARREAR->amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $ret_date_body_summ + $ret_date_percents_summ + $ret_date_peni_summ));
-        // $C26_DUEARREAR->principal_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $ret_date_body_summ));
-        // $C26_DUEARREAR->interest_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $ret_date_percents_summ + $ret_date_peni_summ));
-        // $C26_DUEARREAR->other_amount_outstanding = '0,00';
-        // $C26_DUEARREAR->calculation_date = date('d.m.Y', strtotime($contract->cession));
+        // // if ($ret_date_peni_summ) {
+        //     $C26_DUEARREAR->amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $ret_date_body_summ + $ret_date_percents_summ + $ret_date_peni_summ));
+        //     $C26_DUEARREAR->principal_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $ret_date_body_summ));
+        //     $C26_DUEARREAR->interest_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $ret_date_percents_summ + $ret_date_peni_summ));
+        //     $C26_DUEARREAR->other_amount_outstanding = '0,00';
+        // // }
+        // // else{
+        // //     $C26_DUEARREAR->amount_outstanding = '0,00';
+        // //     $C26_DUEARREAR->principal_amount_outstanding = '0,00';
+        // //     $C26_DUEARREAR->interest_amount_outstanding = '0,00';
+        // //     $C26_DUEARREAR->other_amount_outstanding = '0,00';
+        // // }
+        // // $C26_DUEARREAR->calculation_date = date('d.m.Y', strtotime($contract->inssuance_date));
+        // $C26_DUEARREAR->calculation_date = date('d.m.Y', strtotime($contract->close_date));
 
         // $data->C26_DUEARREAR = $C26_DUEARREAR;
 
 
         // $C27_PASTDUEARREAR = new StdClass();
         // $C27_PASTDUEARREAR->amount_outstanding = '0,00';
+        // // $C27_PASTDUEARREAR->calculation_date = date('d.m.Y', strtotime($this->last_missed_percents_payment($order)));
+        // $C27_PASTDUEARREAR->calculation_date = date('d.m.Y', strtotime($contract->close_date));
+
+        // $data->C27_PASTDUEARREAR = $C27_PASTDUEARREAR;
+
+
+        // $C28_PAYMT = new StdClass();
+        // $C28_PAYMT->payment_date = date('d.m.Y', strtotime($order->operation->created));
+        // $C28_PAYMT->payment_amount = str_replace('.', ',', sprintf("%01.2f", $order->payment_amount));
+        // $C28_PAYMT->principal_payment_amount = str_replace('.', ',', sprintf("%01.2f", $order->principal_payment_amount));
+        // $C28_PAYMT->interest_payment_amount = str_replace('.', ',', sprintf("%01.2f", $order->interest_payment_amount));
+        // $C28_PAYMT->other_payment_amount = str_replace('.', ',', sprintf("%01.2f", $order->other_payment_amount));
+        // $C28_PAYMT->total_amount = str_replace('.', ',', sprintf("%01.2f", $order->total_amount));
+        // $C28_PAYMT->principal_total_amount = str_replace('.', ',', sprintf("%01.2f", $order->principal_total_amount));
+        // $C28_PAYMT->interest_total_amount = str_replace('.', ',', sprintf("%01.2f", $order->interest_total_amount));
+        // $C28_PAYMT->other_total_amount = str_replace('.', ',', sprintf("%01.2f", $order->other_total_amount));
+        // // $C28_PAYMT->amount_keep_code = $order->amount_keep_code;
+        // // $C28_PAYMT->terms_due_code = $order->terms_due_code;
+        // // $C28_PAYMT->days_past_due = $order->days_past_due;
+        // $C28_PAYMT->amount_keep_code = '1';
+        // $C28_PAYMT->terms_due_code = '2';
+        // $C28_PAYMT->days_past_due = '0';
+
+        // $data->C28_PAYMT = $C28_PAYMT;
+
+
+        // $C29_MONTHAVERPAYMT = new StdClass();
+        // // $C29_MONTHAVERPAYMT->average_payment_amount = round($contract->amount + $interest_terms_amount);
+        // $C29_MONTHAVERPAYMT->average_payment_amount = 0;
+        // // $C29_MONTHAVERPAYMT->calculation_date = date('d.m.Y', strtotime($contract->inssuance_date));
+        // $C29_MONTHAVERPAYMT->calculation_date = date('d.m.Y', strtotime($contract->close_date));
+
+        // $data->C29_MONTHAVERPAYMT = $C29_MONTHAVERPAYMT;
+
+
+        // $C38_OBLIGTERMINATION  = new StdClass();
+        // $C38_OBLIGTERMINATION->loan_indicator = 1;
+        // $C38_OBLIGTERMINATION->loan_indicator_date = date('d.m.Y', strtotime($contract->close_date));
+
+        // $data->C38_OBLIGTERMINATION  = $C38_OBLIGTERMINATION ;
+
+
+        // $C54_OBLIGACCOUNT = new StdClass();
+        // $C54_OBLIGACCOUNT->has_obligation = 1;
+        // $C54_OBLIGACCOUNT->interest_rate = str_replace('.', ',', sprintf("%01.2f", $contract->base_percent * 365));
+        // $C54_OBLIGACCOUNT->has_preferential_financing = '0';
+
+        // $data->C54_OBLIGACCOUNT = $C54_OBLIGACCOUNT;
+
+
+        // $C56_OBLIGPARTTAKE = new StdClass();
+        // $C56_OBLIGPARTTAKE->flag_indicator_code = '1';
+        // $C56_OBLIGPARTTAKE->approved_loan_type_code = '13';
+        // $C56_OBLIGPARTTAKE->agreement_number = $contract->uid;
+        // $C56_OBLIGPARTTAKE->funding_date = date('d.m.Y', strtotime($contract->inssuance_date));
+        // $C56_OBLIGPARTTAKE->default_flag = '0';
+        // // $C56_OBLIGPARTTAKE->loan_indicator = intval($order->closed) > 0 ? '1' : '0';
+        // $C56_OBLIGPARTTAKE->loan_indicator = 1;
+
+        // $data->C56_OBLIGPARTTAKE = $C56_OBLIGPARTTAKE;
+
+        return $data;
+    }
+
+    private function get_cessia_item($order)
+    {
+        $contract = $this->contracts->get_contract($order->contract_id);
+
+        $passport_serial = str_replace([' ', '-'], '', $order->passport_serial);
+        $passport_series = substr($passport_serial, 0, 4);
+        $passport_number = substr($passport_serial, 4, 6);
+
+        $ret_date_array = $this->ret_date_data($order);
+
+        $ret_date = $ret_date_array[0];
+        $days_past_due = $ret_date_array[1];
+        $ret_date_body_summ = $ret_date_array[2];
+        $ret_date_percents_summ = $ret_date_array[3];
+        $ret_date_peni_summ = $ret_date_array[4];
+        $new_ret_date = $ret_date_array[5];
+
+
+        $data = new StdClass();
+
+            $TITLE = new StdClass();
+
+                $CURRENT_NAME = new StdClass();
+
+                    $C1_NAME = new StdClass();
+                    $C1_NAME->surname = $this->uppercase($order->lastname);
+                    $C1_NAME->name = $this->uppercase($order->firstname);
+                    $C1_NAME->patronymic = $this->uppercase($order->patronymic);
+                    $CURRENT_NAME->name = $C1_NAME;
+
+                    $C4_DOCUMENTS = [];
+                    $C4_DOCUMENTS_OBJ = new StdClass();
+                    $C4_DOCUMENTS_OBJ->country_code = 643;
+                    $C4_DOCUMENTS_OBJ->document_code = 21;
+                    $C4_DOCUMENTS_OBJ->series_number = $passport_series;
+                    $C4_DOCUMENTS_OBJ->document_number = $passport_number;
+                    $C4_DOCUMENTS_OBJ->issue_date = date('d.m.Y', strtotime($order->passport_date));
+                    $C4_DOCUMENTS_OBJ->issued_by_division = $this->clearing($order->passport_issued);
+                    $C4_DOCUMENTS_OBJ->division_code = $order->subdivision_code;
+                    $C4_DOCUMENTS_OBJ->foreigner_code = 3;
+                    $C4_DOCUMENTS [] = $C4_DOCUMENTS_OBJ;
+                    $CURRENT_NAME->documents = $C4_DOCUMENTS;
+                
+                $TITLE->current_name = $CURRENT_NAME;
+    
+                $PREVIOUS_PERSONALITY_DETAILS = [];
+                $PREVIOUS_PERSONALITY_DETAILS_OBJ = new StdClass();
+
+                    $C2_PREVIOUS_NAME = new StdClass();
+                    $C2_PREVIOUS_NAME->is_prev_name = 0;
+                    $PREVIOUS_PERSONALITY_DETAILS_OBJ->previous_name = $C2_PREVIOUS_NAME;
+                    
+                    $C5_PREVIOUS_DOCUMENTS =[];
+                    $C5_PREVIOUS_DOCUMENTS_OBJ = new StdClass();
+                    $C5_PREVIOUS_DOCUMENTS_OBJ->is_prev_document = 0;
+                    $C5_PREVIOUS_DOCUMENTS[] = $C5_PREVIOUS_DOCUMENTS_OBJ;
+                    $PREVIOUS_PERSONALITY_DETAILS_OBJ->previous_documents = $C5_PREVIOUS_DOCUMENTS;
+
+                $PREVIOUS_PERSONALITY_DETAILS[] = $PREVIOUS_PERSONALITY_DETAILS_OBJ;
+                $TITLE->previous_personality_details = $PREVIOUS_PERSONALITY_DETAILS;
+
+                $BIRTH_DETAILS = new StdClass();
+
+                $C3_BIRTH_DETAILS = new StdClass();
+                $C3_BIRTH_DETAILS->birth_date = date('d.m.Y', strtotime($order->birth));
+                $C3_BIRTH_DETAILS->country_code = '643';
+                $C3_BIRTH_DETAILS->birth_place = $this->clearing($order->birth_place);
+
+                $TITLE->birth_details = $C3_BIRTH_DETAILS;
+
+                $C6_TAXPAYER_INFO = new StdClass();
+                    
+                    $TAXPAYER_INFO = new StdClass();
+                    $TAXPAYER_INFO->taxpayer_number = empty($order->inn) ? '000000000000' : $order->inn;
+                    $TAXPAYER_INFO->taxpayer_number_code = '1';
+                    $C6_TAXPAYER_INFO->taxpayer_info = $TAXPAYER_INFO;
+
+                    $C6_TAXPAYER_INFO->is_special_tax = '0';
+
+                $TITLE->taxpayer_info = $C6_TAXPAYER_INFO;
+
+            $data->title = $TITLE;
+
+            $EVENTS = [];
+            $EVENTS_OBJ = new StdClass();
+
+                $EVENT_2_11 = new StdClass();
+                $EVENT_2_11->order_num = $order->order_id;
+                $EVENT_2_11->event_date = date('Y-m-d', strtotime($new_ret_date));
+                $EVENT_2_11->operation_code = "B";
+
+                $DEAL_UID  = new StdClass();
+                $DEAL_UID->uuid = $contract->uid;
+                $DEAL_UID->open_date = date('Y-m-d', strtotime($contract->inssuance_date));
+                $EVENT_2_11->deal_uid = $DEAL_UID;
+
+                $C45_SUBMITHOLD = new StdClass();
+                $C45_SUBMITHOLD->hold_code = "3";
+                $C45_SUBMITHOLD->hold_date = date('Y-m-d', strtotime($contract->cession));
+                $EVENT_2_11->stop_send = $C45_SUBMITHOLD;
+
+                $C51_ACQUIRERLEGAL  = new StdClass();
+                $C51_ACQUIRERLEGAL->right_of_claim_code = "3";
+                $C51_ACQUIRERLEGAL->right_of_claim_rus = "1";
+                $C51_ACQUIRERLEGAL->right_of_claim_full_name = "ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ «ПРОФЕССИОНАЛЬНАЯ КОЛЛЕКТОРСКАЯ ОРГАНИЗАЦИЯ «ЦЕРБЕР»";
+                $C51_ACQUIRERLEGAL->right_of_claim_name = "ООО «ПКО «ЦЕРБЕР»";
+                $C51_ACQUIRERLEGAL->right_of_claim_registration_number = "1147746738028";
+                $C51_ACQUIRERLEGAL->right_of_claim_tax_code = "1";
+                $C51_ACQUIRERLEGAL->right_of_claim_tax_number = "7709957219";
+                $C51_ACQUIRERLEGAL->right_of_claim_date = date('Y-m-d', strtotime($contract->cession));
+                $EVENT_2_11->org_acquirer = $C51_ACQUIRERLEGAL;
+
+                $C54_OBLIGACCOUNT = new StdClass();
+                $C54_OBLIGACCOUNT->has_obligation = 1;
+                $C54_OBLIGACCOUNT->min_interest_rate = sprintf("%01.2f", $contract->base_percent * 365);
+                $C54_OBLIGACCOUNT->max_interest_rate = sprintf("%01.2f", $contract->base_percent * 365);
+                $C54_OBLIGACCOUNT->has_preferential_financing = '0';
+                $C54_OBLIGACCOUNT->preferential_financing_info = ["85453-87"]; //???
+                $C54_OBLIGACCOUNT->calc_date = date('Y-m-d', strtotime($new_ret_date));
+                $EVENT_2_11->accounting = $C54_OBLIGACCOUNT;
+
+            $EVENTS_OBJ->event_2_11 = $EVENT_2_11;
+
+            $EVENTS[] = $EVENTS_OBJ;
+
+        $data->events = $EVENTS;
+
+
+
+
+
+
+
+
+
+
+
+        
+
+
+        // $data = new StdClass();
+
+        // $GROUPHEADER = new StdClass();
+        // $GROUPHEADER->event_number = "2.11";
+        // $GROUPHEADER->operation_code = "B";
+        // // $GROUPHEADER->event_date = date('d.m.Y', strtotime($order->operation->created));
+        // $GROUPHEADER->event_date = date('d.m.Y', strtotime($contract->cession));
+
+        // $data->GROUPHEADER = $GROUPHEADER;
+
+
+        // $C1_NAME = new StdClass();
+        // $C1_NAME->surname = $this->clearing($order->lastname);
+        // $C1_NAME->name = $this->clearing($order->firstname);
+        // $C1_NAME->patronymic = $this->clearing($order->patronymic);
+
+        // $data->C1_NAME = $C1_NAME;
+
+
+        // $C2_PREVNAME = new StdClass();
+        // $C2_PREVNAME->is_prev_name = '0';
+
+        // $data->C2_PREVNAME = $C2_PREVNAME;
+
+
+        // $C3_BIRTH = new StdClass();
+        // $C3_BIRTH->birth_date = date('d.m.Y', strtotime($order->birth));
+        // $C3_BIRTH->country_code = '643';
+        // $C3_BIRTH->birth_place = $this->clearing($order->birth_place);
+
+        // $data->C3_BIRTH = $C3_BIRTH;
+
+
+        // $C4_ID = new StdClass();
+        // $C4_ID->country_code = '643';
+        // $C4_ID->document_code = '21';
+        // $C4_ID->series_number = $passport_series;
+        // $C4_ID->document_number = $passport_number;
+        // $C4_ID->issue_date = date('d.m.Y', strtotime($order->passport_date));
+        // $C4_ID->issued_by_division = $this->clearing($order->passport_issued);
+        // $C4_ID->division_code = $order->subdivision_code;
+
+        // $data->C4_ID = $C4_ID;
+
+
+        // $C5_PREVID = new StdClass();
+        // $C5_PREVID->is_prev_document = '0';
+
+        // $data->C5_PREVID = $C5_PREVID;
+
+
+        // $C6_REGNUM = new StdClass();
+        // $C6_REGNUM->taxpayer_code = '1';
+        // $C6_REGNUM->taxpayer_number = empty($order->inn) ? '000000000000' : $order->inn;
+        // $C6_REGNUM->is_special_tax = '0';
+
+        // $data->C6_REGNUM = $C6_REGNUM;
+
+
+        // $C17_UID = new StdClass();
+        // $C17_UID->uuid = $contract->uid;
+
+        // $data->C17_UID = $C17_UID;
+
+
+        // $C45_SUBMITHOLD = new StdClass();
+        // $C45_SUBMITHOLD->hold_code = "3";
+        // $C45_SUBMITHOLD->hold_date = date('d.m.Y', strtotime($contract->cession));
+
+        // $data->C45_SUBMITHOLD = $C45_SUBMITHOLD;
+
+
+        // $C51_ACQUIRERLEGAL  = new StdClass();
+        // $C51_ACQUIRERLEGAL->right_of_claim_code = "3";
+        // $C51_ACQUIRERLEGAL->right_of_claim_rus = "1";
+        // $C51_ACQUIRERLEGAL->right_of_claim_full_name = "ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ «ПРОФЕССИОНАЛЬНАЯ КОЛЛЕКТОРСКАЯ ОРГАНИЗАЦИЯ «ЦЕРБЕР»";
+        // $C51_ACQUIRERLEGAL->right_of_claim_name = "ООО «ПКО «ЦЕРБЕР»";
+        // $C51_ACQUIRERLEGAL->right_of_claim_registration_number = "1147746738028";
+        // $C51_ACQUIRERLEGAL->right_of_claim_tax_code = "1";
+        // $C51_ACQUIRERLEGAL->right_of_claim_tax_number = "7709957219";
+        // $C51_ACQUIRERLEGAL->right_of_claim_date = date('d.m.Y', strtotime($contract->cession));
+
+        // $data->C51_ACQUIRERLEGAL  = $C51_ACQUIRERLEGAL ;
+        
+
+        // $C54_OBLIGACCOUNT = new StdClass();
+        // $C54_OBLIGACCOUNT->has_obligation = 1;
+        // $C54_OBLIGACCOUNT->interest_rate = str_replace('.', ',', sprintf("%01.2f", $contract->base_percent * 365));
+        // $C54_OBLIGACCOUNT->has_preferential_financing = '0';
+
+        // $data->C54_OBLIGACCOUNT = $C54_OBLIGACCOUNT;
+
+        return $data;
+    }
+
+    private function get_canicule_item($order)
+    {
+        $contract = $this->contracts->get_contract($order->contract_id);
+
+        $passport_serial = str_replace([' ', '-'], '', $order->passport_serial);
+        $passport_series = substr($passport_serial, 0, 4);
+        $passport_number = substr($passport_serial, 4, 6);
+
+        $ret_date_array = $this->ret_date_data($order);
+
+        $ret_date = $ret_date_array[0];
+        $days_past_due = $ret_date_array[1];
+        $ret_date_body_summ = $ret_date_array[2];
+        $ret_date_percents_summ = $ret_date_array[3];
+        $ret_date_peni_summ = $ret_date_array[4];
+        $new_ret_date = $ret_date_array[5];
+
+
+        $data = new StdClass();
+
+            $TITLE = new StdClass();
+
+                $CURRENT_NAME = new StdClass();
+
+                    $C1_NAME = new StdClass();
+                    $C1_NAME->surname = $this->uppercase($order->lastname);
+                    $C1_NAME->name = $this->uppercase($order->firstname);
+                    $C1_NAME->patronymic = $this->uppercase($order->patronymic);
+                    $CURRENT_NAME->name = $C1_NAME;
+
+                    $C4_DOCUMENTS = [];
+                    $C4_DOCUMENTS_OBJ = new StdClass();
+                    $C4_DOCUMENTS_OBJ->country_code = 643;
+                    $C4_DOCUMENTS_OBJ->document_code = 21;
+                    $C4_DOCUMENTS_OBJ->series_number = $passport_series;
+                    $C4_DOCUMENTS_OBJ->document_number = $passport_number;
+                    $C4_DOCUMENTS_OBJ->issue_date = date('d.m.Y', strtotime($order->passport_date));
+                    $C4_DOCUMENTS_OBJ->issued_by_division = $this->clearing($order->passport_issued);
+                    $C4_DOCUMENTS_OBJ->division_code = $order->subdivision_code;
+                    $C4_DOCUMENTS_OBJ->foreigner_code = 3;
+                    $C4_DOCUMENTS [] = $C4_DOCUMENTS_OBJ;
+                    $CURRENT_NAME->documents = $C4_DOCUMENTS;
+                
+                $TITLE->current_name = $CURRENT_NAME;
+    
+                $PREVIOUS_PERSONALITY_DETAILS = [];
+                $PREVIOUS_PERSONALITY_DETAILS_OBJ = new StdClass();
+
+                    $C2_PREVIOUS_NAME = new StdClass();
+                    $C2_PREVIOUS_NAME->is_prev_name = 0;
+                    $PREVIOUS_PERSONALITY_DETAILS_OBJ->previous_name = $C2_PREVIOUS_NAME;
+                    
+                    $C5_PREVIOUS_DOCUMENTS =[];
+                    $C5_PREVIOUS_DOCUMENTS_OBJ = new StdClass();
+                    $C5_PREVIOUS_DOCUMENTS_OBJ->is_prev_document = 0;
+                    $C5_PREVIOUS_DOCUMENTS[] = $C5_PREVIOUS_DOCUMENTS_OBJ;
+                    $PREVIOUS_PERSONALITY_DETAILS_OBJ->previous_documents = $C5_PREVIOUS_DOCUMENTS;
+
+                $PREVIOUS_PERSONALITY_DETAILS[] = $PREVIOUS_PERSONALITY_DETAILS_OBJ;
+                $TITLE->previous_personality_details = $PREVIOUS_PERSONALITY_DETAILS;
+
+                $BIRTH_DETAILS = new StdClass();
+
+                $C3_BIRTH_DETAILS = new StdClass();
+                $C3_BIRTH_DETAILS->birth_date = date('d.m.Y', strtotime($order->birth));
+                $C3_BIRTH_DETAILS->country_code = '643';
+                $C3_BIRTH_DETAILS->birth_place = $this->clearing($order->birth_place);
+
+                $TITLE->birth_details = $C3_BIRTH_DETAILS;
+
+                $C6_TAXPAYER_INFO = new StdClass();
+                    
+                    $TAXPAYER_INFO = new StdClass();
+                    $TAXPAYER_INFO->taxpayer_number = empty($order->inn) ? '000000000000' : $order->inn;
+                    $TAXPAYER_INFO->taxpayer_number_code = '1';
+                    $C6_TAXPAYER_INFO->taxpayer_info = $TAXPAYER_INFO;
+
+                    $C6_TAXPAYER_INFO->is_special_tax = '0';
+
+                $TITLE->taxpayer_info = $C6_TAXPAYER_INFO;
+
+            $data->title = $TITLE;
+
+            $EVENTS = [];
+            $EVENTS_OBJ = new StdClass();
+
+                $EVENT_2_1 = new StdClass();
+                $EVENT_2_1->order_num = $order->order_id;
+                $EVENT_2_1->event_date = date('Y-m-d', strtotime($new_ret_date));
+                $EVENT_2_1->operation_code = "B";
+
+                $DEAL_UID  = new StdClass();
+                $DEAL_UID->uuid = $contract->uid;
+                $DEAL_UID->open_date = date('Y-m-d', strtotime($contract->inssuance_date));
+                $EVENT_2_1->deal_uid = $DEAL_UID;
+
+                $C18_TRADE = new StdClass();
+                $C18_TRADE->owner_indicator_code = '1';
+                $C18_TRADE->trade_type_code = '1';
+                $C18_TRADE->load_kind_code = '13'; 
+                $C18_TRADE->account_type_code = [99];
+                $C18_TRADE->is_consumer_loan = '1';
+                $C18_TRADE->has_card = '1';
+                $C18_TRADE->is_novation = '0';
+                $C18_TRADE->is_money_source = '1';
+                $C18_TRADE->is_money_borrower = '1';
+                $C18_TRADE->close_date = date('Y-m-d', strtotime($contract->return_date));
+                $C18_TRADE->lender_type_code = '2';
+                $C18_TRADE->has_obtaining_part_creditor = '0';
+                $C18_TRADE->transfer_part_creditor_uuid = '-';
+                $C18_TRADE->has_credit_line = '0';
+                $C18_TRADE->is_interest_rate_float = '0';
+                $C18_TRADE->has_transfer_part_creditor = '0';
+                $C18_TRADE->opened_date = date('Y-m-d', strtotime($contract->inssuance_date));
+                $C18_TRADE->repayment_fact = 0;
+                $C18_TRADE->transfer_fact = 0;
+                $C18_TRADE->partner_financing_fact = 0;
+                $EVENT_2_1->deal = $C18_TRADE;
+
+                $C19_ACCOUNTAMT = new StdClass();
+                $C19_ACCOUNTAMT->credit_limit = sprintf("%01.2f", $contract->amount);
+                $C19_ACCOUNTAMT->currency_code = 'RUB';
+                $C19_ACCOUNTAMT->amount_date = date('Y-m-d', strtotime($contract->inssuance_date));
+                $EVENT_2_1->amount = $C19_ACCOUNTAMT;
+
+                $C19_ACCOUNTAMT_INFO = [];
+                $C19_ACCOUNTAMT_INFO_OBJ = new StdClass();
+                $C19_ACCOUNTAMT_INFO_OBJ->security_fact = 0;
+                $C19_ACCOUNTAMT_INFO [] = $C19_ACCOUNTAMT_INFO_OBJ;
+                $EVENT_2_1->amount_info = $C19_ACCOUNTAMT_INFO;
+
+                $interest_terms_amount = ($contract->amount * $contract->base_percent / 100 * $contract->period);
+                $C21_PAYMTCONDITION = new StdClass();
+                $C21_PAYMTCONDITION->principal_terms_amount = sprintf("%01.2f", $contract->amount);
+                $C21_PAYMTCONDITION->principal_terms_amount_date = date('Y-m-d', strtotime($contract->return_date));
+                $C21_PAYMTCONDITION->interest_terms_amount = sprintf("%01.2f", $interest_terms_amount);
+                $C21_PAYMTCONDITION->interest_terms_amount_date = date('Y-m-d', strtotime($contract->return_date));
+                $C21_PAYMTCONDITION->terms_frequency_code = '3';
+                $C21_PAYMTCONDITION->interest_payment_due_date = date('Y-m-d', strtotime($contract->return_date));
+                $EVENT_2_1->payment_terms = $C21_PAYMTCONDITION;
+
+                $C22_OVERALLVAL = new StdClass();
+                $C22_OVERALLVAL->total_credit_amount_interest = sprintf("%01.3f", $contract->base_percent * 365);
+                $C22_OVERALLVAL->total_credit_amount_monetary = sprintf("%01.2f", $interest_terms_amount);
+                $C22_OVERALLVAL->total_credit_amount_date = date('Y-m-d', strtotime($contract->inssuance_date));
+                $EVENT_2_1->total_cost = $C22_OVERALLVAL;
+
+
+                $DEBT_INFO = new StdClass();
+                $DEBT_INFO->last_pay_exists = 0;
+                $DEBT_INFO->calc_date = date('Y-m-d', strtotime($new_ret_date));
+
+                    $C25_ARREAR = new StdClass();
+                    $C25_ARREAR->has_arrear = '1';
+                    $C25_ARREAR->amount_outstanding = sprintf("%01.2f", $contract->amount + $interest_terms_amount);
+                    $C25_ARREAR->principal_amount_outstanding = sprintf("%01.2f", $contract->amount);
+                    $C25_ARREAR->interest_amount_outstanding = sprintf("%01.2f", $interest_terms_amount);
+                    $C25_ARREAR->other_amount_outstanding = '0.00';
+                    $C25_ARREAR->is_unconfirmed_grace = 0;
+                    $DEBT_INFO->debt = $C25_ARREAR;
+
+                    $C26_DUEARREAR = new StdClass();
+                    $C26_DUEARREAR->amount_outstanding = sprintf("%01.2f", $contract->amount + $interest_terms_amount);
+                    $C26_DUEARREAR->principal_amount_outstanding = sprintf("%01.2f", $contract->amount);
+                    $C26_DUEARREAR->interest_amount_outstanding = sprintf("%01.2f", $interest_terms_amount);
+                    $C26_DUEARREAR->other_amount_outstanding = '0.00';
+                    $C26_DUEARREAR->start_date = date('Y-m-d', strtotime($contract->inssuance_date));
+                    $DEBT_INFO->debt_due = $C26_DUEARREAR;
+
+                    $C27_PASTDUEARREAR = new StdClass();
+                    $C27_PASTDUEARREAR->is_last_payment_due = "1";
+                    $C27_PASTDUEARREAR->amount_outstanding = '0.00';
+                    $DEBT_INFO->debt_overdue = $C27_PASTDUEARREAR;
+
+                    $C28_PAYMT = new StdClass();
+                    $C28_PAYMT->payment_amount = str_replace('.', ',', sprintf("%01.2f", $order->payment_amount));
+                    $C28_PAYMT->amount_keep_code = $order->amount_keep_code;
+                    $C28_PAYMT->terms_due_code = $order->terms_due_code;
+                    $C28_PAYMT->days_past_due = $order->days_past_due;
+                    $DEBT_INFO->payment = $C28_PAYMT;
+                $EVENT_2_1->debt_info = $DEBT_INFO;
+
+                $C29_MONTHAVERPAYMT = new StdClass();
+
+                $C29_MONTHAVERPAYMT->average_payment_amount = round($contract->amount + $interest_terms_amount);
+                $C29_MONTHAVERPAYMT->calculation_date = date('Y-m-d', strtotime($contract->inssuance_date));
+                $C29_MONTHAVERPAYMT->sum_total = sprintf("%01.2f", ($ret_date_body_summ + $ret_date_percents_summ + $ret_date_peni_summ));
+                $EVENT_2_1->monthly_payment = $C29_MONTHAVERPAYMT;
+
+                $C20_COBORROWER  = new StdClass();
+                $C20_COBORROWER->has_solidary = 0;
+                $EVENT_2_1->joint_debtors = $C20_COBORROWER;
+                
+                $C54_OBLIGACCOUNT = new StdClass();
+                $C54_OBLIGACCOUNT->has_obligation = 1;
+                $C54_OBLIGACCOUNT->min_interest_rate = sprintf("%01.2f", $contract->base_percent * 365);
+                $C54_OBLIGACCOUNT->max_interest_rate = sprintf("%01.2f", $contract->base_percent * 365);
+                $C54_OBLIGACCOUNT->has_preferential_financing = '0';
+                $C54_OBLIGACCOUNT->preferential_financing_info = ["85453-87"]; //???
+                $C54_OBLIGACCOUNT->calc_date = date('Y-m-d', strtotime($new_ret_date));
+                $EVENT_2_1->accounting = $C54_OBLIGACCOUNT;
+
+                // $C55_APPLICATION = new StdClass();
+                // $C55_APPLICATION->requested_flag_indicator_code = 1;
+                // $C55_APPLICATION->requested_amount = sprintf("%01.2f", $order->amount);
+                // $C55_APPLICATION->requested_currency_code = "RUB";
+                // $C55_APPLICATION->application_number = $contract->uid;
+                // $C55_APPLICATION->application_date = date('Y-m-d', strtotime($order->date));
+                // $C55_APPLICATION->creditor_type_code = 2;
+                // $C55_APPLICATION->application_shipment_code = 8;
+                // $C55_APPLICATION->consideration_shipment_code = 5;
+                // $C55_APPLICATION->transit_date = date('Y-m-d', strtotime($contract->inssuance_date));
+                // $C55_APPLICATION->application_code = 7;
+                // $EVENT_2_1->application = $C55_APPLICATION;
+
+                // $C56_OBLIGPARTTAKE = new StdClass();
+                // $C56_OBLIGPARTTAKE->flag_indicator_code = '1';
+                // $C56_OBLIGPARTTAKE->approved_loan_type_code = '13';
+                // $C56_OBLIGPARTTAKE->agreement_number = $contract->uid;
+                // $C56_OBLIGPARTTAKE->funding_date = date('Y-m-d', strtotime($contract->inssuance_date));
+                // $C56_OBLIGPARTTAKE->default_flag = '0';
+                // $C56_OBLIGPARTTAKE->loan_indicator = 1;
+                // $EVENT_2_1->participation = $C56_OBLIGPARTTAKE;
+
+            $EVENTS_OBJ->event_2_1 = $EVENT_2_1;
+
+            $EVENTS[] = $EVENTS_OBJ;
+
+        $data->events = $EVENTS;
+
+
+
+
+
+
+
+
+
+
+
+
+
+        // $data = new StdClass();
+
+        // $GROUPHEADER = new StdClass();
+        // $GROUPHEADER->event_number = "2.1";
+        // $GROUPHEADER->operation_code = "B";
+        // $GROUPHEADER->event_date = date('d.m.Y', strtotime($order->operation->created));
+
+        // $data->GROUPHEADER = $GROUPHEADER;
+
+
+        // $C1_NAME = new StdClass();
+        // $C1_NAME->surname = $this->clearing($order->lastname);
+        // $C1_NAME->name = $this->clearing($order->firstname);
+        // $C1_NAME->patronymic = $this->clearing($order->patronymic);
+
+        // $data->C1_NAME = $C1_NAME;
+
+
+        // $C2_PREVNAME = new StdClass();
+        // $C2_PREVNAME->is_prev_name = '0';
+
+        // $data->C2_PREVNAME = $C2_PREVNAME;
+
+
+        // $C3_BIRTH = new StdClass();
+        // $C3_BIRTH->birth_date = date('d.m.Y', strtotime($order->birth));
+        // $C3_BIRTH->country_code = '643';
+        // $C3_BIRTH->birth_place = $this->clearing($order->birth_place);
+
+        // $data->C3_BIRTH = $C3_BIRTH;
+
+
+        // $C4_ID = new StdClass();
+        // $C4_ID->country_code = '643';
+        // $C4_ID->document_code = '21';
+        // $C4_ID->series_number = $passport_series;
+        // $C4_ID->document_number = $passport_number;
+        // $C4_ID->issue_date = date('d.m.Y', strtotime($order->passport_date));
+        // $C4_ID->issued_by_division = $this->clearing($order->passport_issued);
+        // $C4_ID->division_code = $order->subdivision_code;
+
+        // $data->C4_ID = $C4_ID;
+
+
+        // $C5_PREVID = new StdClass();
+        // $C5_PREVID->is_prev_document = '0';
+
+        // $data->C5_PREVID = $C5_PREVID;
+
+
+        // $C6_REGNUM = new StdClass();
+        // $C6_REGNUM->taxpayer_code = '1';
+        // $C6_REGNUM->taxpayer_number = empty($order->inn) ? '000000000000' : $order->inn;
+        // $C6_REGNUM->is_special_tax = '0';
+
+        // $data->C6_REGNUM = $C6_REGNUM;
+
+
+        // $C17_UID = new StdClass();
+        // $C17_UID->uuid = $contract->uid;
+
+        // $data->C17_UID = $C17_UID;
+
+
+        // $C18_TRADE = new StdClass();
+        // $C18_TRADE->owner_indicator_code = '1';
+        // $C18_TRADE->opened_date = date('d.m.Y', strtotime($contract->inssuance_date));
+        // $C18_TRADE->trade_type_code = '1';
+        // $C18_TRADE->load_kind_code = '13';
+        // $C18_TRADE->account_type_code = '14';
+        // $C18_TRADE->is_consumer_loan = '1';
+        // $C18_TRADE->has_card = '1';
+        // $C18_TRADE->is_novation = '0';
+        // $C18_TRADE->is_money_source = '1';
+        // $C18_TRADE->is_money_borrower = '1';
+        // $C18_TRADE->close_date = date('d.m.Y', strtotime($contract->return_date));
+        // $C18_TRADE->lender_type_code = '2';
+        // $C18_TRADE->has_obtaining_part_creditor = '0';
+        // $C18_TRADE->has_credit_line = '0';
+        // $C18_TRADE->is_interest_rate_float = '0';
+        // $C18_TRADE->has_transfer_part_creditor = '0';
+        // $C18_TRADE->commit_date = date('d.m.Y', strtotime($contract->inssuance_date));
+
+        // $data->C18_TRADE = $C18_TRADE;
+
+
+        // $C19_ACCOUNTAMT = new StdClass();
+        // $C19_ACCOUNTAMT->credit_limit = str_replace('.', ',', sprintf("%01.2f", $contract->amount));
+        // $C19_ACCOUNTAMT->currency_code = 'RUB';
+        // $C19_ACCOUNTAMT->commit_currency_code = 'RUB';
+        // $C19_ACCOUNTAMT->amount_date = date('d.m.Y', strtotime($contract->inssuance_date));
+        // $C19_ACCOUNTAMT->commit_uuid = $contract->uid;
+
+        // $data->C19_ACCOUNTAMT = $C19_ACCOUNTAMT;
+
+        // $C20_COBORROWER  = new StdClass();
+        // $C20_COBORROWER->has_solidary = 0;
+
+        // $data->C20_COBORROWER  = $C20_COBORROWER ;
+
+        // $interest_terms_amount = ($contract->amount * $contract->base_percent / 100 * $contract->period);
+        // $C21_PAYMTCONDITION = new StdClass();
+        // $C21_PAYMTCONDITION->principal_terms_amount = str_replace('.', ',', sprintf("%01.2f", $contract->amount));
+        // $C21_PAYMTCONDITION->principal_terms_amount_date = date('d.m.Y', strtotime($contract->return_date));
+        // $C21_PAYMTCONDITION->interest_terms_amount = str_replace('.', ',', sprintf("%01.2f", $interest_terms_amount));
+        // $C21_PAYMTCONDITION->interest_terms_amount_date = date('d.m.Y', strtotime($contract->return_date));
+        // $C21_PAYMTCONDITION->terms_frequency_code = '3';
+        // $C21_PAYMTCONDITION->interest_payment_due_date = date('d.m.Y', strtotime($contract->return_date));
+
+        // $data->C21_PAYMTCONDITION = $C21_PAYMTCONDITION;
+
+
+        // $C22_OVERALLVAL = new StdClass();
+        // $C22_OVERALLVAL->total_credit_amount_interest = str_replace('.', ',', sprintf("%01.2f", $contract->base_percent * 365));
+        // $C22_OVERALLVAL->total_credit_amount_monetary = str_replace('.', ',', sprintf("%01.2f", $interest_terms_amount));
+        // $C22_OVERALLVAL->total_credit_amount_date = date('d.m.Y', strtotime($contract->inssuance_date));
+
+        // $data->C22_OVERALLVAL = $C22_OVERALLVAL;
+
+
+        // $C23_AMENDMENT = new StdClass();
+        // $C23_AMENDMENT->is_amendment = 1;
+        // $C23_AMENDMENT->amendment_date = date('d.m.Y', strtotime($contract->canicule));
+        // $C23_AMENDMENT->amendment_type_code = 1;
+        // $C23_AMENDMENT->special_amendment_type_code = 9;
+        // $C23_AMENDMENT->amendment_start_date = date('d.m.Y', strtotime($contract->canicule));
+
+        // $data->C23_AMENDMENT = $C23_AMENDMENT;
+
+        // $C24_FUNDDATE = new StdClass();
+        // $C24_FUNDDATE->funding_date = date('d.m.Y', strtotime($contract->inssuance_date));
+
+        // $data->C24_FUNDDATE = $C24_FUNDDATE;
+
+
+        // $C25_ARREAR = new StdClass();
+        // $C25_ARREAR->has_arrear = '1';
+        // $C25_ARREAR->start_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $contract->amount));
+        // $C25_ARREAR->is_last_payment_due = '1';
+        // $C25_ARREAR->amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $contract->amount + $interest_terms_amount));
+        // $C25_ARREAR->principal_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $contract->amount));
+        // $C25_ARREAR->interest_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $interest_terms_amount));
+        // $C25_ARREAR->other_amount_outstanding = '0,00';
+        // $C25_ARREAR->calculation_date = date('d.m.Y', strtotime($contract->inssuance_date));
+
+        // $data->C25_ARREAR = $C25_ARREAR;
+
+
+        // $C26_DUEARREAR = new StdClass();
+        // $C26_DUEARREAR->start_date = date('d.m.Y', strtotime($contract->inssuance_date));
+        // $C26_DUEARREAR->is_last_payment_due = '1';
+        // $C26_DUEARREAR->amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $contract->amount + $interest_terms_amount));
+        // $C26_DUEARREAR->principal_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $contract->amount));
+        // $C26_DUEARREAR->interest_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $interest_terms_amount));
+        // $C26_DUEARREAR->other_amount_outstanding = '0,00';
+        // $C26_DUEARREAR->calculation_date = date('d.m.Y', strtotime($contract->inssuance_date));
+
+        // $data->C26_DUEARREAR = $C26_DUEARREAR;
+
+
+        // $C27_PASTDUEARREAR = new StdClass();
+        // $C27_PASTDUEARREAR->amount_outstanding = '0,00';
+        // $C27_PASTDUEARREAR->calculation_date = date('d.m.Y', strtotime($contract->inssuance_date));
+
+        // $data->C27_PASTDUEARREAR = $C27_PASTDUEARREAR;
+
+
+        // $C28_PAYMT = new StdClass();
+        // // $C28_PAYMT->payment_date = date('d.m.Y', strtotime($order->operation->created));
+        // $C28_PAYMT->payment_amount = str_replace('.', ',', sprintf("%01.2f", $order->payment_amount));
+        // // $C28_PAYMT->principal_payment_amount = str_replace('.', ',', sprintf("%01.2f", $order->principal_payment_amount));
+        // // $C28_PAYMT->interest_payment_amount = str_replace('.', ',', sprintf("%01.2f", $order->interest_payment_amount));
+        // // $C28_PAYMT->other_payment_amount = str_replace('.', ',', sprintf("%01.2f", $order->other_payment_amount));
+        // // $C28_PAYMT->total_amount = str_replace('.', ',', sprintf("%01.2f", $order->total_amount));
+        // // $C28_PAYMT->principal_total_amount = str_replace('.', ',', sprintf("%01.2f", $order->principal_total_amount));
+        // // $C28_PAYMT->interest_total_amount = str_replace('.', ',', sprintf("%01.2f", $order->interest_total_amount));
+        // // $C28_PAYMT->other_total_amount = str_replace('.', ',', sprintf("%01.2f", $order->other_total_amount));
+        // $C28_PAYMT->amount_keep_code = $order->amount_keep_code;
+        // $C28_PAYMT->terms_due_code = $order->terms_due_code;
+        // $C28_PAYMT->days_past_due = $order->days_past_due;
+
+        // $data->C28_PAYMT = $C28_PAYMT;
+
+
+        // $C29_MONTHAVERPAYMT = new StdClass();
+        // $C29_MONTHAVERPAYMT->average_payment_amount = round($contract->amount + $interest_terms_amount);
+        // $C29_MONTHAVERPAYMT->calculation_date = date('d.m.Y', strtotime($contract->inssuance_date));
+
+        // $data->C29_MONTHAVERPAYMT = $C29_MONTHAVERPAYMT;
+
+
+        // $C54_OBLIGACCOUNT = new StdClass();
+        // $C54_OBLIGACCOUNT->has_obligation = 1;
+        // $C54_OBLIGACCOUNT->interest_rate = str_replace('.', ',', sprintf("%01.2f", $contract->base_percent * 365));
+        // $C54_OBLIGACCOUNT->has_preferential_financing = '0';
+
+        // $data->C54_OBLIGACCOUNT = $C54_OBLIGACCOUNT;
+
+
+        return $data;
+    }
+
+    // ПРОСРОЧКА 31-й и более день. 
+    private function get_peni_item($order)
+    {
+        $contract = $this->contracts->get_contract($order->contract_id);
+
+        $passport_serial = str_replace([' ', '-'], '', $order->passport_serial);
+        $passport_series = substr($passport_serial, 0, 4);
+        $passport_number = substr($passport_serial, 4, 6);
+
+        $ret_date_array = $this->ret_date_data($order);
+
+        $ret_date = $ret_date_array[0];
+        $days_past_due = $ret_date_array[1];
+        $ret_date_body_summ = $ret_date_array[2];
+        $ret_date_percents_summ = $ret_date_array[3];
+        $ret_date_peni_summ = $ret_date_array[4];
+        $new_ret_date = $ret_date_array[5];
+
+        
+        $data = new StdClass();
+
+            $TITLE = new StdClass();
+
+                $CURRENT_NAME = new StdClass();
+
+                    $C1_NAME = new StdClass();
+                    $C1_NAME->surname = $this->uppercase($order->lastname);
+                    $C1_NAME->name = $this->uppercase($order->firstname);
+                    $C1_NAME->patronymic = $this->uppercase($order->patronymic);
+                    $CURRENT_NAME->name = $C1_NAME;
+
+                    $C4_DOCUMENTS = [];
+                    $C4_DOCUMENTS_OBJ = new StdClass();
+                    $C4_DOCUMENTS_OBJ->country_code = 643;
+                    $C4_DOCUMENTS_OBJ->document_code = 21;
+                    $C4_DOCUMENTS_OBJ->series_number = $passport_series;
+                    $C4_DOCUMENTS_OBJ->document_number = $passport_number;
+                    $C4_DOCUMENTS_OBJ->issue_date = date('d.m.Y', strtotime($order->passport_date));
+                    $C4_DOCUMENTS_OBJ->issued_by_division = $this->clearing($order->passport_issued);
+                    $C4_DOCUMENTS_OBJ->division_code = $order->subdivision_code;
+                    $C4_DOCUMENTS_OBJ->foreigner_code = 3;
+                    $C4_DOCUMENTS [] = $C4_DOCUMENTS_OBJ;
+                    $CURRENT_NAME->documents = $C4_DOCUMENTS;
+                
+                $TITLE->current_name = $CURRENT_NAME;
+    
+                $PREVIOUS_PERSONALITY_DETAILS = [];
+                $PREVIOUS_PERSONALITY_DETAILS_OBJ = new StdClass();
+
+                    $C2_PREVIOUS_NAME = new StdClass();
+                    $C2_PREVIOUS_NAME->is_prev_name = 0;
+                    $PREVIOUS_PERSONALITY_DETAILS_OBJ->previous_name = $C2_PREVIOUS_NAME;
+                    
+                    $C5_PREVIOUS_DOCUMENTS =[];
+                    $C5_PREVIOUS_DOCUMENTS_OBJ = new StdClass();
+                    $C5_PREVIOUS_DOCUMENTS_OBJ->is_prev_document = 0;
+                    $C5_PREVIOUS_DOCUMENTS[] = $C5_PREVIOUS_DOCUMENTS_OBJ;
+                    $PREVIOUS_PERSONALITY_DETAILS_OBJ->previous_documents = $C5_PREVIOUS_DOCUMENTS;
+
+                $PREVIOUS_PERSONALITY_DETAILS[] = $PREVIOUS_PERSONALITY_DETAILS_OBJ;
+                $TITLE->previous_personality_details = $PREVIOUS_PERSONALITY_DETAILS;
+
+                $BIRTH_DETAILS = new StdClass();
+
+                $C3_BIRTH_DETAILS = new StdClass();
+                $C3_BIRTH_DETAILS->birth_date = date('d.m.Y', strtotime($order->birth));
+                $C3_BIRTH_DETAILS->country_code = '643';
+                $C3_BIRTH_DETAILS->birth_place = $this->clearing($order->birth_place);
+
+                $TITLE->birth_details = $C3_BIRTH_DETAILS;
+
+                $C6_TAXPAYER_INFO = new StdClass();
+                    
+                    $TAXPAYER_INFO = new StdClass();
+                    $TAXPAYER_INFO->taxpayer_number = empty($order->inn) ? '000000000000' : $order->inn;
+                    $TAXPAYER_INFO->taxpayer_number_code = '1';
+                    $C6_TAXPAYER_INFO->taxpayer_info = $TAXPAYER_INFO;
+
+                    $C6_TAXPAYER_INFO->is_special_tax = '0';
+
+                $TITLE->taxpayer_info = $C6_TAXPAYER_INFO;
+
+            $data->title = $TITLE;
+
+            $EVENTS = [];
+            $EVENTS_OBJ = new StdClass();
+
+                $EVENT_2_3 = new StdClass();
+                $EVENT_2_3->order_num = $order->order_id;
+                $EVENT_2_3->event_date = date('Y-m-d', strtotime($new_ret_date));
+                $EVENT_2_3->operation_code = "B";
+
+                $DEAL_UID  = new StdClass();
+                $DEAL_UID->uuid = $contract->uid;
+                $DEAL_UID->open_date = date('Y-m-d', strtotime($contract->inssuance_date));
+                $EVENT_2_3->deal_uid = $DEAL_UID;
+
+                $C18_TRADE = new StdClass();
+                $C18_TRADE->owner_indicator_code = '1';
+                $C18_TRADE->trade_type_code = '1';
+                $C18_TRADE->load_kind_code = '13'; 
+                $C18_TRADE->account_type_code = [99];
+                $C18_TRADE->is_consumer_loan = '1';
+                $C18_TRADE->has_card = '1';
+                $C18_TRADE->is_novation = '0';
+                $C18_TRADE->is_money_source = '1';
+                $C18_TRADE->is_money_borrower = '1';
+                $C18_TRADE->close_date = date('Y-m-d', strtotime($contract->return_date));
+                $C18_TRADE->lender_type_code = '2';
+                $C18_TRADE->has_obtaining_part_creditor = '0';
+                $C18_TRADE->transfer_part_creditor_uuid = '-';
+                $C18_TRADE->has_credit_line = '0';
+                $C18_TRADE->is_interest_rate_float = '0';
+                $C18_TRADE->has_transfer_part_creditor = '0';
+                $C18_TRADE->opened_date = date('Y-m-d', strtotime($contract->inssuance_date));
+                $C18_TRADE->repayment_fact = 0;
+                $C18_TRADE->transfer_fact = 0;
+                $C18_TRADE->partner_financing_fact = 0;
+                $EVENT_2_3->deal = $C18_TRADE;
+
+                $C19_ACCOUNTAMT = new StdClass();
+                $C19_ACCOUNTAMT->credit_limit = sprintf("%01.2f", $contract->amount);
+                $C19_ACCOUNTAMT->currency_code = 'RUB';
+                $C19_ACCOUNTAMT->amount_date = date('Y-m-d', strtotime($contract->inssuance_date));
+                $EVENT_2_3->amount = $C19_ACCOUNTAMT;
+
+                $C19_ACCOUNTAMT_INFO = [];
+                $C19_ACCOUNTAMT_INFO_OBJ = new StdClass();
+                $C19_ACCOUNTAMT_INFO_OBJ->security_fact = 0;
+                $C19_ACCOUNTAMT_INFO [] = $C19_ACCOUNTAMT_INFO_OBJ;
+                $EVENT_2_3->amount_info = $C19_ACCOUNTAMT_INFO;
+
+                $interest_terms_amount = ($contract->amount * $contract->base_percent / 100 * $contract->period);
+                $C21_PAYMTCONDITION = new StdClass();
+                $C21_PAYMTCONDITION->principal_terms_amount = sprintf("%01.2f", $contract->amount);
+                $C21_PAYMTCONDITION->principal_terms_amount_date = date('Y-m-d', strtotime($contract->return_date));
+                $C21_PAYMTCONDITION->interest_terms_amount = sprintf("%01.2f", $interest_terms_amount);
+                $C21_PAYMTCONDITION->interest_terms_amount_date = date('Y-m-d', strtotime($contract->return_date));
+                $C21_PAYMTCONDITION->terms_frequency_code = '3';
+                $C21_PAYMTCONDITION->interest_payment_due_date = date('Y-m-d', strtotime($contract->return_date));
+                $EVENT_2_3->payment_terms = $C21_PAYMTCONDITION;
+
+                $C22_OVERALLVAL = new StdClass();
+                $C22_OVERALLVAL->total_credit_amount_interest = sprintf("%01.3f", $contract->base_percent * 365);
+                $C22_OVERALLVAL->total_credit_amount_monetary = sprintf("%01.2f", $interest_terms_amount);
+                $C22_OVERALLVAL->total_credit_amount_date = date('Y-m-d', strtotime($contract->inssuance_date));
+                $EVENT_2_3->total_cost = $C22_OVERALLVAL;
+
+
+                $DEBT_INFO = new StdClass();
+                $DEBT_INFO->last_pay_exists = 0;
+                $DEBT_INFO->calc_date = date('Y-m-d', strtotime($new_ret_date));
+
+                    $C25_ARREAR = new StdClass();
+                    $C25_ARREAR->has_arrear = '1';
+                    $C25_ARREAR->amount_outstanding = sprintf("%01.2f", $ret_date_body_summ + $ret_date_percents_summ + $ret_date_peni_summ);
+                    $C25_ARREAR->principal_amount_outstanding = sprintf("%01.2f", $ret_date_body_summ);
+                    $C25_ARREAR->interest_amount_outstanding = sprintf("%01.2f", $ret_date_percents_summ + $ret_date_peni_summ);
+                    $C25_ARREAR->other_amount_outstanding = '0.00';
+                    $C25_ARREAR->is_unconfirmed_grace = 0;
+                    $DEBT_INFO->debt = $C25_ARREAR;
+
+                    $C26_DUEARREAR = new StdClass();
+                    $C26_DUEARREAR->amount_outstanding = '0.00';
+                    $DEBT_INFO->debt_due = $C26_DUEARREAR;
+
+
+                    $C27_PASTDUEARREAR = new StdClass();
+                    $C27_PASTDUEARREAR->is_last_payment_due = "0";
+                    $C27_PASTDUEARREAR->amount_outstanding = sprintf("%01.2f", $ret_date_body_summ + $ret_date_percents_summ + $ret_date_peni_summ);
+                    $C27_PASTDUEARREAR->principal_amount_outstanding = sprintf("%01.2f", $ret_date_body_summ);
+                    $C27_PASTDUEARREAR->interest_amount_outstanding = sprintf("%01.2f", $ret_date_percents_summ + $ret_date_peni_summ);
+                    $C27_PASTDUEARREAR->other_amount_outstanding = '0.00';
+                    $C27_PASTDUEARREAR->debt_overdue_start_date = date('Y-m-d', strtotime($contract->return_date));
+                    $C27_PASTDUEARREAR->past_due_date = date('Y-m-d', strtotime($contract->return_date));
+                    $C27_PASTDUEARREAR->interest_missed_date = date('Y-m-d', strtotime($contract->return_date));
+                    $C27_PASTDUEARREAR->miss_duration = $days_past_due; 
+                    $DEBT_INFO->debt_overdue = $C27_PASTDUEARREAR;
+
+                    $last_payment_operation = $this->last_payment_data($order);
+                    $C28_PAYMT = new StdClass();
+                    if (!$last_payment_operation) {
+                        $C28_PAYMT->payment_amount = '0.00';
+                        $C28_PAYMT->amount_keep_code = '3';
+                        $C28_PAYMT->terms_due_code = '3';
+                    }
+                    else{
+                        $last_payment_transaction = $this->transactions->get_transaction($last_payment_operation->transaction_id);
+
+                        $C28_PAYMT->payment_amount = sprintf("%01.2f", $last_payment_operation->amount);
+                        $C28_PAYMT->principal_payment_amount = sprintf("%01.2f", $last_payment_transaction->loan_body_summ);
+                        $C28_PAYMT->interest_payment_amount = sprintf("%01.2f",  $last_payment_transaction->loan_percents_summ + $last_payment_transaction->loan_peni_summ);
+                        $C28_PAYMT->other_payment_amount = "0.00";
+                        $C28_PAYMT->total_amount = sprintf("%01.2f", $last_payment_operation->total_amount);
+                        $C28_PAYMT->principal_total_amount = sprintf("%01.2f", $last_payment_operation->principal_total_amount);
+                        $C28_PAYMT->interest_total_amount = sprintf("%01.2f", $last_payment_operation->interest_total_amount);
+                        $C28_PAYMT->other_total_amount = "0.00";
+                        $C28_PAYMT->amount_keep_code = '3';
+                        $C28_PAYMT->terms_due_code = '3';
+                    }
+                    $DEBT_INFO->payment = $C28_PAYMT;
+                $EVENT_2_3->debt_info = $DEBT_INFO;
+
+                $C29_MONTHAVERPAYMT = new StdClass();
+                $C29_MONTHAVERPAYMT->average_payment_amount = round($ret_date_body_summ + $ret_date_percents_summ + $ret_date_peni_summ);
+                $C29_MONTHAVERPAYMT->calculation_date = date('Y-m-d', strtotime($ret_date));
+                $C29_MONTHAVERPAYMT->sum_total = sprintf("%01.2f", ($ret_date_body_summ + $ret_date_percents_summ + $ret_date_peni_summ));
+                $EVENT_2_3->monthly_payment = $C29_MONTHAVERPAYMT;
+
+                $C20_COBORROWER  = new StdClass();
+                $C20_COBORROWER->has_solidary = 0;
+                $EVENT_2_3->joint_debtors = $C20_COBORROWER;
+                
+                $C54_OBLIGACCOUNT = new StdClass();
+                $C54_OBLIGACCOUNT->has_obligation = 1;
+                $C54_OBLIGACCOUNT->min_interest_rate = sprintf("%01.2f", $contract->base_percent * 365);
+                $C54_OBLIGACCOUNT->max_interest_rate = sprintf("%01.2f", $contract->base_percent * 365);
+                $C54_OBLIGACCOUNT->has_preferential_financing = '0';
+                $C54_OBLIGACCOUNT->preferential_financing_info = ["85453-87"]; //???
+                $C54_OBLIGACCOUNT->calc_date = date('Y-m-d', strtotime($new_ret_date));
+                $EVENT_2_3->accounting = $C54_OBLIGACCOUNT;
+
+                $C55_APPLICATION = new StdClass();
+                $C55_APPLICATION->requested_flag_indicator_code = 1;
+                $C55_APPLICATION->requested_amount = sprintf("%01.2f", $order->amount);
+                $C55_APPLICATION->requested_currency_code = "RUB";
+                $C55_APPLICATION->application_number = $contract->uid;
+                $C55_APPLICATION->application_date = date('Y-m-d', strtotime($order->date));
+                $C55_APPLICATION->creditor_type_code = 2;
+                $C55_APPLICATION->application_shipment_code = 8;
+                $C55_APPLICATION->consideration_shipment_code = 5;
+                $C55_APPLICATION->transit_date = date('Y-m-d', strtotime($contract->inssuance_date));
+                $C55_APPLICATION->application_code = 7;
+                $EVENT_2_3->application = $C55_APPLICATION;
+
+                $C56_OBLIGPARTTAKE = new StdClass();
+                $C56_OBLIGPARTTAKE->flag_indicator_code = '1';
+                $C56_OBLIGPARTTAKE->approved_loan_type_code = '13';
+                $C56_OBLIGPARTTAKE->agreement_number = $contract->uid;
+                $C56_OBLIGPARTTAKE->funding_date = date('Y-m-d', strtotime($contract->inssuance_date));
+                $C56_OBLIGPARTTAKE->default_flag = $days_past_due > 90 ? '1' : '0';
+                $C56_OBLIGPARTTAKE->loan_indicator = 0;
+                $EVENT_2_3->participation = $C56_OBLIGPARTTAKE;
+
+            $EVENTS_OBJ->event_2_3 = $EVENT_2_3;
+
+            $EVENTS[] = $EVENTS_OBJ;
+
+        $data->events = $EVENTS;
+
+
+
+
+        
+
+
+        // $C4_ID = new StdClass();
+        // $C4_ID->country_code = '643';
+        // $C4_ID->document_code = '21';
+        // $C4_ID->series_number = $passport_series;
+        // $C4_ID->document_number = $passport_number;
+        // $C4_ID->issue_date = date('d.m.Y', strtotime($order->passport_date));
+        // $C4_ID->issued_by_division = $this->clearing($order->passport_issued);
+        // $C4_ID->division_code = $order->subdivision_code;
+
+        // $data->C4_ID = $C4_ID;
+
+
+        // $C5_PREVID = new StdClass();
+        // $C5_PREVID->is_prev_document = '0';
+
+        // $data->C5_PREVID = $C5_PREVID;
+
+
+        
+
+        // $data->C6_REGNUM = $C6_REGNUM;
+
+
+        // $C17_UID = new StdClass();
+        // $C17_UID->uuid = $contract->uid;
+
+        // $data->C17_UID = $C17_UID;
+
+
+        // $C18_TRADE = new StdClass();
+        // $C18_TRADE->owner_indicator_code = '1';
+        // $C18_TRADE->opened_date = date('d.m.Y', strtotime($contract->inssuance_date));
+        // $C18_TRADE->trade_type_code = '1';
+        // $C18_TRADE->load_kind_code = '13';
+        // $C18_TRADE->account_type_code = '14';
+        // $C18_TRADE->is_consumer_loan = '1';
+        // $C18_TRADE->has_card = '1';
+        // $C18_TRADE->is_novation = '0';
+        // $C18_TRADE->is_money_source = '1';
+        // $C18_TRADE->is_money_borrower = '1';
+        // $C18_TRADE->close_date = date('d.m.Y', strtotime($contract->return_date));
+        // $C18_TRADE->lender_type_code = '2';
+        // $C18_TRADE->has_obtaining_part_creditor = '0';
+        // $C18_TRADE->has_credit_line = '0';
+        // $C18_TRADE->is_interest_rate_float = '0';
+        // $C18_TRADE->has_transfer_part_creditor = '0';
+        // $C18_TRADE->commit_date = date('d.m.Y', strtotime($contract->inssuance_date));
+
+        // $data->C18_TRADE = $C18_TRADE;
+
+
+        // $C19_ACCOUNTAMT = new StdClass();
+        // $C19_ACCOUNTAMT->credit_limit = str_replace('.', ',', sprintf("%01.2f", $contract->amount));
+        // $C19_ACCOUNTAMT->currency_code = 'RUB';
+        // $C19_ACCOUNTAMT->commit_currency_code = 'RUB';
+        // $C19_ACCOUNTAMT->amount_date = date('d.m.Y', strtotime($contract->inssuance_date));
+        // $C19_ACCOUNTAMT->commit_uuid = $contract->uid;
+
+        // $data->C19_ACCOUNTAMT = $C19_ACCOUNTAMT;
+
+
+        // $interest_terms_amount = ($contract->amount * $contract->base_percent / 100 * $contract->period);
+        // $C21_PAYMTCONDITION = new StdClass();
+        // $C21_PAYMTCONDITION->principal_terms_amount = str_replace('.', ',', sprintf("%01.2f", $contract->amount));
+        // $C21_PAYMTCONDITION->principal_terms_amount_date = date('d.m.Y', strtotime($contract->return_date));
+        // $C21_PAYMTCONDITION->interest_terms_amount = str_replace('.', ',', sprintf("%01.2f", $interest_terms_amount));
+        // $C21_PAYMTCONDITION->interest_terms_amount_date = date('d.m.Y', strtotime($contract->return_date));
+        // $C21_PAYMTCONDITION->terms_frequency_code = '3';
+        // $C21_PAYMTCONDITION->interest_payment_due_date = date('d.m.Y', strtotime($contract->return_date));
+
+        // $data->C21_PAYMTCONDITION = $C21_PAYMTCONDITION;
+
+
+        // $C22_OVERALLVAL = new StdClass();
+        // $C22_OVERALLVAL->total_credit_amount_interest = str_replace('.', ',', sprintf("%01.2f", $contract->base_percent * 365));
+        // $C22_OVERALLVAL->total_credit_amount_monetary = str_replace('.', ',', sprintf("%01.2f", $interest_terms_amount));
+        // $C22_OVERALLVAL->total_credit_amount_date = date('d.m.Y', strtotime($contract->inssuance_date));
+
+        // $data->C22_OVERALLVAL = $C22_OVERALLVAL;
+
+
+        // $C24_FUNDDATE = new StdClass();
+        // $C24_FUNDDATE->funding_date = date('d.m.Y', strtotime($contract->inssuance_date));
+
+        // $data->C24_FUNDDATE = $C24_FUNDDATE;
+
+
+        // $C25_ARREAR = new StdClass();
+        // $C25_ARREAR->has_arrear = '1';
+        // $C25_ARREAR->start_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $contract->amount));
+        // $C25_ARREAR->is_last_payment_due = '0';
+
+        // $C25_ARREAR->amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $ret_date_body_summ + $ret_date_percents_summ + $ret_date_peni_summ));
+        // $C25_ARREAR->principal_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $ret_date_body_summ));
+        // $C25_ARREAR->interest_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $ret_date_percents_summ + $ret_date_peni_summ));
+        // $C25_ARREAR->other_amount_outstanding = '0,00';
+        // // $C25_ARREAR->calculation_date = date('d.m.Y', strtotime($ret_date));
+        // // $C25_ARREAR->calculation_date = date('d.m.Y', time());
+        // $C25_ARREAR->calculation_date = date('d.m.Y', strtotime($new_ret_date));
+
+        // $data->C25_ARREAR = $C25_ARREAR;
+        
+
+        // $C26_DUEARREAR = new StdClass();
+        // // $C26_DUEARREAR->start_date = date('d.m.Y', strtotime($contract->inssuance_date));
+        // // $C26_DUEARREAR->is_last_payment_due = '0';
+        // $C26_DUEARREAR->amount_outstanding = '0,00';
+        // // $C26_DUEARREAR->principal_amount_outstanding = '0,00';
+        // // $C26_DUEARREAR->interest_amount_outstanding = '0,00';
+        // // $C26_DUEARREAR->other_amount_outstanding = '0,00';
+        // // $C26_DUEARREAR->calculation_date = date('d.m.Y', strtotime($ret_date));
+
+        // $data->C26_DUEARREAR = $C26_DUEARREAR;
+
+        // $C27_PASTDUEARREAR = new StdClass();
+        // // $C27_PASTDUEARREAR->past_due_date = date('d.m.Y', strtotime($ret_date));
+        // $C27_PASTDUEARREAR->past_due_date = date('d.m.Y', strtotime($contract->return_date));
+        // $C27_PASTDUEARREAR->is_last_payment_due = "0";
+        // $C27_PASTDUEARREAR->amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $ret_date_body_summ + $ret_date_percents_summ + $ret_date_peni_summ));
+        // $C27_PASTDUEARREAR->principal_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $ret_date_body_summ));
+        // $C27_PASTDUEARREAR->interest_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $ret_date_percents_summ + $ret_date_peni_summ));
+        // $C27_PASTDUEARREAR->other_amount_outstanding = '0,00';
         // // $C27_PASTDUEARREAR->calculation_date = date('d.m.Y', strtotime($ret_date));
-        // $C27_PASTDUEARREAR->calculation_date = date('d.m.Y', strtotime($contract->cession));
+        // // $C27_PASTDUEARREAR->calculation_date = date('d.m.Y', time());
+        // $C27_PASTDUEARREAR->calculation_date = date('d.m.Y', strtotime($new_ret_date));
+        // $C27_PASTDUEARREAR->principal_missed_date = date('d.m.Y', strtotime($contract->return_date));
+        // $C27_PASTDUEARREAR->interest_missed_date = date('d.m.Y', strtotime($contract->return_date));
 
         // $data->C27_PASTDUEARREAR = $C27_PASTDUEARREAR;
 
@@ -1051,8 +2637,7 @@ class Nbki_report extends Core
         //     $C28_PAYMT->payment_amount = '0,00';
         //     $C28_PAYMT->amount_keep_code = '3';
         //     $C28_PAYMT->terms_due_code = '3';
-        //     // $C28_PAYMT->days_past_due = $days_past_due;
-        //     $C28_PAYMT->days_past_due = 0;
+        //     $C28_PAYMT->days_past_due = $days_past_due;
         // }
         // else{
 
@@ -1069,46 +2654,27 @@ class Nbki_report extends Core
         //     $C28_PAYMT->other_total_amount = "0,00";
         //     $C28_PAYMT->amount_keep_code = '3';
         //     $C28_PAYMT->terms_due_code = '3';
-        //     // $C28_PAYMT->days_past_due = $days_past_due;
-        //     $C28_PAYMT->days_past_due = 0;
+        //     $C28_PAYMT->days_past_due = $days_past_due;
         // }
+
+
 
         // $data->C28_PAYMT = $C28_PAYMT;
 
 
         // $C29_MONTHAVERPAYMT = new StdClass();
-        // $C29_MONTHAVERPAYMT->average_payment_amount = 0;
-        // $C29_MONTHAVERPAYMT->calculation_date = date('d.m.Y', strtotime($contract->cession));
+        // $C29_MONTHAVERPAYMT->average_payment_amount = round($ret_date_body_summ + $ret_date_percents_summ + $ret_date_peni_summ);
+        // $C29_MONTHAVERPAYMT->calculation_date = date('d.m.Y', strtotime($ret_date));
 
         // $data->C29_MONTHAVERPAYMT = $C29_MONTHAVERPAYMT;
-
-
-        $C45_SUBMITHOLD = new StdClass();
-        $C45_SUBMITHOLD->hold_code = "3";
-        $C45_SUBMITHOLD->hold_date = date('d.m.Y', strtotime($contract->cession));
-
-        $data->C45_SUBMITHOLD = $C45_SUBMITHOLD;
-
-
-        $C51_ACQUIRERLEGAL  = new StdClass();
-        $C51_ACQUIRERLEGAL->right_of_claim_code = "3";
-        $C51_ACQUIRERLEGAL->right_of_claim_rus = "1";
-        $C51_ACQUIRERLEGAL->right_of_claim_full_name = "ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ «ПРОФЕССИОНАЛЬНАЯ КОЛЛЕКТОРСКАЯ ОРГАНИЗАЦИЯ «ЦЕРБЕР»";
-        $C51_ACQUIRERLEGAL->right_of_claim_name = "ООО «ПКО «ЦЕРБЕР»";
-        $C51_ACQUIRERLEGAL->right_of_claim_registration_number = "1147746738028";
-        $C51_ACQUIRERLEGAL->right_of_claim_tax_code = "1";
-        $C51_ACQUIRERLEGAL->right_of_claim_tax_number = "7709957219";
-        $C51_ACQUIRERLEGAL->right_of_claim_date = date('d.m.Y', strtotime($contract->cession));
-
-        $data->C51_ACQUIRERLEGAL  = $C51_ACQUIRERLEGAL ;
         
 
-        $C54_OBLIGACCOUNT = new StdClass();
-        $C54_OBLIGACCOUNT->has_obligation = 1;
-        $C54_OBLIGACCOUNT->interest_rate = str_replace('.', ',', sprintf("%01.2f", $contract->base_percent * 365));
-        $C54_OBLIGACCOUNT->has_preferential_financing = '0';
+        // $C54_OBLIGACCOUNT = new StdClass();
+        // $C54_OBLIGACCOUNT->has_obligation = 1;
+        // $C54_OBLIGACCOUNT->interest_rate = str_replace('.', ',', sprintf("%01.2f", $contract->base_percent * 365));
+        // $C54_OBLIGACCOUNT->has_preferential_financing = '0';
 
-        $data->C54_OBLIGACCOUNT = $C54_OBLIGACCOUNT;
+        // $data->C54_OBLIGACCOUNT = $C54_OBLIGACCOUNT;
 
 
         // $C56_OBLIGPARTTAKE = new StdClass();
@@ -1116,487 +2682,18 @@ class Nbki_report extends Core
         // $C56_OBLIGPARTTAKE->approved_loan_type_code = '13';
         // $C56_OBLIGPARTTAKE->agreement_number = $contract->uid;
         // $C56_OBLIGPARTTAKE->funding_date = date('d.m.Y', strtotime($contract->inssuance_date));
-        // $C56_OBLIGPARTTAKE->default_flag = '0';
-        // $C56_OBLIGPARTTAKE->loan_indicator = 1;
+        // $C56_OBLIGPARTTAKE->default_flag = $days_past_due > 90 ? '1' : '0';
+        // $C56_OBLIGPARTTAKE->loan_indicator = 0;
 
         // $data->C56_OBLIGPARTTAKE = $C56_OBLIGPARTTAKE;
-
-        return $data;
-    }
-
-    private function get_canicule_item($order)
-    {
-        $contract = $this->contracts->get_contract($order->contract_id);
-
-        $passport_serial = str_replace([' ', '-'], '', $order->passport_serial);
-        $passport_series = substr($passport_serial, 0, 4);
-        $passport_number = substr($passport_serial, 4, 6);
-
-
-        $data = new StdClass();
-
-        $GROUPHEADER = new StdClass();
-        $GROUPHEADER->event_number = "2.1";
-        $GROUPHEADER->operation_code = "B";
-        $GROUPHEADER->event_date = date('d.m.Y', strtotime($order->operation->created));
-
-        $data->GROUPHEADER = $GROUPHEADER;
-
-
-        $C1_NAME = new StdClass();
-        $C1_NAME->surname = $this->clearing($order->lastname);
-        $C1_NAME->name = $this->clearing($order->firstname);
-        $C1_NAME->patronymic = $this->clearing($order->patronymic);
-
-        $data->C1_NAME = $C1_NAME;
-
-
-        $C2_PREVNAME = new StdClass();
-        $C2_PREVNAME->is_prev_name = '0';
-
-        $data->C2_PREVNAME = $C2_PREVNAME;
-
-
-        $C3_BIRTH = new StdClass();
-        $C3_BIRTH->birth_date = date('d.m.Y', strtotime($order->birth));
-        $C3_BIRTH->country_code = '643';
-        $C3_BIRTH->birth_place = $this->clearing($order->birth_place);
-
-        $data->C3_BIRTH = $C3_BIRTH;
-
-
-        $C4_ID = new StdClass();
-        $C4_ID->country_code = '643';
-        $C4_ID->document_code = '21';
-        $C4_ID->series_number = $passport_series;
-        $C4_ID->document_number = $passport_number;
-        $C4_ID->issue_date = date('d.m.Y', strtotime($order->passport_date));
-        $C4_ID->issued_by_division = $this->clearing($order->passport_issued);
-        $C4_ID->division_code = $order->subdivision_code;
-
-        $data->C4_ID = $C4_ID;
-
-
-        $C5_PREVID = new StdClass();
-        $C5_PREVID->is_prev_document = '0';
-
-        $data->C5_PREVID = $C5_PREVID;
-
-
-        $C6_REGNUM = new StdClass();
-        $C6_REGNUM->taxpayer_code = '1';
-        $C6_REGNUM->taxpayer_number = empty($order->inn) ? '000000000000' : $order->inn;
-        $C6_REGNUM->is_special_tax = '0';
-
-        $data->C6_REGNUM = $C6_REGNUM;
-
-
-        $C17_UID = new StdClass();
-        $C17_UID->uuid = $contract->uid;
-
-        $data->C17_UID = $C17_UID;
-
-
-        $C18_TRADE = new StdClass();
-        $C18_TRADE->owner_indicator_code = '1';
-        $C18_TRADE->opened_date = date('d.m.Y', strtotime($contract->inssuance_date));
-        $C18_TRADE->trade_type_code = '1';
-        $C18_TRADE->load_kind_code = '13';
-        $C18_TRADE->account_type_code = '14';
-        $C18_TRADE->is_consumer_loan = '1';
-        $C18_TRADE->has_card = '1';
-        $C18_TRADE->is_novation = '0';
-        $C18_TRADE->is_money_source = '1';
-        $C18_TRADE->is_money_borrower = '1';
-        $C18_TRADE->close_date = date('d.m.Y', strtotime($contract->return_date));
-        $C18_TRADE->lender_type_code = '2';
-        $C18_TRADE->has_obtaining_part_creditor = '0';
-        $C18_TRADE->has_credit_line = '0';
-        $C18_TRADE->is_interest_rate_float = '0';
-        $C18_TRADE->has_transfer_part_creditor = '0';
-        $C18_TRADE->commit_date = date('d.m.Y', strtotime($contract->inssuance_date));
-
-        $data->C18_TRADE = $C18_TRADE;
-
-
-        $C19_ACCOUNTAMT = new StdClass();
-        $C19_ACCOUNTAMT->credit_limit = str_replace('.', ',', sprintf("%01.2f", $contract->amount));
-        $C19_ACCOUNTAMT->currency_code = 'RUB';
-        $C19_ACCOUNTAMT->commit_currency_code = 'RUB';
-        $C19_ACCOUNTAMT->amount_date = date('d.m.Y', strtotime($contract->inssuance_date));
-        $C19_ACCOUNTAMT->commit_uuid = $contract->uid;
-
-        $data->C19_ACCOUNTAMT = $C19_ACCOUNTAMT;
-
-        $C20_COBORROWER  = new StdClass();
-        $C20_COBORROWER->has_solidary = 0;
-
-        $data->C20_COBORROWER  = $C20_COBORROWER ;
-
-        $interest_terms_amount = ($contract->amount * $contract->base_percent / 100 * $contract->period);
-        $C21_PAYMTCONDITION = new StdClass();
-        $C21_PAYMTCONDITION->principal_terms_amount = str_replace('.', ',', sprintf("%01.2f", $contract->amount));
-        $C21_PAYMTCONDITION->principal_terms_amount_date = date('d.m.Y', strtotime($contract->return_date));
-        $C21_PAYMTCONDITION->interest_terms_amount = str_replace('.', ',', sprintf("%01.2f", $interest_terms_amount));
-        $C21_PAYMTCONDITION->interest_terms_amount_date = date('d.m.Y', strtotime($contract->return_date));
-        $C21_PAYMTCONDITION->terms_frequency_code = '3';
-        $C21_PAYMTCONDITION->interest_payment_due_date = date('d.m.Y', strtotime($contract->return_date));
-
-        $data->C21_PAYMTCONDITION = $C21_PAYMTCONDITION;
-
-
-        $C22_OVERALLVAL = new StdClass();
-        $C22_OVERALLVAL->total_credit_amount_interest = str_replace('.', ',', sprintf("%01.2f", $contract->base_percent * 365));
-        $C22_OVERALLVAL->total_credit_amount_monetary = str_replace('.', ',', sprintf("%01.2f", $interest_terms_amount));
-        $C22_OVERALLVAL->total_credit_amount_date = date('d.m.Y', strtotime($contract->inssuance_date));
-
-        $data->C22_OVERALLVAL = $C22_OVERALLVAL;
-
-
-        $C23_AMENDMENT = new StdClass();
-        $C23_AMENDMENT->is_amendment = 1;
-        $C23_AMENDMENT->amendment_date = date('d.m.Y', strtotime($contract->canicule));
-        $C23_AMENDMENT->amendment_type_code = 1;
-        $C23_AMENDMENT->special_amendment_type_code = 9;
-        $C23_AMENDMENT->amendment_start_date = date('d.m.Y', strtotime($contract->canicule));
-
-        $data->C23_AMENDMENT = $C23_AMENDMENT;
-
-        $C24_FUNDDATE = new StdClass();
-        $C24_FUNDDATE->funding_date = date('d.m.Y', strtotime($contract->inssuance_date));
-
-        $data->C24_FUNDDATE = $C24_FUNDDATE;
-
-
-        $C25_ARREAR = new StdClass();
-        $C25_ARREAR->has_arrear = '1';
-        $C25_ARREAR->start_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $contract->amount));
-        $C25_ARREAR->is_last_payment_due = '1';
-        $C25_ARREAR->amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $contract->amount + $interest_terms_amount));
-        $C25_ARREAR->principal_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $contract->amount));
-        $C25_ARREAR->interest_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $interest_terms_amount));
-        $C25_ARREAR->other_amount_outstanding = '0,00';
-        $C25_ARREAR->calculation_date = date('d.m.Y', strtotime($contract->inssuance_date));
-
-        $data->C25_ARREAR = $C25_ARREAR;
-
-
-        $C26_DUEARREAR = new StdClass();
-        $C26_DUEARREAR->start_date = date('d.m.Y', strtotime($contract->inssuance_date));
-        $C26_DUEARREAR->is_last_payment_due = '1';
-        $C26_DUEARREAR->amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $contract->amount + $interest_terms_amount));
-        $C26_DUEARREAR->principal_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $contract->amount));
-        $C26_DUEARREAR->interest_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $interest_terms_amount));
-        $C26_DUEARREAR->other_amount_outstanding = '0,00';
-        $C26_DUEARREAR->calculation_date = date('d.m.Y', strtotime($contract->inssuance_date));
-
-        $data->C26_DUEARREAR = $C26_DUEARREAR;
-
-
-        $C27_PASTDUEARREAR = new StdClass();
-        $C27_PASTDUEARREAR->amount_outstanding = '0,00';
-        $C27_PASTDUEARREAR->calculation_date = date('d.m.Y', strtotime($contract->inssuance_date));
-
-        $data->C27_PASTDUEARREAR = $C27_PASTDUEARREAR;
-
-
-        $C28_PAYMT = new StdClass();
-        // $C28_PAYMT->payment_date = date('d.m.Y', strtotime($order->operation->created));
-        $C28_PAYMT->payment_amount = str_replace('.', ',', sprintf("%01.2f", $order->payment_amount));
-        // $C28_PAYMT->principal_payment_amount = str_replace('.', ',', sprintf("%01.2f", $order->principal_payment_amount));
-        // $C28_PAYMT->interest_payment_amount = str_replace('.', ',', sprintf("%01.2f", $order->interest_payment_amount));
-        // $C28_PAYMT->other_payment_amount = str_replace('.', ',', sprintf("%01.2f", $order->other_payment_amount));
-        // $C28_PAYMT->total_amount = str_replace('.', ',', sprintf("%01.2f", $order->total_amount));
-        // $C28_PAYMT->principal_total_amount = str_replace('.', ',', sprintf("%01.2f", $order->principal_total_amount));
-        // $C28_PAYMT->interest_total_amount = str_replace('.', ',', sprintf("%01.2f", $order->interest_total_amount));
-        // $C28_PAYMT->other_total_amount = str_replace('.', ',', sprintf("%01.2f", $order->other_total_amount));
-        $C28_PAYMT->amount_keep_code = $order->amount_keep_code;
-        $C28_PAYMT->terms_due_code = $order->terms_due_code;
-        $C28_PAYMT->days_past_due = $order->days_past_due;
-
-        $data->C28_PAYMT = $C28_PAYMT;
-
-
-        $C29_MONTHAVERPAYMT = new StdClass();
-        $C29_MONTHAVERPAYMT->average_payment_amount = round($contract->amount + $interest_terms_amount);
-        $C29_MONTHAVERPAYMT->calculation_date = date('d.m.Y', strtotime($contract->inssuance_date));
-
-        $data->C29_MONTHAVERPAYMT = $C29_MONTHAVERPAYMT;
-
-
-        $C54_OBLIGACCOUNT = new StdClass();
-        $C54_OBLIGACCOUNT->has_obligation = 1;
-        $C54_OBLIGACCOUNT->interest_rate = str_replace('.', ',', sprintf("%01.2f", $contract->base_percent * 365));
-        $C54_OBLIGACCOUNT->has_preferential_financing = '0';
-
-        $data->C54_OBLIGACCOUNT = $C54_OBLIGACCOUNT;
-
-
-        // $C56_OBLIGPARTTAKE = new StdClass();
-        // $C56_OBLIGPARTTAKE->flag_indicator_code = '1';
-        // $C56_OBLIGPARTTAKE->approved_loan_type_code = '13';
-        // $C56_OBLIGPARTTAKE->agreement_number = $contract->uid;
-        // $C56_OBLIGPARTTAKE->funding_date = date('d.m.Y', strtotime($contract->inssuance_date));
-        // $C56_OBLIGPARTTAKE->default_flag = '0';
-        // $C56_OBLIGPARTTAKE->loan_indicator = intval($order->closed) > 0 ? '1' : '0';
-
-        // $data->C56_OBLIGPARTTAKE = $C56_OBLIGPARTTAKE;
-
-        return $data;
-    }
-
-    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    // ПРОСРОЧКА 31-й и более день. Для 1-го дня нужно дописывать и проверять
-    private function get_peni_item($order)
-    {
-        $contract = $this->contracts->get_contract($order->contract_id);
-
-        $passport_serial = str_replace([' ', '-'], '', $order->passport_serial);
-        $passport_series = substr($passport_serial, 0, 4);
-        $passport_number = substr($passport_serial, 4, 6);
-
-
-        $ret_date_array = $this->ret_date_data($order);
-
-        $ret_date = $ret_date_array[0];
-        $days_past_due = $ret_date_array[1];
-        $ret_date_body_summ = $ret_date_array[2];
-        $ret_date_percents_summ = $ret_date_array[3];
-        $ret_date_peni_summ = $ret_date_array[4];
-        $new_ret_date = $ret_date_array[5];
-
-        
-        $data = new StdClass();
-
-        $GROUPHEADER = new StdClass();
-        $GROUPHEADER->event_number = "2.3";
-        $GROUPHEADER->operation_code = "B";
-        // $GROUPHEADER->event_date = date('d.m.Y', strtotime($order->operation->created));
-        $GROUPHEADER->event_date = date('d.m.Y', strtotime($new_ret_date));
-
-        $data->GROUPHEADER = $GROUPHEADER;
-
-
-        $C1_NAME = new StdClass();
-        $C1_NAME->surname = $this->clearing($order->lastname);
-        $C1_NAME->name = $this->clearing($order->firstname);
-        $C1_NAME->patronymic = $this->clearing($order->patronymic);
-
-        $data->C1_NAME = $C1_NAME;
-
-
-        $C2_PREVNAME = new StdClass();
-        $C2_PREVNAME->is_prev_name = '0';
-
-        $data->C2_PREVNAME = $C2_PREVNAME;
-
-
-        $C3_BIRTH = new StdClass();
-        $C3_BIRTH->birth_date = date('d.m.Y', strtotime($order->birth));
-        $C3_BIRTH->country_code = '643';
-        $C3_BIRTH->birth_place = $this->clearing($order->birth_place);
-
-        $data->C3_BIRTH = $C3_BIRTH;
-
-
-        $C4_ID = new StdClass();
-        $C4_ID->country_code = '643';
-        $C4_ID->document_code = '21';
-        $C4_ID->series_number = $passport_series;
-        $C4_ID->document_number = $passport_number;
-        $C4_ID->issue_date = date('d.m.Y', strtotime($order->passport_date));
-        $C4_ID->issued_by_division = $this->clearing($order->passport_issued);
-        $C4_ID->division_code = $order->subdivision_code;
-
-        $data->C4_ID = $C4_ID;
-
-
-        $C5_PREVID = new StdClass();
-        $C5_PREVID->is_prev_document = '0';
-
-        $data->C5_PREVID = $C5_PREVID;
-
-
-        $C6_REGNUM = new StdClass();
-        $C6_REGNUM->taxpayer_code = '1';
-        $C6_REGNUM->taxpayer_number = empty($order->inn) ? '000000000000' : $order->inn;
-        $C6_REGNUM->is_special_tax = '0';
-
-        $data->C6_REGNUM = $C6_REGNUM;
-
-
-        $C17_UID = new StdClass();
-        $C17_UID->uuid = $contract->uid;
-
-        $data->C17_UID = $C17_UID;
-
-
-        $C18_TRADE = new StdClass();
-        $C18_TRADE->owner_indicator_code = '1';
-        $C18_TRADE->opened_date = date('d.m.Y', strtotime($contract->inssuance_date));
-        $C18_TRADE->trade_type_code = '1';
-        $C18_TRADE->load_kind_code = '13';
-        $C18_TRADE->account_type_code = '14';
-        $C18_TRADE->is_consumer_loan = '1';
-        $C18_TRADE->has_card = '1';
-        $C18_TRADE->is_novation = '0';
-        $C18_TRADE->is_money_source = '1';
-        $C18_TRADE->is_money_borrower = '1';
-        $C18_TRADE->close_date = date('d.m.Y', strtotime($contract->return_date));
-        $C18_TRADE->lender_type_code = '2';
-        $C18_TRADE->has_obtaining_part_creditor = '0';
-        $C18_TRADE->has_credit_line = '0';
-        $C18_TRADE->is_interest_rate_float = '0';
-        $C18_TRADE->has_transfer_part_creditor = '0';
-        $C18_TRADE->commit_date = date('d.m.Y', strtotime($contract->inssuance_date));
-
-        $data->C18_TRADE = $C18_TRADE;
-
-
-        $C19_ACCOUNTAMT = new StdClass();
-        $C19_ACCOUNTAMT->credit_limit = str_replace('.', ',', sprintf("%01.2f", $contract->amount));
-        $C19_ACCOUNTAMT->currency_code = 'RUB';
-        $C19_ACCOUNTAMT->commit_currency_code = 'RUB';
-        $C19_ACCOUNTAMT->amount_date = date('d.m.Y', strtotime($contract->inssuance_date));
-        $C19_ACCOUNTAMT->commit_uuid = $contract->uid;
-
-        $data->C19_ACCOUNTAMT = $C19_ACCOUNTAMT;
-
-
-        $interest_terms_amount = ($contract->amount * $contract->base_percent / 100 * $contract->period);
-        $C21_PAYMTCONDITION = new StdClass();
-        $C21_PAYMTCONDITION->principal_terms_amount = str_replace('.', ',', sprintf("%01.2f", $contract->amount));
-        $C21_PAYMTCONDITION->principal_terms_amount_date = date('d.m.Y', strtotime($contract->return_date));
-        $C21_PAYMTCONDITION->interest_terms_amount = str_replace('.', ',', sprintf("%01.2f", $interest_terms_amount));
-        $C21_PAYMTCONDITION->interest_terms_amount_date = date('d.m.Y', strtotime($contract->return_date));
-        $C21_PAYMTCONDITION->terms_frequency_code = '3';
-        $C21_PAYMTCONDITION->interest_payment_due_date = date('d.m.Y', strtotime($contract->return_date));
-
-        $data->C21_PAYMTCONDITION = $C21_PAYMTCONDITION;
-
-
-        $C22_OVERALLVAL = new StdClass();
-        $C22_OVERALLVAL->total_credit_amount_interest = str_replace('.', ',', sprintf("%01.2f", $contract->base_percent * 365));
-        $C22_OVERALLVAL->total_credit_amount_monetary = str_replace('.', ',', sprintf("%01.2f", $interest_terms_amount));
-        $C22_OVERALLVAL->total_credit_amount_date = date('d.m.Y', strtotime($contract->inssuance_date));
-
-        $data->C22_OVERALLVAL = $C22_OVERALLVAL;
-
-
-        $C24_FUNDDATE = new StdClass();
-        $C24_FUNDDATE->funding_date = date('d.m.Y', strtotime($contract->inssuance_date));
-
-        $data->C24_FUNDDATE = $C24_FUNDDATE;
-
-
-        $C25_ARREAR = new StdClass();
-        $C25_ARREAR->has_arrear = '1';
-        $C25_ARREAR->start_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $contract->amount));
-        $C25_ARREAR->is_last_payment_due = '0';
-
-        $C25_ARREAR->amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $ret_date_body_summ + $ret_date_percents_summ + $ret_date_peni_summ));
-        $C25_ARREAR->principal_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $ret_date_body_summ));
-        $C25_ARREAR->interest_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $ret_date_percents_summ + $ret_date_peni_summ));
-        $C25_ARREAR->other_amount_outstanding = '0,00';
-        // $C25_ARREAR->calculation_date = date('d.m.Y', strtotime($ret_date));
-        // $C25_ARREAR->calculation_date = date('d.m.Y', time());
-        $C25_ARREAR->calculation_date = date('d.m.Y', strtotime($new_ret_date));
-
-        $data->C25_ARREAR = $C25_ARREAR;
-        
-
-        $C26_DUEARREAR = new StdClass();
-        // $C26_DUEARREAR->start_date = date('d.m.Y', strtotime($contract->inssuance_date));
-        // $C26_DUEARREAR->is_last_payment_due = '0';
-        $C26_DUEARREAR->amount_outstanding = '0,00';
-        // $C26_DUEARREAR->principal_amount_outstanding = '0,00';
-        // $C26_DUEARREAR->interest_amount_outstanding = '0,00';
-        // $C26_DUEARREAR->other_amount_outstanding = '0,00';
-        // $C26_DUEARREAR->calculation_date = date('d.m.Y', strtotime($ret_date));
-
-        $data->C26_DUEARREAR = $C26_DUEARREAR;
-
-        $C27_PASTDUEARREAR = new StdClass();
-        // $C27_PASTDUEARREAR->past_due_date = date('d.m.Y', strtotime($ret_date));
-        $C27_PASTDUEARREAR->past_due_date = date('d.m.Y', strtotime($contract->return_date));
-        $C27_PASTDUEARREAR->is_last_payment_due = "0";
-        $C27_PASTDUEARREAR->amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $ret_date_body_summ + $ret_date_percents_summ + $ret_date_peni_summ));
-        $C27_PASTDUEARREAR->principal_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $ret_date_body_summ));
-        $C27_PASTDUEARREAR->interest_amount_outstanding = str_replace('.', ',', sprintf("%01.2f", $ret_date_percents_summ + $ret_date_peni_summ));
-        $C27_PASTDUEARREAR->other_amount_outstanding = '0,00';
-        // $C27_PASTDUEARREAR->calculation_date = date('d.m.Y', strtotime($ret_date));
-        // $C27_PASTDUEARREAR->calculation_date = date('d.m.Y', time());
-        $C27_PASTDUEARREAR->calculation_date = date('d.m.Y', strtotime($new_ret_date));
-        $C27_PASTDUEARREAR->principal_missed_date = date('d.m.Y', strtotime($contract->return_date));
-        $C27_PASTDUEARREAR->interest_missed_date = date('d.m.Y', strtotime($contract->return_date));
-
-        $data->C27_PASTDUEARREAR = $C27_PASTDUEARREAR;
-
-        
-        $last_payment_operation = $this->last_payment_data($order);
-
-        $C28_PAYMT = new StdClass();
-
-        if (!$last_payment_operation) {
-            $C28_PAYMT->payment_amount = '0,00';
-            $C28_PAYMT->amount_keep_code = '3';
-            $C28_PAYMT->terms_due_code = '3';
-            $C28_PAYMT->days_past_due = $days_past_due;
-        }
-        else{
-
-            $last_payment_transaction = $this->transactions->get_transaction($last_payment_operation->transaction_id);
-
-            $C28_PAYMT->payment_date = date('d.m.Y', strtotime($last_payment_operation->created));
-            $C28_PAYMT->payment_amount = str_replace('.', ',', sprintf("%01.2f", $last_payment_operation->amount));
-            $C28_PAYMT->principal_payment_amount = str_replace('.', ',', sprintf("%01.2f", $last_payment_transaction->loan_body_summ));
-            $C28_PAYMT->interest_payment_amount = str_replace('.', ',', sprintf("%01.2f",  $last_payment_transaction->loan_percents_summ + $last_payment_transaction->loan_peni_summ));
-            $C28_PAYMT->other_payment_amount = "0,00";
-            $C28_PAYMT->total_amount = str_replace('.', ',', sprintf("%01.2f", $last_payment_operation->total_amount));
-            $C28_PAYMT->principal_total_amount = str_replace('.', ',', sprintf("%01.2f", $last_payment_operation->principal_total_amount));
-            $C28_PAYMT->interest_total_amount = str_replace('.', ',', sprintf("%01.2f", $last_payment_operation->interest_total_amount));
-            $C28_PAYMT->other_total_amount = "0,00";
-            $C28_PAYMT->amount_keep_code = '3';
-            $C28_PAYMT->terms_due_code = '3';
-            $C28_PAYMT->days_past_due = $days_past_due;
-        }
-
-
-
-        $data->C28_PAYMT = $C28_PAYMT;
-
-
-        $C29_MONTHAVERPAYMT = new StdClass();
-        $C29_MONTHAVERPAYMT->average_payment_amount = round($ret_date_body_summ + $ret_date_percents_summ + $ret_date_peni_summ);
-        $C29_MONTHAVERPAYMT->calculation_date = date('d.m.Y', strtotime($ret_date));
-
-        $data->C29_MONTHAVERPAYMT = $C29_MONTHAVERPAYMT;
-        
-
-        $C54_OBLIGACCOUNT = new StdClass();
-        $C54_OBLIGACCOUNT->has_obligation = 1;
-        $C54_OBLIGACCOUNT->interest_rate = str_replace('.', ',', sprintf("%01.2f", $contract->base_percent * 365));
-        $C54_OBLIGACCOUNT->has_preferential_financing = '0';
-
-        $data->C54_OBLIGACCOUNT = $C54_OBLIGACCOUNT;
-
-
-        $C56_OBLIGPARTTAKE = new StdClass();
-        $C56_OBLIGPARTTAKE->flag_indicator_code = '1';
-        $C56_OBLIGPARTTAKE->approved_loan_type_code = '13';
-        $C56_OBLIGPARTTAKE->agreement_number = $contract->uid;
-        $C56_OBLIGPARTTAKE->funding_date = date('d.m.Y', strtotime($contract->inssuance_date));
-        $C56_OBLIGPARTTAKE->default_flag = $days_past_due > 90 ? '1' : '0';
-        $C56_OBLIGPARTTAKE->loan_indicator = 0;
-
-        $data->C56_OBLIGPARTTAKE = $C56_OBLIGPARTTAKE;
 
         return $data;
     }
 
     private function send($data, $url = 'v1/report/test/')
     {
-        $url = 'http://185.182.111.110:9009/api/' . $url;
+        // $url = 'http://185.182.111.110:9009/api/' . $url;
+        $url = 'http://185.182.111.110:9010/api/' . $url;
 
         $curl = curl_init();
 
@@ -1604,7 +2701,7 @@ class Nbki_report extends Core
         curl_setopt($curl, CURLOPT_HTTPHEADER, ["Content-Type: application/json"]);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_POST, true);
-        curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($data));
+        curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($data, JSON_UNESCAPED_UNICODE));
 
         $json_res = curl_exec($curl);
         $error = curl_error($curl);
@@ -1614,7 +2711,7 @@ class Nbki_report extends Core
         $res = json_decode($json_res);
 
         $this->soap1c->logging(__METHOD__, $url, $data, $res, 'nbki.txt');
-//echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($data, $error);echo '</pre><hr />';
+        //echo __FILE__.' '.__LINE__.'<br /><pre>';var_dump($data, $error);echo '</pre><hr />';
         return $res;
     }
 
@@ -1737,6 +2834,14 @@ class Nbki_report extends Core
 
         $string = str_replace(array_keys($replace), array_values($replace), $string);
         $string = trim($string);
+
+        return $string;
+    }
+
+    public function uppercase($string)
+    {
+        $string = $this->clearing($string);
+        $string = mb_strtoupper($string);
 
         return $string;
     }
