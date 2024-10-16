@@ -5,7 +5,7 @@ ini_set('default_socket_timeout', '300');
 
 class Onec implements ApiInterface
 {
-    protected static $link = "http://79.137.210.6/corp_ruszaymserv/ws/";
+    protected static $link = "https://1c.redlab.su/corp_ruszaymserv/ws/";
     protected static $login = 'admin';
     protected static $password = '2020';
     protected static $orderId;

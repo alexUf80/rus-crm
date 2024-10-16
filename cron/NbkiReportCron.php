@@ -171,7 +171,7 @@ class NbkiReportCron extends Core
             
             $this->nbki_report->add_report([
                 'name' => date('d.m.Y', strtotime($date_from)).' - '.date('d.m.Y', strtotime($date_to)),
-                'filename' => $report->filename,
+                'filename' => $report->filename.'.xml',
                 'created' => date('Y-m-d H:i:s'),
                 'date_from' => date('Y-m-d', strtotime($date_from)),
                 'date_to' => date('Y-m-d', strtotime($date_to)),
@@ -183,12 +183,13 @@ class NbkiReportCron extends Core
 
     public function save_report($report)
     {
-        $this->filename = $this->config->root_dir.'files/nbki/'.$report->filename;
+        $this->filename = $this->config->root_dir.'files/nbki/'.$report->filename.'.xml';
         
         $fp = fopen($this->filename, 'w+');
         flock($fp, LOCK_EX);
     
-        fwrite($fp, iconv('utf8', 'cp1251', $report->data));
+        // fwrite($fp, iconv('utf8', 'cp1251', $report->data));
+        fwrite($fp, $report->data);
         flock($fp, LOCK_UN);
     }
 }
